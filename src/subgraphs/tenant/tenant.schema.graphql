@@ -1,0 +1,29 @@
+
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key"])
+
+type Tenant @key(fields: "id") {
+  id: ID!
+  name: String!
+  slug: String!
+  createdAt: String
+  updatedAt: String
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  tenants: [Tenant!]!
+}
+
+input CreateTenantInput {
+  name: String!
+  slug: String!
+}
+
+type Query {
+  getTenant(id: ID!): Tenant
+  getTenants: [Tenant!]!
+}
+
+type Mutation {
+  createTenant(input: CreateTenantInput!): Tenant!
+}

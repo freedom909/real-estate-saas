@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  gateway:
+    build: ../../gateway
+    ports:
+      - "4000:4000"

@@ -1,0 +1,113 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@shareable"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+
+"""
+User subgraph 是 User 的唯一 owner
+"""
+type User @key(fields: "id") {
+  id: ID!
+  profile: Profile
+  status: AccountStatus!
+  tokenVersion: Int!
+  createdAt: DateTime!
+  memberships: [Membership!]!
+}
+type Tenant @key(fields: "id") {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+}
+
+type Membership @key(fields: "id") {
+  id: ID!
+  user: User!
+  tenant: Tenant!
+  role: Role!
+  approvalStatus: ApprovalStatus!
+  createdAt: DateTime!
+}
+
+type Profile @shareable {
+  name: String
+  avatar: String
+  email: String
+}
+
+enum Role {
+  ADMIN
+  AGENT
+  OWNER
+  CUSTOMER
+}
+
+enum AccountStatus {
+  ACTIVE
+  BANNED
+  SUSPENDED
+  DELETED
+}
+
+enum ApprovalStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+type Query {
+  userByEmail(email: String): User
+  user(id: ID!): User
+}
+
+type Mutation {
+  createOAuthUser(input: CreateOAuthUserInput!): User!
+  deactivateUser(userId: ID!): Boolean!
+    createTenant(name: String!): Tenant!
+ updateLastLogin(userId: ID!): Boolean!
+
+  addUserToTenant(
+    tenantId: ID!
+    userId: ID!
+    role: Role!
+  ): Membership!
+
+  removeUserFromTenant(
+    tenantId: ID!
+    userId: ID!
+  ): Boolean!
+
+  updateMembershipRole(
+    tenantId: ID!
+    userId: ID!
+    role: Role!
+  ): Membership!
+}
+
+input CreateOAuthUserInput {
+  email: String
+  profile: ProfileInput
+  provider:OAuthProvider!
+}
+
+enum OAuthProvider {
+  GOOGLE
+  APPLE
+  GITHUB
+  FACEBOOK
+  LINE
+}
+
+input ProfileInput {
+  email: String
+  name: String
+  avatar: String 
+}
+

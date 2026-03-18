@@ -1,0 +1,18 @@
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key"])
+
+type AuditLog @key(fields: "id") {
+  id: ID!
+  action: String!
+  userId: ID!
+  resourceId: ID!
+  timestamp: String!
+}
+
+type Mutation {
+  createAuditLog(action: String!, userId: ID!, resourceId: ID!): AuditLog!
+}
+
+type Query {
+  getAuditLog(id: ID!): AuditLog
+  getAuditLogsByResource(resourceId: ID!): [AuditLog!]!
+}

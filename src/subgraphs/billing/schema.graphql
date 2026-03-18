@@ -1,0 +1,63 @@
+schema
+ @link(
+   url: "https://specs.apollo.dev/federation/v2.11"
+   import: ["@key", "@external"]
+ ) {
+ query: Query
+ mutation: Mutation
+}
+
+scalar DateTime
+
+type Tenant @key(fields: "id") {
+ id: ID! @external
+}
+
+type Subscription @key(fields: "id") {
+
+ id: ID!
+
+ tenant: Tenant!
+
+ plan: Plan!
+
+ status: SubscriptionStatus!
+
+ createdAt: DateTime!
+}
+
+type Plan {
+
+ id: ID!
+
+ name: String!
+
+ price: Float!
+
+ userLimit: Int!
+}
+
+enum SubscriptionStatus {
+ ACTIVE
+ TRIAL
+ CANCELED
+}
+
+type Query {
+
+ subscription(
+   tenantId: ID!
+ ): Subscription
+}
+
+type Mutation {
+
+ createSubscription(
+   tenantId: ID!
+   planId: ID!
+ ): Subscription!
+
+ cancelSubscription(
+   subscriptionId: ID!
+ ): Boolean!
+}

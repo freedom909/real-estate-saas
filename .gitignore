@@ -1,0 +1,26 @@
+node_modules
+dist
+.vscode
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.template
+.serverless
+# .eslintignore
+pagefile.sys
+swapfile.sys
+System Volume Information/
+DumpStack.log.tmp
+
+# 日志文件
+*.log
+
+# 临时文件和备份文件
+*.tmp
+*.bak
+
+# 私钥、证书和敏感密钥文件
+**/keys/
+*.pem
+*.key

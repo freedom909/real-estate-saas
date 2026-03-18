@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "ESNext",
+    "isolatedModules": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node",
+    "strict": false,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "skipLibCheck": true,
+    "baseUrl": ".",
+     "types": ["node"],
+    "paths": {
+      "@/*": ["src/*"],
+      "@subgraphs/*": ["src/subgraphs/*"],
+      "@infrastructure/*": ["src/infrastructure/*"]
+    }
+  },
+  "include": ["src", "__tests__", "src/security/**/*.ts"]
+}
