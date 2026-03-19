@@ -4,10 +4,10 @@ import { Session, SessionDocument } from "../models/session.model";
 
 export interface CreateSessionInput {
   userId: string
-  deviceId: string
+  deviceId?: string
   familyId: string
   refreshTokenId: string
-  ipHash: string
+  ipHash?: string
   userAgentHash?: string
   expiresAt?: Date
 }
@@ -83,5 +83,24 @@ async revokeById(sessionId: string) {
       },
     }
   );
+}
+
+async updateLastSeen(sessionId: string) {
+  return this.SessionModel.updateOne(
+    { _id: sessionId },
+    {
+      $set: {
+        lastSeenAt: new Date(),
+      },
+    }
+  );
+}
+  
+async update(sessionId: string, data: Partial<Session>) {
+  return this.SessionModel.findByIdAndUpdate(sessionId, data, { new: true });
+}
+
+async deleteMany(filter: Partial<Session>) {
+  return this.SessionModel.deleteMany(filter);
 }
 }

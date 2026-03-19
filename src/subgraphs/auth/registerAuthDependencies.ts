@@ -20,6 +20,8 @@ import CredentialRepo from "./repos/credential.repo";
 import RefreshTokenRepository from "./repos/refresh-token.repo";
 import { RiskEventRepo } from "./repos/riskEvent.repo";
 import SessionRepository from "./repos/session.repo";
+import SessionService from "./services/session.service";
+
 
 // services
 import LoginRiskService from "./services/risk/login.risk.service";
@@ -116,11 +118,7 @@ export default function registerAuthDependencies(
     useFactory: () => new UserClient(),
   });
 
-  // ======================================================
-  // OAUTH ADAPTERS
-  // ======================================================
 
-  // registry
 
 // ======================================================
 // OAUTH ADAPTERS
@@ -170,11 +168,7 @@ registry.debug(); // 👉 看是否注册成功
   container.register(TOKENS_AUTH.services.tokenService, {
     useFactory: (c) =>
       new TokenService(
-        redis,
-        c.resolve(TOKENS.security.blacklist),
-        c.resolve(TOKENS_USER.userClient),
-        c.resolve(TOKENS_AUTH.services.loginRiskService),      
-        process.env.JWT_PRIVATE_KEY!
+        c.resolve(TOKENS.security.blacklist)
       ),
   });
 
@@ -192,13 +186,19 @@ registry.debug(); // 👉 看是否注册成功
   container.register(TOKENS_AUTH.services.oauthloginService, {
     useFactory: (c) =>
       new OAuthLoginService(
+        c.resolve(TOKENS_AUTH.adapters.oauthAdapterRegistry),
         c.resolve(TOKENS_USER.userClient),
         c.resolve(TOKENS_AUTH.services.tokenService),
-        c.resolve(TOKENS_AUTH.repos.refreshTokenRepo),
-      
+        c.resolve(TOKENS_AUTH.services.sessionService),
         c.resolve(TOKENS_AUTH.services.loginRiskService),
-        c.resolve(TOKENS_AUTH.repos.sessionRepo), 
-        c.resolve(TOKENS_AUTH.adapters.oauthAdapterRegistry),     
+      
       ),
   });
+
+  container.register(TOKENS_AUTH.services.sessionService, {
+    useFactory: (c) =>
+      new SessionService(
+        c.resolve(TOKENS_AUTH.repos.sessionRepo)
+      ),
+  }); 
 }

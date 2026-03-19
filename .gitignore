@@ -1,26 +1,63 @@
-node_modules
-dist
-.vscode
-.DS_Store
+# =====================
+# Node
+# =====================
+node_modules/
+dist/
+*.tsbuildinfo
+
+# =====================
+# Env
+# =====================
 .env
 .env.*
 !.env.example
 !.env.template
-.serverless
-# .eslintignore
+
+# =====================
+# OS / Editor
+# =====================
+.vscode/
+.DS_Store
+Thumbs.db
+
+# =====================
+# Logs
+# =====================
+*.log
+
+# =====================
+# Temp
+# =====================
+*.tmp
+*.bak
+
+# =====================
+# Security (VERY IMPORTANT)
+# =====================
+keys/
+**/keys/*
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+
+# =====================
+# Redis
+# =====================
+dump.rdb
+appendonly.aof
+
+# =====================
+# System
+# =====================
 pagefile.sys
 swapfile.sys
 System Volume Information/
 DumpStack.log.tmp
 
-# 日志文件
-*.log
-
-# 临时文件和备份文件
-*.tmp
-*.bak
-
-# 私钥、证书和敏感密钥文件
-**/keys/
-*.pem
-*.key
+# =====================
+# Frontend (if exists)
+# =====================
+.next/
+out/

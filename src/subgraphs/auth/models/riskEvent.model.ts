@@ -32,6 +32,9 @@ export interface RiskEventModel {
 
   updatedAt: Date
 
+  severity: "LOW" | "MEDIUM" | "HIGH"
+
+
 }
 
 

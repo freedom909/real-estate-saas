@@ -21,6 +21,7 @@ import AuthService from "./services/auth.service.js";
 import { OAuthProvider } from "./adapters/normalized.oauth.profile.js";
 
 
+
 interface User {
   userId: string;
   [key: string]: any;
@@ -114,16 +115,17 @@ export default {
 
   Mutation: {
    
-        oauthLogin: async (
+    oauthLogin: async (
       _: any,
       { provider, idToken }: { provider: string; idToken: string },
       { req }: Context
     ) => {
-  
+
       try {
       const loginService = container.resolve<OAuthLoginService>(TOKENS_AUTH.services.oauthloginService);
       const normalizedProvider = provider.toLowerCase() as OAuthProvider;
-      return loginService.oauthLogin(normalizedProvider as OAuthProvider, idToken, req);
+      return loginService.oauthLogin(normalizedProvider as OAuthProvider, idToken, req
+       );
     }catch (err) {
     console.error("❌ resolve error:", err);
     throw err;
@@ -162,20 +164,20 @@ refreshToken: async (_: unknown, { refreshToken }: { refreshToken: string }, ctx
       );
     },
 
-    unbindOAuth: async (_: unknown, { provider }:{provider: string}, {  req, user }: Context & { provider: string }) => {
-      if (!user) throw new Error("Unauthorized");
+    // unbindOAuth: async (_: unknown, { provider }:{provider: string}, {  req, user }: Context & { provider: string }) => {
+    //   if (!user) throw new Error("Unauthorized");
 
-      const authService = container.resolve<AuthService>(TOKENS_AUTH.services.authService);
+    //   const authService = container.resolve<AuthService>(TOKENS_AUTH.services.authService);
 
-      return authService.unbindOAuthAccount(
-        user.userId,
-        provider,
-        {
-          ip: req.ip as string,
-          deviceId: req.headers["x-device-id"] as string,
-        }
-      );
-    },
+    //   return authService.unbindOAuthAccount(
+    //     user.userId,
+    //     provider,
+    //     {
+    //       ip: req.ip as string,
+    //       deviceId?: req.headers["x-device-id"]??undefined,
+    //     }
+    //   );
+    // },
 
   unbindOAuthAccount: async (_: unknown, { provider }: { provider: string }, {  req, user}: Context) => {
   if (!user) {
@@ -196,8 +198,10 @@ const userService=container.resolve<AuthService>(TOKENS_AUTH.services.authServic
       if (!ctx.user) {
         throw new Error("Unauthorized");
       }
-      const toknService = container.resolve<TokenService>(TOKENS_AUTH.services.tokenService);
-      return toknService.logout(ctx.user.userId);
+      const refreshTokenService = container.resolve<RefreshTokenService>(TOKENS_AUTH.services.refreshTokenService);
+      await refreshTokenService.revokeAll(ctx.user.userId);
+      
+      return true;
     },
 
 

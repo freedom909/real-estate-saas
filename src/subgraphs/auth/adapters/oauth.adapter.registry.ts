@@ -5,8 +5,7 @@ import { OAuthProvider } from "./oauth/oauth.provider";
 @injectable()
 
 class OAuthAdapterRegistry {
-  
-    
+     
   private adapters = new Map<OAuthProvider, OAuthAdapter>();
  
   register(provider: OAuthProvider, adapter: OAuthAdapter) {
@@ -14,7 +13,7 @@ class OAuthAdapterRegistry {
   }
  
   get(provider: OAuthProvider) : OAuthAdapter {
-    console.log("available adapters:", this.adapters); // 👈 加这个
+    console.log("available adapters++:", this.adapters); // 👈 加这个
     const adapter = this.adapters.get(provider);
 
     if (!adapter) {

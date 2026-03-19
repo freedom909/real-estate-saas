@@ -35,6 +35,7 @@
       tokenService: Symbol.for("auth.services.tokenService"),
       refreshTokenService: Symbol.for("auth.services.refreshTokenService"),
       oauthService: Symbol.for("auth.services.oauthService"),
+      sessionService: Symbol.for("auth.services.sessionService"),
       
       loginRiskService: Symbol.for("auth.services.loginRiskService"),
       mergeAccountService: Symbol.for("auth.services.mergeAccountService"),

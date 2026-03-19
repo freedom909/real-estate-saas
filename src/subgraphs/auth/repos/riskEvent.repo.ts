@@ -1,7 +1,5 @@
 import { injectable, inject } from "tsyringe"
 import mongoose, { Model } from "mongoose"
-
-
 import  {  RiskEventModel } from "../models/riskEvent.model"
 
 import RiskEventEntity from "../domain/risk.event"
@@ -27,7 +25,7 @@ export class RiskEventRepo {
 
       userAgent: hash(data.userAgent as string),
 
-      deviceId: data.deviceId
+      deviceId: data.deviceId,
 
     })
 
