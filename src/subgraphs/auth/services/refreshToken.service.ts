@@ -58,6 +58,7 @@ export default class RefreshTokenService {
       familyId,
       sessionId,
       jti,
+     
     } = payload;
 
     if (!userId || !familyId || !sessionId || !jti) {
@@ -83,15 +84,13 @@ export default class RefreshTokenService {
 
     // 2 发行新 token
     const pair = await this.tokenService.issueTokenPair({
-      userId, //型 'string | undefined' を型 'string' に割り当てることはできません。
+      userId, 
       familyId,
       sessionId,
-      deviceId: ctx.deviceId ,
-      ip: ctx.ip ? hash(ctx.ip) : undefined,
-      userAgent: ctx.userAgent ? hash(ctx.userAgent) : undefined,
+      deviceId: ctx.deviceId 
     });
     // 3️⃣ 保存 refresh token
-    await this.refreshTokenRepository.save(refreshToken,{ 
+    await this.refreshTokenRepository.save(pair.refreshToken,{ 
       userId,
       familyId,
       sessionId,
@@ -117,14 +116,14 @@ export default class RefreshTokenService {
     if (!payload.jti || !payload.sub || !payload.familyId || !payload.sessionId) {
       throw new Error("Invalid token payload");
     }
-
-    const token = await this.refreshTokenRepository.findByJti(payload.jti)
-    console.log("token++",token)
-    if (!token) {
-      throw new Error("Refresh token not found")
+   const sessionId=payload.sessionId
+   console.log("sessionId++",sessionId)
+    const session = await this.sessionRepo.findBySessionId(sessionId);
+    if (!session) {
+      throw new Error("session was not found")
     }
 
-    if (token.status === "used") {
+    if (session.status === "REVOKED") {//
 
       // reuse attack
       await this.refreshTokenRepository.revokeFamily(payload.familyId)
@@ -132,9 +131,6 @@ export default class RefreshTokenService {
       throw new Error("Refresh token reuse detected")
     }
 
-    if (token.status === "revoked") {
-      throw new Error("Token revoked")
-    }
 
     await this.refreshTokenRepository.markAsUsed(payload.jti,new Date())
 
@@ -159,14 +155,12 @@ export default class RefreshTokenService {
         status: "active",
       },
     )
-
     // await this.sessionRepo.updateLastSeen(payload.sessionId)
 
     return {
       ...tokens,
     }
   }
-
 
   async revokeAll(userId: string) {
     await this.refreshTokenRepository.revokeAllByUser(userId);

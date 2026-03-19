@@ -103,4 +103,8 @@ async update(sessionId: string, data: Partial<Session>) {
 async deleteMany(filter: Partial<Session>) {
   return this.SessionModel.deleteMany(filter);
 }
+
+async findBySessionId(sessionId: string) {
+  return await this.SessionModel.findOne({ _id: sessionId });
+}
 }

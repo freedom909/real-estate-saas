@@ -70,9 +70,7 @@ async save(
   });
 }
 
-  async findByJti(jti: string): Promise<RefreshTokenDocument | null> {
-    return this.model.findOne({ tokenId: jti });
-  }
+
 
 async deleteByJti(jti: string): Promise<void> {
   await this.model.deleteOne({ tokenId: jti });

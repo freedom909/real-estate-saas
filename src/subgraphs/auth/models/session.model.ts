@@ -12,6 +12,7 @@ export interface Session {
   revokedAt?: Date
   lastSeenAt?: Date
   expiresAt?: Date
+  status?: "ACTIVE" | "REVOKED"
 }
 
 const sessionSchema = new Schema<Session>(
@@ -26,6 +27,7 @@ const sessionSchema = new Schema<Session>(
     revokedAt: Date,
     lastSeenAt: Date,
     expiresAt: Date,
+    status: { type: String, default: "ACTIVE" }
   },
   { timestamps: true }
 )
