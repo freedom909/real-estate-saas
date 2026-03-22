@@ -52,13 +52,11 @@ export default class UserClient implements IUserClient {
 
     const url =
       endpoint ||
-      process.env.USER_SUBGRAPH_URL ||
-      "http://localhost:4020/graphql"
+      process.env.USER_SUBGRAPH_URL ||"http://localhost:4020/graphql"
   console.log("USER_SUBGRAPH_URL =", process.env.USER_SUBGRAPH_URL);
   console.log("GraphQL endpoint used =", url);
     this.client = new GraphQLClient(url)
-
-    console.log("UserClient connected to:", url)
+ console.log("UserClient connected to:", url)
   }
 
   /* =========================
@@ -79,6 +77,7 @@ export default class UserClient implements IUserClient {
 
 
   async findById(id: string): Promise<User | null> {
+    console.log("id+",id)
 
     if (!id) return null
 
@@ -94,7 +93,7 @@ export default class UserClient implements IUserClient {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-   console.log("findByEmail", email)
+   console.log("findByEmail+++++", email)
     if (!email) return null
 
     try {
@@ -103,7 +102,7 @@ export default class UserClient implements IUserClient {
         FIND_USER_BY_EMAIL,
         { email }
       )
-     console.log("findByEmail+++", res)
+    
      console.log("res++", res?.userByEmail)
       return res?.userByEmail ?? null
 
@@ -122,8 +121,6 @@ export default class UserClient implements IUserClient {
   ========================= */
 
 async createOAuthUser(input: CreateOAuthUserInput) {
-
-
   try {
 console.log("createOAuthUser input:", input);
     const res: any = await this.client.request(

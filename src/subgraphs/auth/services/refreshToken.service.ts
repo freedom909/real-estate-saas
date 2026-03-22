@@ -3,7 +3,7 @@
 
 import { TokenService } from "./token.service";
 import { RefreshToken } from "../models/refreshToken.model";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import SessionRepository from "../repos/session.repo";
 import UserClient from "../adapters/user.client";
 import { hash } from "../../../infrastructure/utils/hash";
@@ -21,7 +21,7 @@ interface RefreshTokenRepo {
 export interface User {
   id: string
   email: string
- 
+
 }
 
 interface UserRepo {
@@ -40,129 +40,56 @@ interface RefreshContext {
 
 @injectable()
 export default class RefreshTokenService {
-  
   constructor(
-  private tokenService: TokenService,
-  private refreshTokenRepository: RefreshTokenRepo,
-  
-  private riskService: LoginRiskService,
-  private sessionRepo: SessionRepository,
-  private userClient: UserClient
+    @inject("TokenService")
+    private tokenService: TokenService,
+    @inject("RefreshTokenRepo")
+    private refreshTokenRepo: RefreshTokenRepo,
+    @inject("SessionRepository")
+    private sessionRepo: SessionRepository,
+    @inject("LoginRiskService")
+    private riskService: LoginRiskService
   ) {}
 
-  async rotate(refreshToken: string, ctx: RefreshContext) {
-    const payload = await this.tokenService.verifyRefreshToken(refreshToken);
+async revokeAll(userId: string) {
+  await this.refreshTokenRepo.revokeAllByUser(userId);
+}
 
-    const {
-      sub: userId,
-      familyId,
+ async refresh(refreshToken: string, ctx: RefreshContext={}) {
+  // 1. verify
+  const payload = await this.tokenService.verifyRefreshToken(refreshToken);
+  const { sub, jti, sessionId, familyId } = payload;
+
+  // 2. consume（原子）
+  const consumed = await this.refreshTokenRepo.consume(jti);
+
+  if (!consumed) {
+    // 🚨 reuse attack
+    await this.refreshTokenRepo.revokeFamily(familyId);
+
+    await this.riskService.handleRefreshTokenReuse({
+      userId: sub,
       sessionId,
-      jti,
-     
-    } = payload;
-
-    if (!userId || !familyId || !sessionId || !jti) {
-      throw new Error("Invalid token payload");
-    }
-
-    // 1 原子消费
-    const consumed = await this.refreshTokenRepository.consume(jti);
-
-    if (!consumed) {
-      // 🚨 reuse detected
-      await this.refreshTokenRepository.revokeBySession(sessionId as string);
-
-      await this.riskService.handleRefreshTokenReuse({
-        userId,
-        familyId,
-        sessionId,
-        ...ctx,
-      });
-
-      throw new Error("Refresh token reuse detected");
-    }
-
-    // 2 发行新 token
-    const pair = await this.tokenService.issueTokenPair({
-      userId, 
       familyId,
-      sessionId,
-      deviceId: ctx.deviceId 
+      reusedJti: jti
     });
-    // 3️⃣ 保存 refresh token
-    await this.refreshTokenRepository.save(pair.refreshToken,{ 
-      userId,
-      familyId,
-      sessionId,
-      issuedAt: new Date(),
-      expiresAt: pair.refreshExpiresAt,
-      jti: pair.refreshJti,
-      rotatedFrom: jti,
-      tokenHash: hash(refreshToken),
-      status: "active",
+
+    throw new Error("Refresh token reuse detected");
+  }
+  const deviceId= ctx.deviceId??null;
+
+  
+  // 3. issue new token（新节点）
+  const pair = await this.tokenService.issueAndPersistTokenPair({
+    userId: sub,
+    sessionId,
+    familyId,
+    deviceId,
+
+    // 👇 关键
+    rotatedFrom: jti
   });
 
-    return {
-      accessToken: pair.accessToken,
-      refreshToken: pair.refreshToken,
-    };
-  }
-
-  async refresh(refreshToken: string,userClient: UserClient) {
- console.log("refreshToken++",refreshToken)
-    const payload = await this.tokenService.verifyRefreshToken(refreshToken)
-    console.log("payload++",payload)
-
-    if (!payload.jti || !payload.sub || !payload.familyId || !payload.sessionId) {
-      throw new Error("Invalid token payload");
-    }
-   const sessionId=payload.sessionId
-   console.log("sessionId++",sessionId)
-    const session = await this.sessionRepo.findBySessionId(sessionId);
-    if (!session) {
-      throw new Error("session was not found")
-    }
-
-    if (session.status === "REVOKED") {//
-
-      // reuse attack
-      await this.refreshTokenRepository.revokeFamily(payload.familyId)
-
-      throw new Error("Refresh token reuse detected")
-    }
-
-
-    await this.refreshTokenRepository.markAsUsed(payload.jti,new Date())
-
-    const tokens = await this.tokenService.issueTokenPair({
-      userId: payload.sub,
-      sessionId: payload.sessionId,
-      familyId: payload.familyId,
-      deviceId: payload.deviceId ?? undefined,
-    })
-   console.log("tokens++",tokens)
-    await this.refreshTokenRepository.save(
-      tokens.refreshToken,
-      {
-        userId: payload.sub,
-        sessionId: payload.sessionId,
-        familyId: payload.familyId,
-        jti: tokens.refreshJti,
-        expiresAt: tokens.refreshExpiresAt,
-        issuedAt: new Date(),
-        rotatedFrom: payload.jti,
-        tokenHash: hash(tokens.refreshToken),
-        status: "active",
-      },
-    )
-    // await this.sessionRepo.updateLastSeen(payload.sessionId)
-
-    return {
-      ...tokens,
-    }
-  }
-
-  async revokeAll(userId: string) {
-    await this.refreshTokenRepository.revokeAllByUser(userId);
-  }
+  return pair;
+}
 }

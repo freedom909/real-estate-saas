@@ -32,7 +32,10 @@ class UserService {
   }
 
   async userByEmail(email: string): Promise<User | null> {
+    console.log("email++",email)
      const user = await this.userRepository.userByEmail(email);
+     if(!user) return null
+     
     console.log(JSON.stringify(user, null, 2))
     return {
   id: user._id.toString(),

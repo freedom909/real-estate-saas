@@ -26,7 +26,7 @@ console.log("OAuth container loaded")//good
 
 // ⭐ Mongo
 await mongoose.connect(
-  process.env.MONGO_URI || "mongodb://localhost:27017/water"
+  process.env.MONGO_URI || "mongodb://localhost:27017/winter"
 )
 
 // ⭐ schema

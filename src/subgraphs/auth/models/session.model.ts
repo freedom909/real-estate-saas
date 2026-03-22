@@ -16,7 +16,8 @@ export interface Session {
 }
 
 const sessionSchema = new Schema<Session>(
-  { id: String,
+  {
+     id: String,
     userId: String,
     familyId: String,
     deviceId: String,

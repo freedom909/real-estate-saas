@@ -5,7 +5,7 @@ console.log(typeof IdentityModel);
 
 import { setAuthCookies } from "../../infrastructure/auth/setAuthCookies.js";
 import type { Request, Response } from "express";
-import type {OAuthAdapter} from "./adapters/oauth/oauth.adapter.js";
+import type { OAuthAdapter } from "./adapters/oauth/oauth.adapter.js";
 
 import { container } from "tsyringe";
 import RefreshTokenService from "./services/refreshToken.service";
@@ -82,20 +82,20 @@ export default {
         };
       },
       subgraphAuthGuard
-    ), 
-   
-   listOAuthAccounts:async (_: unknown, __: unknown, ctx: Context) => {
-    if (!ctx.user) throw new Error("Unauthorized");
-    const authService=container.resolve<AuthService>(TOKENS_AUTH.services.authService);
-    return authService.listOAuthAccounts(ctx.user.userId);   
-   },
-   
+    ),
+
+    listOAuthAccounts: async (_: unknown, __: unknown, ctx: Context) => {
+      if (!ctx.user) throw new Error("Unauthorized");
+      const authService = container.resolve<AuthService>(TOKENS_AUTH.services.authService);
+      return authService.listOAuthAccounts(ctx.user.userId);
+    },
+
 
     mySessions: withAuth(
       async (_: unknown, __: unknown, { container, user }: Context) => {
         if (!user) throw new ForbiddenError("Unauthorized");
 
-        const authService = container.resolve<AuthService>(TOKENS_AUTH.services.authService) ;
+        const authService = container.resolve<AuthService>(TOKENS_AUTH.services.authService);
 
         return authService.getMySessions(user.userId);
       },
@@ -114,7 +114,7 @@ export default {
   },
 
   Mutation: {
-   
+
     oauthLogin: async (
       _: any,
       { provider, idToken }: { provider: string; idToken: string },
@@ -122,22 +122,22 @@ export default {
     ) => {
 
       try {
-      const loginService = container.resolve<OAuthLoginService>(TOKENS_AUTH.services.oauthloginService);
-      const normalizedProvider = provider.toLowerCase() as OAuthProvider;
-      return loginService.oauthLogin(normalizedProvider as OAuthProvider, idToken, req
-       );
-    }catch (err) {
-    console.error("❌ resolve error:", err);
-    throw err;
-  }
+        const loginService = container.resolve<OAuthLoginService>(TOKENS_AUTH.services.oauthloginService);
+        const normalizedProvider = provider.toLowerCase() as OAuthProvider;
+        return loginService.oauthLogin(normalizedProvider as OAuthProvider, idToken, req
+        );
+      } catch (err) {
+        console.error("❌ resolve error:", err);
+        throw err;
+      }
     },
 
 
-refreshToken: async (_: unknown, { refreshToken }: { refreshToken: string }, ctx: Context) => {
-
-  const refreshTokenService = container.resolve<RefreshTokenService>(TOKENS_AUTH.services.refreshTokenService)
-    return refreshTokenService.refresh(refreshToken,ctx.userClient) 
-},
+    refreshToken: async (_: unknown, { refreshToken }: { refreshToken: string }, ctx: Context) => {
+      const refreshTokenService = container.resolve<RefreshTokenService>(TOKENS_AUTH.services.refreshTokenService)
+      
+      return refreshTokenService.refresh(refreshToken, ctx.userClient)
+    },
 
     revokeToken: async (_: unknown, __: unknown, { user }: Context) => {
       if (!user) throw new Error("Unauthorized");
@@ -179,20 +179,20 @@ refreshToken: async (_: unknown, { refreshToken }: { refreshToken: string }, ctx
     //   );
     // },
 
-  unbindOAuthAccount: async (_: unknown, { provider }: { provider: string }, {  req, user}: Context) => {
-  if (!user) {
-  throw new Error("Cannot unbind last login method");
-    } 
-const userService=container.resolve<AuthService>(TOKENS_AUTH.services.authService);
-    return userService.unbindOAuthAccount(
-      user.userId ,
-      provider,
-      {
+    unbindOAuthAccount: async (_: unknown, { provider }: { provider: string }, { req, user }: Context) => {
+      if (!user) {
+        throw new Error("Cannot unbind last login method");
+      }
+      const userService = container.resolve<AuthService>(TOKENS_AUTH.services.authService);
+      return userService.unbindOAuthAccount(
+        user.userId,
+        provider,
+        {
           ip: req.ip as string,
           deviceId: req.headers["x-device-id"] as string,
         }
-    );
-  },
+      );
+    },
 
     logout: async (_: unknown, __: unknown, ctx: Context) => {
       if (!ctx.user) {
@@ -200,33 +200,33 @@ const userService=container.resolve<AuthService>(TOKENS_AUTH.services.authServic
       }
       const refreshTokenService = container.resolve<RefreshTokenService>(TOKENS_AUTH.services.refreshTokenService);
       await refreshTokenService.revokeAll(ctx.user.userId);
-      
+
       return true;
     },
 
 
-revokeSession: async (
-  _: unknown,
-  { sessionId }: { sessionId: string },
-  ctx: Context
-) => {
+    revokeSession: async (
+      _: unknown,
+      { sessionId }: { sessionId: string },
+      ctx: Context
+    ) => {
 
-  if (!ctx.user) {
-    throw new Error("Authentication required");
-  }
+      if (!ctx.user) {
+        throw new Error("Authentication required");
+      }
 
-  const token = ctx.req.headers.authorization?.replace("Bearer ", "");
+      const token = ctx.req.headers.authorization?.replace("Bearer ", "");
 
-  const authService = container.resolve<AuthService>(
-    TOKENS_AUTH.services.authService
-  );
+      const authService = container.resolve<AuthService>(
+        TOKENS_AUTH.services.authService
+      );
 
-  return authService.revokeSession(
-    ctx.user.userId,
-    sessionId,
-    token
-  );
-}
+      return authService.revokeSession(
+        ctx.user.userId,
+        sessionId,
+        token
+      );
+    }
   },
 
   // ✅ ✅ ✅ 类型 resolver 在这里

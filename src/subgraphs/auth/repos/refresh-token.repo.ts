@@ -4,27 +4,23 @@ import jwt from "jsonwebtoken";
 
 import { Document, Model } from 'mongoose';
 import { RefreshToken } from '../models/refreshToken.model';
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { hash } from "../../../infrastructure/utils/hash";
 
 interface RefreshTokenDocument extends RefreshToken, Document {}
 
 @injectable()
 export default class RefreshTokenRepository {
-  private model: Model<RefreshToken>;
-
-  constructor({ RefreshTokenModel }: { RefreshTokenModel: Model<RefreshToken> }) {
-    if (!RefreshTokenModel) {
-      throw new Error("RefreshTokenModel not injected");
-    }
-    this.model = RefreshTokenModel;
-  }
+  constructor(
+    @inject("RefreshTokenModel")
+    private model: Model<RefreshTokenDocument>
+  ) {}
 
   /**
    * 🔒 原子：校验 + 标记 used（防并发）
    */
 async consume(jti: string): Promise<boolean> {
-
+console.log("CONSUME JTI:", jti);
   const result = await this.model.updateOne(
     {
       jti,
@@ -56,30 +52,38 @@ async save(
   refreshToken: string,
   meta: RefreshToken & { jti: string; expiresAt: Date }
 ) {
-
+console.log("SAVE JTI:", meta.jti)
   return this.model.create({
-    userId: meta.userId,
     jti: meta.jti,
+    userId: meta.userId,
+    sessionId: meta.sessionId,
+    familyId: meta.familyId,
     tokenHash: hash(refreshToken), 
     status: "active",
-    familyId: meta.familyId,
-      sessionId: meta.sessionId,
       issuedAt: meta.issuedAt ?? new Date(),
       expiresAt: meta.expiresAt,
       rotatedFrom: meta.rotatedFrom,
   });
 }
 
-
+  async findByJti(jti: string): Promise<RefreshTokenDocument | null> {
+    console.log("jti-",jti)
+    const refreshToken=await this.model.findOne({jti });
+    console.log("refreshToken++",refreshToken)
+    return refreshToken
+  }
+async findFamily(familyId: string) {
+  return this.model.find({ familyId }).sort({ issuedAt: 1 });
+}
 
 async deleteByJti(jti: string): Promise<void> {
-  await this.model.deleteOne({ tokenId: jti });
+  await this.model.deleteOne({ jti });
 }
 
 async markAsUsed(jti: string, usedAt: Date): Promise<void> {
   await this.model.updateOne(
-    { tokenId: jti,usedAt: Date.now()},
-    { $set: { status: "used", rotatedAt: new Date() } }
+    { jti},
+    { $set: { status: "used", usedAt } }
   );
 }
   /**
@@ -136,4 +140,22 @@ async markAsUsed(jti: string, usedAt: Date): Promise<void> {
       }
     );
   }
+
+ async getLineage(jti: string) {
+  const chain = [];
+
+  let current = await this.model.findOne({ jti });
+
+  while (current) {
+    chain.push(current);
+
+    if (!current.rotatedFrom) break;
+
+    current = await this.model.findOne({
+      jti: current.rotatedFrom,
+    });
+  }
+
+  return chain;
+}
 }

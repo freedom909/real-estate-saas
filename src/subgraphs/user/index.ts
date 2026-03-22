@@ -24,7 +24,7 @@ console.log(
 // 🥭 1️⃣ Mongo
 await connectMongo(
   process.env.MONGO_URI ||
-  "mongodb://localhost:27017/water"
+  "mongodb://localhost:27017/winter"
 );
 
 // 🧰 2️⃣ Container

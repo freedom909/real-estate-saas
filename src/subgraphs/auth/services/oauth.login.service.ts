@@ -26,85 +26,67 @@ export class OAuthLoginService {
     @inject(TOKENS_USER.userClient) private userClient: UserClient,
     @inject(TOKENS_AUTH.services.tokenService) private tokenService: TokenService,
     @inject(TOKENS_AUTH.services.sessionService) private sessionService: SessionService,
-    @inject(TOKENS_AUTH.services.loginRiskService) private loginRiskService: LoginRiskService
+    @inject(TOKENS_AUTH.services.loginRiskService) private loginRiskService: LoginRiskService,
+    
   ) {}
+async oauthLogin(provider: string, idToken: string, req) {
+  // 1. OAuth
+  const adapter = this.registry.get(provider as OAuthProvider);
+  const rawProfile = await adapter.verify(idToken);
+  const profile = await adapter.map(rawProfile);
 
-  async oauthLogin(
-    provider: string,
-    idToken: string,
-    req
-  ) {
-    console.log("registry instance:", this.registry);
-    // 1. Verify OAuth Token
-    const adapter = this.registry.get(provider as OAuthProvider);
-    console.log("adapter+", adapter);//no output
-    const rawProfile = await adapter.verify(idToken);
-    console.log("rawProfile+", rawProfile);
-    const profile = await adapter.map(rawProfile);
+  // 2. user
+  let user = await this.userClient.findByEmail(profile.email);
 
-    // 2. Find or Create User
-    let user = await this.userClient.findByEmail(profile.email);
-    if (!user) {
-      user = await this.userClient.createOAuthUser({
-        provider: provider.toUpperCase(),
-        email: profile.email,
-        profile: {
-          name: profile.name,
-          avatar: profile.avatar || "", // Fix profile bug
-        },
-      });
-    }
-
-    // 3. Generate Refresh Token JTI first (Bind Session)
-    const refreshJti = uuidv4();
-    const familyId = uuidv4();
-
-    // 4. Create Session
-    const session = await this.sessionService.createSession({
-      userId: user.id,
-      deviceId: req.deviceId,
-      ip: req.ip,
-      userAgent: req.userAgent,
-      refreshTokenId: refreshJti,
-      familyId: familyId,
+  if (!user) {
+    user = await this.userClient.createOAuthUser({
+      provider: provider.toUpperCase(),
+      email: profile.email,
+      profile: {
+        name: profile.name,
+        avatar: profile.avatar || "",
+      },
     });
-
-    // 5. Generate Tokens
-    const accessToken = this.tokenService.signAccessToken({
-      sub: user.id,
-      sessionId: session.id,
-      familyId: familyId,
-      deviceId: req.deviceId,
-      ip: req.ip,
-      userAgent: req.userAgent,
-    });
-
-    const refreshToken = this.tokenService.signRefreshToken({
-      sub: user.id,
-      sessionId: session.id,
-      familyId: familyId,
-      jti: refreshJti, // Bind the JTI used in session
-      deviceId: req.deviceId,
-      ip: req.ip,
-      userAgent: req.userAgent,
-    });
-
-    // 6. Record Risk Event
-    await this.loginRiskService.record({
-      type: "LOGIN_SUCCESS",
-      userId: user.id,
-      ip: req.ip, // Raw
-      userAgent: req.userAgent, // Raw
-      deviceId: req.deviceId,
-      severity: "LOW",
-      metadata: { provider, method: "oauth" },
-    });
-
-    return {
-      accessToken: accessToken.token,
-      refreshToken: refreshToken.token,
-      user,
-    };
   }
+
+  // 3. familyId（只保留这个）
+  const familyId = uuidv4();
+
+  // 4. session
+  const session = await this.sessionService.createSession({
+    refreshTokenId: hash(uuidv4()),
+    userId: user.id,
+    deviceId: req.deviceId,
+    ip: req.ip,
+    userAgent: req.userAgent,
+    familyId,
+  });
+console.log("session",session)
+
+  // 5. ✅ 唯一 token 生成入口
+  const pair = await this.tokenService.issueAndPersistTokenPair({
+    userId: user.id,
+    sessionId: session.id,
+    familyId,
+    deviceId: req.deviceId,
+  });
+
+  // 6. risk
+  await this.loginRiskService.record({
+    type: "LOGIN_SUCCESS",
+    userId: user.id,
+    ip: req.ip,
+    userAgent: req.userAgent,
+    deviceId: req.deviceId,
+    severity: "LOW",
+    metadata: { provider, method: "oauth" },
+  });
+
+  return {
+    accessToken: pair.accessToken,
+    refreshToken: pair.refreshToken,
+    user,
+  };
+}
 }
 export default OAuthLoginService;

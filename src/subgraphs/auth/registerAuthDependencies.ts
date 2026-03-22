@@ -13,12 +13,12 @@ import { createRedis } from "../../infrastructure/redis/redis";
 import RefreshTokenModel from "./models/refreshToken.model";
 import CredentialModel from "./models/credential.model";
 import SessionModel from "./models/session.model";
-import RiskEventModel from "./models/riskEvent.model";
+import RiskEventModel from "./models/risk.event.model";
 
 // repos
 import CredentialRepo from "./repos/credential.repo";
 import RefreshTokenRepository from "./repos/refresh-token.repo";
-import { RiskEventRepo } from "./repos/riskEvent.repo";
+import { RiskEventRepo } from "./repos/risk.event.repo";
 import SessionRepository from "./repos/session.repo";
 import SessionService from "./services/session.service";
 
@@ -39,6 +39,7 @@ import OAuthAdapterRegistry from "./adapters/oauth.adapter.registry";
 // ✅ blacklist
 import Blacklist from "../../security/blacklist/blacklist";
 import { OAuthProvider } from "./adapters/normalized.oauth.profile";
+import sessionRepo from "./repos/session.repo";
 
 export default function registerAuthDependencies(
   container: DependencyContainer
@@ -85,15 +86,19 @@ export default function registerAuthDependencies(
   // ======================================================
 
   container.register(TOKENS_AUTH.repos.riskEventRepo, {
-    useFactory: (c) =>
-      new RiskEventRepo(c.resolve(TOKENS_AUTH.models.riskEvent)),
+  useFactory: (c) =>
+    new RiskEventRepo(
+      c.resolve(TOKENS_AUTH.models.riskEvent),
+      c.resolve(TOKENS_AUTH.repos.sessionRepo),
+      c.resolve(TOKENS_AUTH.repos.refreshTokenRepo)
+    ),
   });
 
   container.register(TOKENS_AUTH.repos.refreshTokenRepo, {
     useFactory: (c) =>
-      new RefreshTokenRepository({
-        RefreshTokenModel: c.resolve(TOKENS_AUTH.models.refreshToken),
-      }),
+      new RefreshTokenRepository(
+         c.resolve(TOKENS_AUTH.models.refreshToken),
+      ),
   });
 
   container.register(TOKENS_AUTH.repos.credentialRepo, {
@@ -105,9 +110,9 @@ export default function registerAuthDependencies(
 
   container.register(TOKENS_AUTH.repos.sessionRepo, {
     useFactory: (c) =>
-      new SessionRepository({
-        SessionModel: c.resolve(TOKENS_AUTH.models.session),
-      }),
+      new SessionRepository(
+         c.resolve(TOKENS_AUTH.models.session),
+      ),
   });
 
   // ======================================================
@@ -161,14 +166,17 @@ registry.debug(); // 👉 看是否注册成功
   container.register(TOKENS_AUTH.services.loginRiskService, {
     useFactory: (c) =>
       new LoginRiskService(
-        c.resolve(TOKENS_AUTH.repos.riskEventRepo)
+        c.resolve(TOKENS_AUTH.repos.riskEventRepo),
+        c.resolve(TOKENS_INFRA.infra.redis),
+        c.resolve(TOKENS_AUTH.repos.sessionRepo)
       ),
   });
 
   container.register(TOKENS_AUTH.services.tokenService, {
     useFactory: (c) =>
       new TokenService(
-        c.resolve(TOKENS.security.blacklist)
+        c.resolve(TOKENS.security.blacklist),
+        c.resolve(TOKENS_AUTH.repos.refreshTokenRepo),
       ),
   });
 
@@ -177,9 +185,8 @@ registry.debug(); // 👉 看是否注册成功
       new RefreshTokenService(
         c.resolve(TOKENS_AUTH.services.tokenService),
         c.resolve(TOKENS_AUTH.repos.refreshTokenRepo),
-        c.resolve(TOKENS_AUTH.services.loginRiskService),
         c.resolve(TOKENS_AUTH.repos.sessionRepo),
-        c.resolve(TOKENS_USER.userClient)
+        c.resolve(TOKENS_AUTH.services.loginRiskService),
       ),
   });
 
@@ -190,15 +197,15 @@ registry.debug(); // 👉 看是否注册成功
         c.resolve(TOKENS_USER.userClient),
         c.resolve(TOKENS_AUTH.services.tokenService),
         c.resolve(TOKENS_AUTH.services.sessionService),
-        c.resolve(TOKENS_AUTH.services.loginRiskService),
-      
+        c.resolve(TOKENS_AUTH.services.loginRiskService), 
       ),
   });
 
   container.register(TOKENS_AUTH.services.sessionService, {
     useFactory: (c) =>
       new SessionService(
-        c.resolve(TOKENS_AUTH.repos.sessionRepo)
+        c.resolve(TOKENS_AUTH.repos.sessionRepo),       
       ),
-  }); 
+  });
+ 
 }

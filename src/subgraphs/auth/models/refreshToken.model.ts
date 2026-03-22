@@ -44,7 +44,6 @@ const refreshTokenSchema = new Schema<RefreshToken>(
   expiresAt: { type: Date, required: true },
 
   usedAt: Date,
-
   revokedAt: Date,
 },
 { timestamps: true }

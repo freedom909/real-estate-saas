@@ -1,7 +1,13 @@
 import geoip, { Location } from "geoip-lite";
 import mongoose from "mongoose";
 import { createRedis } from "../../../../infrastructure/redis/redis";
-import { RiskEventRepo } from "../../repos/riskEvent.repo";
+import { RiskEventRepo } from "../../repos/risk.event.repo";
+import { inject, injectable } from "tsyringe";
+import SessionRepository from "../../repos/session.repo";
+import Redis from "ioredis/built/Redis";
+import { TOKENS_INFRA } from "@/modules/infra/container/infra.tokens";
+import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
+import RiskEventEntity from "../../domain/risk.event";
 
 interface EvaluateParams {
   userId: string;
@@ -38,6 +44,7 @@ interface ReuseParams {
 interface RiskEvent {
   type: string;
   provider?: string;
+  
   userId: string;
   ip: string;
   userAgent?: string;
@@ -49,10 +56,19 @@ interface RiskEvent {
   sessionId?: string;
 }
 
+@injectable()
 export default class LoginRiskService {
-  private redisClient = createRedis();
+  constructor(
+    @inject(TOKENS_AUTH.repos.riskEventRepo)
+    private riskEventRepo: RiskEventRepo,
 
-  constructor(private riskEventRepo: RiskEventRepo) {}
+    @inject(TOKENS_INFRA.infra.redis)
+    private redisClient: Redis,
+
+    @inject(TOKENS_AUTH.repos.sessionRepo)
+    private sessionRepo: SessionRepository,
+  ) {}
+
 
   isRisky({ oldIp, newIp, oldUA, newUA }: { oldIp?: string; newIp: string; oldUA?: string; newUA?: string }): boolean {
     if (oldIp && oldIp !== newIp) return true;
@@ -61,8 +77,9 @@ export default class LoginRiskService {
   }
 
   async record(event: Omit<RiskEvent, 'createdAt'>): Promise<void> {
+    console.log("record",event,RiskEventEntity)
     await this.riskEventRepo.create({
-      userId: new mongoose.Types.ObjectId(event.userId),
+      userId: event.userId,
       eventData: {
         type: event.type,
         data: event.metadata
@@ -73,25 +90,28 @@ export default class LoginRiskService {
     })
   }
 
-  async handleRefreshTokenReuse({
-    userId,
-    ip,
-    userAgent,
-    refreshTokenId,
-  }: ReuseParams): Promise<void> {
+  async handleRefreshTokenReuse(data: any) {
+    console.log("🚨 TOKEN REUSE DETECTED", data);
 
-    await this.record({
-      type: "refreshToken_REUSE",
-      userId,
-      ip,
-      userAgent,
-      metadata: {
-        refreshTokenId,
-      },
-      severity: "HIGH",
+    // 1. revoke session
+    await this.sessionRepo.revokeSession(data.sessionId);
+
+    // 2. 记录风险
+    await this.riskEventRepo.create({
+      userId: data.userId,
+  eventData: {
+    type: "TOKEN_REUSE",
+    data: {
+      sessionId: data.sessionId,
+      familyId: data.familyId,
+      ip: data.ip,
+      userAgent: data.userAgent,
+    }
+  },
+  severity: "HIGH",
     });
   }
-  
+
   async evaluate({
     userId,
     ip,
@@ -104,7 +124,7 @@ export default class LoginRiskService {
     const country = geo?.country ?? "UNKNOWN";
 
     const profileKey = `user:${userId}:loginProfile`;
-    
+
     const profile: LoginProfile = await this.redisClient.hgetall(profileKey);
 
     // 1️⃣ IP 变化
@@ -205,7 +225,7 @@ export default class LoginRiskService {
 
   async recordLoginFailed(userId: string, ctx: { ip: string; userAgent: string; deviceId: string }) {
     await this.riskEventRepo.create({
-      userId: new mongoose.Types.ObjectId(userId),
+      userId,
       eventData: {
         type: "LOGIN_FAILED",
         data: {}

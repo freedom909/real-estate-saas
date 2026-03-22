@@ -8,6 +8,9 @@ export type RiskEventType =
   | "OAUTH_LOGIN"
   | "TOKEN_REFRESH"
   | "PASSWORD_RESET"
+  | "TOKEN_REUSE"
+  |  "NEW_DEVICE"
+  | "IP_CHANGE"
 
 
 // ===============================
@@ -16,7 +19,7 @@ export type RiskEventType =
 
 export interface RiskEventModel {
 
-  userId: Types.ObjectId
+  userId: string
 
   eventType: RiskEventType
 
@@ -30,11 +33,11 @@ export interface RiskEventModel {
 
   createdAt: Date
 
-  updatedAt: Date
+  updatedAt?: Date
 
   severity: "LOW" | "MEDIUM" | "HIGH"
 
-
+ score:number
 }
 
 
@@ -53,7 +56,7 @@ const riskEventSchema = new Schema<RiskEventModel>(
   {
 
     userId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       required: true,
       index: true
     },

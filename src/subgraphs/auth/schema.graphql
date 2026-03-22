@@ -69,6 +69,7 @@ enum RiskEventType {
   OAUTH_UNBIND
   SESSION_REVOKED
   REFRESH_REUSE_DETECTED
+  TOKEN_REUSE
 }
 
 type OAuthAccount {
