@@ -3,6 +3,9 @@ import { injectable } from "tsyringe";
 //
 @injectable()
 export default class AuthService {
+  static bindOAuthAccount(userId: any, provider: any, idToken: any) {
+    throw new Error("Method not implemented.");
+  }
   [x: string]: any;
     
   constructor(
@@ -26,6 +29,13 @@ export default class AuthService {
 
     return true;
   }
+
+async bindOAuthAccount(userId, provider, idToken) {
+  // verify token
+  // check provider conflict
+  // check already bound
+  // save
+}
 
   async unbindOAuthAccount(userId: string, provider: string, context: { ip: string; deviceId: string }) {
     // Logic to remove OAuth link from user profile via userClient

@@ -19,6 +19,7 @@ import { ForbiddenError } from "../../infrastructure/utils/errors.js";
 import { TOKENS_AUTH } from "../../modules/auth/container/auth.tokens.js";
 import AuthService from "./services/auth.service.js";
 import { OAuthProvider } from "./adapters/normalized.oauth.profile.js";
+import authService from "./services/auth.service.js";
 
 
 
@@ -148,51 +149,33 @@ export default {
       return true;
     },
 
-    bindOAuth: async (_: unknown, { provider, idToken }: { provider: string; idToken: string }, { req, user }: Context & { provider: string; idToken: string }) => {
+    unbindOAuth: async (_: unknown, { provider }:{provider: OAuthProvider}, { req, user }: Context ) => {
       if (!user) throw new Error("Unauthorized");
 
-      const oauthService = container.resolve<AuthService>(TOKENS_AUTH.services.oauthService);
-
-      return oauthService.bindOAuthAccount(
+      const authService = container.resolve<AuthService>(TOKENS_AUTH.services.authService);
+       const deviceId = typeof req.headers["x-device-id"] === "string"
+      ? req.headers["x-device-id"]
+      : null;
+      return authService.unbindOAuthAccount(
         user.userId,
         provider,
-        idToken,
         {
-          ip: req.ip,
-          deviceId: req.headers["x-device-id"] as string,
+          ip:( req.ip as string)??null,
+          deviceId
         }
       );
     },
 
-    // unbindOAuth: async (_: unknown, { provider }:{provider: string}, {  req, user }: Context & { provider: string }) => {
-    //   if (!user) throw new Error("Unauthorized");
 
-    //   const authService = container.resolve<AuthService>(TOKENS_AUTH.services.authService);
+  bindOAuthAccount:async (_, args, ctx) => {
+  if (!ctx.user) throw new Error("Unauthorized");
 
-    //   return authService.unbindOAuthAccount(
-    //     user.userId,
-    //     provider,
-    //     {
-    //       ip: req.ip as string,
-    //       deviceId?: req.headers["x-device-id"]??undefined,
-    //     }
-    //   );
-    // },
-
-    unbindOAuthAccount: async (_: unknown, { provider }: { provider: string }, { req, user }: Context) => {
-      if (!user) {
-        throw new Error("Cannot unbind last login method");
-      }
-      const userService = container.resolve<AuthService>(TOKENS_AUTH.services.authService);
-      return userService.unbindOAuthAccount(
-        user.userId,
-        provider,
-        {
-          ip: req.ip as string,
-          deviceId: req.headers["x-device-id"] as string,
-        }
-      );
-    },
+  return authService.bindOAuthAccount(
+    ctx.user.userId,
+    args.provider,
+    args.idToken
+  );
+},
 
     logout: async (_: unknown, __: unknown, ctx: Context) => {
       if (!ctx.user) {
@@ -202,8 +185,7 @@ export default {
       await refreshTokenService.revokeAll(ctx.user.userId);
 
       return true;
-    },
-
+    },  
 
     revokeSession: async (
       _: unknown,

@@ -12,7 +12,6 @@ import RefreshTokenRepository from "../repos/refresh-token.repo";
 import RiskService from "./risk/login.risk.service"
 
 import { OAuthProvider } from "../adapters/normalized.oauth.profile";
-import mapOAuthProfile from "./mapOAuthProfile";
 import { hash } from "../../../infrastructure/utils/hash";
 import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
 import { TOKENS_USER } from "@/modules/user/container/user.tokens";

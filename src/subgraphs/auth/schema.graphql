@@ -185,6 +185,12 @@ type Mutation {
     sessionId: ID!
   ): Boolean!
 
+  bindOAuthAccount(provider: OAuthProvider!idToken: String!): Boolean!
+
+  unbindOAuthAccount(
+    provider: OAuthProvider!
+  ): Boolean!
+
 
   oauthLogin(provider: OAuthProvider!, idToken: String!): AuthPayload! @public
   bindOAuth(provider: OAuthProvider!, idToken: String!): Boolean! @auth

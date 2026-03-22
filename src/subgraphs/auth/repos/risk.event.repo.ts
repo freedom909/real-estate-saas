@@ -5,19 +5,18 @@ import { RiskEventModel } from "../models/risk.event.model"
 import RiskEventEntity from "../domain/risk.event"
 import { hash } from "../../../infrastructure/utils/hash"
 import SessionRepository from "./session.repo"
+import RefreshTokenRepository from "./refresh-token.repo"
 
 @injectable()
 export class RiskEventRepo {
-
   constructor(
     @inject("RiskEventModel")
     private model: Model<RiskEventModel>,
     @inject("SessionRepository")
     private sessionRepo:SessionRepository,
     @inject("RefreshTokenRepo")
-    private refreshTokenRepo:any
+    private refreshTokenRepo:RefreshTokenRepository
   ) {}
-
   async create(data: Partial<RiskEventModel>) {
 
     const doc = await this.model.create({
@@ -137,7 +136,7 @@ async getLastLoginIp(userId: string): Promise<string | null> {
   await this.sessionRepo.revokeSession(data.sessionId);
 
   // 3️⃣ 记录风险
-  await this.riskEventRepo.create({
+  await this.model.create({
     eventType: "TOKEN_REUSE",
     userId: data.userId,
     severity: "HIGH",
