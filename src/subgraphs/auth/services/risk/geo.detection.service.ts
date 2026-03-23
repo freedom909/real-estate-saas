@@ -1,5 +1,5 @@
 //
-import { createRedis } from "@/infrastructure/redis/redis"
+import { createRedis } from "../../../../infrastructure/redis/redis"
 
 export default class GeoRiskService {
   private redis = createRedis()

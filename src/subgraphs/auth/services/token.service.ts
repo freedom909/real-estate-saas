@@ -11,9 +11,9 @@ import Redis from "ioredis";
 import { v4 as uuidv4 } from "uuid";
 import { TOKENS } from "../../../shared/infra/tokens";
 import fs from "fs";
-import { hash } from "@/infrastructure/utils/hash";
+import { hash } from "../../../infrastructure/utils/hash";
 import RefreshTokenRepository from "../repos/refresh-token.repo";
-import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
+import { TOKENS_AUTH } from "../../../modules/auth/container/auth.tokens";
 
 export interface TokenPair {
   accessToken: string;

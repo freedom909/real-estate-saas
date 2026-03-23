@@ -13,14 +13,13 @@ class OAuthAdapterRegistry {
   }
  
   get(provider: OAuthProvider) : OAuthAdapter {
-    console.log("available adapters++:", this.adapters); // 👈 加这个
+
     const adapter = this.adapters.get(provider);
 
     if (!adapter) {
       throw new Error(`OAuth adapter not found: ${provider}`);
     }
-console.log("adapter type:", typeof adapter);
-console.log("adapter:", adapter);
+
     return adapter;
   }
   debug() {

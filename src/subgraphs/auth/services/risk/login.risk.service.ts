@@ -5,8 +5,8 @@ import { RiskEventRepo } from "../../repos/risk.event.repo";
 import { inject, injectable } from "tsyringe";
 import SessionRepository from "../../repos/session.repo";
 import Redis from "ioredis/built/Redis";
-import { TOKENS_INFRA } from "@/modules/infra/container/infra.tokens";
-import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
+import { TOKENS_INFRA } from "../../../../modules/infra/container/infra.tokens";
+import { TOKENS_AUTH } from "../../../../modules/auth/container/auth.tokens";
 import RiskEventEntity from "../../domain/risk.event";
 
 interface EvaluateParams {

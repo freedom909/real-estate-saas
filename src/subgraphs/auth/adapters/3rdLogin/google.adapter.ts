@@ -19,8 +19,8 @@ export class GoogleOAuthAdapter implements OAuthAdapter {
 
       name: raw.name ?? undefined,
       avatar: raw.picture ?? undefined,
-
-      sub: raw.sub
+      sub: raw.sub,
+      iss: raw.iss?? undefined,
     }
   }
 
@@ -41,7 +41,8 @@ export class GoogleOAuthAdapter implements OAuthAdapter {
       emailVerified: raw.emailVerified ?? undefined,
       name: raw.name?? undefined,
       avatar: raw.picture?? undefined,
-      sub: raw.sub
+      sub: raw.sub,
+      iss: raw.iss?? undefined,
     }
   }
 }

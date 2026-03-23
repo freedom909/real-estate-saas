@@ -48,15 +48,12 @@ The matrix MUST cover:
 - Edge cases
 - Invalid inputs
 - Security scenarios (important for auth system)
-Include concurrency scenarios (e.g., multiple simultaneous refresh requests)
+- Include concurrency scenarios (e.g., multiple simultaneous refresh requests)
 
-Include failure injection (repository throws, dependency failures)
-
-Avoid duplicating implementation logic in tests
-
-Prefer behavioral assertions over implementation-specific assertions
-
-Prioritize security-critical edge cases (token reuse, session invalidation)
+- Include failure injection (repository throws, dependency failures)
+- Avoid duplicating implementation logic in tests
+- Prefer behavioral assertions over implementation-specific assertions
+- Prioritize security-critical edge cases (token reuse, session invalidation)
 ---
 
 3️⃣ Generate Complete Jest Test Files

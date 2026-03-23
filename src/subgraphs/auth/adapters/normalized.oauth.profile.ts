@@ -16,6 +16,7 @@
   avatar?: string;
   emailVerified?: boolean
   providerAccountId: string
+  iss?: string
 }
 
 export { OAuthProvider};

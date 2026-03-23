@@ -1,3 +1,6 @@
+
+
+import "reflect-metadata";
 import { DependencyContainer } from "tsyringe";
 
 // TOKENS

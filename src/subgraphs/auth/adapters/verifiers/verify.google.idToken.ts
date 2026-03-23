@@ -17,6 +17,8 @@ interface GoogleIdTokenPayload {
   emailVerified?: boolean;
   name?: string | null;
   picture?: string | null;
+  iss?: string;
+  
 }
 
 export default async function verifyGoogleIdToken(
@@ -38,7 +40,7 @@ export default async function verifyGoogleIdToken(
   }
 
   return {
-    provider: "GOOGLE",
+    provider: payload.iss || "google",
     sub: payload.sub,                  // ✅ 唯一标识
     email: payload.email || null,
     emailVerified: payload.email_verified || false,
