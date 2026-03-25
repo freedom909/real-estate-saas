@@ -12,3 +12,9 @@ export enum Resource {
   Customer = "Customer",
   USER = "USER",
 }
+
+export interface SecurityAssessment {
+  riskScore: number; // 0 ~ 1
+  suggestedAction: "ALLOW" | "FLAG" | "CHALLENGE" | "BLOCK";
+  reason?: string;
+}

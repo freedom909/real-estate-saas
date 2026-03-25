@@ -43,6 +43,8 @@ import OAuthAdapterRegistry from "./adapters/oauth.adapter.registry";
 import Blacklist from "../../security/blacklist/blacklist";
 import { OAuthProvider } from "./adapters/normalized.oauth.profile";
 import sessionRepo from "./repos/session.repo";
+import { GeminiSecurityService } from "@/security/service/geminiSecurity.service";
+import { TOKENS_SECURITY } from "@/security/container/security.tokens";
 
 export default function registerAuthDependencies(
   container: DependencyContainer
@@ -210,5 +212,5 @@ registry.debug(); // 👉 看是否注册成功
         c.resolve(TOKENS_AUTH.repos.sessionRepo),       
       ),
   });
- 
+
 }

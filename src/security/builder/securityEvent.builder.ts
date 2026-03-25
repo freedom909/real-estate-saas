@@ -58,6 +58,12 @@ export class SecurityEventBuilder {
     return this;
   }
 
+  withAction(action: string) {
+    this.action = action;
+    return this;
+  }
+
+
   withContext(context: Context) {
     this.context = context;
     return this;

@@ -6,4 +6,12 @@ export const TOKENS_SECURITY ={
     blacklist: Symbol.for("security.blacklist"),
     tokenBindingService: Symbol.for("security.tokenBindingService"),
   },
+    services: {
+    geminiSecurityService: "GeminiSecurityService",
+    uiStrategyService: "UiStrategyService",
+  },
+   repos: {
+    securityEventRepository: "SecurityEventRepository",
+  },
+
 }

@@ -18,9 +18,11 @@ import { container } from "tsyringe"
 
 import resolvers from "./resolvers"
 import registerAuthDependencies from "./registerAuthDependencies"
+import { registerSecurityDependencies } from "../../security/container/registerSecurityDependencies";
 
 
 // ⭐ 注册 DI
+registerSecurityDependencies(container);
 registerAuthDependencies(container)
 console.log("OAuth container loaded")//good
 
