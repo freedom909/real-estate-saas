@@ -54,6 +54,6 @@
     // guards
     guards: {
       authGuard: Symbol.for("auth.guards.authGuard"),
-    }
-  
+    },
+    auditPort:Symbol.for("auditPort")
 };

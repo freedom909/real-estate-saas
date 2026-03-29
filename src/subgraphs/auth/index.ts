@@ -15,20 +15,20 @@ import { buildSubgraphSchema } from "@apollo/subgraph"
 
 import mongoose from "mongoose"
 import { container } from "tsyringe"
+import resolvers from "./resolvers.js"
 
-import resolvers from "./resolvers"
-import registerAuthDependencies from "./registerAuthDependencies"
-import { registerSecurityDependencies } from "../../security/container/registerSecurityDependencies";
+import registerAuthDependencies from "./registerAuthDependencies.js"
+import  registerSecurityDependencies  from "../../security/container/register.js";
 
 
 // ⭐ 注册 DI
-registerSecurityDependencies(container);
+registerSecurityDependencies();
 registerAuthDependencies(container)
 console.log("OAuth container loaded")//good
 
 // ⭐ Mongo
 await mongoose.connect(
-  process.env.MONGO_URI || "mongodb://localhost:27017/winter"
+  process.env.MONGO_URI || "mongodb://localhost:27017/north"
 )
 
 // ⭐ schema
@@ -38,7 +38,7 @@ const typeDefs = gql(
 
 const schema = buildSubgraphSchema([{
   typeDefs,
-  resolvers
+  resolvers,
 }])
 
 // ⭐ Apollo server

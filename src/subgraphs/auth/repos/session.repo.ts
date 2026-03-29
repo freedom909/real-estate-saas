@@ -32,8 +32,12 @@ export default class SessionRepository {
   return await session.save();
   }
   
-
- 
+async getOrCreateFamilyId(userId: string, deviceId: string): Promise<string> {
+  const familyId = await this.sessionModel.findOneAndUpdate(
+    { userId, deviceId })
+    .select('familyId')
+return familyId.familyId;
+}
 
 async create(input: CreateSessionInput): Promise<Session> {
   const doc = await this.sessionModel.create(input)

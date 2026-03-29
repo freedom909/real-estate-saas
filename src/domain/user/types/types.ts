@@ -15,6 +15,7 @@ export enum Resource {
 
 export interface SecurityAssessment {
   riskScore: number; // 0 ~ 1
-  suggestedAction: "ALLOW" | "FLAG" | "CHALLENGE" | "BLOCK";
-  reason?: string;
+  decision: "ALLOW" | "FLAG" | "CHALLENGE" | "BLOCK";
+  reasons: string[];
+
 }

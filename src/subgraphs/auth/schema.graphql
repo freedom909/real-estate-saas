@@ -1,3 +1,4 @@
+
 schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.11"
@@ -19,8 +20,6 @@ directive @public on FIELD_DEFINITION
 extend type User @key(fields: "id") {
   id: ID! @external
 }
-
-
 
 # =====================
 # Tenant (REFERENCE)
@@ -185,7 +184,7 @@ type Mutation {
     sessionId: ID!
   ): Boolean!
 
-  bindOAuthAccount(provider: OAuthProvider!idToken: String!): Boolean!
+  bindOAuthAccount(provider: OAuthProvider!,idToken: String!): Boolean!
 
   unbindOAuthAccount(
     provider: OAuthProvider!

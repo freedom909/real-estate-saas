@@ -13,13 +13,13 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createAuditLog: async (_: any, { action, userId, resourceId }: { action: string; userId: string; resourceId: string }) => {
+    recordAuditLog: async (_: any, { action, userId, resourceId }: { action: string; userId: string; resourceId: string }) => {
       const service = container.resolve(AuditService);
       return service.createLog(action, userId, resourceId);
     },
   },
   AuditLog: {
-    // User federation mapping could be added here if we had a User type in the schema
-    // user: (parent) => ({ __typename: 'User', id: parent.userId })
+    //User federation mapping could be added here if we had a User type in the schema
+    user: (parent) => ({ __typename: 'User', id: parent.userId })
   }
 };

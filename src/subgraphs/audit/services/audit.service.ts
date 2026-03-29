@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import { AuditRepository } from '../repositories/audit.repository';
+import { AuditRepository } from '../repos/audit.repository';
 import { AuditLogDocument } from '../models/audit.model';
 
 @injectable()

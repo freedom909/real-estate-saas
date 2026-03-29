@@ -1,4 +1,4 @@
-extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key"])
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key"])
 
 type AuditLog @key(fields: "id") {
   id: ID!
@@ -9,7 +9,7 @@ type AuditLog @key(fields: "id") {
 }
 
 type Mutation {
-  createAuditLog(action: String!, userId: ID!, resourceId: ID!): AuditLog!
+  recordAuditLog(action: String!, userId: ID!, resourceId: ID!): AuditLog!
 }
 
 type Query {

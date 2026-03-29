@@ -17,7 +17,7 @@ interface CreateSessionParams {
 export default class SessionService {
   constructor(
     @inject(TOKENS_AUTH.repos.sessionRepo) private sessionRepo: SessionRepository
-  ) {}
+  ) { }
 
   async createSession(params: CreateSessionParams) {
     return this.sessionRepo.create({
@@ -57,5 +57,8 @@ export default class SessionService {
     return createHash("sha256").update(value).digest("hex");
   }
 
-  
+  async getOrCreateFamilyId(userId: string, deviceId: string): Promise<string> {
+    return this.sessionRepo.getOrCreateFamilyId(userId, deviceId);
+  }
 }
+

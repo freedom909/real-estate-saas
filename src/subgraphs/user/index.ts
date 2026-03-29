@@ -24,7 +24,7 @@ console.log(
 // 🥭 1️⃣ Mongo
 await connectMongo(
   process.env.MONGO_URI ||
-  "mongodb://localhost:27017/winter"
+  "mongodb://localhost:27017/north"
 );
 
 // 🧰 2️⃣ Container
@@ -64,6 +64,7 @@ app.use(
       }
 
       return {
+        req,
         user: userHeader ? JSON.parse(userHeader as string) : null,
         container: userContainer,
       };

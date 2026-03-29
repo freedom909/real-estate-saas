@@ -14,6 +14,7 @@ interface RiskPolicyResult {
 }
 
 class RiskPolicyService {
+
   async evaluateRisk(events: RiskEvent[]): Promise<RiskPolicyResult> {
     // Check for refresh token reuse in last 24 hours
     const refreshTokenReuseEvents = events.filter(

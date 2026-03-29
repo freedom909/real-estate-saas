@@ -15,6 +15,10 @@ interface UserRepository {
 
 @injectable()
 class UserService {
+  deactivate(userId: string) {
+    throw new Error("Method not implemented.");
+  }
+
   userRepository: any;
   constructor(
     @inject(TOKENS_USER.repos.userRepo)
@@ -23,7 +27,7 @@ class UserService {
     this.userRepository = userRepository;
   }
 
-  async getUserById(id: string): Promise<User | null> {
+  async findById(id: string): Promise<User | null> {
     const user = await this.userRepository.findById(id);
     if (!user) return null;
 

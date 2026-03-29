@@ -1,15 +1,23 @@
 // src/security/service/geminiSecurity.service.ts
 
 import { injectable } from "tsyringe";
-import { SecurityAssessment } from "../../domain/user/types/types";
+import fetch from "node-fetch";
+
+
+import { SecurityEvent } from "../types";
+import GeminiClient from "./geminiClient";
+import { SecurityAssessment } from "@/domain/user/types/types";
+
 
 @injectable()
 export class GeminiSecurityService {
-  constructor() {}
+  constructor(
+    private client: GeminiClient
+  ) { }
   private apiKey = process.env.GEMINI_API_KEY!;
   private model = "gemini-1.5-flash";
 
-  async analyze(event: any): Promise<SecurityAssessment> {
+  async analyze(event: SecurityEvent): Promise<SecurityAssessment> {
     const prompt = this.buildPrompt(event);
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`,
@@ -67,15 +75,15 @@ Return ONLY JSON:
 
       return {
         riskScore: Math.min(Math.max(json.riskScore, 0), 1),
-        suggestedAction: json.suggestedAction,
-        reason: json.reason,
+        decision: json.suggestedAction,
+        reasons: json.reason,
       };
     } catch (e) {
       // ❗ AI 出错 fallback（非常重要）
       return {
         riskScore: 0.5,
-        suggestedAction: "FLAG",
-        reason: "AI_PARSE_ERROR",
+        decision: "FLAG",
+        reasons: ["AI_PARSE_ERROR"],
       };
     }
   }

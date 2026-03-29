@@ -21,7 +21,6 @@ async function start(){
   })
 
   await server.start()
-
   const app = express()
 
   app.use("/graphql",express.json(),expressMiddleware(server))

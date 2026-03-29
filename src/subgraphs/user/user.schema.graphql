@@ -65,6 +65,7 @@ enum ApprovalStatus {
 type Query {
   userByEmail(email: String!): User
   user(id: ID!): User
+  internalUserByEmail(email: String!): User 
 }
 
 type Mutation {

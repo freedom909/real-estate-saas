@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "dev:user": "tsx watch src/subgraphs/user/index.ts",
+    "dev:audit": "tsx watch src/subgraphs/audit/index.ts",
     "dev:auth": "tsx watch src/subgraphs/auth/index.ts",
     "dev:tenant": "tsx watch src/subgraphs/tenant/index.ts",
     "dev:property": "tsx watch src/subgraphs/property/index.ts",

@@ -27,7 +27,6 @@ import SessionService from "./services/session.service";
 
 
 // services
-import LoginRiskService from "./services/risk/login.risk.service";
 import RefreshTokenService from "./services/refreshToken.service";
 import { TokenService } from "./services/token.service";
 
@@ -40,11 +39,13 @@ import GithubOAuthAdapter from "./adapters/3rdLogin/github.adapter";
 import OAuthAdapterRegistry from "./adapters/oauth.adapter.registry";
 
 // ✅ blacklist
-import Blacklist from "../../security/blacklist/blacklist";
 import { OAuthProvider } from "./adapters/normalized.oauth.profile";
-import sessionRepo from "./repos/session.repo";
-import { GeminiSecurityService } from "@/security/service/geminiSecurity.service";
-import { TOKENS_SECURITY } from "@/security/container/security.tokens";
+
+
+import { TOKENS_SECURITY } from "@/security/container/tokens";
+import { AuditGraphQLAdapter } from "./adapters/audit.client";
+import { RiskEngine } from "@/security/domain/risk.engine";
+import Blacklist from "@/security/blacklist/blacklist";
 
 export default function registerAuthDependencies(
   container: DependencyContainer
@@ -170,10 +171,9 @@ console.log("✅ OAuth adapters registered");
 registry.debug(); // 👉 看是否注册成功
   container.register(TOKENS_AUTH.services.loginRiskService, {
     useFactory: (c) =>
-      new LoginRiskService(
+      new RiskEngine(
         c.resolve(TOKENS_AUTH.repos.riskEventRepo),
-        c.resolve(TOKENS_INFRA.infra.redis),
-        c.resolve(TOKENS_AUTH.repos.sessionRepo)
+ 
       ),
   });
 
@@ -203,6 +203,7 @@ registry.debug(); // 👉 看是否注册成功
         c.resolve(TOKENS_AUTH.services.tokenService),
         c.resolve(TOKENS_AUTH.services.sessionService),
         c.resolve(TOKENS_AUTH.services.loginRiskService), 
+        c.resolve(TOKENS_SECURITY.riskEngine),
       ),
   });
 
@@ -212,5 +213,12 @@ registry.debug(); // 👉 看是否注册成功
         c.resolve(TOKENS_AUTH.repos.sessionRepo),       
       ),
   });
+
+container.register(TOKENS_AUTH.auditPort, {
+  useFactory: (c) => {
+    const gqlClient = c.resolve("AuditGraphQLClient"); // 你已有的 client
+    return new AuditGraphQLAdapter(gqlClient);
+  },
+})
 
 }

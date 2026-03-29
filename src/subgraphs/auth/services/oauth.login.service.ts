@@ -5,18 +5,19 @@ import mongoose from "mongoose";
 import OAuthAdapterRegistry from "../adapters/oauth.adapter.registry";
 import UserClient from "../adapters/user.client";
 import { TokenService } from "./token.service";
-import SessionRepository from "../repos/session.repo";
-import RefreshTokenRepository from "../repos/refresh-token.repo";
 
-
-import RiskService from "./risk/login.risk.service"
 
 import { OAuthProvider } from "../adapters/normalized.oauth.profile";
 import { hash } from "../../../infrastructure/utils/hash";
 import { TOKENS_AUTH } from "../../../modules/auth/container/auth.tokens";
 import { TOKENS_USER } from "../../../modules/user/container/user.tokens";
 import SessionService from "./session.service";
-import LoginRiskService from "./risk/login.risk.service";
+
+import { AuditPort } from "../domain/auditPort";
+import { RiskEngine } from "@/security/domain/risk.engine";
+import { TOKENS_SECURITY } from "@/security/container/tokens";
+import { fingerprint } from "@/infrastructure/auth/fingerPrint";
+import { EvaluateRiskUseCase } from "@/security/application/evaluateRisk.usecase";
 
 @injectable()
 export class OAuthLoginService {
@@ -25,18 +26,19 @@ export class OAuthLoginService {
     @inject(TOKENS_USER.userClient) private userClient: UserClient,
     @inject(TOKENS_AUTH.services.tokenService) private tokenService: TokenService,
     @inject(TOKENS_AUTH.services.sessionService) private sessionService: SessionService,
-    @inject(TOKENS_AUTH.services.loginRiskService) private loginRiskService: LoginRiskService,
+    @inject(TOKENS_AUTH.auditPort) private audit: AuditPort,
+    @inject(TOKENS_SECURITY.evaluateRiskUseCase) private evaluateRiskUseCase: EvaluateRiskUseCase
     
   ) {}
 async oauthLogin(provider: string, idToken: string, req) {
-  // 1. OAuth
+
+  // 1 OAuth
   const adapter = this.registry.get(provider as OAuthProvider);
   const rawProfile = await adapter.verify(idToken);
   const profile = await adapter.map(rawProfile);
 
-  // 2. user
+  // 2 user
   let user = await this.userClient.findByEmail(profile.email);
-
   if (!user) {
     user = await this.userClient.createOAuthUser({
       provider: provider.toUpperCase(),
@@ -48,37 +50,62 @@ async oauthLogin(provider: string, idToken: string, req) {
     });
   }
 
-  // 3. familyId（只保留这个）
-  const familyId = uuidv4();
+  // 3 device fingerprint（🔥）
+  const deviceId = fingerprint({
+    userAgent: req.userAgent,
+    ip: req.ip,
+  });
+console.log("usecase:", this.evaluateRiskUseCase);
+  // 4 risk（🔥 提前）
+   const risk = await this.evaluateRiskUseCase.execute({
+  userId: user.id,
+  ip: req.ip,
+  deviceId,
+  userAgent: req.userAgent,
+  failedAttempts: 0,
+  isNewDevice: true,
+  ipRisk: false,
+});
+  
+  if (risk.decision === "BLOCK") { // プロパティ 'decision' は型 'number' に存在しません。
+    throw new Error("Blocked");
+  }
 
-  // 4. session
-  const session = await this.sessionService.createSession({
+  if (risk.decision === "CHALLENGE") {
+    return { status: "MFA_REQUIRED" };
+  }
+
+  // 5 family
+  const familyId = await this.sessionService.getOrCreateFamilyId(
+    user.id,
+    deviceId
+  );
+
+  // 6 session
+   const session =await this.sessionService.createSession({
     refreshTokenId: hash(uuidv4()),
     userId: user.id,
-    deviceId: req.deviceId,
+    deviceId,
     ip: req.ip,
     userAgent: req.userAgent,
     familyId,
   });
-console.log("session",session)
 
-  // 5. ✅ 唯一 token 生成入口
-  const pair = await this.tokenService.issueAndPersistTokenPair({
+  // 7 token
+    const pair = await this.tokenService.issueAndPersistTokenPair({
     userId: user.id,
     sessionId: session.id,
     familyId,
     deviceId: req.deviceId,
   });
 
-  // 6. risk
-  await this.loginRiskService.record({
-    type: "LOGIN_SUCCESS",
-    userId: user.id,
-    ip: req.ip,
-    userAgent: req.userAgent,
-    deviceId: req.deviceId,
-    severity: "LOW",
-    metadata: { provider, method: "oauth" },
+  // 8 audit（🔥 异步）
+  setImmediate(() => {
+    this.audit.record({
+      userId: user.id,
+      action: "LOGIN_SUCCESS",
+      metadata: { ip: req.ip, deviceId, provider },
+    });
   });
 
   return {

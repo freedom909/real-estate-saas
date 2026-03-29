@@ -8,10 +8,10 @@ import type { Request, Response } from "express";
 import type { OAuthAdapter } from "./adapters/oauth/oauth.adapter.js";
 
 import { container } from "tsyringe";
-import RefreshTokenService from "./services/refreshToken.service";
+import RefreshTokenService from "./services/refreshToken.service.js";
 
 // import {OAuthService} from "./services/oauth.service";
-import { subgraphAuthGuard } from "./guards/subgraphAuthGuard";
+import { subgraphAuthGuard } from "./guards/subgraphAuthGuard.js";
 import { IdentityModel } from "../user/models/identity.model.js";
 import { OAuthLoginService } from "./services/oauth.login.service.js";
 import { TokenService } from "./services/token.service.js";
@@ -20,6 +20,12 @@ import { TOKENS_AUTH } from "../../modules/auth/container/auth.tokens.js";
 import AuthService from "./services/auth.service.js";
 import { OAuthProvider } from "./adapters/normalized.oauth.profile.js";
 import authService from "./services/auth.service.js";
+import { GeminiSecurityService } from "@/security/infrastructure/geminiSecurity.service.js";
+import { TOKENS_SECURITY } from "@/security/container/tokens.js";
+import { SecurityAssessment } from "@/domain/user/types/types.js";
+import withSecurity from "@/security/infrastructure/withSecurity.js";
+
+
 
 
 
@@ -70,6 +76,7 @@ export const withAuth =
       await guard(parent, args, context, async () => { })
       return resolver(parent, args, context, info)
     }
+
 export default {
 
   Query: {
@@ -116,13 +123,14 @@ export default {
 
   Mutation: {
 
-    oauthLogin: async (
+    oauthLogin:  async (
       _: any,
       { provider, idToken }: { provider: string; idToken: string },
       { req }: Context
     ) => {
 
       try {
+
         const loginService = container.resolve<OAuthLoginService>(TOKENS_AUTH.services.oauthloginService);
         const normalizedProvider = provider.toLowerCase() as OAuthProvider;
         return loginService.oauthLogin(normalizedProvider as OAuthProvider, idToken, req

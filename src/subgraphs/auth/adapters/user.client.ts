@@ -2,6 +2,7 @@ import { GraphQLClient, gql } from "graphql-request";
 import {
   FIND_BY_ID,
   FIND_USER_BY_EMAIL,
+  INTERNAL_FIND_USER_BY_EMAIL,
   CREATE_OAUTH_USER
 } from "./queries";
 
@@ -52,11 +53,11 @@ export default class UserClient implements IUserClient {
 
     const url =
       endpoint ||
-      process.env.USER_SUBGRAPH_URL ||"http://localhost:4020/graphql"
-  console.log("USER_SUBGRAPH_URL =", process.env.USER_SUBGRAPH_URL);
-  console.log("GraphQL endpoint used =", url);
+      process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql"
+    console.log("USER_SUBGRAPH_URL =", process.env.USER_SUBGRAPH_URL);
+    console.log("GraphQL endpoint used =", url);
     this.client = new GraphQLClient(url)
- console.log("UserClient connected to:", url)
+    console.log("UserClient connected to:", url)
   }
 
   /* =========================
@@ -74,10 +75,8 @@ export default class UserClient implements IUserClient {
      Queries
   ========================= */
 
-
-
   async findById(id: string): Promise<User | null> {
-    console.log("id+",id)
+    console.log("id+", id)
 
     if (!id) return null
 
@@ -92,60 +91,64 @@ export default class UserClient implements IUserClient {
     return res?.user ?? null
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-   console.log("findByEmail+++++", email)
-    if (!email) return null
+async findByEmail(email: string): Promise<User | null> {
+  console.log("findByEmail+", email);
+  if (!email) return null;
 
-    try {
+  try {
+    const res: any = await this.client.request(
+      INTERNAL_FIND_USER_BY_EMAIL,
+      { email },
+      {
+        "x-service-token": process.env.INTERNAL_SERVICE_TOKEN,
+      }
+    );
 
-      const res: any = await this.client.request(
-        FIND_USER_BY_EMAIL,
-        { email }
-      )
-    
-     console.log("res++", res?.userByEmail)
-      return res?.userByEmail ?? null
+    console.log("res++", res?.internalUserByEmail); // 🔥 注意这里也要改
+    return res?.internalUserByEmail ?? null;
 
-    } catch (err) {
+  } catch (err: any) {
 
-      console.error("findByEmail error:",   (err as any).response?.errors || err)
+    const gqlError = err?.response?.errors?.[0];
 
-      throw new Error((err as any).response?.errors || (err as any).message)
-      return null
-    }
+    console.error("findByEmail error:", gqlError || err);
 
+    throw new Error(
+      gqlError?.message || err.message || "Unknown error"
+    );
   }
+}
 
   /* =========================
      Mutations
   ========================= */
 
-async createOAuthUser(input: CreateOAuthUserInput) {
-  try {
-console.log("createOAuthUser input:", input);
-    const res: any = await this.client.request(
-      CREATE_OAUTH_USER,
-      { input }
-    );
+  async createOAuthUser(input: CreateOAuthUserInput) {
+    try {
+      console.log("createOAuthUser input:", input);
+      const res: any = await this.client.request(
+        CREATE_OAUTH_USER,
+        { input }
+      );
 
-    console.log("createOAuthUser result:", res);
+      console.log("createOAuthUser result:", res);
 
-    return res?.createOAuthUser ?? null;
+      return res?.createOAuthUser ?? null;
 
-  } catch (err: any) {
+    } catch (err: any) {
 
-    console.error(
-      "createOAuthUser error:",
-      err.response?.errors || err
-    );
+      console.error(
+        "createOAuthUser error:",
+        err.response?.errors || err
+      );
 
-    throw err;
+      throw err;
+    }
   }
-}
 
   async updateLastLogin(userId: string): Promise<void> {
-    
-const mutation = `
+
+    const mutation = `
 mutation UpdateLastLogin($userId: ID!) {
   updateLastLogin(userId: $userId)
 }

@@ -17,17 +17,31 @@ export const FIND_BY_ID = gql`
   }
 `;
 
-export const FIND_USER_BY_EMAIL = gql`
-  query FindUserByEmail($email: String!) {
-    userByEmail(email: $email) {
-      id    
-      profile {
-        name
-        avatar
-        email
-      }
+export const INTERNAL_FIND_USER_BY_EMAIL = gql`
+query InternalUserByEmail($email: String!) {
+  internalUserByEmail(email: $email) {
+    id
+    profile {
+      avatar
+      email
+      name
     }
   }
+}
+`;
+
+
+export const FIND_USER_BY_EMAIL = gql`
+query Query($email: String!) {
+  userByEmail(email: $email) {
+    id
+    profile {
+      avatar
+      email
+      name
+    }
+  }
+}
 `;
 
 /* =========================

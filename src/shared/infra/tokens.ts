@@ -8,7 +8,4 @@
     blacklist: Symbol.for("security.blacklist"),
     tokenBindingService: Symbol.for("security.tokenBindingService"),
   },
-
-
-
-  }
+}
