@@ -6,15 +6,17 @@ import { Document, Model } from 'mongoose';
 import { RefreshToken } from '../models/refreshToken.model';
 import { inject, injectable } from "tsyringe";
 import { hash } from "../../../infrastructure/utils/hash";
+import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
 
 interface RefreshTokenDocument extends RefreshToken, Document {}
 
 @injectable()
 export default class RefreshTokenRepository {
   constructor(
-    @inject("RefreshTokenModel")
+    @inject(TOKENS_AUTH.models.refreshToken)
     private model: Model<RefreshTokenDocument>
   ) {}
+
 
   /**
    * 🔒 原子：校验 + 标记 used（防并发）

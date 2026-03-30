@@ -149,14 +149,11 @@ type RiskEvent {
 # Auth Payload
 # =====================
 type AuthPayload {
-
-  user: User!
-
   tenantId: ID
-
-  accessToken: String!
-
-  refreshToken: String!
+  accessToken: String
+  refreshToken: String
+  user: User
+  status: String
 
 }
 

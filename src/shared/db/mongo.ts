@@ -10,7 +10,6 @@ export async function connectMongo(uri: string): Promise<void> {
   };
 
   await mongoose.connect(uri, options);
-
   console.log("🍃 MongoDB connected");
 }
 

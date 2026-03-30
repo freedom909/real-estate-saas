@@ -13,6 +13,7 @@ import { TOKENS_USER } from "../../modules/user/container/user.tokens";
 import { createRedis } from "../../infrastructure/redis/redis";
 
 // models
+import { Model } from "mongoose";
 import RefreshTokenModel from "./models/refreshToken.model";
 import CredentialModel from "./models/credential.model";
 import SessionModel from "./models/session.model";
@@ -23,13 +24,13 @@ import CredentialRepo from "./repos/credential.repo";
 import RefreshTokenRepository from "./repos/refresh-token.repo";
 import { RiskEventRepo } from "./repos/risk.event.repo";
 import SessionRepository from "./repos/session.repo";
-import SessionService from "./services/session.service";
+
 
 
 // services
 import RefreshTokenService from "./services/refreshToken.service";
 import { TokenService } from "./services/token.service";
-
+import SessionService from "./services/session.service";
 import { OAuthLoginService } from "./services/oauth.login.service";
 
 // adapters
@@ -43,9 +44,13 @@ import { OAuthProvider } from "./adapters/normalized.oauth.profile";
 
 
 import { TOKENS_SECURITY } from "@/security/container/tokens";
-import { AuditGraphQLAdapter } from "./adapters/audit.client";
+import { AuditAdapter } from "./adapters/audit.client";
 import { RiskEngine } from "@/security/domain/risk.engine";
 import Blacklist from "@/security/blacklist/blacklist";
+import { ServiceTokenService } from "./services/serviceToken.service";
+import { AuditClient } from "@/security/infrastructure/audit.client";
+import { TOKENS_AUDIT } from "../audit/container/audit.tokens";
+
 
 export default function registerAuthDependencies(
   container: DependencyContainer
@@ -70,6 +75,9 @@ export default function registerAuthDependencies(
   // ======================================================
   // MODELS
   // ======================================================
+  container.register(TOKENS_AUTH.models.refreshToken, {
+  useValue: RefreshTokenModel,
+});
 
   container.register(TOKENS_AUTH.models.session, {
     useValue: SessionModel,
@@ -79,8 +87,8 @@ export default function registerAuthDependencies(
     useValue: RiskEventModel,
   });
 
-  container.register(TOKENS_AUTH.models.refreshToken, {
-    useValue: RefreshTokenModel,
+  container.register(TOKENS_AUTH.repos.refreshTokenRepo, {
+    useClass: RefreshTokenRepository
   });
 
   container.register(TOKENS_AUTH.models.credential, {
@@ -92,33 +100,15 @@ export default function registerAuthDependencies(
   // ======================================================
 
   container.register(TOKENS_AUTH.repos.riskEventRepo, {
-  useFactory: (c) =>
-    new RiskEventRepo(
-      c.resolve(TOKENS_AUTH.models.riskEvent),
-      c.resolve(TOKENS_AUTH.repos.sessionRepo),
-      c.resolve(TOKENS_AUTH.repos.refreshTokenRepo)
-    ),
-  });
-
-  container.register(TOKENS_AUTH.repos.refreshTokenRepo, {
-    useFactory: (c) =>
-      new RefreshTokenRepository(
-         c.resolve(TOKENS_AUTH.models.refreshToken),
-      ),
+    useClass: RiskEventRepo
   });
 
   container.register(TOKENS_AUTH.repos.credentialRepo, {
-    useFactory: (c) =>
-      new CredentialRepo({
-        CredentialModel: c.resolve(TOKENS_AUTH.models.credential),
-      }),
+    useClass: CredentialRepo
   });
 
   container.register(TOKENS_AUTH.repos.sessionRepo, {
-    useFactory: (c) =>
-      new SessionRepository(
-         c.resolve(TOKENS_AUTH.models.session),
-      ),
+ useClass:SessionRepository
   });
 
   // ======================================================
@@ -126,99 +116,82 @@ export default function registerAuthDependencies(
   // ======================================================
 
   container.register(TOKENS_USER.userClient, {
-    useFactory: () => new UserClient(),
+    useClass: UserClient,
   });
 
+  container.register(TOKENS_AUDIT.auditClient,{
+    useClass:AuditClient
+  })
 
+  // ======================================================
+  // OAUTH ADAPTERS
+  // ======================================================
 
-// ======================================================
-// OAUTH ADAPTERS
-// ======================================================
+  // 1️⃣ 注册 adapter（必须有！！！）
+  container.registerSingleton(GoogleOAuthAdapter);
+  container.registerSingleton(GithubOAuthAdapter);
 
-// 1️⃣ 注册 adapter（必须有！！！）
-container.registerSingleton(GoogleOAuthAdapter);
-container.registerSingleton(GithubOAuthAdapter);
+  // 2️⃣ 注册 registry
+  container.registerSingleton(
+    TOKENS_AUTH.adapters.oauthAdapterRegistry,
+    OAuthAdapterRegistry
+  );
 
-// 2️⃣ 注册 registry
-container.registerSingleton(
-  TOKENS_AUTH.adapters.oauthAdapterRegistry,
-  OAuthAdapterRegistry
-);
+  // 3️⃣ 初始化 registry
+  const registry = container.resolve<OAuthAdapterRegistry>(
+    TOKENS_AUTH.adapters.oauthAdapterRegistry
+  );
 
-// 3️⃣ 初始化 registry
-const registry = container.resolve<OAuthAdapterRegistry>(
-  TOKENS_AUTH.adapters.oauthAdapterRegistry
-);
+  // 4️⃣ 注册 provider → adapter 映射
+  registry.register(
+    OAuthProvider.GOOGLE,
+    container.resolve(GoogleOAuthAdapter)
+  );
 
-// 4️⃣ 注册 provider → adapter 映射
-registry.register(
-  OAuthProvider.GOOGLE,
-  container.resolve(GoogleOAuthAdapter)
-);
+  registry.register(
+    OAuthProvider.GITHUB,
+    container.resolve(GithubOAuthAdapter)
+  );
 
-registry.register(
-  OAuthProvider.GITHUB,
-  container.resolve(GithubOAuthAdapter)
-);
+  // 5️⃣ debug
+  registry.debug();
 
-// 5️⃣ debug
-registry.debug();
-
-console.log("✅ OAuth adapters registered");
+  console.log("✅ OAuth adapters registered");
   // ======================================================
   // SERVICES
   // ======================================================
-registry.debug(); // 👉 看是否注册成功
-  container.register(TOKENS_AUTH.services.loginRiskService, {
-    useFactory: (c) =>
-      new RiskEngine(
-        c.resolve(TOKENS_AUTH.repos.riskEventRepo),
- 
-      ),
-  });
+  registry.debug(); // 👉 看是否注册成功
+
 
   container.register(TOKENS_AUTH.services.tokenService, {
-    useFactory: (c) =>
-      new TokenService(
-        c.resolve(TOKENS.security.blacklist),
-        c.resolve(TOKENS_AUTH.repos.refreshTokenRepo),
-      ),
+    useClass: TokenService
   });
 
   container.register(TOKENS_AUTH.services.refreshTokenService, {
-    useFactory: (c) =>
-      new RefreshTokenService(
-        c.resolve(TOKENS_AUTH.services.tokenService),
-        c.resolve(TOKENS_AUTH.repos.refreshTokenRepo),
-        c.resolve(TOKENS_AUTH.repos.sessionRepo),
-        c.resolve(TOKENS_AUTH.services.loginRiskService),
-      ),
+    useClass: RefreshTokenService
   });
 
   container.register(TOKENS_AUTH.services.oauthloginService, {
-    useFactory: (c) =>
-      new OAuthLoginService(
-        c.resolve(TOKENS_AUTH.adapters.oauthAdapterRegistry),
-        c.resolve(TOKENS_USER.userClient),
-        c.resolve(TOKENS_AUTH.services.tokenService),
-        c.resolve(TOKENS_AUTH.services.sessionService),
-        c.resolve(TOKENS_AUTH.services.loginRiskService), 
-        c.resolve(TOKENS_SECURITY.riskEngine),
-      ),
+    useClass: OAuthLoginService
   });
 
   container.register(TOKENS_AUTH.services.sessionService, {
-    useFactory: (c) =>
-      new SessionService(
-        c.resolve(TOKENS_AUTH.repos.sessionRepo),       
-      ),
+    useClass: SessionService
   });
 
-container.register(TOKENS_AUTH.auditPort, {
-  useFactory: (c) => {
-    const gqlClient = c.resolve("AuditGraphQLClient"); // 你已有的 client
-    return new AuditGraphQLAdapter(gqlClient);
-  },
-})
+  container.register(TOKENS_AUTH.auditPort, {
+    useClass: AuditAdapter
+  })
 
+  container.register(TOKENS_AUTH.services.serviceTokenService, {
+    useClass: ServiceTokenService,
+  });
+
+
+
+  console.log(
+    "ServiceToken registered:",
+    container.isRegistered("ServiceTokenService") // ServiceToken registered: false
+  );
+  return container;
 }

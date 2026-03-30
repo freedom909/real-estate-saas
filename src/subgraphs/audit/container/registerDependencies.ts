@@ -15,7 +15,6 @@ function registerAuditDependencies(container: DependencyContainer) {
   container.register(AuditRepository, { useClass: AuditRepository });
   container.register(AuditService, { useClass: AuditService });
 
-
   container.register(TOKENS_SECURITY.services.geminiSecurityService, {
     useClass: GeminiSecurityService,
   });

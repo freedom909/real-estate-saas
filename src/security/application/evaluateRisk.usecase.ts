@@ -20,9 +20,7 @@ export class EvaluateRiskUseCase {
   async execute(event: SecurityEvent) {
     const score = await this.engine.evaluate(event);
     const decision = this.decision.decide(score);
-
     const result = { score, decision };
-
     await this.audit.save({
       ...event,
       ...result,

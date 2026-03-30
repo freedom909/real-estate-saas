@@ -7,6 +7,10 @@ import { inject, injectable } from "tsyringe";
 import SessionRepository from "../repos/session.repo";
 import UserClient from "../adapters/user.client";
 import { hash } from "../../../infrastructure/utils/hash";
+import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
+import { TOKENS_SECURITY } from "@/security/container/tokens";
+import { RiskEngine } from "@/security/domain/risk.engine";
+import { RiskEventRepo } from "../repos/risk.event.repo";
 
 interface RefreshTokenRepo {
   revokeFamily(familyId: string): Promise<void>;
@@ -41,14 +45,14 @@ interface RefreshContext {
 @injectable()
 export default class RefreshTokenService {
   constructor(
-    @inject("TokenService")
+    @inject(TOKENS_AUTH.services.tokenService)
     private tokenService: TokenService,
-    @inject("RefreshTokenRepo")
+    @inject(TOKENS_AUTH.repos.refreshTokenRepo)
     private refreshTokenRepo: RefreshTokenRepo,
-    @inject("SessionRepository")
+    @inject(TOKENS_AUTH.repos.sessionRepo)
     private sessionRepo: SessionRepository,
-    @inject("LoginRiskService")
-    private riskService: LoginRiskService
+    @inject(TOKENS_AUTH.repos.riskEventRepo)
+    private riskEventRepo: RiskEventRepo
   ) {}
 
 async revokeAll(userId: string) {
@@ -67,7 +71,7 @@ async revokeAll(userId: string) {
     // 🚨 reuse attack
     await this.refreshTokenRepo.revokeFamily(familyId);
 
-    await this.riskService.handleRefreshTokenReuse({
+    await this.riskEventRepo.handleRefreshTokenReuse({
       userId: sub,
       sessionId,
       familyId,

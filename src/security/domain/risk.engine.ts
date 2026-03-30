@@ -1,7 +1,13 @@
+import { inject, injectable } from "tsyringe";
 import { IAIService, SecurityEvent } from "../types";
+import { TOKENS_SECURITY } from "../container/tokens";
 
+@injectable()
 export class RiskEngine {
-  constructor(private ai: IAIService) {}
+  constructor(
+    @inject(TOKENS_SECURITY.aiService)
+    private ai: IAIService
+  ) {}
 
   async evaluate(event: SecurityEvent): Promise<number> {
     let score = 0;
@@ -14,4 +20,6 @@ export class RiskEngine {
 
     return score + aiScore;
   }
+
+
 }

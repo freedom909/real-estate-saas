@@ -5,6 +5,9 @@ import {
   INTERNAL_FIND_USER_BY_EMAIL,
   CREATE_OAUTH_USER
 } from "./queries";
+import { inject, injectable } from "tsyringe";
+import { ServiceTokenService } from "../services/serviceToken.service";
+import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
 
 /* =========================
    Types
@@ -44,12 +47,14 @@ export interface IUserClient {
 /* =========================
    Implementation
 ========================= */
-
+@injectable()
 export default class UserClient implements IUserClient {
-
-  private client: GraphQLClient
-
-  constructor(endpoint?: string) {
+  client: any;
+constructor(
+  @inject(TOKENS_AUTH.services.serviceTokenService)
+  private serviceTokenService: ServiceTokenService,
+  endpoint?: string
+) {
 
     const url =
       endpoint ||
@@ -65,9 +70,7 @@ export default class UserClient implements IUserClient {
   ========================= */
 
   async request(query: string, variables?: any) {
-
     const data = await this.client.request(query, variables)
-
     return data
   }
 
@@ -96,23 +99,24 @@ async findByEmail(email: string): Promise<User | null> {
   if (!email) return null;
 
   try {
-    const res: any = await this.client.request(
-      INTERNAL_FIND_USER_BY_EMAIL,
-      { email },
-      {
-        "x-service-token": process.env.INTERNAL_SERVICE_TOKEN,
-      }
-    );
+const token = this.serviceTokenService.generate("auth-service", [
+  "user:read",
+]);
+console.log("token++", token);
+const res: any = await this.client.request(
+  INTERNAL_FIND_USER_BY_EMAIL,
+  { email },
+  {
+  
+      Authorization: `Bearer ${token}`, // 🔥 标准化
 
+  }
+);
     console.log("res++", res?.internalUserByEmail); // 🔥 注意这里也要改
     return res?.internalUserByEmail ?? null;
-
   } catch (err: any) {
-
     const gqlError = err?.response?.errors?.[0];
-
     console.error("findByEmail error:", gqlError || err);
-
     throw new Error(
       gqlError?.message || err.message || "Unknown error"
     );

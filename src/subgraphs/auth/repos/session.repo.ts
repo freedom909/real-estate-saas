@@ -1,7 +1,8 @@
 // src/subgraphs/auth/repos/session.repo.ts
 import { Model } from "mongoose";
-import { Session, SessionDocument } from "../models/session.model";
+import SessionModel, { Session, SessionDocument } from "../models/session.model";
 import { inject, injectable } from "tsyringe";
+import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
 
 export interface CreateSessionInput {
   userId: string
@@ -16,12 +17,12 @@ export interface CreateSessionInput {
 @injectable()
 export default class SessionRepository {
   constructor(
-    @inject("sessionModel")
-    private sessionModel: Model<SessionDocument>
+  @inject(TOKENS_AUTH.models.session)
+  private model: typeof SessionModel
   ) { }
 
   async revokeSession(sessionId: any) {
-    const session = await this.sessionModel.findById(sessionId);
+    const session = await this.model.findById(sessionId);
     if (!session) {
       throw new Error("Session not found");
     }
@@ -33,14 +34,26 @@ export default class SessionRepository {
   }
   
 async getOrCreateFamilyId(userId: string, deviceId: string): Promise<string> {
-  const familyId = await this.sessionModel.findOneAndUpdate(
-    { userId, deviceId })
-    .select('familyId')
-return familyId.familyId;
+  const session = await this.model.findOneAndUpdate(
+    { userId, deviceId },
+    {
+      $setOnInsert: {
+        familyId: crypto.randomUUID(),
+        userId,
+        deviceId,
+      },
+    },
+    {
+      upsert: true,
+      new: true,
+    }
+  );
+
+  return session.familyId;
 }
 
 async create(input: CreateSessionInput): Promise<Session> {
-  const doc = await this.sessionModel.create(input)
+  const doc = await this.model.create(input)
 
   return {
     id: doc._id.toString(),
@@ -58,43 +71,43 @@ async create(input: CreateSessionInput): Promise<Session> {
 }
 
   async listByUser(userId: string): Promise<SessionDocument[]> {
-    return this.sessionModel.find({
+    return this.model.find({
       userId,
       revoked: false,
     }).sort({ lastSeenAt: -1 });
   }
 
   async revoke(sessionId: string) {
-    return this.sessionModel.updateOne(
+    return this.model.updateOne(
       { _id: sessionId },
       { $set: { revoked: true } }
     );
   }
 
   async revokeAll(userId: string) {
-    return this.sessionModel.updateMany(
+    return this.model.updateMany(
       { userId },
       { $set: { revoked: true } }
     );
   }
 
   async updateById(id: string, data: Partial<Session>) {
-    return this.sessionModel.findByIdAndUpdate(id, data, { new: true });
+    return this.model.findByIdAndUpdate(id, data, { new: true });
   }
 
   async findById(id: string) {
-    return this.sessionModel.findById(id);
+    return this.model.findById(id);
   }
 
   async findActiveByUser(userId: string) {
-  return this.sessionModel.find({
+  return this.model.find({
     userId,
     revoked: { $ne: true },
   });
 }
 
 async revokeById(sessionId: string) {
-  return this.sessionModel.updateOne(
+  return this.model.updateOne(
     { _id: sessionId },
     {
       $set: {
@@ -106,7 +119,7 @@ async revokeById(sessionId: string) {
 }
 
 async updateLastSeen(sessionId: string) {
-  return this.sessionModel.updateOne(
+  return this.model.updateOne(
     { _id: sessionId },
     {
       $set: {
@@ -117,19 +130,19 @@ async updateLastSeen(sessionId: string) {
 }
   
 async update(sessionId: string, data: Partial<Session>) {
-  return this.sessionModel.findByIdAndUpdate(sessionId, data, { new: true });
+  return this.model.findByIdAndUpdate(sessionId, data, { new: true });
 }
 
 async deleteMany(filter: Partial<Session>) {
-  return this.sessionModel.deleteMany(filter);
+  return this.model.deleteMany(filter);
 }
 
 async findBySessionId(sessionId: string) {
-  return await this.sessionModel.findOne({ _id: sessionId });
+  return await this.model.findOne({ _id: sessionId });
 }
 
   async findRecentSessions({ userId, since }: { userId: string; since: Date }) {
-    return this.sessionModel.find({
+    return this.model.find({
       userId,
       lastSeenAt: { $gte: since },
     });

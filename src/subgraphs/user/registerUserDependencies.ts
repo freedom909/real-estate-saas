@@ -6,6 +6,7 @@ import  UserService  from "./services/user.service"
 import userModel from "./models/user.model"
 import { TOKENS_INFRA } from "@/infrastructure/infra.tokens"
 import RedisService from "@/infrastructure/redis/redisService"
+import UserClient from "../auth/adapters/user.client"
 
 export function registerUserDependencies(container: DependencyContainer) {
 
@@ -17,7 +18,6 @@ export function registerUserDependencies(container: DependencyContainer) {
   // repo
   container.register(TOKENS_USER.repos.userRepo, {
     useClass: UserRepository,
-
   })
 
   // service
@@ -28,6 +28,11 @@ export function registerUserDependencies(container: DependencyContainer) {
   container.register(TOKENS_INFRA.infra.redis, {
     useValue: RedisService
   })
+
+  container.register(TOKENS_USER.userClient, {
+  useClass: UserClient,
+});
+
 
   return container
 }

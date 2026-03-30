@@ -11,7 +11,6 @@ export const TOKENS_SECURITY = {
     tokenBindingService: Symbol.for("security.tokenBindingService"),
     geminiSecurityService: Symbol.for("security.geminiSecurityService"),
     uiStrategyService: Symbol.for("security.uiStrategyService"),
-    evaluateRiskUseCase: Symbol.for("security.EvaluateRiskUseCase"),
     decisionRiskEngine: Symbol.for("security.DecisionRiskEngine"),
     riskCalculator: Symbol.for("security.RiskCalculator"),
     geminiClient: Symbol.for("security.GeminiClient"),

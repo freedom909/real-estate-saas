@@ -13,10 +13,10 @@ export class RiskEventRepo {
     @inject("RiskEventModel")
     private model: Model<RiskEventModel>,
     @inject("SessionRepository")
-    private sessionRepo:SessionRepository,
+    private sessionRepo: SessionRepository,
     @inject("RefreshTokenRepo")
-    private refreshTokenRepo:RefreshTokenRepository
-  ) {}
+    private refreshTokenRepo: RefreshTokenRepository
+  ) { }
   async create(data: Partial<RiskEventModel>) {
 
     const doc = await this.model.create({
@@ -86,64 +86,65 @@ export class RiskEventRepo {
     // LOW → 只记录
   }
 
-async findRecentDevices(userId: string): Promise<string[]> {
-  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  async findRecentDevices(userId: string): Promise<string[]> {
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const sessions = await this.sessionRepo.findRecentSessions({
-    userId,
-    since,
-  });
+    const sessions = await this.sessionRepo.findRecentSessions({
+      userId,
+      since,
+    });
 
-  if (!sessions?.length) return [];
+    if (!sessions?.length) return [];
 
-  return [
-    ...new Set(
-      sessions
-        .map((s) => s.deviceId)
-        .filter((id): id is string => Boolean(id))
-    ),
-  ]  as string[];
-}
+    return [
+      ...new Set(
+        sessions
+          .map((s) => s.deviceId)
+          .filter((id): id is string => Boolean(id))
+      ),
+    ] as string[];
+  }
 
-async getLastLoginIp(userId: string): Promise<string | null> {
-  const lastEvent = await this.model
-    .findOne({
-      userId, // ✅ 直接用 string
-      "eventData.type": "LOGIN_SUCCESS",
-      ip: { $ne: null }
-    })
-    .sort({ createdAt: -1 })
-    .select("ip")
-    .lean();
+  async getLastLoginIp(userId: string): Promise<string | null> {
+    const lastEvent = await this.model
+      .findOne({
+        userId, // ✅ 直接用 string
+        "eventData.type": "LOGIN_SUCCESS",
+        ip: { $ne: null }
+      })
+      .sort({ createdAt: -1 })
+      .select("ip")
+      .lean();
 
-  return lastEvent?.ip ?? null;
-}
+    return lastEvent?.ip ?? null;
+  }
+  
   async handleRefreshTokenReuse(data) {
-  const { familyId, reusedJti } = data;
+    const { familyId, reusedJti } = data;
 
-  const family = await this.refreshTokenRepo.findFamily(familyId);
+    const family = await this.refreshTokenRepo.findFamily(familyId);
 
-  console.log("🚨 FAMILY GRAPH:", family.map(t => ({
-    jti: t.jti,
-    status: t.status,
-    rotatedFrom: t.rotatedFrom
-  })));
+    console.log("🚨 FAMILY GRAPH:", family.map(t => ({
+      jti: t.jti,
+      status: t.status,
+      rotatedFrom: t.rotatedFrom
+    })));
 
-  // 1️⃣ revoke 全家
-  await this.refreshTokenRepo.revokeFamily(familyId);
+    // 1️⃣ revoke 全家
+    await this.refreshTokenRepo.revokeFamily(familyId);
 
-  // 2️⃣ revoke session
-  await this.sessionRepo.revokeSession(data.sessionId);
+    // 2️⃣ revoke session
+    await this.sessionRepo.revokeSession(data.sessionId);
 
-  // 3️⃣ 记录风险
-  await this.model.create({
-    eventType: "TOKEN_REUSE",
-    userId: data.userId,
-    severity: "HIGH",
-    eventData: {
-      reusedJti,
-      familyId,
-    },
-  });
-}     
+    // 3️⃣ 记录风险
+    await this.model.create({
+      eventType: "TOKEN_REUSE",
+      userId: data.userId,
+      severity: "HIGH",
+      eventData: {
+        reusedJti,
+        familyId,
+      },
+    });
+  }
 }

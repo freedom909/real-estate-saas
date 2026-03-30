@@ -20,6 +20,7 @@ export default class SessionService {
   ) { }
 
   async createSession(params: CreateSessionParams) {
+    console.log("params",params) //no output
     return this.sessionRepo.create({
       userId: params.userId,
       deviceId: params.deviceId,
@@ -58,6 +59,7 @@ export default class SessionService {
   }
 
   async getOrCreateFamilyId(userId: string, deviceId: string): Promise<string> {
+    console.log("userId",userId) // no output
     return this.sessionRepo.getOrCreateFamilyId(userId, deviceId);
   }
 }

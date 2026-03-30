@@ -130,7 +130,6 @@ export default {
     ) => {
 
       try {
-
         const loginService = container.resolve<OAuthLoginService>(TOKENS_AUTH.services.oauthloginService);
         const normalizedProvider = provider.toLowerCase() as OAuthProvider;
         return loginService.oauthLogin(normalizedProvider as OAuthProvider, idToken, req

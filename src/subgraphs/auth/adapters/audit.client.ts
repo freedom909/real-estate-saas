@@ -1,7 +1,12 @@
+import { inject, injectable } from "tsyringe";
 import { AuditPort, AuditEvent, AuditQuery } from "../domain/auditPort";
+import { TOKENS_AUDIT } from "@/subgraphs/audit/container/audit.tokens";
 
-export class AuditGraphQLAdapter implements AuditPort {
-  constructor(private client: any) {}
+@injectable()
+export class AuditAdapter implements AuditPort {
+  constructor(
+    @inject(TOKENS_AUDIT.auditClient)
+    private client: any) {}
 
   async record(event: AuditEvent): Promise<void> {
     await this.client.mutate({
