@@ -48,7 +48,7 @@ import { AuditAdapter } from "./adapters/audit.client";
 import { RiskEngine } from "@/security/domain/risk.engine";
 import Blacklist from "@/security/blacklist/blacklist";
 import { ServiceTokenService } from "./services/serviceToken.service";
-import { AuditClient } from "@/security/infrastructure/audit.client";
+import AuditClient from "@/packages/audit-sdk/src/client/audit.client";
 import { TOKENS_AUDIT } from "../audit/container/audit.tokens";
 
 
@@ -119,10 +119,6 @@ export default function registerAuthDependencies(
     useClass: UserClient,
   });
 
-  container.register(TOKENS_AUDIT.auditClient,{
-    useClass:AuditClient
-  })
-
   // ======================================================
   // OAUTH ADAPTERS
   // ======================================================
@@ -187,11 +183,11 @@ export default function registerAuthDependencies(
     useClass: ServiceTokenService,
   });
 
+container.register(TOKENS_AUDIT.auditClient, {
+  useValue: new AuditClient(
+    process.env.AUDIT_SUBGRAPH_URL || "http://localhost:4080/graphql"
+  ),
+});
 
-
-  console.log(
-    "ServiceToken registered:",
-    container.isRegistered("ServiceTokenService") // ServiceToken registered: false
-  );
   return container;
 }

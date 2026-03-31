@@ -132,14 +132,12 @@ export default {
       try {
         const loginService = container.resolve<OAuthLoginService>(TOKENS_AUTH.services.oauthloginService);
         const normalizedProvider = provider.toLowerCase() as OAuthProvider;
-        return loginService.oauthLogin(normalizedProvider as OAuthProvider, idToken, req
-        );
+        return loginService.oauthLogin(normalizedProvider as OAuthProvider, idToken, req);
       } catch (err) {
         console.error("❌ resolve error:", err);
         throw err;
       }
     },
-
 
     refreshToken: async (_: unknown, { refreshToken }: { refreshToken: string }, ctx: Context) => {
       const refreshTokenService = container.resolve<RefreshTokenService>(TOKENS_AUTH.services.refreshTokenService)

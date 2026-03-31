@@ -9,7 +9,6 @@ export const TOKENS_AUTH = {
     githubOAuthAdapter: Symbol.for("auth.adapters.githubOAuthAdapter"),
     appleOAuthAdapter: Symbol.for("auth.adapters.appleOAuthAdapter"),
     facebookOAuthAdapter: Symbol.for("auth.adapters.facebookOAuthAdapter"),
-
   },
 
   // models

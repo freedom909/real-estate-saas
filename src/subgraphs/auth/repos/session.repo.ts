@@ -45,7 +45,7 @@ async getOrCreateFamilyId(userId: string, deviceId: string): Promise<string> {
     },
     {
       upsert: true,
-      new: true,
+      returnDocument: "after",
     }
   );
 

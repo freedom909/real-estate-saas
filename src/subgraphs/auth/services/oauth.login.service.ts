@@ -18,7 +18,9 @@ import { TOKENS_SECURITY } from "@/security/container/tokens";
 import { fingerprint } from "@/infrastructure/auth/fingerPrint";
 import { EvaluateRiskUseCase } from "@/security/application/evaluateRisk.usecase";
 import { TOKENS_AUDIT } from "@/subgraphs/audit/container/audit.tokens";
-import { AuditClient } from "@/security/infrastructure/audit.client";
+import { AuditPort } from "../domain/auditPort";
+import { RiskResult } from "@/security/types";
+
 
 @injectable()
 export class OAuthLoginService {
@@ -26,9 +28,9 @@ export class OAuthLoginService {
     @inject(TOKENS_AUTH.adapters.oauthAdapterRegistry) private registry: OAuthAdapterRegistry,
     @inject(TOKENS_USER.userClient) private userClient: UserClient,
     @inject(TOKENS_AUTH.services.tokenService) private tokenService: TokenService,
-    @inject(TOKENS_AUTH.services.sessionService) private sessionService: SessionService,//
+    @inject(TOKENS_AUTH.services.sessionService) private sessionService: SessionService,
     @inject(TOKENS_SECURITY.evaluateRiskUseCase) private evaluateRiskUseCase: EvaluateRiskUseCase,
-    @inject(TOKENS_AUDIT.auditClient) private auditClient: AuditClient
+    @inject(TOKENS_AUTH.auditPort) private auditPort: AuditPort
   ) { }
   async oauthLogin(provider: string, idToken: string, req) {
     // 1 OAuth
@@ -57,7 +59,7 @@ export class OAuthLoginService {
 
     console.log("usecase++:", this.evaluateRiskUseCase);
     // 4 risk（🔥 提前）
-    const risk = await this.evaluateRiskUseCase.execute({
+    const risk: RiskResult = await this.evaluateRiskUseCase.execute({
       userId: user.id,
       ip: req.ip,
       deviceId,
@@ -66,28 +68,26 @@ export class OAuthLoginService {
       isNewDevice: true,
       ipRisk: false,
     });
-    console.log("risk--",risk)
-    if (risk.decision === "BLOCK") { // プロパティ 'decision' は型 'number' に存在しません。
+    console.log("risk--", risk)
+    if (risk.decision === "BLOCK") {
       throw new Error("Blocked");
     }
 
-    if (risk.decision === "CHALLENGE") {
-      return {
-    status: "MFA_REQUIRED",
-    accessToken: null,
-    refreshToken: null,
-    user: null,
-  };
-}
-   console.log("sessionSerivice",this.sessionService) //no output
+        if (risk.decision === "CHALLENGE") {
+          return {
+        status: "MFA_REQUIRED",
+        accessToken: null,
+        refreshToken: null,
+        user: null,
+      };
+    }
+    console.log("sessionSerivice", this.sessionService) //no output
     // 5 family
     const familyId = await this.sessionService.getOrCreateFamilyId( //no output
       user.id,
       deviceId
     );
-    console.log("familyId--", familyId)
-    // 6 session
-    console.log("sessionSerivice",this.sessionService)
+
     const session = await this.sessionService.createSession({
       refreshTokenId: hash(uuidv4()),
       userId: user.id,
@@ -96,7 +96,7 @@ export class OAuthLoginService {
       userAgent: req.userAgent,
       familyId,
     });
-
+    console.log("session", session)
     // 7 token
     const pair = await this.tokenService.issueAndPersistTokenPair({
       userId: user.id,
@@ -104,15 +104,20 @@ export class OAuthLoginService {
       familyId,
       deviceId: req.deviceId,
     });
-
+    console.log("pair", pair)
     // 8 audit（🔥 异步）
-    setImmediate(() => {
-      this.auditClient.record({
-        userId: user.id,
-        action: "LOGIN_SUCCESS",
-        metadata: { ip: req.ip, deviceId, provider },
-      });
+
+    await this.auditPort.record({
+      userId: user.id,
+      resourceId: user.id,
+      action: "LOGIN",
+      metadata: {
+        ip: req.ip,
+        deviceId,
+        provider,
+      },
     });
+
 
     return {
       accessToken: pair.accessToken,

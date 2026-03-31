@@ -9,10 +9,15 @@ type AuditLog @key(fields: "id") {
 }
 
 type Mutation {
-  recordAuditLog(action: String!, userId: ID!, resourceId: ID!): AuditLog!
+   recordAuditLog(
+    action: String!
+    userId: ID!
+    resourceId: ID
+    metadata: String
+  ): AuditLog!
 }
 
 type Query {
-  getAuditLog(id: ID!): AuditLog
+  getAuditLog(userId: ID!): AuditLog
   getAuditLogsByResource(resourceId: ID!): [AuditLog!]!
 }

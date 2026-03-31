@@ -1,11 +1,14 @@
 import { injectable, inject } from 'tsyringe';
 import { Model } from 'mongoose';
-import { AuditLogDocument, AuditLogModelToken } from '../models/audit.model';
+import { AuditLogDocument } from '../models/audit.model';
+import { TOKENS_AUDIT } from '../container/audit.tokens';
+
 
 @injectable()
 export class AuditRepository {
   constructor(
-    @inject(AuditLogModelToken) private model: Model<AuditLogDocument>
+    @inject(TOKENS_AUDIT.models.audit) 
+    private model: Model<AuditLogDocument>
   ) {}
 
   async findById(id: string): Promise<AuditLogDocument | null> {
@@ -16,7 +19,7 @@ export class AuditRepository {
     return this.model.find({ resourceId }).sort({ timestamp: -1 }).exec();
   }
 
-  async create(data: { action: string; userId: string; resourceId: string }): Promise<AuditLogDocument> {
+  async create(data): Promise<AuditLogDocument> {
     return this.model.create(data);
   }
 }

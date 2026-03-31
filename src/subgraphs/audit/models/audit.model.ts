@@ -4,16 +4,18 @@ export interface AuditLogDocument extends Document {
   action: string;
   userId: string;
   resourceId: string;
+  metadata: string;
   timestamp: Date;
 }
 
-const AuditLogSchema = new Schema({
+const Model = new Schema({
   action: { type: String, required: true },
   userId: { type: Schema.Types.ObjectId, required: true, index: true },
   resourceId: { type: Schema.Types.ObjectId, required: true, index: true },
-  timestamp: { type: Date, default: Date.now }
+  metadata: { type: String },
+  timestamp: { type: Date, default: Date.now }, 
 });
 
-export const AuditLogModel = mongoose.model<AuditLogDocument>('AuditLog', AuditLogSchema);
+const AuditModel = mongoose.model<AuditLogDocument>('AuditLog', Model);
 
-export const AuditLogModelToken = Symbol.for('AuditLogModel');
+export default AuditModel;

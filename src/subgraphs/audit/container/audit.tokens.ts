@@ -2,7 +2,8 @@
 
 export const TOKENS_AUDIT={
 
-    auditClient: Symbol.for("audit.auditClient"),
+      auditClient: Symbol.for("AuditClient"),
+     graphqlClient: Symbol.for("AuditGraphQLClient"),
 
     models: {
       audit: Symbol.for("audit.models.audit"),
@@ -15,5 +16,4 @@ export const TOKENS_AUDIT={
     services: {
       auditService: Symbol.for("audit.services.auditService"),
     },
- 
 }

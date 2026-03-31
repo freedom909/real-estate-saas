@@ -12,6 +12,7 @@
     "dev:property": "tsx watch src/subgraphs/property/index.ts",
     "dev:gateway": "tsx watch src/gateway/index.ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:audit": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start:auth": "node dist/subgraphs/auth/index.js",
     "start:property": "node dist/subgraphs/property/index.js",
     "start:gateway": "node dist/gateway/index.js"

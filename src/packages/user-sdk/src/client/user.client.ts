@@ -20,6 +20,24 @@ export class UserClient{
       }
     }
     `
+  const query = `
+  query getAuditLog(
+    $userId: String
+    $action: String
+  ) {
+    auditLogs(
+      userId: $userId
+      action: $action
+    ) {
+      id
+      userId
+      action
+      resourceId
+      metadata
+      timestamp
+    }
+  }
+`;
 
     const data = await this.client.request(mutation,{input})
 

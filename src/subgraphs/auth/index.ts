@@ -19,16 +19,18 @@ import resolvers from "./resolvers.js"
 
 import registerAuthDependencies from "./registerAuthDependencies.js"
 import  registerSecurityDependencies  from "../../security/container/register.js";
+import registerAuditDependencies from "../audit/container/registerDependencies.js"
 
 
 // ⭐ 注册 DI
+registerAuditDependencies(container)
 registerSecurityDependencies();
 registerAuthDependencies(container)
 console.log("OAuth container loaded")//good
 
 // ⭐ Mongo
 await mongoose.connect(
-  process.env.MONGO_URI || "mongodb://localhost:27017/north"
+  process.env.MONGO_URI || "mongodb://localhost:27017/east"
 )
 
 // ⭐ schema

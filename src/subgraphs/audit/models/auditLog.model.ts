@@ -3,14 +3,15 @@ import mongoose, { Schema, Document } from "mongoose"
 export interface AuditLogDocument extends Document {
 
   userId?: mongoose.Types.ObjectId
-
   action: string
-
-  resource: string
-
-  ip?: string
-
-  createdAt: Date
+  resourceId: string
+  createdAt: Date,
+  meta:{
+    deviceId,
+    provider,
+    ip,
+    userAgent
+  }
 }
 
 const auditLogSchema = new Schema<AuditLogDocument>(
@@ -24,15 +25,26 @@ const auditLogSchema = new Schema<AuditLogDocument>(
       required: true
     },
 
-    resource: {
+    resourceId: {
       type: String,
       required: true
     },
-
-    ip: String
-  },
-  {
-    timestamps: true
+    meta: {
+      deviceId: {
+        type: String,
+      },
+      ip: {
+        type: String,
+      },
+      userAgent: {
+        type: String,
+      },
+   
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   }
 )
 

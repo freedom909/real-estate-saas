@@ -1,5 +1,8 @@
 import { container } from 'tsyringe';
 import { AuditService } from '../services/audit.service';
+import AuditModel from '../models/audit.model';
+import mongoose from 'mongoose';
+import { UserInputError } from '@/infrastructure/utils/errors';
 
 export const resolvers = {
   Query: {
@@ -13,9 +16,22 @@ export const resolvers = {
     },
   },
   Mutation: {
-    recordAuditLog: async (_: any, { action, userId, resourceId }: { action: string; userId: string; resourceId: string }) => {
-      const service = container.resolve(AuditService);
-      return service.createLog(action, userId, resourceId);
+    recordAuditLog: async (_, args) => {
+      // Validate userId and resourceId to ensure they are valid ObjectId strings
+      if (!args.userId || !mongoose.Types.ObjectId.isValid(args.userId)) {
+        throw new UserInputError('Invalid or missing userId for audit log');
+      }
+      if (!args.resourceId || !mongoose.Types.ObjectId.isValid(args.resourceId)) {
+        throw new UserInputError('Invalid or missing resourceId for audit log');
+      }
+
+      return AuditModel.create({
+        action: args.action,
+        userId: args.userId,
+        resourceId: args.resourceId,
+        metadata: args.metadata,
+        timestamp: new Date(),
+      });
     },
   },
   AuditLog: {

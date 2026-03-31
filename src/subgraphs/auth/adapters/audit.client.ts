@@ -1,58 +1,40 @@
+// src/subgraphs/auth/adapters/audit.client.ts
+
 import { inject, injectable } from "tsyringe";
 import { AuditPort, AuditEvent, AuditQuery } from "../domain/auditPort";
 import { TOKENS_AUDIT } from "@/subgraphs/audit/container/audit.tokens";
+import AuditClient from "@/packages/audit-sdk/src/client/audit.client";
+
 
 @injectable()
 export class AuditAdapter implements AuditPort {
   constructor(
     @inject(TOKENS_AUDIT.auditClient)
-    private client: any) {}
+    private client: AuditClient // 
+  ) {}
 
   async record(event: AuditEvent): Promise<void> {
-    await this.client.mutate({
-      mutation: `
-        mutation RecordAudit($input: AuditInput!) {
-          recordAudit(input: $input)
-        }
-      `,
-      variables: {
-        input: {
-          userId: event.userId,
-          action: event.action,
-          metadata: event.metadata,
-          timestamp: event.timestamp ?? new Date().toISOString(),
-        },
-      },
-      context: {
-        headers: {
-          "x-service-token": process.env.INTERNAL_SERVICE_TOKEN,
-        },
-      },
+    await this.client.recordAudit({
+      action: event.action,
+      userId: event.userId,
+      resourceId: event.resourceId || event.userId,
+      
     });
   }
 
   async query(params: AuditQuery): Promise<AuditEvent[]> {
-    const res = await this.client.query({
-      query: `
-        query AuditLogs($filter: AuditFilter) {
-          auditLogs(filter: $filter) {
-            userId
-            action
-            metadata
-            timestamp
-          }
-        }
-      `,
-      variables: {
-        filter: params,
-      },
-      context: {
-        headers: {
-          "x-service-token": process.env.INTERNAL_SERVICE_TOKEN,
-        },
-      },
+    const res = await this.client.queryAuditLogs({
+      userId: params.userId,
+      action: params.action,
     });
 
-    return res.data.auditLogs;
+    //query, variables)//プロパティ 'request' は型 'AuditClient' に存在しません。
+
+    return res.auditLogs.map((log: any) => ({
+      userId: log.userId,
+      action: log.action,
+      metadata: JSON.parse(log.metadata || "{}"),
+      timestamp: new Date(log.timestamp),
+    }));
   }
 }

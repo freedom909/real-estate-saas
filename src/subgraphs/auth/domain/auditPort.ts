@@ -7,6 +7,7 @@ export interface AuditEvent {
   userId: string;
   action: string;
   metadata?: any;
+  resourceId?: string;
   timestamp?: Date;
 }
 
