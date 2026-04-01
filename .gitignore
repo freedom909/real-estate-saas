@@ -61,3 +61,17 @@ DumpStack.log.tmp
 # =====================
 .next/
 out/
+
+# =====================
+# Python 项目
+# =====================
+venv/
+__pycache__/
+*.pyc
+.env
+node_modules/
+dist/
+build/
+*.log
+.vscode/
+.idea/

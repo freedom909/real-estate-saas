@@ -5,17 +5,28 @@ import  TenantModel  from '../models/tenant.model';
 import  MembershipModel  from '../models/membership.model';
 import { TenantRepository } from '../repos/tenant.repo';
 import { MembershipRepository } from '../repos/membership.repo';
+import  UserModel  from '../../user/models/user.model';
+import UserRepository from '../../user/repos/user.repo';
 import { TenantService } from '../services/tenant.service';
-import { TOKENS } from '../constants/tokens';
+import { TOKENS_TENANT } from '@/modules/tenant/container/tenant.tokens';
+import { UserAdapter } from '../services/user.adapter';
 
- function registerDependencies(container: DependencyContainer): DependencyContainer {
-  container.register(TOKENS.TenantModel, { useValue: TenantModel });
-  container.register(TOKENS.MembershipModel, { useValue: MembershipModel });
+import { TOKENS_USER } from '@/modules/user/container/user.tokens';
 
-  container.register(TOKENS.TenantRepository, { useClass: TenantRepository });
-  container.register(TOKENS.MembershipRepository, { useClass: MembershipRepository });
+function registerDependencies(container: DependencyContainer): DependencyContainer {
+  container.register(TOKENS_TENANT.models.tenant, { useValue: TenantModel });
+  container.register(TOKENS_TENANT.models.membership, { useValue: MembershipModel }); 
 
-  container.register(TOKENS.TenantService, { useClass: TenantService });
+  // Register Redis placeholder to satisfy UserRepository dependency
+  container.register(Symbol.for("infra.redis"), { useValue: {} });
+
+  container.register(TOKENS_USER.models.user, { useValue: UserModel });
+  container.register(TOKENS_TENANT.repos.tenantRepo, { useClass: TenantRepository });
+  container.register(TOKENS_TENANT.repos.membershipRepo, { useClass: MembershipRepository });
+  
+  container.register(TOKENS_USER.repos.userRepo, { useClass: UserRepository });
+  container.register(TOKENS_TENANT.adapters.userAdapter, { useClass: UserAdapter });
+  container.register(TOKENS_TENANT.services.tenantService, { useClass: TenantService });
 
   return container;
 }

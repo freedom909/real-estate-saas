@@ -161,9 +161,7 @@ type AuthPayload {
 # Tokens
 # =====================
 type AuthTokens {
-
   accessToken: String!
-
 }
 
 # =====================

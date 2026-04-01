@@ -1,12 +1,13 @@
 import { injectable, inject } from 'tsyringe';
 import { Model } from 'mongoose';
 import { TenantDocument } from '../models/tenant.model';
+import { TOKENS_TENANT } from '@/modules/tenant/container/tenant.tokens';
 
 
 @injectable()
 export class TenantRepository {
   constructor(
-   private model: Model<TenantDocument>
+    @inject(TOKENS_TENANT.models.tenant) private model: Model<TenantDocument>
   ) {}
 
   async findById(id: string): Promise<TenantDocument | null> {

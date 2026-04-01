@@ -29,7 +29,7 @@ console.log(
 // 🥭 1️⃣ Mongo
 await connectMongo(
   process.env.MONGO_URI ||
-  "mongodb://localhost:27017/water-tenant"
+  "mongodb://localhost:27017/east"
 );
 
 // 🧰 2️⃣ Container
@@ -79,6 +79,6 @@ app.use(
 
 httpServer.listen(4040, () => {
   console.log(
-    "👤 User 🔥🔥🔥 WHICH FILE IS THIS 🔥🔥🔥at http://localhost:4040/graphql"
+    "👤 Tenant 🔥🔥🔥 WHICH FILE IS THIS 🔥🔥🔥at http://localhost:4040/graphql"
   );
 });
