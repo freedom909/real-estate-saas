@@ -15,7 +15,7 @@ export class GeminiSecurityService {
     private client: GeminiClient
   ) { }
   private apiKey = process.env.GEMINI_API_KEY!;
-  private model = "gemini-1.5-flash";
+  private model = "gemini-2.0-flash";
 
   async analyze(event: SecurityEvent): Promise<SecurityAssessment> {
     const prompt = this.buildPrompt(event);
