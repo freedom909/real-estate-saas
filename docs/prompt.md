@@ -142,7 +142,7 @@ Relationships
 User ↔ Tenant
 many to many through Membership
 
-Tenant → Property
+Tenant → Listing
 one to many
 
 Tenant → BillingAccount
@@ -236,7 +236,7 @@ tenant-subgraph
 
 Then:
 
-property-subgraph
+Listing-subgraph
 
 Then:
 
@@ -260,7 +260,7 @@ You will simulate multiple parallel development threads.
 Create separate development threads for each subgraph.
 
 Thread A → tenant-subgraph
-Thread B → property-subgraph
+Thread B → Listing-subgraph
 Thread C → billing-subgraph
 Thread D → audit-subgraph
 
@@ -290,7 +290,7 @@ Output structure must be clearly separated by thread:
 ===== THREAD A : tenant-subgraph =====
 (code)
 
-===== THREAD B : property-subgraph =====
+===== THREAD B : Listing-subgraph =====
 (code)
 
 ===== THREAD C : billing-subgraph =====

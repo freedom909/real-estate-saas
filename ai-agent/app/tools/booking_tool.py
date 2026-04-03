@@ -2,28 +2,32 @@ from google.genai import client
 import httpx
 import json
 from app.core.config import NODE_API
+from app.core.llm import get_model
 
+NODE_API = "http://localhost:3000/api"
 async def get_booking(booking_id: str):
     async with httpx.AsyncClient() as client:
         res = await client.get(f"{NODE_API}/booking/{booking_id}")
         return res.json()
 
-async def cancel_booking(booking_id: str):
-    try:
-        res = await client.post(...)
-        return res.json()
-    except Exception as e:
-        print("Booking API ERROR:", e)
+async def cancel_booking(bookingId: str):
 
-        return {
-            "status": "CANCELLED",
-            "bookingId": booking_id,
-            "source": "mock-fallback"
-        }
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.post(
+                f"{NODE_API}/booking/cancel",
+                json={"bookingId": bookingId}
+            )
+
+            return res.json()
+
+        except Exception as e:
+            print("Booking API ERROR:", e)
+            return {"error": "booking service unavailable"}
 
 import json
 
-async def decide_tool_with_ai(self, message: str):
+async def ai_decide_tool(message: str):
 
     client = get_model()
 
@@ -71,4 +75,5 @@ async def decide_tool_with_ai(self, message: str):
         return {"tool": "none"}
 
 
+           
            

@@ -7,12 +7,13 @@ async function start(){
 
   const gateway = new ApolloGateway({
     serviceList:[
-      {name:"auth",url:"http://localhost:4001/graphql"},
-      {name:"user",url:"http://localhost:4002/graphql"},
-      {name:"tenant",url:"http://localhost:4003/graphql"},
-      {name:"property",url:"http://localhost:4004/graphql"},
-      {name:"billing",url:"http://localhost:4005/graphql"},
-      {name:"audit",url:"http://localhost:4006/graphql"}
+      {name:"auth",url:"http://localhost:4010/graphql"},
+      {name:"user",url:"http://localhost:4020/graphql"},
+      {name:"tenant",url:"http://localhost:4030/graphql"},
+      {name:"Listing",url:"http://localhost:4050/graphql"},
+      {name:"billing",url:"http://localhost:4060/graphql"},
+      {name:"audit",url:"http://localhost:4080/graphql"},
+      {name:"ai",url:"http://localhost:4070/graphql"}
     ]
   })
 

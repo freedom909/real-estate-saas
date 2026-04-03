@@ -1,0 +1,125 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.8"
+    import: ["@key", "@shareable", "@external"]
+  )
+
+scalar DateTime
+
+# --------------------------
+# ORDER TYPES
+# --------------------------
+type Order @key(fields: "id") {
+  id: ID!
+  orderNumber: String! @shareable
+  guest: Guest! @shareable
+  listing: Listing! @shareable
+  checkInDate: DateTime! @shareable
+  checkOutDate: DateTime! @shareable
+  totalPrice: Float! @shareable
+  status: OrderStatus! @shareable
+  createdAt: DateTime! @shareable
+  updatedAt: DateTime! @shareable
+  paymentStatus: PaymentStatus! @shareable
+  paymentIntentId: String @shareable
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+# --------------------------
+# EXTERNAL TYPES
+# --------------------------
+extend type Guest @key(fields: "id") {
+  id: ID! @external
+}
+
+extend type Listing @key(fields: "id") {
+  id: ID! @external
+}
+
+# --------------------------
+# RESPONSE TYPES
+# --------------------------
+interface Response {
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+type CreateOrderResponse implements Response {
+  code: Int! @shareable
+  success: Boolean! @shareable
+  message: String! @shareable
+  order: Order @shareable
+}
+
+type UpdateOrderStatusResponse implements Response {
+  code: Int! @shareable
+  success: Boolean! @shareable
+  message: String! @shareable
+  order: Order @shareable
+}
+
+type CancelOrderResponse implements Response {
+  code: Int! @shareable
+  success: Boolean! @shareable
+  message: String! @shareable
+  order: Order @shareable
+}
+
+# --------------------------
+# INPUT TYPES
+# --------------------------
+input CreateOrderInput {
+  listingId: ID!
+  guestId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  totalPrice: Float!
+}
+
+input UpdateOrderStatusInput {
+  orderId: ID!
+  status: OrderStatus!
+}
+
+input ProcessPaymentInput {
+  orderId: ID!
+  paymentIntentId: String!
+  amount: Float!
+}
+
+# --------------------------
+# QUERIES
+# --------------------------
+type Query {
+  order(id: ID!): Order @shareable
+  ordersByGuest(guestId: ID!): [Order!]! @shareable
+  ordersByHost(hostId: ID!): [Order!]! @shareable
+  pendingOrders: [Order!]! @shareable
+}
+
+# --------------------------
+# MUTATIONS
+# --------------------------
+type Mutation {
+  createOrder(input: CreateOrderInput!): CreateOrderResponse! @shareable
+  updateOrderStatus(input: UpdateOrderStatusInput!): UpdateOrderStatusResponse! @shareable
+  cancelOrder(orderId: ID!): CancelOrderResponse! @shareable
+  confirmOrder(orderId: ID!): UpdateOrderStatusResponse! @shareable
+}

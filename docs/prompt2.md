@@ -19,7 +19,7 @@ packages/
 auth-sdk
 user-sdk
 tenant-sdk
-property-sdk
+Listing-sdk
 billing-sdk
 audit-sdk
 
@@ -52,7 +52,7 @@ Example usage inside subgraphs:
 
 auth-subgraph → user-sdk
 billing-subgraph → tenant-sdk
-property-subgraph → tenant-sdk
+Listing-subgraph → tenant-sdk
 audit-subgraph → user-sdk
 
 Coding rules:

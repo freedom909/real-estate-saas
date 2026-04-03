@@ -7,5 +7,5 @@ agent = AgentService()
 
 @router.post("/chat")
 async def chat(req: ChatRequest):
-    reply = await agent.run(req.message, req.userId)
+    reply =await agent.run(req.message, req.userId)
     return {"reply": reply}

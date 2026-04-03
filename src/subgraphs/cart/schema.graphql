@@ -1,0 +1,192 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.8"
+    import: ["@key", "@shareable", "@external", "@requires", "@provides", "@override", "@inaccessible"]
+  )
+
+scalar DateTime
+
+enum Role {
+  ADMIN
+  GUEST
+  HOST
+  USER
+  PENDING_HOST
+}
+
+enum BookingStatus {
+  CURRENT
+  COMPLETED
+  UPCOMING
+  PAST
+  CANCELLED
+  CONFIRMED
+}
+
+interface User @key(fields: "id") {
+  id: ID!
+  email: String!
+  name: String!
+  role: Role!
+}
+
+type Host implements User @key(fields: "id") {
+  id: ID! @shareable
+  email: String! @shareable
+  name: String! @shareable
+  role: Role! @shareable
+  listings: [Listing!]! @shareable
+}
+
+type Guest implements User @key(fields: "id") {
+  id: ID! @shareable
+  email: String! @shareable
+  name: String! @shareable
+  role: Role! @shareable
+  bookings: [Booking!]! @shareable
+}
+
+type Booking @key(fields: "id") {
+  id: ID!
+  bookingNumber: String! @shareable
+  isFeatured: Boolean! @shareable
+  reservedDate: DateTime! @shareable
+  listing: Listing! @shareable
+  guest: Guest! @shareable
+  review: Review @shareable
+  checkInDate: DateTime! @shareable
+  checkOutDate: DateTime! @shareable
+  totalPrice: Float! @shareable
+  status: BookingStatus! @shareable
+  cancelledAt: DateTime @shareable
+  confirmedAt: DateTime @shareable
+}
+
+
+
+type Listing @key(fields: "id") {
+  id: ID! @shareable
+  bookings: [Booking!]! @shareable
+  title: String! @shareable
+  description: String! @shareable
+  pictures: [String]! @shareable
+  host: User @shareable
+  price: Float! @shareable
+  bookingsCount: Int! @shareable
+  reviewsCount: Int! @shareable
+  checkInDate: String! @shareable
+  checkOutDate: String! @shareable
+  numOfGuests: Int! @shareable
+  numOfBeds: Int! @shareable
+  status: ListingStatus! 
+  averageRating: Float! @shareable
+  saleAmount: Float! @shareable
+}
+
+enum ListingStatus {
+  ACTIVE
+  PENDING
+  SOLD
+  DELETED
+  REJECT
+  CANCELLED
+  EXPIRED
+  COMPLETED
+}
+
+type Review @key(fields: "id") {
+  id: ID!
+}
+
+interface MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+type CreateBookingResponse implements MutationResponse {
+  code: Int! @shareable
+  success: Boolean! @shareable
+  message: String! @shareable
+  booking: Booking @shareable
+}
+
+input CreateBookingInput {
+  listingId: ID!
+  bookingNumber: String
+  isFeatured: Boolean
+  reservedDate: DateTime
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  guestId: ID!
+}
+
+type Query {
+  bookings: [Booking!]! @shareable
+  getBookingsByUser(userId: ID!): [Booking] @shareable
+  getBookingById(id: ID!): Booking @shareable
+}
+
+type Mutation {
+  createBooking(input: CreateBookingInput!): CreateBookingResponse! @shareable
+}
+
+type CartItem {
+  id: ID!
+  cartId: ID!
+  listingId: ID!
+  quantity: Int!
+  price: Float!
+  checkInDate: DateTime
+  checkOutDate: DateTime
+  totalPrice: Float!
+}
+
+type Cart {
+  id: ID!
+  guestId: ID!
+  checkInDate: DateTime
+  checkOutDate: DateTime
+  totalPrice: Float!
+  cartItems: [CartItem!]!
+}
+
+type CartResponse implements MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+  cart: Cart
+}
+
+input AddToCartInput {
+  cartId: ID!
+  guestId: ID!
+  listingId: ID!
+  quantity: Int
+  price: Float
+  checkInDate: DateTime
+  checkOutDate: DateTime
+}
+
+input UpdateCartItemInput {
+  cartId: ID!
+  itemId: ID!
+  quantity: Int
+  price: Float
+}
+
+input RemoveFromCartInput {
+  cartId: ID!
+  itemId: ID!
+}
+
+extend type Query {
+  getCart(cartId: ID!): Cart @shareable
+  getCartsByGuest(guestId: ID!): [Cart!]! @shareable
+}
+
+extend type Mutation {
+  addToCart(input: AddToCartInput!): CartResponse! @shareable
+  updateCartItem(input: UpdateCartItemInput!): CartResponse! @shareable
+  removeFromCart(input: RemoveFromCartInput!): CartResponse! @shareable
+}

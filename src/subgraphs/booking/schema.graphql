@@ -1,0 +1,124 @@
+schema
+  @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key","@external","@shareable"]) {
+  query: Query
+}
+
+scalar DateTime 
+type Query {
+  ### Bookings
+  bookingsForHost(listingId: ID!, status: BookingStatus): [Booking!]! @shareable
+  currentGuestBooking: Booking @shareable
+  upcomingGuestBookings: [Booking!]! @shareable
+  pastGuestBookings: [Booking!]! @shareable
+  guestBookings: [Booking!]! @shareable
+  booking(id: ID!): Booking @shareable
+  bookingsForGuest(userId: ID!): [Booking!] @shareable
+  bookingsByOrder(orderId: ID!): [Booking!]! @shareable
+}
+
+enum Role {
+  ADMIN
+  HOST
+  GUEST
+  USER
+  PENDING_HOST
+}
+
+interface User @key(fields: "id") {
+  id: ID!
+  email: String!
+  picture: String
+}
+
+type Host implements User @key(fields: "id") {
+  id: ID! @shareable
+  email: String! @shareable
+  picture: String @shareable
+  listings: [Listing!]! @shareable
+}
+
+type Guest implements User @key(fields: "id") {
+  id: ID! @shareable
+  email: String! @shareable
+  picture: String @shareable
+  bookings: [Booking!]! @shareable
+}
+
+extend type Listing @key(fields: "id") {
+  id: ID! @external
+}
+
+extend type Order @key(fields: "id") {
+  id: ID! @external
+}
+
+type CancelBookingResponse implements MutationResponse {
+  code: Int! @shareable
+  success: Boolean! @shareable
+  message: String! @shareable
+  booking: Booking! @shareable
+}
+
+type Mutation {
+  createBooking(input: CreateBookingInput!): CreateBookingResponse! @shareable
+  cancelBooking(id: ID!): CancelBookingResponse @shareable
+  confirmBooking(id: ID!): Booking! @shareable
+}
+
+type CreateBookingResponse {
+  code: Int! @shareable
+  success: Boolean! @shareable
+  message: String! @shareable
+  booking: Booking! @shareable
+}
+
+enum BookingStatus {
+  CURRENT
+  COMPLETED
+  UPCOMING
+  PAST
+  CANCELLED
+  CONFIRMED
+}
+
+type Booking @key(fields: "id") {
+  id: ID!
+  bookingNumber: String! @shareable 
+  isFeatured: Boolean! @shareable 
+  reservedDate: DateTime! @shareable 
+  listing: Listing! @shareable  
+  guest: Guest! @shareable  
+  review: Review @shareable
+  checkInDate: DateTime! @shareable  
+  checkOutDate: DateTime! @shareable  
+  totalPrice: Float! @shareable  
+  criteriaTime: Int! @shareable  
+  status: BookingStatus! @shareable 
+  cancelledAt: DateTime @shareable 
+  confirmedAt: DateTime @shareable 
+}
+
+type ReservedDate @shareable {
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+}
+
+type Review @key(fields: "id") {
+  id: ID!
+}
+
+interface MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+input CreateBookingInput {
+  listingId: ID!
+  bookingNumber: String!
+  isFeatured: Boolean!
+  reservedDate: DateTime!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  guestId: ID!
+}

@@ -1,10 +1,10 @@
-export const TOKENS_PROPERTY = {
-    propertyModel: Symbol.for("property.models.propertyModel"),
-    propertyService: Symbol.for("property.services.propertyService"),
-    propertyRepo: Symbol.for("property.repos.propertyRepo"),
-    propertyClient: Symbol.for("property.propertyClient"),
+export const TOKENS_Listing = {
+    ListingModel: Symbol.for("Listing.models.ListingModel"),
+    ListingService: Symbol.for("Listing.services.ListingService"),
+    ListingRepo: Symbol.for("Listing.repos.ListingRepo"),
+    ListingClient: Symbol.for("Listing.ListingClient"),
     
-    tenantAdapter: Symbol.for("property.adapters.tenantAdapter"),
+    tenantAdapter: Symbol.for("Listing.adapters.tenantAdapter"),
 } as const;
 
 
