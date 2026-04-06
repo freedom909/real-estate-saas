@@ -3,7 +3,7 @@
 import { injectable, inject } from 'tsyringe';
 import { Model } from 'mongoose';
 import { MembershipDocument } from '../models/membership.model';
-import { TOKENS_TENANT } from '@/modules/tenant/container/tenant.tokens';
+import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 
 
 @injectable()

@@ -2,7 +2,7 @@ import { inject, injectable } from "tsyringe";
 import { RiskEngine } from "../domain/risk.engine";
 import { DecisionEngine } from "../domain/decision.engine";
 import { IAuditRepo, SecurityEvent } from "../types";
-import { TOKENS_SECURITY } from "../container/tokens";
+import { TOKENS_SECURITY } from "../../modules/tokens/security.tokens";
 
 @injectable()
 export class EvaluateRiskUseCase {

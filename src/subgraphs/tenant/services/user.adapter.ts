@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { TOKENS_USER } from "@/modules/user/container/user.tokens";
+import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import UserRepository from "../../user/repos/user.repo";
 
 /**

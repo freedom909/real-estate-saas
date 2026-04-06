@@ -2,7 +2,7 @@
 import { Model } from "mongoose";
 import SessionModel, { Session, SessionDocument } from "../models/session.model";
 import { inject, injectable } from "tsyringe";
-import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 
 export interface CreateSessionInput {
   userId: string

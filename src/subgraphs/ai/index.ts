@@ -17,16 +17,15 @@ import mongoose from "mongoose"
 import { container } from "tsyringe"
 import {resolvers} from "./resolver"
 
-import registerAuditDependencies from "../audit/container/registerDependencies.js"
-import registerAIServiceDependencies from "./container/registerAIServiceDependencies"
-import registerListingDependencies from "./container/registerListingDependencies"
-import  registerSecurityDependencies  from "../../security/container/register.js";
+
+import  registerSecurityDependencies  from "../../modules/container/security.register.js";
+import registerAuditDependencies from "@/modules/container/audit.register"
 
 
 // ⭐ 注册 DI
 registerAuditDependencies(container)
 registerSecurityDependencies();
-registerListingDependencies(container)
+
 console.log("Listing container loaded")//good
 
 // ⭐ Mongo

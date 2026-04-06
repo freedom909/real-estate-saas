@@ -5,7 +5,7 @@ import { container } from "tsyringe";
 
 import UserService from "../services/user.service.js";
 import mongoose from "mongoose";
-import { TOKENS_USER } from "../../../modules/user/container/user.tokens.js";
+import { TOKENS_USER } from "../../../modules/tokens/user.tokens.js";
 import verifyInternalRequest from "./verifyInternalRequest.js";
 
 
@@ -30,7 +30,7 @@ const resolvers = {
     },
   },
   Query: {
-    user: async (_: unknown, { id }, { user }) => {
+    user: async (_: unknown, { id }: { id: string }, { user }: { user: any }) => {
       if (!user || user.id !== id) {
         throw new Error("Forbidden");
       }
@@ -41,7 +41,7 @@ const resolvers = {
     internalUserByEmail: async (
       _: unknown,
       { email }: { email: string },
-      { req }
+      { req }: { req: any }
     ) => {
      console.log("headers:", req.headers);
       const token = req.headers["x-service-token"];// context: undefined
@@ -95,7 +95,7 @@ const resolvers = {
 
 export default resolvers;
 
-function assertSelfAccess(requestUser, targetUserId) {
+function assertSelfAccess(requestUser: any, targetUserId: string) {
   if (!requestUser) {
     throw new Error("Unauthenticated");
   }

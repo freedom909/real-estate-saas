@@ -7,7 +7,7 @@ import {
 } from "./queries";
 import { inject, injectable } from "tsyringe";
 import { ServiceTokenService } from "../services/serviceToken.service";
-import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 
 /* =========================
    Types

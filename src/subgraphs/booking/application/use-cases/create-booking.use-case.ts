@@ -7,8 +7,10 @@ import { v4 as uuidv4 } from "uuid";
 @injectable()
 export class CreateBookingUseCase {
   constructor(
-    @inject("BookingRepository")
-    private repo: IBookingRepository
+    
+    @inject("BookingRepository") private repo: IBookingRepository,
+    @inject("EventBus") private eventBus: any,
+    @inject("CurrentUser") private user: any
   ) {}
 
   async execute(input: any) {

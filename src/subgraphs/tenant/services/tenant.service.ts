@@ -3,7 +3,7 @@ import { TenantRepository } from '../repos/tenant.repo';
 import { TenantDocument } from '../models/tenant.model';
 import { MembershipDocument } from '../models/membership.model';
 import { MembershipRepository } from '../repos/membership.repo';
-import { TOKENS_TENANT } from '@/modules/tenant/container/tenant.tokens';
+import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 import { UserAdapter } from './user.adapter';
 
 @injectable()

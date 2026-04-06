@@ -1,6 +1,6 @@
 import { DependencyContainer } from 'tsyringe';
 import { TenantService } from '../services/tenant.service';
-import { TOKENS_TENANT } from '@/modules/tenant/container/tenant.tokens';
+import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 
 
 export const resolvers = {

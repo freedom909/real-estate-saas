@@ -2,7 +2,7 @@
 import { Document, HydratedDocument, Model, Types } from "mongoose";
 import UserModel, { IUserDB } from "../models/user.model.js";
 import { inject, injectable } from "tsyringe";
-import { TOKENS_USER } from "@/modules/user/container/user.tokens.js";
+import { TOKENS_USER } from "@/modules/tokens/user.tokens.js";
 import { TOKENS_INFRA } from "@/infrastructure/infra.tokens.js";
 export type IUserDBObject = IUserDB & {
   _id: Types.ObjectId;

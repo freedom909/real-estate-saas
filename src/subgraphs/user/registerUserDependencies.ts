@@ -1,5 +1,5 @@
 import { DependencyContainer } from "tsyringe"
-import { TOKENS_USER } from "../../modules/user/container/user.tokens"
+import { TOKENS_USER } from "../../modules/tokens/user.tokens"
 
 import  UserRepository  from "./repos/user.repo"
 import  UserService  from "./services/user.service"

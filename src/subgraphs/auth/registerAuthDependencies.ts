@@ -4,10 +4,10 @@ import "reflect-metadata";
 import { DependencyContainer } from "tsyringe";
 
 // TOKENS
-import { TOKENS_AUTH } from "../../modules/auth/container/auth.tokens";
+import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
 import { TOKENS } from "../../shared/infra/tokens";
 import { TOKENS_INFRA } from "../../infrastructure/infra.tokens";
-import { TOKENS_USER } from "../../modules/user/container/user.tokens";
+import { TOKENS_USER } from "../../modules/tokens/user.tokens";
 
 // infra
 import { createRedis } from "../../infrastructure/redis/redis";
@@ -25,8 +25,6 @@ import RefreshTokenRepository from "./repos/refresh-token.repo";
 import { RiskEventRepo } from "./repos/risk.event.repo";
 import SessionRepository from "./repos/session.repo";
 
-
-
 // services
 import RefreshTokenService from "./services/refreshToken.service";
 import { TokenService } from "./services/token.service";
@@ -43,13 +41,14 @@ import OAuthAdapterRegistry from "./adapters/oauth.adapter.registry";
 import { OAuthProvider } from "./adapters/normalized.oauth.profile";
 
 
-import { TOKENS_SECURITY } from "@/security/container/tokens";
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 import { AuditAdapter } from "./adapters/audit.client";
 import { RiskEngine } from "@/security/domain/risk.engine";
 import Blacklist from "@/security/blacklist/blacklist";
 import { ServiceTokenService } from "./services/serviceToken.service";
 import AuditClient from "@/packages/audit-sdk/src/client/audit.client";
-import { TOKENS_AUDIT } from "../audit/container/audit.tokens";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+
 
 
 export default function registerAuthDependencies(

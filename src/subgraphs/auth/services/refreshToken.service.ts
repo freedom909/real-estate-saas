@@ -7,8 +7,8 @@ import { inject, injectable } from "tsyringe";
 import SessionRepository from "../repos/session.repo";
 import UserClient from "../adapters/user.client";
 import { hash } from "../../../infrastructure/utils/hash";
-import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
-import { TOKENS_SECURITY } from "@/security/container/tokens";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 import { RiskEngine } from "@/security/domain/risk.engine";
 import { RiskEventRepo } from "../repos/risk.event.repo";
 

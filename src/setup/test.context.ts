@@ -5,8 +5,8 @@ import { createTestContainer } from "./test.container";
 import { createMock } from "./mock.factory";
 
 // tokens
-import { TOKENS_AUTH } from "../modules/auth/container/auth.tokens";
-import { TOKENS_USER } from "../modules/user/container/user.tokens";
+import { TOKENS_AUTH } from "../modules/tokens/auth.tokens";
+import { TOKENS_USER } from "../modules/tokens/user.tokens";
 import { TOKENS_INFRA } from "../infrastructure/infra.tokens";
 import { TOKENS } from "../shared/infra/tokens";
 

@@ -2,7 +2,10 @@
 
 import { inject, injectable } from "tsyringe";
 import { AuditPort, AuditEvent, AuditQuery } from "../domain/auditPort";
-import { TOKENS_AUDIT } from "@/subgraphs/audit/container/audit.tokens";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+
+
+
 import AuditClient from "@/packages/audit-sdk/src/client/audit.client";
 
 

@@ -18,8 +18,8 @@ import { container } from "tsyringe"
 import resolvers from "./resolvers.js"
 
 import registerAuthDependencies from "./registerAuthDependencies.js"
-import  registerSecurityDependencies  from "../../security/container/register.js";
-import registerAuditDependencies from "../audit/container/registerDependencies.js"
+import  registerSecurityDependencies  from "../../modules/container/security.register.js";
+import registerAuditDependencies from "../../modules/container/audit.register.js"
 
 
 // ⭐ 注册 DI

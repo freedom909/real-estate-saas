@@ -18,7 +18,7 @@ import { container } from "tsyringe"
 
 import{ resolvers }from "./resolvers/tenant.resolver"
 
-import registerDependencies from "./container/registerDependencies"
+import registerDependencies from "../../modules/container/tenant.register.js"
 
 
 // 🔍 启动时验证 env

@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import { normalizeRole } from "../../../domain/user/types/role";
-import { TOKENS_USER} from "../../../modules/user/container/user.tokens.js";
+import { TOKENS_USER} from "../../../modules/tokens/user.tokens.js";
 
 interface User {
   id: string;

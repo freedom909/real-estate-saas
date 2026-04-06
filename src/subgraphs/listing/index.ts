@@ -16,15 +16,17 @@ import { buildSubgraphSchema } from "@apollo/subgraph"
 import mongoose from "mongoose"
 import { container } from "tsyringe"
 import {resolvers} from "./resolvers/resolver"
+import registerAuditDependencies from "@/modules/container/audit.register"
+import registerSecurityDependencies from "@/modules/container/security.register"
+import registerListingDependencies from "@/modules/container/listing.register"
 
-import registerListingDependencies from "./container/registerDependencies"
-import  registerSecurityDependencies  from "../../security/container/register.js";
-import registerAuditDependencies from "../audit/container/registerDependencies.js"
+
+
 
 // ⭐ 注册 DI
 registerAuditDependencies(container)
 registerSecurityDependencies();
-registerListingDependencies(container)
+registerListingDependencies()
 console.log("Listing container loaded")//good
 
 // ⭐ Mongo
@@ -34,7 +36,7 @@ await mongoose.connect(
 
 // ⭐ schema
 const typeDefs = gql(
-  readFileSync("./src/subgraphs/Listing/Listing.schema.graphql", "utf-8")
+  readFileSync("./src/subgraphs/listing/schema.graphql", "utf-8")
 )
 
 const schema = buildSubgraphSchema([{

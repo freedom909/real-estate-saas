@@ -9,12 +9,12 @@ import { TokenService } from "./token.service";
 
 import { OAuthProvider } from "../adapters/normalized.oauth.profile";
 import { hash } from "../../../infrastructure/utils/hash";
-import { TOKENS_AUTH } from "../../../modules/auth/container/auth.tokens";
-import { TOKENS_USER } from "../../../modules/user/container/user.tokens";
+import { TOKENS_AUTH } from "../../../modules/tokens/auth.tokens";
+import { TOKENS_USER } from "../../../modules/tokens/user.tokens";
 import SessionService from "./session.service";
 
 import { RiskEngine } from "@/security/domain/risk.engine";
-import { TOKENS_SECURITY } from "@/security/container/tokens";
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 import { fingerprint } from "@/infrastructure/auth/fingerPrint";
 import { EvaluateRiskUseCase } from "@/security/application/evaluateRisk.usecase";
 import { TOKENS_AUDIT } from "@/subgraphs/audit/container/audit.tokens";

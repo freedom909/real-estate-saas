@@ -13,7 +13,9 @@ export interface BookingProps {
 }
 
 export class Booking {
-  private constructor(private props: BookingProps) {}
+  private constructor(
+    private props: BookingProps)
+     {}
 
   static create(
     props: Omit<BookingProps, "status" | "createdAt">

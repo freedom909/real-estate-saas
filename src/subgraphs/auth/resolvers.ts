@@ -16,12 +16,12 @@ import { IdentityModel } from "../user/models/identity.model.js";
 import { OAuthLoginService } from "./services/oauth.login.service.js";
 import { TokenService } from "./services/token.service.js";
 import { ForbiddenError } from "../../infrastructure/utils/errors.js";
-import { TOKENS_AUTH } from "../../modules/auth/container/auth.tokens.js";
+import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens.js";
 import AuthService from "./services/auth.service.js";
 import { OAuthProvider } from "./adapters/normalized.oauth.profile.js";
 import authService from "./services/auth.service.js";
 import { GeminiSecurityService } from "@/security/infrastructure/geminiSecurity.service.js";
-import { TOKENS_SECURITY } from "@/security/container/tokens.js";
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens.js";
 import { SecurityAssessment } from "@/domain/user/types/types.js";
 import withSecurity from "@/security/infrastructure/withSecurity.js";
 

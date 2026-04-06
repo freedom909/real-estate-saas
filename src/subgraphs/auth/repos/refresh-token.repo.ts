@@ -6,7 +6,7 @@ import { Document, Model } from 'mongoose';
 import { RefreshToken } from '../models/refreshToken.model';
 import { inject, injectable } from "tsyringe";
 import { hash } from "../../../infrastructure/utils/hash";
-import { TOKENS_AUTH } from "@/modules/auth/container/auth.tokens";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 
 interface RefreshTokenDocument extends RefreshToken, Document {}
 

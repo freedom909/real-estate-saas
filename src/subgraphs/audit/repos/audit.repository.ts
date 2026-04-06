@@ -1,7 +1,9 @@
 import { injectable, inject } from 'tsyringe';
 import { Model } from 'mongoose';
 import { AuditLogDocument } from '../models/audit.model';
-import { TOKENS_AUDIT } from '../container/audit.tokens';
+import { TOKENS_AUDIT } from '@/modules/tokens/audit.tokens';
+
+
 
 
 @injectable()

@@ -2,5 +2,5 @@
 
 import * as  TOKENS_INFRA from '../infrastructure/infra.tokens'
 
-import * as  TOKENS_USER from './user/container/user.tokens' 
-import * as  TOKENS_TENANT from './tenant/container/tenant.tokens'
+import * as  TOKENS_USER from './tokens/user.tokens' 
+import * as  TOKENS_TENANT from './tokens/tenant.tokens'

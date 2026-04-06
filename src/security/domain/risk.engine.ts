@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import { IAIService, SecurityEvent } from "../types";
-import { TOKENS_SECURITY } from "../container/tokens";
+import { TOKENS_SECURITY } from "../../modules/tokens/security.tokens";
 
 @injectable()
 export class RiskEngine {

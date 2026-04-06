@@ -2,7 +2,7 @@
 
 import { inject, injectable } from "tsyringe";
 import { MembershipRepository } from "../repos/membership.repo";
-import { TOKENS_TENANT } from "@/modules/tenant/container/tenant.tokens";
+import { TOKENS_TENANT } from "@/modules/tokens/tenant.tokens";
 
 @injectable()
 export class MembershipRepoService {

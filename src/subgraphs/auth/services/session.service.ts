@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import SessionRepository from "../repos/session.repo";
-import { TOKENS_AUTH } from "../../../modules/auth/container/auth.tokens";
+import { TOKENS_AUTH } from "../../../modules/tokens/auth.tokens";
 import { createHash } from "crypto";
 
 interface CreateSessionParams {
