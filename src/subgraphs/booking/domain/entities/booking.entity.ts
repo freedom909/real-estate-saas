@@ -10,6 +10,7 @@ export interface BookingProps {
   totalCost: number;
   status: BookingStatus;
   createdAt: Date;
+
 }
 
 export class Booking {
@@ -44,9 +45,14 @@ export class Booking {
   }
 
   toJSON() {
+    if (!this.props.dateRange) {
+      return {
+         dateRange: "dateRange is required",
+      };
+    }
     return {
       ...this.props,
-      ...this.props.dateRange.toJSON(),
+      ...this.props.dateRange.toJSON(),// "message": "Cannot read properties of undefined (reading 'toJSON')",
     };
   }
 

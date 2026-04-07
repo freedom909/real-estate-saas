@@ -20,8 +20,14 @@ import { initMongoContainer } from "@/infrastructure/container/initMongoContaine
 import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
-
+import { RabbitMQEventBus } from "./interface/events/rabbitmq-event-bus";
+import TOKENS from "@/modules/tokens/mq.tokens";
+import registerMQEventBus from "@/modules/container/mq.register";
 dotenv.config();
+
+registerMQEventBus();
+const eventBus = container.resolve<RabbitMQEventBus>(TOKENS.eventBus);
+await eventBus.init();
 
 const typeDefs = gql(
   readFileSync("./src/subgraphs/booking/schema.graphql", { encoding: "utf-8" })
@@ -71,7 +77,7 @@ const startApolloServer = async () => {
   expressMiddleware(server, {
     context: async ({ req }) => {
       const token = req.headers.authorization || "";
-      const user = getUserFromToken(token);
+      const user = await getUserFromToken(token);
 
       return { user, container };
     },
@@ -79,8 +85,8 @@ const startApolloServer = async () => {
 );
 
     // ✅ 启动 HTTP
-    httpServer.listen({ port: 4050 }, async () => {
-      console.log("🚀 Server ready at http://localhost:4050/graphql");
+    httpServer.listen({ port: 4070 }, async () => {
+      console.log("🚀 Server ready at http://localhost:4070/graphql");
 
       // ✅ MQ consumer
       try {

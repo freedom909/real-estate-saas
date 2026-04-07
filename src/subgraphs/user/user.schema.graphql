@@ -39,13 +39,13 @@ type Profile @shareable {
   name: String
   avatar: String
   email: String
+  status: AccountStatus
 }
 
 enum Role {
   ADMIN
-  AGENT
-  OWNER
-  CUSTOMER
+  GUEST
+  HOST
 }
 
 enum AccountStatus {

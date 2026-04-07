@@ -18,6 +18,11 @@ extend type Tenant @key(fields: "id") {
   properties: [Listing!]!
 }
 
+type Host @key(fields: "id") {
+  id: ID!
+  userId: ID!
+}
+
 input CreateListingInput {
   title: String!
   description: String
