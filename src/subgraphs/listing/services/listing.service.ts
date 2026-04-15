@@ -2,8 +2,8 @@ import { injectable, inject } from 'tsyringe';
 
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { TenantAdapter } from '../adapters/tenant.adapter';
-import { ListingRepository } from '../infrastructure/repos/listing.repository';
-import { Listing } from '../domain/entities/listing';
+import { ListingRepository } from '../infrastructure/persistence/listing.repository';
+import { Listing } from '../domain/entities/Listing';
 
 @injectable()
 export class ListingService {

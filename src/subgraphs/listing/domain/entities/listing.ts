@@ -1,53 +1,42 @@
-import { v4 as uuidv4 } from 'uuid';
-
-export interface ListingProps {
-  id?: string;
-  title: string;
-  description?: string;
-  address: string;
-  categories: string[];
-  amenityIds?: string[];
-  tenantId: string;
-}
-
 export class Listing {
-  private readonly _id: string;
-  private props: ListingProps;
+  constructor(
+    public readonly id: string,
+    public readonly ownerId: string,
+    private _title: string,
+    private _description: string,
+    public readonly createdAt: Date,
+    public updatedAt: Date
+  ) {}
 
-  constructor(props: ListingProps) {
-    this.validate(props);
-    this._id = props.id || uuidv4();
-    this.props = {
-      ...props,
-      id: this._id,
-      amenityIds: props.amenityIds || []
-    };
+  get title() {
+    return this._title;
   }
 
-  private validate(props: ListingProps) {
-    if (!props.title || props.title.trim() === '') {
-      throw new Error('title is required');
-    }
-    if (!props.categories || props.categories.length === 0) {
-      throw new Error('must have at least 1 category');
-    }
-    if (!props.tenantId) {
-      throw new Error('tenantId is required');
-    }
-    if (!props.address) {
-      throw new Error('address is required');
-    }
+  get description() {
+    return this._description;
   }
 
-  get id(): string { return this._id; }
-  get title(): string { return this.props.title; }
-  get description(): string | undefined { return this.props.description; }
-  get address(): string { return this.props.address; }
-  get categories(): string[] { return this.props.categories; }
-  get amenityIds(): string[] { return this.props.amenityIds || []; }
-  get tenantId(): string { return this.props.tenantId; }
+  updateTitle(title: string) {
+    if (!title || title.trim().length === 0) {
+      throw new Error("Invalid title");
+    }
+    this._title = title.trim();
+    this.updatedAt = new Date();
+  }
 
-  public toJSON() {
-    return { ...this.props, id: this._id };
+  updateDescription(desc: string) {
+    if (!desc || desc.trim().length === 0) {
+      throw new Error("Invalid description");
+    }
+    this._description = desc.trim();
+    this.updatedAt = new Date();
+  }
+
+  applySuggestedTitle(suggested: string) {
+    this.updateTitle(suggested);
+  }
+
+  applySuggestedDescription(suggested: string) {
+    this.updateDescription(suggested);
   }
 }

@@ -1,28 +1,58 @@
-extend schema
-  @link(url: "https://specs.apollo.dev/federation/v2.0",
-        import: ["@key", "@external"])
+# ==============================
+# Listing Subgraph Schema (Federation-ready)
+# ==============================
 
-type Listing @key(fields: "id") {
-  id: ID!
-  title: String!
-  description: String
-  address: String!
-  categories: [String!]!
-  amenityIds: [ID!]
-  tenantId: ID!
-  tenant: Tenant @external
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: ["@key", "@shareable", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
 }
 
+scalar DateTime
+
+# -----------------------------
+# Listing Entity (Owned by this subgraph)
+# -----------------------------
+type Listing @key(fields: "id") {
+  id: ID!
+  ownerId: ID!
+
+  title: String!
+  description: String!
+  address: String!
+
+  categories: [String!]!
+  amenityIds: [ID!]
+
+  tenantId: ID!
+  tenant: Tenant
+
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# -----------------------------
+# Tenant (Federation Extension)
+# -----------------------------
 extend type Tenant @key(fields: "id") {
   id: ID! @external
   properties: [Listing!]!
 }
 
+# -----------------------------
+# Host (Optional future use)
+# -----------------------------
 type Host @key(fields: "id") {
   id: ID!
   userId: ID!
 }
 
+# -----------------------------
+# Inputs
+# -----------------------------
 input CreateListingInput {
   title: String!
   description: String
@@ -32,6 +62,34 @@ input CreateListingInput {
   tenantId: ID!
 }
 
+# -----------------------------
+# AI Responses（统一为 Apply 语义）
+# -----------------------------
+type ApplyTitleResponse {
+  listingId: ID!
+  title: String!
+}
+
+type ApplyDescriptionResponse {
+  listingId: ID!
+  description: String!
+}
+
+# -----------------------------
+# Queries
+# -----------------------------
+type Query {
+  listing(id: ID!): Listing
+  getListing(id: ID!): Listing
+}
+
+# -----------------------------
+# Mutations
+# -----------------------------
 type Mutation {
   createListing(input: CreateListingInput!): Listing!
+
+  # ✅ AI（应用后的结果）
+  applyTitleSuggestion(listingId: ID!): ApplyTitleResponse!
+  applyDescriptionSuggestion(listingId: ID!): ApplyDescriptionResponse!
 }

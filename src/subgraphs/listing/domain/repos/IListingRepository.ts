@@ -1,5 +1,5 @@
 // IListingRepository.ts
-import { Listing } from "../entities/listing";
+import { Listing } from "../entities/Listing";
 
 export interface IListingRepository {
   create(listing: Listing): Promise<Listing>;

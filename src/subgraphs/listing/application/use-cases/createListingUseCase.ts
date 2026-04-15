@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import { Listing } from '../../domain/entities/listing';
+import { Listing } from '../../domain/entities/Listing';
 
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';

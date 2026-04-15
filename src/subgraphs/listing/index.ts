@@ -1,77 +1,63 @@
-import "reflect-metadata"
-import "dotenv/config"
-
-import express from "express"
-import http from "http"
-import cors from "cors"
-import cookieParser from "cookie-parser"
-
-import { gql } from "graphql-tag"
-import { readFileSync } from "fs"
-
-import { ApolloServer } from "@apollo/server"
+import dotenv from 'dotenv';
+dotenv.config();
+import { ApolloServer } from '@apollo/server';
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { gql } from 'graphql-tag';
+import { readFileSync } from 'fs';
+import express from 'express';
+import http from 'http';
 import { expressMiddleware } from "@as-integrations/express4"
-import { buildSubgraphSchema } from "@apollo/subgraph"
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import cors from 'cors';
+import { container } from "tsyringe";
+import { registerListingDependencies } from "./container/registerListingDependencies";
+import { resolvers } from './resolvers/resolver';
 
-import mongoose from "mongoose"
-import { container } from "tsyringe"
-import {resolvers} from "./resolvers/resolver"
-import registerAuditDependencies from "@/modules/container/audit.register"
-import registerSecurityDependencies from "@/modules/container/security.register"
-import registerListingDependencies from "@/modules/container/listing.register"
+// Register all dependencies for the listing subgraph
+registerListingDependencies();
 
+const typeDefs = gql(readFileSync(__dirname + '/interface/graphql/schema.graphql', { encoding: 'utf-8' }));
 
+const startApolloServer = async () => {
+  try {
+    // For MySQL, you would initialize your ORM (e.g., TypeORM, Sequelize) here.
+    // Example: await AppDataSource.initialize();
+    console.log("Connecting to MySQL (simulated)...");
 
+    const app = express();
+    const httpServer = http.createServer(app);
 
-// ⭐ 注册 DI
-registerAuditDependencies(container)
-registerSecurityDependencies();
-registerListingDependencies()
-console.log("Listing container loaded")//good
+    const server = new ApolloServer({
+      schema: buildSubgraphSchema({ typeDefs, resolvers }),
+      plugins: [
+        ApolloServerPluginDrainHttpServer({ httpServer }),
+        {
+          async serverWillStart() {
+            return {
+              async drainServer() {
+                container.clearInstances(); // Clear tsyringe instances on shutdown
+              },
+            };
+          },
+        },
+      ],
+    });
 
-// ⭐ Mongo
-await mongoose.connect(
-  process.env.MONGO_URI || "mongodb://localhost:27017/east"
-)
+    await server.start();
 
-// ⭐ schema
-const typeDefs = gql(
-  readFileSync("./src/subgraphs/listing/schema.graphql", "utf-8")
-)
+    app.use(
+      '/graphql',
+      cors(),
+      express.json(),
+      expressMiddleware(server)
+    );
 
-const schema = buildSubgraphSchema([{
-  typeDefs,
-  resolvers,
-}])
+    httpServer.listen({ port: 4101 }, () =>
+      console.log('Listing Subgraph running on http://localhost:4101/graphql')
+    );
+  } catch (error) {
+    console.error('Error starting Apollo Server for Listing Subgraph:', error);
+  }
+};
 
-// ⭐ Apollo server
-const server = new ApolloServer({
-  schema
-})
-
-await server.start()
-
-const app = express()
-const httpServer = http.createServer(app)
-
-app.use(
-  "/graphql",
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true
-  }),
-  express.json(),
-  cookieParser(),
-  expressMiddleware(server, {
-    context: async ({ req, res }) => ({
-      req,
-      res,
-      container,
-      user: (req as any).user ?? null
-    })
-  })
-)
-
-httpServer.listen(4050, () => {
-  console.log("🔐 Listing subgraph running at http://localhost:4050/graphql")
-})
+startApolloServer();
