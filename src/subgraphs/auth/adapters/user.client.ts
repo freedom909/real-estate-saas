@@ -59,6 +59,8 @@ constructor(
     const url =
       endpoint ||
       process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql"
+    console.log("Auth Subgraph - USER_SUBGRAPH_URL env var:", process.env.USER_SUBGRAPH_URL); // New log: Check the actual env var value
+    console.log("Auth Subgraph - INTERNAL_SERVICE_TOKEN in UserClient constructor:", process.env.INTERNAL_SERVICE_TOKEN); // Added log
     console.log("USER_SUBGRAPH_URL =", process.env.USER_SUBGRAPH_URL);
     console.log("GraphQL endpoint used =", url);
     this.client = new GraphQLClient(url)
@@ -83,13 +85,11 @@ constructor(
 
     if (!id) return null
 
-    const res: any = await this.client.request(
-      FIND_BY_ID,
-      { id },
-      {
-        Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`
-      }
-    )
+    const res: any = await this.client.request({
+      document: FIND_BY_ID,
+      variables: { id },
+      requestHeaders: { Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}` }
+    })
 
     return res?.user ?? null
   }
@@ -99,19 +99,15 @@ async findByEmail(email: string): Promise<User | null> {
   if (!email) return null;
 
   try {
-const token = this.serviceTokenService.generate("auth-service", [
-  "user:read",
-]);
-console.log("token++", token);
-const res: any = await this.client.request(
-  INTERNAL_FIND_USER_BY_EMAIL,
-  { email },
-  {
-  
-      Authorization: `Bearer ${token}`, // 🔥 标准化
-
-  }
-);
+    const token = process.env.INTERNAL_SERVICE_TOKEN || "";
+    console.log("Auth Subgraph - Sending x-service-token (value from env):", token); // no output in the terminal
+    const res: any = await this.client.request({
+      document: INTERNAL_FIND_USER_BY_EMAIL,
+      variables: { email },
+      requestHeaders: { 
+        "x-service-token": token,
+      },
+    });
     console.log("res++", res?.internalUserByEmail); // 🔥 注意这里也要改
     return res?.internalUserByEmail ?? null;
   } catch (err: any) {

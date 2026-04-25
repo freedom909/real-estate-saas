@@ -27,6 +27,10 @@ registerAuditDependencies(container)
 registerSecurityDependencies();
 registerAuthDependencies(container)
 console.log("OAuth container loaded")//good
+console.log(
+  "Auth Subgraph - INTERNAL_SERVICE_TOKEN env var at startup =",
+  process.env.INTERNAL_SERVICE_TOKEN
+);
 
 // ⭐ Mongo
 await mongoose.connect(

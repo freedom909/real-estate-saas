@@ -17,36 +17,36 @@ export default class RiskCalculator {
 
     // 🧠 1. IP 风险
     if (this.isSuspiciousIP(event.ip)) {
-      score += 0.40;
+      score += 40;
       reasons.push("Suspicious IP");
     }
 
     // 🧠 2. 匿名用户
     if (!event.userId || event.userId === "anonymous") {
-      score += 0.20;
+      score += 20;
       reasons.push("Anonymous user");
     }
 
     // 🧠 3. 高频请求（简单版）
     if (event.requestCount && event.requestCount > 10) {
-      score += 0.30;
+      score += 30;
       reasons.push("Too many requests");
     }
 
     // 🧠 4. User-Agent 异常
     if (this.isBot(event.userAgent)) {
-      score += 0.25;
+      score += 25;
       reasons.push("Bot detected");
     }
 
     // 🧠 5. 地域异常（示例）
     if (event.locationChanged) {
-      score += 0.35;
+      score += 35;
       reasons.push("Location changed");
     }
 
     // 🎯 限制最大值
-    if (score > 1) score = 1;
+    if (score > 100) score = 100;
 
     return {
       score,
@@ -60,8 +60,8 @@ export default class RiskCalculator {
   // -----------------------
 
   private getSeverity(score: number): "LOW" | "MEDIUM" | "HIGH" {
-    if (score >= 0.70) return "HIGH";
-    if (score >= 0.40) return "MEDIUM";
+    if (score >= 70) return "HIGH";
+    if (score >= 40) return "MEDIUM";
     return "LOW";
   }
 

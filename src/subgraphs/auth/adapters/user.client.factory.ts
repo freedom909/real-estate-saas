@@ -1,3 +1,7 @@
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+import { inject } from "tsyringe";
+import { ServiceTokenService } from "../services/serviceToken.service";
+
 //src/
 interface IUserClient {
   request(query: string, variables?: any): Promise<any>
@@ -7,22 +11,30 @@ export class CreateUserGraphQLClient implements IUserClient {
 
   private endpoint: string
 
-  constructor() {
+  constructor(
+    @inject(TOKENS_AUTH.services.serviceTokenService)
+    private serviceTokenService: ServiceTokenService,
+  ) {
     this.endpoint = process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql"
   }
 
-  async request(query: string, variables?: any) {
+ async request(query: string, variables?: any) {
+  const token = this.serviceTokenService.generate( 
+    "auth-service",
+    ["user:read"]
+  );
 
-    const res = await fetch(this.endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        query,
-        variables
-      })
-    })
+  const res = await fetch(this.endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-service-token": token, // ✅
+    },
+    body: JSON.stringify({
+      query,
+      variables,
+    }),
+  });
 
     const json = await res.json()
 

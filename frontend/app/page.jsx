@@ -1,17 +1,17 @@
 "use client";
-
+console.log("GOOGLE_CLIENT_ID =", process.env.GOOGLE_CLIENT_ID);
 import { useEffect } from "react";
 import { useMutation } from "@apollo/client/react";
 import { OAUTH_LOGIN } from "@/graphql/oauthLogin";
+
 
 export default function Home() {
   const [oauthLogin] = useMutation(OAUTH_LOGIN);
 
   useEffect(() => {
     if (!window.google) return;
-
     window.google.accounts.id.initialize({
-      client_id: "800076508226-tcnsucgav56pet5jqj7uevrivkga7m3r.apps.googleusercontent.com",
+      client_id: "102545635753-olkgv48kgdta2bjiokrnb3u15gahgoqs.apps.googleusercontent.com",
       auto_select: false,
       cancel_on_tap_outside: true,
       prompt: "consent  select_account",

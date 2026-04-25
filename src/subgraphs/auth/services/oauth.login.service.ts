@@ -17,7 +17,7 @@ import { RiskEngine } from "@/security/domain/risk.engine";
 import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 import { fingerprint } from "@/infrastructure/auth/fingerPrint";
 import { EvaluateRiskUseCase } from "@/security/application/evaluateRisk.usecase";
-import { TOKENS_AUDIT } from "@/subgraphs/audit/container/audit.tokens";
+
 import { AuditPort } from "../domain/auditPort";
 import { RiskResult } from "@/security/types";
 

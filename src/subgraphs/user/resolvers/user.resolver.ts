@@ -11,8 +11,8 @@ import verifyInternalRequest from "./verifyInternalRequest.js";
 
 interface ResolverContext {
   container: typeof container;
-  services: any;
   user?: any;
+  req: any;
 }
 
 interface UserReference {
@@ -41,11 +41,19 @@ const resolvers = {
     internalUserByEmail: async (
       _: unknown,
       { email }: { email: string },
-      { req }: { req: any }
+      { req }: ResolverContext // Ensure req is always present in context
     ) => {
-     console.log("headers:", req.headers);
-      const token = req.headers["x-service-token"];// context: undefined
-      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      if (!req) {
+        console.error("CRITICAL: Request object missing from context.");
+        // This should ideally not happen if context is set up correctly in index.ts
+        throw new Error("Internal Server Error: Context setup failure");
+      }
+
+      // Use req.get() for reliable, case-insensitive header retrieval
+      const token = req.get ? req.get("x-service-token") : req.headers["x-service-token"];
+      console.log("Incoming x-service-token:", token);// undefined
+
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService); // This line was already here
       verifyInternalRequest(req);
 
       return userService.userByEmail(email);

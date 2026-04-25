@@ -30,7 +30,7 @@ export default class UserRepo implements IUserRepo {
 userByEmail(email: string) {
   console.log("repo userByEmail", email);
   const user=this.UserModel.findOne({ email }).lean<IUserDBObject>();
-  console.log("repo userByEmail++", user);
+  // console.log("repo userByEmail++", user);
   return user;
 }
 
