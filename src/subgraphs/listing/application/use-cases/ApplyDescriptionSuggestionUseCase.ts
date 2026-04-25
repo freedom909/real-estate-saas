@@ -1,24 +1,29 @@
-// FILE: application/usecases/ApplyDescriptionSuggestionUseCase.ts
-
 import { inject, injectable } from "tsyringe";
-import { IListingRepository } from "../../domain/repos/IListingRepository";
-import { GenerateDescriptionSuggestionUseCase } from "../../domain/entities/GenerateDescriptionSuggestionUseCase";
+import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
+import { OpenAIAdapter } from "../../infrastructure/ai/OpenAI.adapter";
 
 
 @injectable()
 export class ApplyDescriptionSuggestionUseCase {
   constructor(
-    @inject("ListingRepository") private repo: IListingRepository,
-    private generate: GenerateDescriptionSuggestionUseCase
+    private repo: ListingRepository,
+    private ai: OpenAIAdapter
   ) {}
 
   async execute(listingId: string) {
     const listing = await this.repo.findById(listingId);
     if (!listing) throw new Error("Listing not found");
 
-    const suggestion = await this.generate.execute(listingId);
+    const prompt = `
+Improve this listing description:
 
-    listing.applySuggestedDescription(suggestion);
+Title: ${listing.title}
+Description: ${listing.description}
+`;
+
+    const newDesc = await this.ai.generateText({ prompt });
+
+    listing.applySuggestedDescription(newDesc);
 
     await this.repo.save(listing);
 

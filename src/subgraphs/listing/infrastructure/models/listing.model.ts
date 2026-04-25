@@ -1,4 +1,6 @@
-// models/mysql/listing.js
+// src/subgraphs/listing/infrastructure/models/listing.model.ts
+
+import "reflect-metadata";
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/seq';
 

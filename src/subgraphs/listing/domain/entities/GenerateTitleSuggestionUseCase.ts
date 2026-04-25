@@ -1,7 +1,8 @@
 import { injectable, inject } from "tsyringe";
 import { LISTING_TOKENS } from "../../container/tokens";
-import { IListingRepository } from "../../domain/repositories/IListingRepository";
-import { OpenAIAdapter } from "../../infrastructure/adapters/OpenAIAdapter";
+import { IListingRepository } from "../entities/IListingRepository";
+import { OpenAIAdapter } from "./OpenAIAdapter";
+
 
 @injectable()
 export class GenerateTitleSuggestionUseCase {

@@ -1,15 +1,16 @@
 // FILE: application/usecases/GenerateTitleSuggestionUseCase.ts
 
 import { inject, injectable } from "tsyringe";
-import { IListingRepository } from "../../domain/repositories/IListingRepository";
-import { OpenAIAdapter } from "../../infrastructure/ai/OpenAI.adapter";
+import { IListingRepository } from "../../domain/entities/IListingRepository";
+import { OpenAIAdapter } from "../../domain/entities/OpenAIAdapter";
 import { buildTitlePrompt } from "../prompts/buildTitlePrompt";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 @injectable()
 export class GenerateTitleSuggestionUseCase {
   constructor(
-    @inject("ListingRepository") private repo: IListingRepository,
-    private ai: OpenAIAdapter
+    @inject(TOKENS_LISTING.ListingRepository) private repo: IListingRepository,
+    @inject(TOKENS_LISTING.OpenAIAdapter) private ai: OpenAIAdapter
   ) {}
 
   async execute(listingId: string): Promise<string> {
@@ -18,6 +19,6 @@ export class GenerateTitleSuggestionUseCase {
 
     const prompt = buildTitlePrompt(listing);
 
-    return this.ai.generateText({ prompt });
+    return this.ai.generateText(prompt);
   }
 }

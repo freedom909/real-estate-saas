@@ -6,7 +6,9 @@ import ListingModel from '../../subgraphs/listing/infrastructure/models/listing.
 import {ListingRepository} from '../../subgraphs/listing/infrastructure/persistence/listing.repository';
 import CreateListingUseCase from '../../subgraphs/listing/application/use-cases/CreateListingUseCase';
 import GetListingUseCase from '../../subgraphs/listing/application/use-cases/GetListingUseCase';
-
+import ListingAmenityModel from '@/subgraphs/listing/infrastructure/models/listingAmenities.model';
+import ListingCategoriesModel from '@/subgraphs/listing/infrastructure/models/listingCategories.model';
+import ListingLocationsModel from '@/subgraphs/listing/infrastructure/models/listingLocations.model';
 
 export default function registerListingDependencies() {
   container.register(TOKENS_LISTING.ListingModel, {
@@ -23,5 +25,17 @@ container.register(TOKENS_LISTING.CreateListingUseCase, {
 
 container.register(TOKENS_LISTING.GetListingUseCase, {
   useClass: GetListingUseCase,
+});
+
+container.register(TOKENS_LISTING.ListingCategoriesModel, {
+  useValue: ListingCategoriesModel,
+});
+
+container.register(TOKENS_LISTING.ListingAmenityModel, {
+  useValue: ListingAmenityModel,
+});
+
+container.register(TOKENS_LISTING.ListingLocationsModel, {
+  useValue: ListingLocationsModel,
 });
 }

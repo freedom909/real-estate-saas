@@ -13,11 +13,12 @@ class GetListingUseCase {
   async execute(id: string) {
     const listing = await this.repo.findById(id);
     if (!listing) throw new Error("Listing not found");
-
+    
     return {
       id: listing.id,
       title: listing.title,
-      amenityIds: listing.amenityIds,
+      // amenityIds プロパティが存在しない場合は空配列を返す
+      amenityIds: (listing as any).amenityIds || [],
     };
   }
 }

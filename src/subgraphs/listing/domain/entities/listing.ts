@@ -1,42 +1,78 @@
+import { Title } from "../value-objects/Title";
+import { Description } from "../value-objects/Description";
+
+export interface ListingProps {
+  id: string;
+  tenantId: string;
+
+  title: Title;
+  description: Description;
+
+  address: string;
+
+  categories: string[];
+  amenityIds: string[];
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class Listing {
-  constructor(
-    public readonly id: string,
-    public readonly ownerId: string,
-    private _title: string,
-    private _description: string,
-    public readonly createdAt: Date,
-    public updatedAt: Date
-  ) {}
+  private props: ListingProps;
 
-  get title() {
-    return this._title;
+  constructor(props: ListingProps) {
+    this.validate(props);
+    this.props = props;
   }
 
-  get description() {
-    return this._description;
-  }
+  // getters
+  get id() { return this.props.id; }
+  get tenantId() { return this.props.tenantId; }
+  get title() { return this.props.title.getValue(); }
+  get description() { return this.props.description.getValue(); }
+
+  // ======================
+  // Business Logic
+  // ======================
 
   updateTitle(title: string) {
-    if (!title || title.trim().length === 0) {
-      throw new Error("Invalid title");
-    }
-    this._title = title.trim();
-    this.updatedAt = new Date();
+    this.props.title = new Title(title);
+    this.touch();
   }
 
   updateDescription(desc: string) {
-    if (!desc || desc.trim().length === 0) {
-      throw new Error("Invalid description");
-    }
-    this._description = desc.trim();
-    this.updatedAt = new Date();
+    this.props.description = new Description(desc);
+    this.touch();
   }
 
-  applySuggestedTitle(suggested: string) {
-    this.updateTitle(suggested);
+  // 🔥 AI行为（核心）
+  generateTitlePrompt() {
+    return this.props.title.buildAIPrompt({
+      description: this.description,
+    });
   }
 
-  applySuggestedDescription(suggested: string) {
-    this.updateDescription(suggested);
+  generateDescriptionPrompt() {
+    return this.props.description.buildAIPrompt({
+      title: this.title,
+    });
+  }
+
+  applySuggestedTitle(title: string) {
+    this.updateTitle(title);
+  }
+
+  applySuggestedDescription(desc: string) {
+    this.updateDescription(desc);
+  }
+
+  private touch() {
+    this.props.updatedAt = new Date();
+  }
+
+  private validate(props: ListingProps) {
+    if (!props.tenantId) throw new Error("tenantId required");
+    if (!props.address) throw new Error("address required");
+    if (!props.categories.length) throw new Error("categories required");
   }
 }

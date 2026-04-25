@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import dotenv from 'dotenv';
 dotenv.config();
 import { ApolloServer } from '@apollo/server';
@@ -16,7 +17,7 @@ import { resolvers } from './resolvers/resolver';
 // Register all dependencies for the listing subgraph
 registerListingDependencies();
 
-const typeDefs = gql(readFileSync(__dirname + '/interface/graphql/schema.graphql', { encoding: 'utf-8' }));
+const typeDefs = gql(readFileSync('./src/subgraphs/listing/schema.graphql', { encoding: 'utf-8' }));
 
 const startApolloServer = async () => {
   try {

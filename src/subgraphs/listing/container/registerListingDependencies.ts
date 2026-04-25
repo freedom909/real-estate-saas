@@ -1,9 +1,10 @@
 import { container } from "tsyringe";
 import { LISTING_TOKENS } from "./tokens";
-import { ListingRepository } from "../infrastructure/persistence/ListingRepository";
-import { OpenAIAdapter } from "../infrastructure/adapters/OpenAIAdapter";
-import { GenerateTitleSuggestionUseCase } from "../application/usecases/GenerateTitleSuggestionUseCase";
-import { GenerateDescriptionSuggestionUseCase } from "../application/usecases/GenerateDescriptionSuggestionUseCase";
+import { OpenAIAdapter } from "../domain/entities/OpenAIAdapter";
+import { ListingRepository } from "../infrastructure/persistence/listing.repository";
+import { GenerateTitleSuggestionUseCase } from "../application/use-cases/GenerateTitleSuggestionUseCase";
+import { GenerateDescriptionSuggestionUseCase } from "../domain/entities/GenerateDescriptionSuggestionUseCase";
+
 
 export function registerListingDependencies() {
   container.register(LISTING_TOKENS.ListingRepository, {

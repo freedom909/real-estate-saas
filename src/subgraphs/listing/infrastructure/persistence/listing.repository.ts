@@ -1,103 +1,105 @@
+//src/subgraphs/listing/infrastructure/persistence/listing.repository.ts
 import { injectable, inject } from 'tsyringe';
-import { Model } from 'mongoose';
 import { Listing } from '../../domain/entities/Listing';
-
 import { ListingMapper } from '../mappers/listing.mapper';
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';
-import Sequelize from 'sequelize/types/sequelize';
-import ListingAmenityModel from '../models/listingAmenities.model';
+import { Sequelize } from 'sequelize';
+import ListingModel from '../models/listing.model';
+import ListingCategories from '../models/listingCategories.model';
+import ListingAmenity from '../models/listingAmenities.model';
 
 @injectable()
 export class ListingRepository implements IListingRepository {
   constructor(
     @inject(TOKENS_LISTING.ListingModel)
-    private model: Model<Listing>,
-    @inject(TOKENS_LISTING.ListingCategoryModel)
-    private listingCategoryModel: Model<ListingCategoryModel>,
+    private model: typeof ListingModel,
+    @inject(TOKENS_LISTING.ListingCategoriesModel)
+    private listingCategoryModel: typeof ListingCategories,
     @inject(TOKENS_LISTING.ListingAmenityModel)
-    private listingAmenityModel: Model<ListingAmenityModel>,
+    private listingAmenityModel: typeof ListingAmenity,
     @inject(TOKENS_LISTING.Sequelize)
     private sequelize: Sequelize,
   ) {}
-  create(listing: Listing): Promise<Listing> {
-    throw new Error('Method not implemented.');
+
+  async create(listing: Listing): Promise<Listing> {
+    const raw = ListingMapper.toPersistence(listing);
+    const created = await this.model.create(raw as any);
+    return ListingMapper.toDomain(created);
   }
-  update(id: string, listing: Listing): Promise<boolean> {
-    throw new Error('Method not implemented.');
+
+  async update(id: string, listing: Listing): Promise<boolean> {
+    const raw = ListingMapper.toPersistence(listing);
+    const [affectedCount] = await this.model.update(raw as any, { where: { id } });
+    return affectedCount > 0;
   }
-  delete(id: string): Promise<boolean> {
-    throw new Error('Method not implemented.');
+
+  async delete(id: string): Promise<boolean> {
+    const deletedCount = await this.model.destroy({ where: { id } });
+    return deletedCount > 0;
   }
 
   async findById(id: string): Promise<Listing | null> {
-    const doc = await this.model.findById(id).exec();
-    return doc ? ListingMapper.toDomain(doc) : null;
+    const record = await this.model.findByPk(id);
+    return record ? ListingMapper.toDomain(record) : null;
   }
 
   async findByTenantId(tenantId: string): Promise<Listing[]> {
-    const docs = await this.model.find({ tenantId }).exec();
-    return docs.map(doc => ListingMapper.toDomain(doc));
+    // Assuming tenantId maps to hostId in the MySQL schema
+    const records = await this.model.findAll({ where: { hostId: tenantId } });
+    return records.map(record => ListingMapper.toDomain(record));
   }
 
-async save(listing: Listing): Promise<Listing> {
-  const raw = ListingMapper.toPersistence(listing);
+  async save(listing: Listing): Promise<Listing> {
+    const raw = ListingMapper.toPersistence(listing);
+    const transaction = await this.sequelize.transaction();
 
-  // ✅ transaction（非常重要）
-  const transaction = await this.sequelize.transaction();
+    try {
+      // 1. Upsert main Listing table
+      await this.model.upsert(raw as any, { transaction });
 
-  try {
-    // ========================
-    // 1. upsert 主表
-    // ========================
-    await this.model.upsert(raw, { transaction });
-
-    // ========================
-    // 2. 处理 categories（join table）
-    // ========================
-    if (listing.categories) {
+      // 2. Handle categories join table
+      // Extract IDs from the domain entity
+      const categoryIds = (listing as any).categoryIds || [];
+      
       await this.listingCategoryModel.destroy({
         where: { listingId: listing.id },
         transaction,
       });
 
-      await this.listingCategoryModel.bulkCreate(
-        listing.categories.map((c) => ({
-          listingId: listing.id,
-          categoryId: c.id,
-        })),
-        { transaction }
-      );
-    }
+      if (categoryIds.length > 0) {
+        await this.listingCategoryModel.bulkCreate(
+          categoryIds.map((catId: string) => ({
+            listingId: listing.id,
+            categoryId: catId,
+          })),
+          { transaction }
+        );
+      }
 
-    // ========================
-    // 3. 处理 amenities（join table）
-    // ========================
-    if (listing.amenityIds) {
+      // 3. Handle amenities join table
+      const amenityIds = (listing as any).amenityIds || [];
+      
       await this.listingAmenityModel.destroy({
         where: { listingId: listing.id },
         transaction,
       });
 
-      await this.listingAmenityModel.bulkCreate(
-        listing.amenityIds.map((id) => ({
-          listingId: listing.id,
-          amenityId: id,
-        })),
-        { transaction }
-      );
+      if (amenityIds.length > 0) {
+        await this.listingAmenityModel.bulkCreate(
+          amenityIds.map((amId: number) => ({
+            listingId: listing.id,
+            amenityId: amId,
+          })),
+          { transaction }
+        );
+      }
+
+      await transaction.commit();
+      return listing;
+
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-
-    await transaction.commit();
-
-    // ========================
-    // 4. 返回 domain
-    // ========================
-    return listing;
-
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
-}
-}
+}}
