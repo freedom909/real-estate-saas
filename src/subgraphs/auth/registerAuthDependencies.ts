@@ -18,12 +18,14 @@ import RefreshTokenModel from "./models/refreshToken.model";
 import CredentialModel from "./models/credential.model";
 import SessionModel from "./models/session.model";
 import RiskEventModel from "./models/risk.event.model";
+import TrustedDeviceModel from "./models/trustedDevice";
 
 // repos
 import CredentialRepo from "./repos/credential.repo";
 import RefreshTokenRepository from "./repos/refresh-token.repo";
 import { RiskEventRepo } from "./repos/risk.event.repo";
 import SessionRepository from "./repos/session.repo";
+import TrustedDeviceRepository from "./repos/trusted-device.repo";
 
 // services
 import RefreshTokenService from "./services/refreshToken.service";
@@ -86,6 +88,10 @@ export default function registerAuthDependencies(
     useValue: RiskEventModel,
   });
 
+  container.register(TOKENS_AUTH.models.trustedDevice, {
+    useValue: TrustedDeviceModel,
+  });
+
   container.register(TOKENS_AUTH.repos.refreshTokenRepo, {
     useClass: RefreshTokenRepository
   });
@@ -108,6 +114,10 @@ export default function registerAuthDependencies(
 
   container.register(TOKENS_AUTH.repos.sessionRepo, {
  useClass:SessionRepository
+  });
+
+  container.register(TOKENS_SECURITY.trustedDeviceRepo, {
+    useClass: TrustedDeviceRepository,
   });
 
   // ======================================================

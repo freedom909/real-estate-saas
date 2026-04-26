@@ -4,6 +4,7 @@ export const TOKENS_SECURITY = {
   auditRepo: Symbol.for("AuditRepo"),
   aiService: Symbol.for("AIService"),
   evaluateRiskUseCase: Symbol.for("EvaluateRiskUseCase"),
+  trustedDeviceRepo: Symbol.for("TrustedDeviceRepo"),
 
   services: {
     policyEngine: Symbol.for("security.policyEngine"),

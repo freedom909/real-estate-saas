@@ -164,6 +164,12 @@ type AuthTokens {
   accessToken: String!
 }
 
+type OAuthLoginResponse {
+  accessToken: String
+  refreshToken: String
+  requiresChallenge: Boolean
+}
+
 # =====================
 # Mutation
 # =====================
@@ -189,5 +195,4 @@ type Mutation {
   oauthLogin(provider: OAuthProvider!, idToken: String!): AuthPayload! @public
   bindOAuth(provider: OAuthProvider!, idToken: String!): Boolean! @auth
   unbindOAuth(provider: OAuthProvider!): Boolean! @auth
-
 }

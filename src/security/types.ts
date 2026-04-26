@@ -1,6 +1,9 @@
+import { Context } from "vm";
+import { RiskContext } from "./domain/riskContext";
+
 export type RiskDecision = "ALLOW" | "CHALLENGE" | "BLOCK";
 
-export interface SecurityEvent {
+export interface SecurityEvent extends RiskContext {
   userId: string;
   ip: string;
   userAgent: string;
@@ -10,6 +13,8 @@ export interface SecurityEvent {
   ipRisk: boolean;
   locationChanged?: boolean;
   requestCount?: number;
+  context?: RiskContext;
+  timestamp?: Date;
 }
 
 export interface RiskResult {
@@ -22,5 +27,5 @@ export interface IAIService {
 }
 
 export interface IAuditRepo {
-  save(event: any): Promise<void>;
+  save(event: SecurityEvent): Promise<void>;
 }

@@ -18,4 +18,4 @@ shared/
 infra/
 scripts/
 
-This is a **production-style SaaS architecture skeleton** designed for learning and extension.
+This is a **simple SaaS architecture skeleton** designed for learning and extension.

@@ -17,6 +17,7 @@ export const TOKENS_AUTH = {
     session: Symbol.for("auth.model.session"),
     refreshToken: Symbol.for("auth.model.refreshToken"),
     riskEvent: Symbol.for("auth.models.riskEvent"),
+    trustedDevice: Symbol.for("auth.models.trustedDevice"),
   },
 
   // repositories

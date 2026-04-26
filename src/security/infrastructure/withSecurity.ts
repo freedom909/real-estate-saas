@@ -16,5 +16,3 @@ function withSecurity(action: string, resolverFn: any) {
 }
 
 export default withSecurity;
-
-//
