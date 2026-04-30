@@ -1,7 +1,8 @@
 import { container, DependencyContainer } from 'tsyringe';
 import { TOKENS_AUDIT } from '../tokens/audit.tokens';
 import { TOKENS_SECURITY } from '@/modules/tokens/security.tokens';
-import { RiskEventRepo } from '@/subgraphs/auth/repos/risk.event.repo';
+import { TOKENS_AUTH } from '@/modules/tokens/auth.tokens';
+import { TOKENS_USER } from '@/modules/tokens/user.tokens';
 import RiskCalculator from '@/security/domain/riskCalculator';
 import { GeminiSecurityService } from '@/security/infrastructure/geminiSecurity.service';
 import { GraphQLClient } from 'graphql-request';
@@ -9,6 +10,7 @@ import AuditClient from '@/packages/audit-sdk/src/client/audit.client';
 import AuditModel from '@/subgraphs/audit/models/audit.model';
 import { AuditRepository } from '@/subgraphs/audit/repos/audit.repository';
 import { AuditService } from '@/subgraphs/audit/services/audit.service';
+import { RiskEventRepo } from '@/subgraphs/auth/infrastructure/repos/risk.event.repo';
 
 function registerAuditDependencies(container: DependencyContainer) {
   container.register(TOKENS_AUDIT.models.audit, { useValue: AuditModel });

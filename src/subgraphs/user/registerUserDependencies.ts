@@ -6,7 +6,8 @@ import  UserService  from "./services/user.service"
 import userModel from "./models/user.model"
 import { TOKENS_INFRA } from "@/infrastructure/infra.tokens"
 import RedisService from "@/infrastructure/redis/redisService"
-import UserClient from "../auth/adapters/user.client"
+import { UserClient } from "@/packages/user-sdk/src"
+
 
 export function registerUserDependencies(container: DependencyContainer) {
 
@@ -29,10 +30,13 @@ export function registerUserDependencies(container: DependencyContainer) {
     useValue: RedisService
   })
 
-  container.register(TOKENS_USER.userClient, {
-  useClass: UserClient,
+container.register(TOKENS_USER.userClient, {
+  useFactory: () => {
+    return new UserClient(
+      process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql"
+    );
+  },
 });
-
 
   return container
 }

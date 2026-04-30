@@ -8,16 +8,16 @@ export type UserDocument = HydratedDocument<IUserDB>;
 
 export interface IUserDB {
   _id: Types.ObjectId;
-  email: string;
+  id: string; // Virtual ID for GraphQL
+  email: string; // Mongoose schema requires it, so it's a string
   name: string;
   avatar: string;
   role: Role;
-  status: "ACTIVE" | "INACTIVE" | "BANNED";
-  tokenVersion: {type:number; default:0}
+  status: "ACTIVE" | "SUSPENDED" | "BANNED" | "DELETED"; // Aligned with Mongoose enum
+  tokenVersion: number; // Corrected type from schema definition to actual type
   createdAt: Date;
   updatedAt: Date;
   profile?: IProfile;
-  id?: Types.ObjectId;
 }
 
 
@@ -39,7 +39,33 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-}, { timestamps: true });
+  // Add profile field to Mongoose schema if it's part of the data model
+  // profile: {
+  //   name: { type: String },
+  //   avatar: { type: String },
+  //   email: { type: String },
+  //   status: { type: String, enum: ["ACTIVE", "SUSPENDED", "BANNED", "DELETED"] },
+  // },
+}, {
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+    transform: (doc, ret) => {
+      ret.id = ret._id.toString(); // Map _id to id
+      delete ret._id; // Remove _id
+      delete ret.__v; // Remove __v (version key)
+      return ret;
+    },
+  },
+  toObject: {
+    virtuals: true,
+    transform: (doc, ret) => {
+      ret.id = ret._id.toString();
+      delete ret.__v;
+      return ret;
+    },
+  },
+});
 userSchema.index({ email: 1 })
 
 const UserModel = mongoose.models.User || mongoose.model<IUserDB>("User", userSchema);

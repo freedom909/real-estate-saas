@@ -1,11 +1,13 @@
 import "reflect-metadata";
 import { Request, Response, NextFunction } from "express";
-import { injectable, inject } from "tsyringe";
-import { TOKENS } from "../../../shared/container/tokens";
+import { injectable, inject, container } from "tsyringe";
+
 import { TokenService, TokenPayload } from "../services/token.service";
 import SessionRepo from "../repos/session.repo";
 import { UnauthorizedError } from "../../../infrastructure/utils/errors";
 import Blacklist from "../../../security/blacklist/blacklist";
+import { TOKENS } from "@/shared/infra/tokens";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 /**
  * AuthGuard handles token verification and session validation.
  */
@@ -13,7 +15,7 @@ import Blacklist from "../../../security/blacklist/blacklist";
 export class AuthGuard {
   constructor(
     
-    @inject(TOKENS.auth.sessionRepo) 
+    @inject(TOKENS_AUTH.repos.sessionRepo) 
     private sessionRepo: SessionRepo,
     @inject(TOKENS.security.blacklist)
     private blacklist: Blacklist
@@ -31,7 +33,10 @@ export class AuthGuard {
     const token = authHeader.replace("Bearer ", "");
 
     // 2️⃣ Verify access token
-    const payload: TokenPayload = await this.tokenService.verifyAccessToken(token);
+    // TokenServiceをDIコンテナから解決
+    const tokenService = container.resolve<TokenService>(TOKENS_AUTH.services.tokenService);
+    const payload: TokenPayload = await tokenService.verifyAccessToken(token);
+
     if (payload.type !== "access") {
       throw new UnauthorizedError("Invalid token type");
     }

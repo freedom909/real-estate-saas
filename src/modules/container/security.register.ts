@@ -6,6 +6,7 @@ import { DecisionEngine } from "../../security/domain/decision.engine";
 import { EvaluateRiskUseCase } from "../../security/application/evaluateRisk.usecase";
 import { AuditRepo } from "../../security/infrastructure/audit.repo";
 import { MockAIService } from "../../security/infrastructure/ai.service";
+import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevice.repo";
 
 
 function registerSecurityDependencies() {
@@ -29,5 +30,11 @@ container.register(TOKENS_SECURITY.auditRepo, {
 container.register(TOKENS_SECURITY.evaluateRiskUseCase, {
   useClass: EvaluateRiskUseCase,
 });
+
+container.register(TOKENS_SECURITY.trustedDeviceRepo, {
+  useClass: TrustedDeviceRepository,
+});
+
+
 }
 export default registerSecurityDependencies

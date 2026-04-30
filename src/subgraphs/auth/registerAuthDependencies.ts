@@ -12,190 +12,141 @@ import { TOKENS_USER } from "../../modules/tokens/user.tokens";
 // infra
 import { createRedis } from "../../infrastructure/redis/redis";
 
-// models
-import { Model } from "mongoose";
-import RefreshTokenModel from "./models/refreshToken.model";
-import CredentialModel from "./models/credential.model";
-import SessionModel from "./models/session.model";
-import RiskEventModel from "./models/risk.event.model";
-import TrustedDeviceModel from "./models/trustedDevice";
-
-// repos
-import CredentialRepo from "./repos/credential.repo";
-import RefreshTokenRepository from "./repos/refresh-token.repo";
-import { RiskEventRepo } from "./repos/risk.event.repo";
-import SessionRepository from "./repos/session.repo";
-import TrustedDeviceRepository from "./repos/trusted-device.repo";
-
-// services
-import RefreshTokenService from "./services/refreshToken.service";
-import { TokenService } from "./services/token.service";
-import SessionService from "./services/session.service";
-import { OAuthLoginService } from "./services/oauth.login.service";
-
-// adapters
-import UserClient from "./adapters/user.client";
-import { GoogleOAuthAdapter } from "./adapters/3rdLogin/google.adapter";
-import GithubOAuthAdapter from "./adapters/3rdLogin/github.adapter";
-import OAuthAdapterRegistry from "./adapters/oauth.adapter.registry";
 
 // ✅ blacklist
-import { OAuthProvider } from "./adapters/normalized.oauth.profile";
-
-
+// import { OAuthProvider } from "./adapters/normalized.oauth.profile";
 import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
-import { AuditAdapter } from "./adapters/audit.client";
+// import { AuditAdapter } from "./adapters/audit.client";
 import { RiskEngine } from "@/security/domain/risk.engine";
 import Blacklist from "@/security/blacklist/blacklist";
-import { ServiceTokenService } from "./services/serviceToken.service";
+
 import AuditClient from "@/packages/audit-sdk/src/client/audit.client";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+import { VerifyOtpUseCase } from "./application/usecases/verifyOtp.usecase";
 
+import { RiskEventRepo } from "./infrastructure/repos/risk.event.repo";
+import CredentialRepo from "../user/repos/credential.repo";
+import SessionRepository from "./infrastructure/repos/session.repo";
+// import TrustedDeviceRepository from "./infrastructure/repos/trusted-device.repo";
+import UserRepo from "./infrastructure/repos/user.repo";
+import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevice.repo";
+import TrustedDeviceModel from "@/security/infrastructure/models/trusted.device.model";
+import { UserClient } from "@/packages/user-sdk/src/client/user.client";
+import { ProviderRegistry } from "./infrastructure/oauth/provider.registry";
+import { GoogleProvider } from "./infrastructure/oauth/google.provider";
 
+import { UserGateway } from "./infrastructure/gateways/user.gateway.impl";
+import EvaluateRiskUseCase from "@/security/application/evaluateRisk.usecase";
+import { ChallengeModel } from "./infrastructure/models/challenge.model";
+import ChallengeRepo from "./infrastructure/repos/challenge.repo";
+import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
+import { SessionService } from "./infrastructure/services/session.service";
+import { IdentityRepository } from "./infrastructure/repos/identity.repo";
+import { IdentityModel } from "./infrastructure/models/identity.model";
 
-export default function registerAuthDependencies(
-  container: DependencyContainer
-) {
-  console.log("✅ REGISTER AUTH DEPENDENCIES");
+export default function registerAuthDependencies(container: DependencyContainer) {
 
-  // ======================================================
-  // INFRA
-  // ======================================================
-
+  // ================= INFRA =================
   const redis = createRedis();
 
   container.register(TOKENS_INFRA.infra.redis, {
     useValue: redis,
   });
 
-  // ✅ blacklist（推荐用 useValue 避坑）
   container.register(TOKENS.security.blacklist, {
     useValue: new Blacklist(redis),
   });
 
-  // ======================================================
-  // MODELS
-  // ======================================================
-  container.register(TOKENS_AUTH.models.refreshToken, {
-  useValue: RefreshTokenModel,
-});
-
-  container.register(TOKENS_AUTH.models.session, {
-    useValue: SessionModel,
+  container.register(TOKENS_SECURITY.evaluateRiskUseCase, {
+    useClass: EvaluateRiskUseCase,
   });
 
-  container.register(TOKENS_AUTH.models.riskEvent, {
-    useValue: RiskEventModel,
-  });
-
-  container.register(TOKENS_AUTH.models.trustedDevice, {
+  container.register(TOKENS_SECURITY.models.trustedDevice, {
     useValue: TrustedDeviceModel,
   });
 
-  container.register(TOKENS_AUTH.repos.refreshTokenRepo, {
-    useClass: RefreshTokenRepository
+
+  container.register(TOKENS_SECURITY.challengeRepo, {
+    useClass: ChallengeRepo
+  });
+  
+  // ================= PROVIDERS =================
+  container.register("GoogleProvider", {
+    useClass: GoogleProvider
   });
 
-  container.register(TOKENS_AUTH.models.credential, {
-    useValue: CredentialModel,
+  container.register(TOKENS_AUTH.usecases.providerRegistry, {
+    useFactory: (c) => new ProviderRegistry({
+      google: c.resolve("GoogleProvider")
+    })
   });
 
-  // ======================================================
-  // REPOSITORIES
-  // ======================================================
-
-  container.register(TOKENS_AUTH.repos.riskEventRepo, {
-    useClass: RiskEventRepo
+  // ================= REPOS =================
+  container.register(TOKENS_AUTH.repos.userRepo, {
+    useClass: UserRepo
   });
+container.register(TOKENS_AUTH.repos.credentialRepo, {
+  useClass: CredentialRepo
+});
 
-  container.register(TOKENS_AUTH.repos.credentialRepo, {
-    useClass: CredentialRepo
+  container.register(TOKENS_SECURITY.trustedDeviceRepo, {
+    useClass: TrustedDeviceRepository
   });
 
   container.register(TOKENS_AUTH.repos.sessionRepo, {
- useClass:SessionRepository
+    useClass: SessionRepository
   });
 
-  container.register(TOKENS_SECURITY.trustedDeviceRepo, {
-    useClass: TrustedDeviceRepository,
+  container.register(TOKENS_AUTH.repos.challengeRepo, {
+    useClass: ChallengeRepo
   });
 
-  // ======================================================
-  // GRAPHQL CLIENT
-  // ======================================================
 
-  container.register(TOKENS_USER.userClient, {
-    useClass: UserClient,
+
+  // ================= USECASES =================
+  container.register(TOKENS_AUTH.usecases.oauthLoginUseCase, {
+    useClass: OAuthLoginUseCase
   });
 
-  // ======================================================
-  // OAUTH ADAPTERS
-  // ======================================================
-
-  // 1️⃣ 注册 adapter（必须有！！！）
-  container.registerSingleton(GoogleOAuthAdapter);
-  container.registerSingleton(GithubOAuthAdapter);
-
-  // 2️⃣ 注册 registry
-  container.registerSingleton(
-    TOKENS_AUTH.adapters.oauthAdapterRegistry,
-    OAuthAdapterRegistry
-  );
-
-  // 3️⃣ 初始化 registry
-  const registry = container.resolve<OAuthAdapterRegistry>(
-    TOKENS_AUTH.adapters.oauthAdapterRegistry
-  );
-
-  // 4️⃣ 注册 provider → adapter 映射
-  registry.register(
-    OAuthProvider.GOOGLE,
-    container.resolve(GoogleOAuthAdapter)
-  );
-
-  registry.register(
-    OAuthProvider.GITHUB,
-    container.resolve(GithubOAuthAdapter)
-  );
-
-  // 5️⃣ debug
-  registry.debug();
-
-  console.log("✅ OAuth adapters registered");
-  // ======================================================
-  // SERVICES
-  // ======================================================
-  registry.debug(); // 👉 看是否注册成功
-
-
-  container.register(TOKENS_AUTH.services.tokenService, {
-    useClass: TokenService
+  container.register(TOKENS_AUTH.usecases.verifyOtpUseCase, {
+    useClass: VerifyOtpUseCase
   });
 
-  container.register(TOKENS_AUTH.services.refreshTokenService, {
-    useClass: RefreshTokenService
+  // ================= CLIENT =================
+container.register(TOKENS_USER.userClient, {
+  useFactory: () =>
+    new UserClient(
+      process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql"
+    ),
+});
+
+  container.register(TOKENS_AUDIT.auditClient, {
+    useValue: new AuditClient(
+      process.env.AUDIT_SUBGRAPH_URL || "http://localhost:4080/graphql"
+    ),
   });
 
-  container.register(TOKENS_AUTH.services.oauthloginService, {
-    useClass: OAuthLoginService
-  });
+// =================ports=================
+container.register(TOKENS_AUTH.ports.userGateway, {
+  useClass: UserGateway,
+});
 
-  container.register(TOKENS_AUTH.services.sessionService, {
-    useClass: SessionService
-  });
+container.register(TOKENS_AUTH.ports.sessionPort, {
+  useClass:SessionService 
+});
 
-  container.register(TOKENS_AUTH.auditPort, {
-    useClass: AuditAdapter
-  })
+// ✅ 1. 先注册 model
+container.register(TOKENS_AUTH.models.identityModel, {
+  useValue: IdentityModel,
+});
 
-  container.register(TOKENS_AUTH.services.serviceTokenService, {
-    useClass: ServiceTokenService,
-  });
-
-container.register(TOKENS_AUDIT.auditClient, {
-  useValue: new AuditClient(
-    process.env.AUDIT_SUBGRAPH_URL || "http://localhost:4080/graphql"
-  ),
+// ✅ 2. 再注册 repo
+container.register(TOKENS_AUTH.repos.identityRepo, {
+  useClass: IdentityRepository,
+});
+ // ================= models =================
+ container.register(TOKENS_AUTH.models.challengeModel, {
+  useValue: ChallengeModel,
 });
 
   return container;

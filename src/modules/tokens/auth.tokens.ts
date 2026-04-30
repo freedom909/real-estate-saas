@@ -1,9 +1,11 @@
+import ChallengeRepo from "@/subgraphs/auth/infrastructure/repos/challenge.repo";
 
 export const TOKENS_AUTH = {
 
   // adapters
   adapters: {
     oauthAdapter: Symbol.for("auth.adapters.oauthAdapter"),
+    userClient: Symbol.for("auth.adapters.userClient"),
     oauthAdapterRegistry: Symbol.for("auth.adapters.oauthAdapterRegistry"),
     googleOAuthAdapter: Symbol.for("auth.adapters.googleOAuthAdapter"),
     githubOAuthAdapter: Symbol.for("auth.adapters.githubOAuthAdapter"),
@@ -18,15 +20,20 @@ export const TOKENS_AUTH = {
     refreshToken: Symbol.for("auth.model.refreshToken"),
     riskEvent: Symbol.for("auth.models.riskEvent"),
     trustedDevice: Symbol.for("auth.models.trustedDevice"),
+    challengeModel: Symbol.for("auth.models.challengeModel"),
+    identityModel: Symbol.for("auth.models.identityModel"),
   },
 
   // repositories
   repos: {
     credentialRepo: Symbol.for("auth.repos.credentialRepo"),
     refreshTokenRepo: Symbol.for("auth.repos.refreshTokenRepository"),
-
     sessionRepo: Symbol.for("auth.repos.sessionRepo"),
     riskEventRepo: Symbol.for("auth.repos.riskEventRepo"),
+    challengeRepo: Symbol.for("auth.repos.challengeRepo"), 
+    userRepo: Symbol.for("auth.repos.userRepo"),
+    identityRepo: Symbol.for("auth.repos.identityRepo"),
+    ChallengeRepo: Symbol.for("auth.repos.challengeRepo"),
   },
 
   // services
@@ -36,14 +43,21 @@ export const TOKENS_AUTH = {
     refreshTokenService: Symbol.for("auth.services.refreshTokenService"),
     oauthService: Symbol.for("auth.services.oauthService"),
     sessionService: Symbol.for("auth.services.sessionService"),
+    otpService: Symbol.for("auth.services.otpService"),
 
     // loginRiskService: Symbol.for("auth.services.loginRiskService"),
     mergeAccountService: Symbol.for("auth.services.mergeAccountService"),
     unlinkAccountService: Symbol.for("auth.services.unlinkAccountService"),
-    oauthloginService: Symbol.for("auth.services.oauthloginService"),
+    oauthLoginService: Symbol.for("auth.services.oauthLoginService"),
     serviceTokenService: Symbol.for("auth.serviceTokenService"),
   },
 
+    usecases: {
+    OAuthLoginUseCase: Symbol.for("usecases.OAuthLoginUseCase"),
+    verifyOtpUseCase: Symbol.for("auth.VerifyOtpUseCase"), // ✅ 放这里
+    oauthLoginUseCase: Symbol.for("auth.OAuthLoginUseCase"),
+    providerRegistry: Symbol.for("auth.providerRegistry"),
+  },
   // providers
   providers: {
     keyProvider: Symbol.for("auth.providers.keyProvider"),
@@ -56,5 +70,11 @@ export const TOKENS_AUTH = {
   guards: {
     authGuard: Symbol.for("auth.guards.authGuard"),
   },
+
+  // ports
+  ports: {
   auditPort: Symbol.for("auditPort"),
-};
+  sessionPort:Symbol.for("sessionPort"),
+  eventBus: Symbol.for("eventBus"),
+  userGateway:Symbol.for("userGateway"),
+}}

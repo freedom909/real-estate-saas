@@ -18,7 +18,7 @@ directive @public on FIELD_DEFINITION
 # User (REFERENCE ONLY)
 # =====================
 extend type User @key(fields: "id") {
-  id: ID! @external
+  id: ID! @external  
 }
 
 # =====================
@@ -82,13 +82,9 @@ type OAuthAccount {
 # =====================
 type Query {
   listOAuthAccounts: [OAuthAccount!]! @auth
-
   me: User @auth
-
   _authHealth: Boolean
-
   mySessions: [Session!]!
-
   mySecurityEvents(
     limit: Int = 20
   ): [RiskEvent!]!
@@ -115,7 +111,15 @@ type Session {
   lastSeenAt: DateTime
 
 }
+type Identity {
+  id: ID!
+  provider: String!
+  email: String
+}
 
+extend type Query {
+  myIdentities: [Identity!]!
+}
 # =====================
 # Risk Event
 # =====================
@@ -174,25 +178,13 @@ type OAuthLoginResponse {
 # Mutation
 # =====================
 type Mutation {
-
-  refreshToken(
-    refreshToken: String!
-  ): AuthTokens!
-
+  refreshToken(refreshToken: String!): AuthTokens!
   logout: Boolean!
-
-  revokeSession(
-    sessionId: ID!
-  ): Boolean!
-
-  bindOAuthAccount(provider: OAuthProvider!,idToken: String!): Boolean!
-
-  unbindOAuthAccount(
-    provider: OAuthProvider!
-  ): Boolean!
-
-
-  oauthLogin(provider: OAuthProvider!, idToken: String!): AuthPayload! @public
-  bindOAuth(provider: OAuthProvider!, idToken: String!): Boolean! @auth
-  unbindOAuth(provider: OAuthProvider!): Boolean! @auth
+  revokeSession(sessionId: ID!): Boolean!
+  verifyOtp(challengeId: ID!, code: String!): AuthPayload
+  bindOAuthAccount(provider: OAuthProvider!, idToken: String!): Boolean!
+  unbindOAuthAccount(provider: OAuthProvider!): Boolean!
+  oauthLogin(provider: OAuthProvider!, idToken: String!): AuthPayload!
+  bindOAuth(provider: OAuthProvider!, idToken: String!): Boolean!
+  unbindOAuth(provider: OAuthProvider!): Boolean!
 }

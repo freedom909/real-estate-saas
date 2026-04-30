@@ -25,15 +25,14 @@ interface UserReference {
 const resolvers = {
 
   User: {
-    __resolveReference: async (ref: UserReference, { userService }: any) => {
-      return await userService.findById(ref.id);
+    id: (parent: any) => parent.id || parent._id?.toString(),
+    __resolveReference: async (ref: UserReference, { container }: ResolverContext) => {
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      return userService.findById(ref.id);
     },
   },
   Query: {
-    user: async (_: unknown, { id }: { id: string }, { user }: { user: any }) => {
-      if (!user || user.id !== id) {
-        throw new Error("Forbidden");
-      }
+    user: async (_: unknown, { id }: { id: string }) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.findById(id);
     },

@@ -28,7 +28,7 @@ import { createTestContext } from "../../setup/test.context";
 import { createMock } from "../../setup/mock.factory";
 
 // modules
-import { OAuthProvider } from "../../subgraphs/auth/adapters/normalized.oauth.profile";
+import { OAuthProvider } from "../../subgraphs/auth/adapters/oauth.profile";
 import { OAuthAdapter } from "../../subgraphs/auth/adapters/oauth/oauth.adapter";
 
 // tokens

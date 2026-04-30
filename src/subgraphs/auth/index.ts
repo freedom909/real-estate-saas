@@ -15,10 +15,10 @@ import { buildSubgraphSchema } from "@apollo/subgraph"
 
 import mongoose from "mongoose"
 import { container } from "tsyringe"
-import resolvers from "./resolvers.js"
+import resolvers from "./resolvers"
 
-import registerAuthDependencies from "./registerAuthDependencies.js"
-import  registerSecurityDependencies  from "../../modules/container/security.register.js";
+import registerAuthDependencies from "./registerAuthDependencies"
+import  registerSecurityDependencies  from "../../modules/container/security.register";
 import registerAuditDependencies from "../../modules/container/audit.register.js"
 
 
@@ -26,7 +26,7 @@ import registerAuditDependencies from "../../modules/container/audit.register.js
 registerAuditDependencies(container)
 registerSecurityDependencies();
 registerAuthDependencies(container)
-console.log("OAuth container loaded")//good
+console.log("OAuth container loaded")
 console.log(
   "Auth Subgraph - INTERNAL_SERVICE_TOKEN env var at startup =",
   process.env.INTERNAL_SERVICE_TOKEN

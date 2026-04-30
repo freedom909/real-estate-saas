@@ -56,16 +56,20 @@ app.use(
   express.json(),
   expressMiddleware(server, {
     context: async ({ req }) => {
-      
       const userHeader = req.headers["x-user"];
 
-      if (userHeader) {
-        console.log("🟢 x-user:", userHeader);
+      let user = null;
+      try {
+        if (userHeader && typeof userHeader === "string") {
+          user = JSON.parse(userHeader);
+        }
+      } catch (e) {
+        console.error("Failed to parse x-user header:", e);
       }
 
       return {
         req,
-        user: userHeader ? JSON.parse(userHeader as string) : null,
+        user,
         container: userContainer,
       };
     },
