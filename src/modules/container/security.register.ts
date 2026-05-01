@@ -7,12 +7,14 @@ import { EvaluateRiskUseCase } from "../../security/application/evaluateRisk.use
 import { AuditRepo } from "../../security/infrastructure/audit.repo";
 import { MockAIService } from "../../security/infrastructure/ai.service";
 import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevice.repo";
+import { GeminiRiskEngine } from "@/security/infrastructure/ai/gemini.risk.engine";
+import GeminiClient from "@/security/infrastructure/geminiClient";
 
 
 function registerSecurityDependencies() {
 
-container.register(TOKENS_SECURITY.aiService, {
-  useClass: MockAIService,
+container.register(TOKENS_SECURITY.aiRiskEngine, {
+  useClass: GeminiRiskEngine,
 });
 
 container.register(TOKENS_SECURITY.riskEngine, {
@@ -35,6 +37,9 @@ container.register(TOKENS_SECURITY.trustedDeviceRepo, {
   useClass: TrustedDeviceRepository,
 });
 
-
+container.register("GeminiClient", {
+  useFactory: () =>
+    new GeminiClient()
+});
 }
 export default registerSecurityDependencies

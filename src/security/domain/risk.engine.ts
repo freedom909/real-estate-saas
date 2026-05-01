@@ -1,23 +1,18 @@
 import { inject, injectable } from "tsyringe";
-import { IAIService, SecurityEvent } from "../types";
-import { TOKENS_SECURITY } from "../../modules/tokens/security.tokens";
+import { SecurityEvent } from "../types";
 
 @injectable()
 export class RiskEngine {
-  constructor(
-    @inject(TOKENS_SECURITY.aiService)
-    private ai: IAIService
-  ) {}
+  constructor() {}
 
   async evaluate(event: SecurityEvent): Promise<number> {
     let score = 0;
 
-    if (event.failedAttempts > 50) score += 50;
+    // Basic Rule Weights
+    if (event.failedAttempts > 5) score += 25;
     if (event.isNewDevice) score += 15;
     if (event.ipRisk) score += 40;
-
-    const aiScore = await this.ai.analyzeRisk(event);
-
-    return score + aiScore;
+    
+    return score;
   }
 }

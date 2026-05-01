@@ -1,6 +1,6 @@
 
 
-import { container } from "tsyringe";
+import { container, DependencyContainer } from "tsyringe";
 
 import { ForbiddenError } from "../../infrastructure/utils/errors";
 import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
@@ -23,16 +23,13 @@ interface User {
 }
 
 interface Context {
-  user?: User;
-  container: typeof container;
-  req: Request;
-  res: Response;
-  redis?: any;
-  userClient: any;
-  // tokenService: TokenService;
-  blacklist: Blacklist;
-  geminiSecurityService: GeminiSecurityService;
-  request: any;
+  user?: {
+    userId: string;
+  };
+
+  req: any;
+  res: any;
+  container: DependencyContainer;
 }
 
 interface AuthPayload {
@@ -132,7 +129,11 @@ export default {
       return usecase.execute({
         provider,
         idToken,
-        request: ctx.request
+        request: {
+          ip: ctx.req.ip || (ctx.req.headers["x-forwarded-for"] as string) || "127.0.0.1",
+          userAgent: ctx.req.headers["user-agent"] || "unknown",
+          deviceId: (ctx.req.headers["x-device-id"] as string) || "unknown",
+        },
       });
     },
 
@@ -204,7 +205,11 @@ myIdentities: async (_: any, __: any, ctx: Context) => {
       return usecase.execute({
         challengeId,
         otpCode: code, // ✅ 内部统一
-        request: ctx.request,
+        request: {
+          ip: ctx.req.ip || (ctx.req.headers["x-forwarded-for"] as string) || "127.0.0.1",
+          userAgent: ctx.req.headers["user-agent"] || "unknown",
+          deviceId: (ctx.req.headers["x-device-id"] as string) || "unknown",
+        },
       });
     },
 

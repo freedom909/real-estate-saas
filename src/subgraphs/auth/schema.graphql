@@ -158,7 +158,7 @@ type AuthPayload {
   refreshToken: String
   user: User
   status: String
-
+  challengeId: ID
 }
 
 # =====================

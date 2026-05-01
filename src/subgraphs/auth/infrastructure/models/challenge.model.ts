@@ -5,6 +5,17 @@ const schema = new mongoose.Schema({
   userId: String,
   otpCode: String,
   expiresAt: Date,
+  deviceId: String,
+  status: {
+    type: String,
+    enum: ["PENDING", "VERIFIED", "EXPIRED"],
+    default: "PENDING",
+  },
+  type: {
+    type: String,
+    enum: ["OTP", "SMS"],
+    default: "OTP",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

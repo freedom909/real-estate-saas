@@ -12,7 +12,7 @@ import { container } from 'tsyringe';
 import registerAuditDependencies from '@/modules/container/audit.register';
 
 async function bootstrap() {
-  await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/east');
+  await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nakano');
 
   registerAuditDependencies(container);
 

@@ -11,7 +11,8 @@ import { IdentityRepository } from "../../infrastructure/repos/identity.repo";
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { IUserGateway } from "../../domain/ports/user.gateway";
 import ChallengeRepo from "../../infrastructure/repos/challenge.repo";
-import { ISessionPort } from "../../domain/ports/session.port";
+import SessionPort, { ISessionPort } from "../../domain/ports/session.port";
+import { AuthResult } from "../../domain/entities/authResult";
 
 
 @injectable()
@@ -30,13 +31,13 @@ export class OAuthLoginUseCase {
     private challengeRepo: ChallengeRepo,
 
     @inject(TOKENS_AUTH.ports.sessionPort)
-    private sessionPort: ISessionPort,
+    private sessionPort: SessionPort,
 
     @inject(TOKENS_AUTH.repos.identityRepo)
     private identityRepo: IdentityRepository
   ) {}
 
-async execute(cmd: OAuthLoginCommand) {
+async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
 
   // 1️⃣ provider verify
   const provider = this.registry.get(cmd.provider.toLowerCase());
@@ -83,24 +84,51 @@ async execute(cmd: OAuthLoginCommand) {
     throw new Error("Login failed: User could not be resolved or created.");
   }
 
+  const { ip = "127.0.0.1", userAgent = "unknown", deviceId = "unknown" } = cmd.request || {};
+
   // 1️⃣ 执行风控评估
   const riskResult = await this.riskUseCase.execute({
     userId: user.id,
-    ip: (cmd as any).ip || "127.0.0.1",
-    userAgent: (cmd as any).userAgent || "unknown",
-    deviceId: (cmd as any).deviceId || "unknown",
+    ip,
+    userAgent,
+    deviceId,
     failedAttempts: 0,
     isNewDevice: !identity,
     ipRisk: false,
   });
 
-  // 2️⃣ 顺利进行：如果是 ALLOW 或者是开发环境，生成 Token
-  const session = await this.sessionPort.createSession(user.id);
+    //  BLOCK
+  if (riskResult.decision === "BLOCK") {
+    return { status: "BLOCKED" };
+  }
 
-  return {
+    // 5️⃣ CHALLENGE（核心🔥）
+  if (riskResult.decision === "CHALLENGE") {
+    const challenge = await this.challengeRepo.create({
+      userId: user.id,
+      deviceId,
+      type: "OTP",
+      status: "PENDING",
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000)
+    });
+     return {
+      status: "CHALLENGE",
+      challengeId: challenge.id
+    };
+  }
+ // 2️⃣ 顺利进行：如果是 ALLOW 或者是开发环境，生成 Token
+
+
+    const tokens = await this.sessionPort.createSession({
     userId: user.id,
-    accessToken: (session as any).accessToken,
-    refreshToken: (session as any).refreshToken,
+    deviceId,
+    ip,
+    userAgent
+  });
+  return {
+    status: "SUCCESS",
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken
   };
 }
 }

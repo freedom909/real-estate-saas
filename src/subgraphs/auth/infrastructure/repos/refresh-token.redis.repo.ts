@@ -1,5 +1,6 @@
-import {createRedis} from "../../../infrastructure/redis/redis";
-import { hash } from "../../../infrastructure/utils/hash";
+import { createRedis } from "@/infrastructure/redis/redis";
+import { hash } from "@/infrastructure/utils/hash";
+
 
 interface RefreshTokenData {
   userId: string;

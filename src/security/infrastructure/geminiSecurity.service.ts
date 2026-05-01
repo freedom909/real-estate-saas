@@ -1,8 +1,6 @@
 // src/security/service/geminiSecurity.service.ts
 
-import { injectable } from "tsyringe";
-import fetch from "node-fetch";
-
+import { inject, injectable } from "tsyringe";
 
 import { SecurityEvent } from "../types";
 import GeminiClient from "./geminiClient";

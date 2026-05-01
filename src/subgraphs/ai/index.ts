@@ -30,7 +30,7 @@ console.log("Listing container loaded")//good
 
 // ⭐ Mongo
 await mongoose.connect(
-  process.env.MONGO_URI || "mongodb://localhost:27017/east"
+  process.env.MONGO_URI || "mongodb://localhost:27017/nakano"
 )
 
 // ⭐ schema

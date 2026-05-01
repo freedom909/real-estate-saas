@@ -1,12 +1,22 @@
 // infrastructure/ai/geminiClient.ts
+import axios from "axios";
 
- class GeminiClient {
-  async analyze(prompt: string): Promise<string> {
-    // 👉 这里接 Google Gemini API
-    return JSON.stringify({
-      riskScore: Math.random(),
-      reason: "AI simulated"
-    });
+class GeminiClient {
+  private apiKey = process.env.GEMINI_API_KEY;
+
+  async analyze(prompt: string, model: string = "gemini-pro"): Promise<any> {
+    if (!this.apiKey) {
+      throw new Error("GEMINI_API_KEY is not set in environment variables.");
+    }
+
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`,
+      {
+        contents: [{ parts: [{ text: prompt }] }],
+      }
+    );
+
+    return response.data;
   }
 }
 
