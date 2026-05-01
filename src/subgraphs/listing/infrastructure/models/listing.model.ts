@@ -2,11 +2,13 @@
 
 import "reflect-metadata";
 import { Model, DataTypes } from 'sequelize';
-import sequelize from '../config/seq';
+import { sequelize } from "@/infrastructure/config/seq";
 
-class Listing extends Model {}
 
-Listing.init(
+
+class ListingModel extends Model {}
+
+ListingModel.init(
   {
     id: { type: DataTypes.STRING, primaryKey: true },
     title: { type: DataTypes.STRING, allowNull: false },
@@ -54,4 +56,4 @@ Listing.init(
   }
 );
 
-export default Listing;
+export default ListingModel;

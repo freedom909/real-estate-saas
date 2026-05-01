@@ -1,13 +1,16 @@
 // FILE: application/usecases/ApplyTitleSuggestionUseCase.ts
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { OpenAIAdapter } from "../../infrastructure/ai/OpenAI.adapter";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 
 @injectable()
 export class ApplyTitleSuggestionUseCase {
   constructor(
+    @inject(TOKENS_LISTING.ListingRepository)
     private repo: ListingRepository,
+    @inject(TOKENS_LISTING.OpenAIAdapter)
     private ai: OpenAIAdapter
   ) {}
 

@@ -1,14 +1,16 @@
 import { inject, injectable } from "tsyringe";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { OpenAIAdapter } from "../../infrastructure/ai/OpenAI.adapter";
-
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 @injectable()
 export class ApplyDescriptionSuggestionUseCase {
   constructor(
+    @inject(TOKENS_LISTING.ListingRepository)
     private repo: ListingRepository,
-    private ai: OpenAIAdapter
-  ) {}
+    @inject(TOKENS_LISTING.OpenAIAdapter)
+    private ai: OpenAIAdapter,
+  ) { }
 
   async execute(listingId: string) {
     const listing = await this.repo.findById(listingId);

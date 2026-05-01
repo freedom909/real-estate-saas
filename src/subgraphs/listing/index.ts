@@ -13,7 +13,15 @@ import cors from 'cors';
 import { container } from "tsyringe";
 import { registerListingDependencies } from "./container/registerListingDependencies";
 import { resolvers } from './resolvers/resolver';
+import { sequelize } from "@/infrastructure/config/seq";
 
+
+console.log({
+  DB_USER: process.env.DB_USER,
+  DB_PASSWORD: process.env.DB_PASSWORD,
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+});
 // Register all dependencies for the listing subgraph
 registerListingDependencies();
 
@@ -23,7 +31,11 @@ const startApolloServer = async () => {
   try {
     // For MySQL, you would initialize your ORM (e.g., TypeORM, Sequelize) here.
     // Example: await AppDataSource.initialize();
-    console.log("Connecting to MySQL (simulated)...");
+    console.log("Connecting to MySQL...");
+
+await sequelize.authenticate();
+
+console.log("✅ MySQL connected");
 
     const app = express();
     const httpServer = http.createServer(app);

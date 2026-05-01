@@ -9,6 +9,8 @@ import GetListingUseCase from '../../subgraphs/listing/application/use-cases/Get
 import ListingAmenityModel from '@/subgraphs/listing/infrastructure/models/listingAmenities.model';
 import ListingCategoriesModel from '@/subgraphs/listing/infrastructure/models/listingCategories.model';
 import ListingLocationsModel from '@/subgraphs/listing/infrastructure/models/listingLocations.model';
+import { ApplyTitleSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/ApplyTitleSuggestionUseCase';
+import { ApplyDescriptionSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/ApplyDescriptionSuggestionUseCase';
 
 export default function registerListingDependencies() {
   container.register(TOKENS_LISTING.ListingModel, {
@@ -38,4 +40,14 @@ container.register(TOKENS_LISTING.ListingAmenityModel, {
 container.register(TOKENS_LISTING.ListingLocationsModel, {
   useValue: ListingLocationsModel,
 });
+
+container.register("ApplyDescriptionSuggestionUseCase", {
+  useClass: ApplyDescriptionSuggestionUseCase,
+});
+
+container.register("ApplyTitleSuggestionUseCase", {
+  useClass: ApplyTitleSuggestionUseCase,
+});
+
+
 }

@@ -1,26 +1,31 @@
-async execute(listingId: string) {
-  const listing = await listingRepo.findById(listingId);
 
-  // 👉 跨 subgraph 调用（通过 federation 或 HTTP）
-  const reviews = await reviewClient.getReviews(listingId);
+// // src/subgraphs/listing/application/use-cases/OptimizeListingWithReviews
 
-  const summary = await reviewAI.summarizeReviews(reviews);
+// export class OptimizeListingWithReviewsUseCase {
+//   async execute(listingId: string) {
+//   const listing = await listingRepo.findById(listingId);
 
-  const prompt = `
-Improve listing:
+//   // 👉 跨 subgraph 调用（通过 federation 或 HTTP）
+//   const reviews = await reviewClient.getReviews(listingId);
 
-Title: ${listing.title}
-Description: ${listing.description}
+//   const summary = await reviewAI.summarizeReviews(reviews);
 
-User feedback summary:
-${summary}
-`;
+//   const prompt = `
+// Improve listing:
 
-  const improved = await ai.generateText({ prompt });
+// Title: ${listing.title}
+// Description: ${listing.description}
 
-  listing.applySuggestedDescription(improved);
+// User feedback summary:
+// ${summary}
+// `;
 
-  await listingRepo.save(listing);
+//   const improved = await ai.generateText({ prompt });
 
-  return listing;
-}
+//   listing.applySuggestedDescription(improved);
+
+//   await listingRepo.save(listing);
+
+//   return listing;
+// }
+// }

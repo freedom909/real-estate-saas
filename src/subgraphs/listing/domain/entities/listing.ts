@@ -71,7 +71,7 @@ export class Listing {
   }
 
   private validate(props: ListingProps) {
-    if (!props.tenantId) throw new Error("tenantId required");
+    if (!props.tenantId) throw new Error("tenantId required");// "message": "tenantId required",
     if (!props.address) throw new Error("address required");
     if (!props.categories.length) throw new Error("categories required");
   }

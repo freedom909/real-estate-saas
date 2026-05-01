@@ -1,12 +1,13 @@
 import { Model, DataTypes } from 'sequelize';
-import sequelize from '../config/seq';
+import { sequelize } from "@/infrastructure/config/seq";
+
 import Category from './category.model';
 import Listing from './listing.model';
 
 
-class ListingCategories extends Model {}
+class ListingCategoriesModel extends Model {}
 
-ListingCategories.init(
+ListingCategoriesModel.init(
   {
     listingId: {
       type: DataTypes.STRING,
@@ -35,4 +36,4 @@ ListingCategories.init(
   }
 );
 
-export default ListingCategories;
+export default ListingCategoriesModel;
