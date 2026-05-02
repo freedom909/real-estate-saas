@@ -4,7 +4,7 @@ import { Listing } from "../entities/Listing";
 export interface IListingRepository {
   create(listing: Listing): Promise<Listing>;
   findById(id: string): Promise<Listing | null>;
-  findByTenantId(tenantId: string): Promise<Listing[]>;
+  findByHostId(hostId: string): Promise<Listing[]>;
   update(id: string, listing: Listing): Promise<boolean>;
   delete(id: string): Promise<boolean>;
   save(listing: Listing): Promise<Listing>;

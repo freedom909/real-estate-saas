@@ -1,18 +1,18 @@
-// tenant.adapter.ts
+// host.adapter.ts
 
 import { injectable, inject } from 'tsyringe';
 
 
 
-export interface TenantAdapter {
-  validateTenantExists(tenantId: string): Promise<boolean>;
+export interface HostAdapter {
+  validateHostExists(hostId: string): Promise<boolean>;
 }
 
 @injectable()
-class TenantAdapterImpl implements TenantAdapter {   
-    async validateTenantExists(tenantId: string): Promise<boolean> {
+class HostAdapterImpl implements HostAdapter {   
+    async validateHostExists(hostId: string): Promise<boolean> {
         return true;
     }
 }
 
-export default TenantAdapterImpl;
+export default HostAdapterImpl;

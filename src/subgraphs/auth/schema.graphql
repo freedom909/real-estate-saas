@@ -22,9 +22,9 @@ extend type User @key(fields: "id") {
 }
 
 # =====================
-# Tenant (REFERENCE)
+# Host (REFERENCE)
 # =====================
-extend type Tenant @key(fields: "id") {
+extend type Host @key(fields: "id") {
   id: ID! @external
 }
 
@@ -129,7 +129,7 @@ type RiskEvent {
 
   userId: ID!
 
-  tenantId: ID
+  hostId: ID
 
   type: RiskEventType!
 
@@ -153,7 +153,7 @@ type RiskEvent {
 # Auth Payload
 # =====================
 type AuthPayload {
-  tenantId: ID
+  hostId: ID
   accessToken: String
   refreshToken: String
   user: User

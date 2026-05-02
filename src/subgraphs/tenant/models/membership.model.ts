@@ -15,7 +15,7 @@ export interface MembershipDocument extends Document {
 
   userId: mongoose.Types.ObjectId
 
-  tenantId: mongoose.Types.ObjectId
+  hostId: mongoose.Types.ObjectId
 
   role: Role
 
@@ -32,7 +32,7 @@ const membershipSchema = new Schema<MembershipDocument>(
       index: true
     },
 
-    tenantId: {
+    hostId: {
       type: Schema.Types.ObjectId,
       required: true,
       index: true

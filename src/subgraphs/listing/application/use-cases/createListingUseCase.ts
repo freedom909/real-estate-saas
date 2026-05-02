@@ -8,11 +8,11 @@ import { Description } from '../../domain/value-objects/Description';
 
 export interface CreateListingInput {
   title: string;
-  description?: string;
-  address: string;
+  description: string;
+  locationId: string;
   categories: string[];
   amenityIds?: string[];
-  tenantId: string;
+  hostId: string;
 }
 
 @injectable()
@@ -27,10 +27,10 @@ export default class CreateListingUseCase {
     const listing = new Listing({
       title: new Title(input.title),
       description: new Description(input.description),
-      address: input.address,
+      locationId: input.locationId,
       categories: input.categories,
       amenityIds: input.amenityIds,
-      tenantId: input.tenantId,
+      hostId: input.hostId,
       createdAt: new Date(),
       updatedAt: new Date(),
       id: uuidv4(),

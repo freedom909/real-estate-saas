@@ -1,6 +1,6 @@
 // models/mysql/category.js
 import { Model, DataTypes } from 'sequelize';
-import sequelize from '../config/seq';
+import { sequelize } from "@/infrastructure/config/seq";
 
 class Category extends Model {}
 
@@ -20,7 +20,7 @@ Category.init(
   }
 );
 
-export const validateCategoryInput = (input) => {
+export const validateCategoryInput = (input: { name?: string; type?: string }) => {
   if (!input.name) {
     throw new Error('Category name is required');
   }

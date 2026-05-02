@@ -1,28 +1,28 @@
 import { injectable, inject } from 'tsyringe';
 import { Model } from 'mongoose';
-import { TenantDocument } from '../models/tenant.model';
-import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
+import { HostDocument } from '../models/host.model';
+import { TOKENS_Host } from '@/modules/tokens/host.tokens';
 
 
 @injectable()
-export class TenantRepository {
+export class HostRepository {
   constructor(
-    @inject(TOKENS_TENANT.models.tenant) private model: Model<TenantDocument>
+    @inject(TOKENS_Host.models.host) private model: Model<HostDocument>
   ) {}
 
-  async findById(id: string): Promise<TenantDocument | null> {
+  async findById(id: string): Promise<HostDocument | null> {
     return this.model.findById(id).exec();
   }
 
-  async findBySlug(slug: string): Promise<TenantDocument | null> {
+  async findBySlug(slug: string): Promise<HostDocument | null> {
     return this.model.findOne({ slug }).exec();
   }
 
-  async create(data: { name: string; slug: string }): Promise<TenantDocument> {
+  async create(data: { name: string; slug: string }): Promise<HostDocument> {
     return this.model.create(data);
   }
 
-  async update(id: string, data: Partial<TenantDocument>): Promise<TenantDocument | null> {
+  async update(id: string, data: Partial<HostDocument>): Promise<HostDocument | null> {
     return this.model.findByIdAndUpdate(id, data, { new: true }).exec();
   }
 
@@ -31,11 +31,11 @@ export class TenantRepository {
     return !!result;
   }
 
-  async findAllTenants(): Promise<TenantDocument[]> {
+  async findAllHosts(): Promise<HostDocument[]> {
     return this.model.find().exec();
   }
 
-  async findByIds(ids: string[]): Promise<TenantDocument[]> {
+  async findByIds(ids: string[]): Promise<HostDocument[]> {
     return this.model.find({ _id: { $in: ids } }).exec();
   }
 

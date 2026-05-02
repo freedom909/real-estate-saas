@@ -4,10 +4,7 @@ import { container } from "tsyringe";
 import CreateListingUseCase from "../application/use-cases/CreateListingUseCase";
 import GetListingUseCase from "../application/use-cases/GetListingUseCase";
 
-// AI UseCases（用 Apply，不用 Generate）
-
-
-// Tokens
+// AI UseCases（用 Apply，不用 Generate// Tokens
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { ApplyTitleSuggestionUseCase } from "../application/use-cases/ApplyTitleSuggestionUseCase";
 import { ApplyDescriptionSuggestionUseCase } from "../application/use-cases/ApplyDescriptionSuggestionUseCase";
@@ -27,6 +24,13 @@ export const resolvers = {
         TOKENS_LISTING.GetListingUseCase
       );
       return useCase.execute(id);
+    },
+
+    listingsByHost: async (_: any, { hostId }: { hostId: string }) => {
+      const repo = container.resolve(TOKENS_LISTING.ListingRepository) as {
+        findByHostId(hostId: string): Promise<unknown[]>;
+      };
+      return repo.findByHostId(hostId);
     },
   },
 
@@ -51,12 +55,14 @@ export const resolvers = {
   },
 
   Listing: {
-    tenant: (parent: any) => {
+    host: (parent: any) => {
       return {
-        __typename: "Tenant",
-        id: parent.tenantId,
+        __typename: "Host",
+        id: parent.hostId,
       };
     },
+
+    ownerId: (parent: any) => parent.hostId,
 
     // ✅ Federation reference resolver
     __resolveReference: async (ref: { id: string }) => {
@@ -67,15 +73,12 @@ export const resolvers = {
     },
   },
 
-  Tenant: {
-    properties: async (parent: { id: string }) => {
-      // ❗ 修复：这里应该返回“列表”，不是单个 listing
-      const useCase = container.resolve<GetListingUseCase>(
-        TOKENS_LISTING.GetListingUseCase
-      );
-
-      // ⚠️ TODO: 你未来应该做一个 GetListingsByTenantUseCase
-      return useCase.execute(parent.id);
+  Host: {
+    listings: async (parent: { id: string }) => {
+      const repo = container.resolve(TOKENS_LISTING.ListingRepository) as {
+        findByHostId(hostId: string): Promise<unknown[]>;
+      };
+      return repo.findByHostId(parent.id);
     },
   },
 };

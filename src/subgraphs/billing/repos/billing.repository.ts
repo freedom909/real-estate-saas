@@ -12,12 +12,12 @@ export class BillingRepository {
     return this.model.findById(id).exec();
   }
 
-  async findByTenantId(tenantId: string): Promise<BillingAccountDocument | null> {
-    return this.model.findOne({ tenantId }).exec();
+  async findByHostId(hostId: string): Promise<BillingAccountDocument | null> {
+    return this.model.findOne({ hostId }).exec();
   }
 
-  async create(tenantId: string): Promise<BillingAccountDocument> {
-    return this.model.create({ tenantId });
+  async create(hostId: string): Promise<BillingAccountDocument> {
+    return this.model.create({ hostId });
   }
 
   async updateBalance(id: string, amount: number): Promise<BillingAccountDocument | null> {

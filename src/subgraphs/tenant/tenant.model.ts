@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface TenantDocument extends Document {
+export interface HostDocument extends Document {
   name: string;
   slug: string;
   createdAt: Date;
 }
 
-const TenantSchema = new Schema({
+const HostSchema = new Schema({
   name: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now }
@@ -14,6 +14,6 @@ const TenantSchema = new Schema({
   timestamps: true
 });
 
-export const TenantModel = mongoose.model<TenantDocument>('Tenant', TenantSchema);
+export const HostModel = mongoose.model<HostDocument>('Host', HostSchema);
 
-export const TenantModelToken = Symbol.for('TenantModel');
+export const HostModelToken = Symbol.for('HostModel');

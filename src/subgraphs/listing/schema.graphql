@@ -1,7 +1,3 @@
-# ==============================
-# Listing Subgraph Schema (Federation-ready)
-# ==============================
-
 schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.11",
@@ -14,10 +10,12 @@ schema
 scalar DateTime
 
 # -----------------------------
-# Listing Entity (Owned by this subgraph)
+# Listing Entity (Owned here)
 # -----------------------------
 type Listing @key(fields: "id") {
   id: ID!
+
+  hostId: ID!
   ownerId: ID!
 
   title: String!
@@ -27,43 +25,40 @@ type Listing @key(fields: "id") {
   categories: [String!]!
   amenityIds: [ID!]
 
-  tenantId: ID!
-  tenant: Tenant
+  host: Host
 
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
 # -----------------------------
-# Tenant (Federation Extension)
+# Host (Federation extension)
 # -----------------------------
-extend type Tenant @key(fields: "id") {
+extend type Host @key(fields: "id") {
   id: ID! @external
-  properties: [Listing!]!
-}
 
-# -----------------------------
-# Host (Optional future use)
-# -----------------------------
-type Host @key(fields: "id") {
-  id: ID!
-  userId: ID!
+  """
+  All listings under this host
+  """
+  listings: [Listing!]!
 }
 
 # -----------------------------
 # Inputs
 # -----------------------------
 input CreateListingInput {
+  locationId: ID!
+  ownerId: ID!
   title: String!
-  description: String
+  description: String!
   address: String!
   categories: [String!]!
   amenityIds: [ID!]
-  tenantId: ID!
+  hostId: ID!
 }
 
 # -----------------------------
-# AI Responses（统一为 Apply 语义）
+# AI Responses
 # -----------------------------
 type ApplyTitleResponse {
   listingId: ID!
@@ -80,7 +75,7 @@ type ApplyDescriptionResponse {
 # -----------------------------
 type Query {
   listing(id: ID!): Listing
-  getListing(id: ID!): Listing
+  listingsByHost(hostId: ID!): [Listing!]!
 }
 
 # -----------------------------
@@ -88,8 +83,6 @@ type Query {
 # -----------------------------
 type Mutation {
   createListing(input: CreateListingInput!): Listing!
-
-  # ✅ AI（应用后的结果）
   applyTitleSuggestion(listingId: ID!): ApplyTitleResponse!
   applyDescriptionSuggestion(listingId: ID!): ApplyDescriptionResponse!
 }

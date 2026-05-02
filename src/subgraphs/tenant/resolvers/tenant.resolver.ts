@@ -1,37 +1,37 @@
 import { DependencyContainer } from 'tsyringe';
-import { TenantService } from '../services/tenant.service';
-import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
+import { HostService } from '../services/host.service';
+import { TOKENS_Host } from '@/modules/tokens/host.tokens';
 
 
 export const resolvers = {
   Query: {
-    getTenant: async (_: any, { id }: { id: string }, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<TenantService>(TOKENS_TENANT.services.tenantService);
-      return service.getTenant(id);
+    getHost: async (_: any, { id }: { id: string }, { container }: { container: DependencyContainer }) => {
+      const service = container.resolve<HostService>(TOKENS_Host.services.hostService);
+      return service.getHost(id);
     },
-    getTenants: async (_: any, __: any, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<TenantService>(TOKENS_TENANT.services.tenantService);
-      return service.getTenantsAll();
+    getHosts: async (_: any, __: any, { container }: { container: DependencyContainer }) => {
+      const service = container.resolve<HostService>(TOKENS_Host.services.hostService);
+      return service.getHostsAll();
     
     },
   },
   Mutation: {
-    createTenant: async (_: any, { input }: { input: { name: string; slug: string } }, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<TenantService>(TOKENS_TENANT.services.tenantService);
+    createHost: async (_: any, { input }: { input: { name: string; slug: string } }, { container }: { container: DependencyContainer }) => {
+      const service = container.resolve<HostService>(TOKENS_Host.services.hostService);
       console.log(input)
-      return service.createTenant(input);
+      return service.createHost(input);
     },
   },
-  Tenant: {
+  Host: {
     __resolveReference: async (reference: { id: string }, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<TenantService>(TOKENS_TENANT.services.tenantService);
-      return service.getTenant(reference.id);
+      const service = container.resolve<HostService>(TOKENS_Host.services.hostService);
+      return service.getHost(reference.id);
     },
   },
   User: {
-    tenants: async (user: { id: string }, _: any, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<TenantService>(TOKENS_TENANT.services.tenantService);
-      return service.getTenantsForUser(user.id);
+    hosts: async (user: { id: string }, _: any, { container }: { container: DependencyContainer }) => {
+      const service = container.resolve<HostService>(TOKENS_Host.services.hostService);
+      return service.getHostsForUser(user.id);
     },
   },
 };

@@ -6,7 +6,7 @@ import { Role } from "../../../domain/user/types/role";
 export interface IMembershipDB {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
-  tenantId: Types.ObjectId;
+  hostId: Types.ObjectId;
   role: Role;
   createdAt: Date;
   updatedAt: Date;
@@ -17,7 +17,7 @@ export type MembershipDocument = HydratedDocument<IMembershipDB>;
 const membershipSchema = new mongoose.Schema(
   {
     userId: { type: Types.ObjectId, required: true, index: true },
-    tenantId: { type: Types.ObjectId, required: true, index: true },
+    hostId: { type: Types.ObjectId, required: true, index: true },
 
     role: {
       type: String,
@@ -29,7 +29,7 @@ const membershipSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-membershipSchema.index({ userId: 1, tenantId: 1 }, { unique: true });
+membershipSchema.index({ userId: 1, hostId: 1 }, { unique: true });
 
 const MembershipModel =
   mongoose.models.Membership ||

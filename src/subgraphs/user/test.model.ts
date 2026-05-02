@@ -16,7 +16,7 @@ async function testModels() {
   console.log("Identity created:", identity);
 
   const membership = await MembershipModel.create({
-    tenantId: new mongoose.Types.ObjectId(),
+    hostId: new mongoose.Types.ObjectId(),
     userId: (identity as any)?._id || new mongoose.Types.ObjectId(),
     role: "MEMBER",
   });

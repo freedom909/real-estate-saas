@@ -18,7 +18,7 @@ packages/
 
 auth-sdk
 user-sdk
-tenant-sdk
+host-sdk
 Listing-sdk
 billing-sdk
 audit-sdk
@@ -51,8 +51,8 @@ SDK Responsibilities:
 Example usage inside subgraphs:
 
 auth-subgraph → user-sdk
-billing-subgraph → tenant-sdk
-Listing-subgraph → tenant-sdk
+billing-subgraph → host-sdk
+Listing-subgraph → host-sdk
 audit-subgraph → user-sdk
 
 Coding rules:

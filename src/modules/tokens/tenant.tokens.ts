@@ -1,17 +1,17 @@
-export const TOKENS_TENANT = {
-    tenantClient: Symbol.for("tenant.tenantClient"),
+export const TOKENS_Host = {
+    hostClient: Symbol.for("host.hostClient"),
     models: {
-        tenant: Symbol.for("tenant.models.tenant"),
-        membership: Symbol.for("tenant.models.membership"),
+        host: Symbol.for("host.models.host"),
+        membership: Symbol.for("host.models.membership"),
     },
     repos: {
-        tenantRepo: Symbol.for("tenant.repos.tenantRepo"),
-        membershipRepo: Symbol.for("tenant.repos.membershipRepo"),
+        hostRepo: Symbol.for("host.repos.hostRepo"),
+        membershipRepo: Symbol.for("host.repos.membershipRepo"),
     },
     adapters: {
-        userAdapter: Symbol.for("tenant.adapters.userAdapter"),
+        userAdapter: Symbol.for("host.adapters.userAdapter"),
     },
     services: {
-        tenantService: Symbol.for("tenant.services.tenantService"),
+        hostService: Symbol.for("host.services.hostService"),
     }
 } as const;

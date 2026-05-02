@@ -21,7 +21,13 @@ export class ApplyTitleSuggestionUseCase {
     // 🔥 Domain 生成 prompt
     const prompt = listing.generateTitlePrompt();
 
-    const suggestion = await this.ai.generateText({ prompt });
+    // Fix: Pass prompt as a string
+    const suggestion = await this.ai.generateText(prompt);
+
+    // Defensive Check: Ensure AI response meets domain requirements (Title requires 5 chars)
+    if (!suggestion || suggestion.trim().length < 5) {
+      throw new Error("AI generated a title that was too short.");
+    }
 
     // 🔥 Domain 应用结果
     listing.applySuggestedTitle(suggestion);

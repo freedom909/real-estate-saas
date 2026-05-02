@@ -2,7 +2,7 @@
 
 import mongoose, { Types } from "mongoose";
 
-interface ITenant{
+interface IHost{
 _id:Types.ObjectId;
 name:string;
 plan:string;
@@ -12,7 +12,7 @@ userId:Types.ObjectId;
 updateAt:Date;
 }
 
-const tenantSchema=new mongoose.Schema({
+const hostSchema=new mongoose.Schema({
     _id:Types.ObjectId,
     name:{type:String,required:true},
     plan:{type:String,required:true},
@@ -21,5 +21,5 @@ const tenantSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now},
 
 })
-tenantSchema.index({ tenantId: 1 },{unique:true})
-export default mongoose.model<ITenant>("Tenant",tenantSchema)
+hostSchema.index({ hostId: 1 },{unique:true})
+export default mongoose.model<IHost>("Host",hostSchema)

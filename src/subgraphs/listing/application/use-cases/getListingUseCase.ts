@@ -1,5 +1,4 @@
 import { injectable, inject } from "tsyringe";
-
 import { IListingRepository } from "../../domain/repos/IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
@@ -16,9 +15,12 @@ class GetListingUseCase {
     
     return {
       id: listing.id,
+      hostId: listing.hostId,
       title: listing.title,
-      // amenityIds プロパティが存在しない場合は空配列を返す
-      amenityIds: (listing as any).amenityIds || [],
+      description: listing.description,
+      amenityIds: listing.amenityIds,
+      locationId: listing.locationId,
+      categories: listing.categories,
     };
   }
 }

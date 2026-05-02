@@ -21,8 +21,8 @@ export class ListingService {
     return this.repo.findById(id);
   }
 
-  async getPropertiesByTenant(tenantId: string): Promise<Listing[]> {
-    return this.repo.findByTenantId(tenantId);
+  async getPropertiesByHost(hostId: string): Promise<Listing[]> {
+    return this.repo.findByHostId(hostId);
   }
 
   async createListing(input: ListingProps): Promise<Listing> {

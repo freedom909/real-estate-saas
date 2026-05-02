@@ -3,17 +3,18 @@ import { Listing } from "../../domain/entities/Listing";
 
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { ListingMapper } from "../../infrastructure/mappers/listing.mapper";
+import ListingModel from "../../infrastructure/models/listing.model";
+import { ModelStatic } from "sequelize";
 
 @injectable()
 export class ListingRepository {
   constructor(
     @inject(TOKENS_LISTING.ListingModel)
-    private model: any
+    private model: ModelStatic<ListingModel>,
   ) {}
 
   async findById(id: string): Promise<Listing | null> {
-    const raw = await this.model.findByPk(id);
-
+    const raw = await this.model.findByPk(id);//
     if (!raw) return null;
 
     return ListingMapper.toDomain(raw);

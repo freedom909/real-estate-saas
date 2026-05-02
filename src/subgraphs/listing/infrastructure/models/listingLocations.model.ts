@@ -1,6 +1,6 @@
 // models/mysql/listingLocations.js
 import { DataTypes, Model } from 'sequelize';
-import sequelize from '../config/seq';
+import { sequelize } from "@/infrastructure/config/seq";
 
 class ListingLocations extends Model {}
 

@@ -44,9 +44,9 @@ export class ListingRepository implements IListingRepository {
     return record ? ListingMapper.toDomain(record) : null;
   }
 
-  async findByTenantId(tenantId: string): Promise<Listing[]> {
-    // Assuming tenantId maps to hostId in the MySQL schema
-    const records = await this.model.findAll({ where: { hostId: tenantId } });
+  async findByHostId(hostId: string): Promise<Listing[]> {
+    // Assuming hostId maps to hostId in the MySQL schema
+    const records = await this.model.findAll({ where: { hostId: hostId } });
     return records.map(record => ListingMapper.toDomain(record));
   }
 
@@ -60,7 +60,7 @@ export class ListingRepository implements IListingRepository {
 
       // 2. Handle categories join table
       // Extract IDs from the domain entity
-      const categoryIds = (listing as any).categoryIds || [];
+      const categoryIds = listing.categories || [];
       
       await this.listingCategoryModel.destroy({
         where: { listingId: listing.id },

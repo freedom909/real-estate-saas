@@ -52,7 +52,7 @@ export class Booking {
     }
     return {
       ...this.props,
-      ...this.props.dateRange.toJSON(),// "message": "Cannot read properties of undefined (reading 'toJSON')",
+      ...this.props.dateRange.toJSON(),// "message": "Cannot read listings of undefined (reading 'toJSON')",
     };
   }
 

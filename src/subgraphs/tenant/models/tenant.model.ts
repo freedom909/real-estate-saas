@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose"
 
-export interface TenantDocument extends Document {
+export interface HostDocument extends Document {
 
   name: string
 
@@ -9,7 +9,7 @@ export interface TenantDocument extends Document {
   createdAt: Date
 }
 
-const tenantSchema = new Schema<TenantDocument>(
+const hostSchema = new Schema<HostDocument>(
   {
     name: {
       type: String,
@@ -27,7 +27,7 @@ const tenantSchema = new Schema<TenantDocument>(
   }
 )
 
-export default mongoose.model<TenantDocument>(
-  "Tenant",
-  tenantSchema
+export default mongoose.model<HostDocument>(
+  "Host",
+  hostSchema
 )

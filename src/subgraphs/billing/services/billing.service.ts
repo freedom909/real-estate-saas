@@ -1,33 +1,33 @@
 import { injectable, inject } from 'tsyringe';
 import { BillingRepository } from '../repositories/billing.repository';
-import { TenantAdapter } from '../adapters/tenant.adapter';
+import { HostAdapter } from '../adapters/host.adapter';
 import { BillingAccountDocument } from '../models/billing.model';
 
 @injectable()
 export class BillingService {
   constructor(
     @inject(BillingRepository) private repo: BillingRepository,
-    @inject(TenantAdapter) private tenantAdapter: TenantAdapter
+    @inject(HostAdapter) private hostAdapter: HostAdapter
   ) {}
 
   async getBillingAccount(id: string): Promise<BillingAccountDocument | null> {
     return this.repo.findById(id);
   }
 
-  async getAccountByTenant(tenantId: string): Promise<BillingAccountDocument | null> {
-    return this.repo.findByTenantId(tenantId);
+  async getAccountByHost(hostId: string): Promise<BillingAccountDocument | null> {
+    return this.repo.findByHostId(hostId);
   }
 
-  async createAccount(tenantId: string): Promise<BillingAccountDocument> {
-    const exists = await this.tenantAdapter.validateTenantExists(tenantId);
+  async createAccount(hostId: string): Promise<BillingAccountDocument> {
+    const exists = await this.hostAdapter.validateHostExists(hostId);
     if (!exists) {
-      throw new Error(`Tenant ${tenantId} not found`);
+      throw new Error(`Host ${hostId} not found`);
     }
     // Check if already exists
-    const existing = await this.repo.findByTenantId(tenantId);
+    const existing = await this.repo.findByHostId(hostId);
     if (existing) return existing;
     
-    return this.repo.create(tenantId);
+    return this.repo.create(hostId);
   }
 
   async addCredit(accountId: string, amount: number): Promise<BillingAccountDocument | null> {

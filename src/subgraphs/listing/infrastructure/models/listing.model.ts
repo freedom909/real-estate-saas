@@ -4,8 +4,6 @@ import "reflect-metadata";
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from "@/infrastructure/config/seq";
 
-
-
 class ListingModel extends Model {}
 
 ListingModel.init(
@@ -54,6 +52,7 @@ ListingModel.init(
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
   }
-);
+
+ );
 
 export default ListingModel;

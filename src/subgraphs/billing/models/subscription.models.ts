@@ -7,7 +7,7 @@ export type SubscriptionStatus =
 
 export interface SubscriptionDocument extends Document {
 
-  tenantId: mongoose.Types.ObjectId
+  hostId: mongoose.Types.ObjectId
 
   plan: string
 
@@ -18,7 +18,7 @@ export interface SubscriptionDocument extends Document {
 
 const subscriptionSchema = new Schema<SubscriptionDocument>(
   {
-    tenantId: {
+    hostId: {
       type: Schema.Types.ObjectId,
       required: true,
       index: true

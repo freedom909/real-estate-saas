@@ -10,6 +10,7 @@ import { OpenAIAdapter } from "../infrastructure/ai/OpenAI.adapter";
 import { GenerateDescriptionSuggestionUseCase } from "../domain/entities/GenerateDescriptionSuggestionUseCase";
 import ListingCategoriesModel from "../infrastructure/models/listingCategories.model";
 import { sequelize } from "@/infrastructure/config/seq";
+import GetListingUseCase from "../application/use-cases/GetListingUseCase";
 
 export function registerListingDependencies() {
 
@@ -51,5 +52,9 @@ export function registerListingDependencies() {
   // AI
   container.register(TOKENS_LISTING.OpenAIAdapter, {
     useClass: OpenAIAdapter,
+  });
+
+  container.register(TOKENS_LISTING.GetListingUseCase, {
+    useClass: GetListingUseCase,
   });
 }

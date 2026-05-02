@@ -23,10 +23,15 @@ Title: ${listing.title}
 Description: ${listing.description}
 `;
 
-    const newDesc = await this.ai.generateText({ prompt });
+    // Fix: Pass prompt as a string, not an object
+    const newDesc = await this.ai.generateText(prompt);
+
+    // Defensive Check: Ensure AI response meets domain requirements
+    if (!newDesc || newDesc.trim().length < 10) {
+      throw new Error("AI generated a description that was too short. Please try again.");
+    }
 
     listing.applySuggestedDescription(newDesc);
-
     await this.repo.save(listing);
 
     return {

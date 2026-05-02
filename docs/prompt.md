@@ -127,7 +127,7 @@ Example structure:
 
 adapters/
 user.adapter.ts
-tenant.adapter.ts
+host.adapter.ts
 
 These adapters communicate with other subgraphs via GraphQL or SDK clients.
 
@@ -139,13 +139,13 @@ Follow the same architecture used in auth-subgraph.
 
 Relationships
 
-User ↔ Tenant
+User ↔ Host
 many to many through Membership
 
-Tenant → Listing
+Host → Listing
 one to many
 
-Tenant → BillingAccount
+Host → BillingAccount
 one to one
 
 User actions → AuditLog
@@ -159,28 +159,28 @@ Use mongoose schema
 
 Example:
 
-const TenantSchema = new Schema(
+const HostSchema = new Schema(
 {
    name: String,
    slug: String,
    createdAt: Date
 })
 
-export const TenantModel = model("Tenant", TenantSchema)
+export const HostModel = model("Host", HostSchema)
 
 ------------------------------------------------
 
 Example service pattern:
 
 @injectable()
-export class TenantService {
+export class HostService {
 
  constructor(
-   @inject(TOKENS.TenantRepository)
-   private repo: TenantRepository
+   @inject(TOKENS.HostRepository)
+   private repo: HostRepository
  ) {}
 
- async createTenant(data) {
+ async createHost(data) {
    return this.repo.create(data)
  }
 
@@ -191,11 +191,11 @@ export class TenantService {
 Repository pattern example:
 
 @injectable()
-export class TenantRepository {
+export class HostRepository {
 
  constructor(
-   @inject(TOKENS.TenantModel)
-   private model: Model<TenantDocument>
+   @inject(TOKENS.HostModel)
+   private model: Model<HostDocument>
  ) {}
 
  async create(data){
@@ -212,11 +212,11 @@ export const resolvers = {
 
  Mutation: {
 
-   createTenant: async (_, { input }, { container }) => {
+   createHost: async (_, { input }, { container }) => {
 
-     const service = container.resolve(TenantService)
+     const service = container.resolve(HostService)
 
-     return service.createTenant(input)
+     return service.createHost(input)
 
    }
 
@@ -232,7 +232,7 @@ Generate code for ONE subgraph at a time.
 
 Start with:
 
-tenant-subgraph
+host-subgraph
 
 Then:
 
@@ -259,7 +259,7 @@ You will simulate multiple parallel development threads.
 
 Create separate development threads for each subgraph.
 
-Thread A → tenant-subgraph
+Thread A → host-subgraph
 Thread B → Listing-subgraph
 Thread C → billing-subgraph
 Thread D → audit-subgraph
@@ -287,7 +287,7 @@ Each thread should produce production-ready TypeScript code.
 
 Output structure must be clearly separated by thread:
 
-===== THREAD A : tenant-subgraph =====
+===== THREAD A : host-subgraph =====
 (code)
 
 ===== THREAD B : Listing-subgraph =====

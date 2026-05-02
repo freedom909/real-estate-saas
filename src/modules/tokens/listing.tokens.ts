@@ -2,7 +2,7 @@ export const TOKENS_LISTING = {
     ListingModel: Symbol.for("ListingModel"),
     ListingService: Symbol.for("Listing.services.ListingService"),
     ListingClient: Symbol.for("Listing.ListingClient"),
-    tenantAdapter: Symbol.for("Listing.adapters.tenantAdapter"),
+    hostAdapter: Symbol.for("Listing.adapters.hostAdapter"),
     ListingRepository: Symbol.for('ListingRepository'),
     CreateListingUseCase: Symbol.for('CreateListingUseCase'),
     GetListingUseCase: Symbol.for('GetListingUseCase'),

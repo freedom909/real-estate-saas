@@ -72,12 +72,12 @@ const resolvers = {
 
       console.log("🔥 createOAuthUser input =", input);
 
-      const tenantId = input.tenantId
-        ? new mongoose.Types.ObjectId(input.tenantId)
+      const hostId = input.hostId
+        ? new mongoose.Types.ObjectId(input.hostId)
         : null;
 
       const user = await UserModel.create({
-        tenantId,
+        hostId,
         email: input.email || "unknown",
         name: input.profile?.name || "unknown",
         avatar: input.profile?.avatar || "",

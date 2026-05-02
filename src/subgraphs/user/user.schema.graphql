@@ -10,7 +10,7 @@ schema
 scalar DateTime
 
 """
-User subgraph 是 User 的唯一 owner
+User subgraph owns User
 """
 type User @key(fields: "id") {
   id: ID!
@@ -19,36 +19,68 @@ type User @key(fields: "id") {
   status: AccountStatus!
   tokenVersion: Int!
   createdAt: DateTime!
-  memberships: [Membership!]!
+
+  """
+  User can belong to multiple Hosts (multi-tenant)
+  """
+  memberships: [Membership!]
 }
-type Tenant @key(fields: "id") {
+
+"""
+A Host is a business entity (tenant / organization / landlord)
+"""
+type Host @key(fields: "id") {
   id: ID!
   name: String!
+
+  """
+  Creator / owner of the host
+  """
+  ownerId: ID!
+
   createdAt: DateTime!
 }
 
+"""
+Join table between User and Host
+"""
 type Membership @key(fields: "id") {
   id: ID!
+
   user: User!
-  tenant: Tenant!
-  role: Role!
+  host: Host!
+
+  """
+  Role inside this host (NOT global role)
+  """
+  role: MembershipRole!
+
   approvalStatus: ApprovalStatus!
+
   createdAt: DateTime!
 }
 
+"""
+User profile (shareable across subgraphs)
+"""
 type Profile @shareable {
   name: String
   avatar: String
   email: String
-  status: AccountStatus
 }
 
-enum Role {
+"""
+Role inside a Host (multi-tenant role)
+"""
+enum MembershipRole {
+  OWNER
   ADMIN
-  GUEST
-  HOST
+  MEMBER
 }
 
+"""
+User account status
+"""
 enum AccountStatus {
   ACTIVE
   BANNED
@@ -56,6 +88,9 @@ enum AccountStatus {
   DELETED
 }
 
+"""
+Membership approval flow
+"""
 enum ApprovalStatus {
   NONE
   PENDING
@@ -63,42 +98,9 @@ enum ApprovalStatus {
   REJECTED
 }
 
-type Query {
-  userByEmail(email: String!): User
-  user(id: ID!): User
-  internalUserByEmail(email: String!): User 
-}
-
-type Mutation {
-  createOAuthUser(input: CreateOAuthUserInput!): User!
-  deactivateUser(userId: ID!): Boolean!
-    createTenant(name: String!): Tenant!
- updateLastLogin(userId: ID!): Boolean!
-
-  addUserToTenant(
-    tenantId: ID!
-    userId: ID!
-    role: Role!
-  ): Membership!
-
-  removeUserFromTenant(
-    tenantId: ID!
-    userId: ID!
-  ): Boolean!
-
-  updateMembershipRole(
-    tenantId: ID!
-    userId: ID!
-    role: Role!
-  ): Membership!
-}
-
-input CreateOAuthUserInput {
-  email: String
-  profile: ProfileInput
-  provider:OAuthProvider!
-}
-
+"""
+OAuth providers
+"""
 enum OAuthProvider {
   GOOGLE
   APPLE
@@ -107,8 +109,69 @@ enum OAuthProvider {
   LINE
 }
 
+# ======================
+# Queries
+# ======================
+
+type Query {
+  user(id: ID!): User
+  userByEmail(email: String!): User
+
+  """
+  Multi-tenant queries
+  """
+  hostsByUser(userId: ID!): [Host!]!
+  membershipsByUser(userId: ID!): [Membership!]!
+}
+
+# ======================
+# Mutations
+# ======================
+
+type Mutation {
+  # -------- User --------
+  createOAuthUser(input: CreateOAuthUserInput!): User!
+  deactivateUser(userId: ID!): Boolean!
+  updateLastLogin(userId: ID!): Boolean!
+
+  # -------- Host --------
+  createHost(name: String!): Host!
+
+  # -------- Membership --------
+  addUserToHost(
+    hostId: ID!
+    userId: ID!
+    role: MembershipRole!
+  ): Membership!
+
+  removeUserFromHost(
+    hostId: ID!
+    userId: ID!
+  ): Boolean!
+
+  updateMembershipRole(
+    hostId: ID!
+    userId: ID!
+    role: MembershipRole!
+  ): Membership!
+
+  approveMembership(
+    membershipId: ID!
+  ): Membership!
+}
+
+# ======================
+# Inputs
+# ======================
+
+input CreateOAuthUserInput {
+  email: String
+  profile: ProfileInput
+  provider: OAuthProvider!
+}
+
 input ProfileInput {
   email: String
   name: String
-  avatar: String 
+  avatar: String
 }
