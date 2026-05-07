@@ -5,18 +5,24 @@ import { sequelize } from "@/infrastructure/config/seq";
 
 
 
-class ListingAmenityModel extends Model {}
+class ListingAmenities extends Model {}
 
-ListingAmenityModel.init(
+ListingAmenities.init(
   {
-    listingId: { type: DataTypes.STRING, primaryKey: true },
-    amenityId: { type: DataTypes.INTEGER, primaryKey: true },
+    listingId: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+    },
+    amenityId: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+    },
   },
   {
     sequelize,
-    tableName: 'listing_amenities',
+    tableName: "listing_amenities",
     timestamps: false,
   }
 );
 
-export default ListingAmenityModel;
+export default ListingAmenities;

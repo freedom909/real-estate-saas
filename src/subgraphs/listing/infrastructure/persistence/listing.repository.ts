@@ -9,6 +9,10 @@ import ListingModel from '../models/listing.model';
 import ListingCategories from '../models/listingCategories.model';
 import ListingAmenity from '../models/listingAmenities.model';
 
+import { Op } from 'sequelize';
+import Category from '../models/category.model';
+import CategoryModel from '@/shared/category/infrastructure/category.model';
+
 @injectable()
 export class ListingRepository implements IListingRepository {
   constructor(
@@ -49,6 +53,16 @@ export class ListingRepository implements IListingRepository {
     const records = await this.model.findAll({ where: { hostId: hostId } });
     return records.map(record => ListingMapper.toDomain(record));
   }
+
+async findByIds(ids: string[]): Promise<Category[]> {
+  return CategoryModel.findAll({
+    where: {
+      id: {
+        [Op.in]: ids,
+      },
+    },
+  });
+}
 
   async save(listing: Listing): Promise<Listing> {
     const raw = ListingMapper.toPersistence(listing);

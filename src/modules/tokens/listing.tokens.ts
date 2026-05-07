@@ -2,11 +2,10 @@ export const TOKENS_LISTING = {
     ListingModel: Symbol.for("ListingModel"),
     ListingService: Symbol.for("Listing.services.ListingService"),
     ListingClient: Symbol.for("Listing.ListingClient"),
-    hostAdapter: Symbol.for("Listing.adapters.hostAdapter"),
+    
     ListingRepository: Symbol.for('ListingRepository'),
     CreateListingUseCase: Symbol.for('CreateListingUseCase'),
     GetListingUseCase: Symbol.for('GetListingUseCase'),
-    AmenityAdapter: Symbol.for('AmenityAdapter'),
     Sequelize: Symbol.for('Sequelize'),
     OpenAIAdapter: Symbol.for('OpenAIAdapter'),
     Listing: Symbol.for('Listing'),
@@ -19,6 +18,13 @@ export const TOKENS_LISTING = {
     ListingAmenityModel: Symbol.for('ListingAmenityModel'),
     ListingLocations: Symbol.for('ListingLocations'),
     ListingLocationsModel: Symbol.for('ListingLocationsModel'),
+
+    adapters: {
+        hostAdapter: Symbol.for("Listing.adapters.hostAdapter"),
+        locationAdapter: Symbol.for("Listing.adapters.locationAdapter"),
+        amenityAdapter: Symbol.for("Listing.adapters.AmenityAdapter"),
+        categoryAdapter: Symbol.for("Listing.adapters.categoryAdapter"),
+    }
 } as const;
 
 

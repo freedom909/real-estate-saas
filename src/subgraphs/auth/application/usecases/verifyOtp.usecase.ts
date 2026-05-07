@@ -1,7 +1,7 @@
 // auth/application/usecases/verifyOtp.usecase.ts
 import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 import { inject, injectable } from "tsyringe";
-import { EventBus } from "../../infrastructure/event/eventBus";
+import { EventBus } from "../../../../shared/events/eventBus";
 import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 import ChallengeRepo from "../../infrastructure/repos/challenge.repo";
 import { VerifyOtpCommand } from "../dto/verifyOtp.command";

@@ -14,6 +14,9 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.ts",
     "test:audit": "node --experimental-vm-modules node_modules/jest/bin/jest.ts",
     "dev:listing": "tsx watch src/subgraphs/listing/index.ts",
+    "dev:location": "tsx watch src/subgraphs/location/index.ts",
+    "dev:review": "tsx watch src/subgraphs/review/index.ts",
+    
     "dev:order": "tsx watch src/subgraphs/order/index.ts",
     "dev:booking": "tsx watch src/subgraphs/booking/index.ts",
     "dev:payment": "tsx watch src/subgraphs/payment/index.ts"

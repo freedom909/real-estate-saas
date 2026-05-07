@@ -5,13 +5,29 @@ import { Description } from "../value-objects/Description";
 
 export interface ListingProps {
   id: string;
+
   hostId: string;
+  locationId: string;
+
   title: Title;
   description: Description;
-  locationId: string; // ✅ 替代 address
+
+  address: string;
 
   categories: string[];
   amenityIds: string[];
+
+  numOfBeds: number;
+  numOfGuests: number;
+  numOfBathrooms: number;
+  numOfRooms: number;
+
+  price: number;
+
+  picture?: string[];
+
+  isFeatured: boolean;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +50,15 @@ export class Listing {
   get amenityIds() { return this.props.amenityIds; }
   get createdAt() { return this.props.createdAt; }
   get updatedAt() { return this.props.updatedAt; }
+  get address() { return this.props.address; }
+  get numOfBeds() { return this.props.numOfBeds; }
+  get numOfGuests() { return this.props.numOfGuests; }
+  get numOfBathrooms() { return this.props.numOfBathrooms; }
+  get numOfRooms() { return this.props.numOfRooms; }
+  get price() { return this.props.price; }
+  get picture() { return this.props.picture; }
+  get isFeatured() { return this.props.isFeatured; }
+
 
   // ======================
   // Business Logic
@@ -43,7 +68,11 @@ export class Listing {
     this.props.title = new Title(title);
     this.touch();
   }
-
+  updateAddress(address: string) {
+    this.props.address = address;
+    this.touch();
+  }
+  
   updateDescription(desc: string) {
     this.props.description = new Description(desc);
     this.touch();

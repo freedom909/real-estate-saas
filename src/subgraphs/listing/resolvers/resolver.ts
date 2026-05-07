@@ -64,6 +64,20 @@ export const resolvers = {
 
     ownerId: (parent: any) => parent.hostId,
 
+    categories: (parent: any) => {
+      return parent.categories?.map((id: string) => ({
+        __typename: "Category",
+        id,
+      })) || [];
+    },
+
+    amenities: (parent: any) => {
+      return parent.amenityIds?.map((id: string) => ({
+        __typename: "Amenity",
+        id,
+      })) || [];
+    },
+
     // ✅ Federation reference resolver
     __resolveReference: async (ref: { id: string }) => {
       const useCase = container.resolve<GetListingUseCase>(

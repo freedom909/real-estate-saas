@@ -11,6 +11,10 @@ import ListingCategoriesModel from '@/subgraphs/listing/infrastructure/models/li
 import ListingLocationsModel from '@/subgraphs/listing/infrastructure/models/listingLocations.model';
 import { ApplyTitleSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/ApplyTitleSuggestionUseCase';
 import { ApplyDescriptionSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/ApplyDescriptionSuggestionUseCase';
+import AmenityAdapter from '@/subgraphs/listing/adapters/amenity.adapter';
+import { CategoryAdapter } from '@/subgraphs/listing/adapters/category.adapter';
+import { sequelize } from '@/infrastructure/config/seq';
+
 
 export default function registerListingDependencies() {
   container.register(TOKENS_LISTING.ListingModel, {
@@ -49,5 +53,16 @@ container.register("ApplyTitleSuggestionUseCase", {
   useClass: ApplyTitleSuggestionUseCase,
 });
 
+container.register(TOKENS_LISTING.adapters.amenityAdapter, {
+  useClass: AmenityAdapter,
+});
+
+container.register(TOKENS_LISTING.adapters.categoryAdapter, {
+  useClass: CategoryAdapter,
+});
+
+container.register(TOKENS_LISTING.Sequelize, {
+  useValue: sequelize,
+});
 
 }

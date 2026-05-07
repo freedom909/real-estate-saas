@@ -62,15 +62,13 @@ type Booking @key(fields: "id") {
   confirmedAt: DateTime @shareable
 }
 
-
-
 type Listing @key(fields: "id") {
   id: ID! @shareable
   bookings: [Booking!]! @shareable
   title: String! @shareable
   description: String! @shareable
-  pictures: [String]! @shareable
-  host: User @shareable
+  
+  hostId: ID! @shareable
   price: Float! @shareable
   bookingsCount: Int! @shareable
   reviewsCount: Int! @shareable

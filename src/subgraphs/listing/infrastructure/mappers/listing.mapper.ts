@@ -2,35 +2,68 @@ import { Listing } from "../../domain/entities/Listing";
 import { Title } from "../../domain/value-objects/Title";
 import { Description } from "../../domain/value-objects/Description";
 
-export class ListingMapper {
-  // DB → Domain
-  static toDomain(raw: any): Listing {
-    return new Listing({
-      id: raw.id,
-      hostId: raw.hostId,
-      title: new Title(raw.title),
-      description: new Description(raw.description || "No description provided for this listing."),
-      locationId: raw.locationId || "UNKNOWN_LOCATION_ID", // Provide a default if missing from DB
-      categories: (raw.categories && raw.categories.length > 0) ? raw.categories : ["other"],
-      amenityIds: raw.amenityIds || [],
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
 
-    });
-  }
+export class ListingMapper {
+
+  // DB → Domain
+static toDomain(raw: any): Listing {
+  return new Listing({
+    id: raw.id,
+
+    hostId: raw.hostId,
+    locationId: raw.locationId,
+
+    title: new Title(raw.title),
+
+    description: new Description(raw.description),
+
+    address: raw.address,
+
+    categories: raw.categories || [],
+    amenityIds: raw.amenityIds || [],
+
+    numOfBeds: raw.numOfBeds || 1,
+    numOfGuests: raw.numOfGuests || 1,
+    numOfBathrooms: raw.numOfBathrooms || 1,
+    numOfRooms: raw.numOfRooms || 1,
+
+    price: Number(raw.price || 1),
+
+    picture: raw.picture || [],
+
+    isFeatured: raw.isFeatured || false,
+
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  });
+}
 
   // Domain → DB
-  static toPersistence(listing: Listing) {
-    return {
-      id: listing.id,
-      hostId: listing.hostId,
-      title: listing.title,
-      description: listing.description,
-      locationId: listing.locationId,
-      categories: listing.categories,
-      amenityIds: listing.amenityIds,
-      createdAt: listing.createdAt,
-      updatedAt: listing.updatedAt,
-    };
-  }
+static toPersistence(listing: Listing) {
+  return {
+    id: listing.id,
+
+    title: listing.title,
+    description: listing.description,
+
+    hostId: listing.hostId,
+    locationId: listing.locationId,
+
+    address: listing.address,
+
+    numOfBeds: listing.numOfBeds,
+    numOfGuests: listing.numOfGuests,
+    numOfBathrooms: listing.numOfBathrooms,
+    numOfRooms: listing.numOfRooms,
+
+    price: listing.price,
+
+    picture: listing.picture,
+
+    isFeatured: listing.isFeatured,
+
+    createdAt: listing.createdAt,
+    updatedAt: listing.updatedAt,
+  };
+}
 }

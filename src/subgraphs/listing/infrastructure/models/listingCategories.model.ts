@@ -5,35 +5,24 @@ import Category from './category.model';
 import Listing from './listing.model';
 
 
-class ListingCategoriesModel extends Model {}
+class ListingCategories extends Model {}
 
-ListingCategoriesModel.init(
+ListingCategories.init(
   {
     listingId: {
       type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: Listing,
-        key: 'id',
-      },
       primaryKey: true,
     },
     categoryId: {
       type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: 'categories',
-        key: 'id',
-      },
       primaryKey: true,
     },
   },
   {
     sequelize,
-    modelName: 'ListingCategory',
-    tableName: 'listing_categories',
+    tableName: "listing_categories",
     timestamps: true,
   }
 );
 
-export default ListingCategoriesModel;
+export default ListingCategories;

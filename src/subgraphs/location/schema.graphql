@@ -1,0 +1,29 @@
+
+
+# src/subgraphs/location/graphql/schema.graphql
+
+type Location @key(fields: "id") {
+  id: ID!
+  name: String!
+  province: String!
+  city: String!
+  country: String!
+  address: String!
+  latitude: Float
+  longitude: Float
+}
+
+extend type Query {
+  getLocation(id: ID!): Location  
+}
+
+extend type Mutation {
+  createLocation(input: CreateLocationInput!): Location!
+}
+
+input CreateLocationInput {
+  name: String!
+  address: String!
+  latitude: Float
+  longitude: Float
+}

@@ -8,51 +8,85 @@ class ListingModel extends Model {}
 
 ListingModel.init(
   {
-    id: { type: DataTypes.STRING, primaryKey: true },
-    title: { type: DataTypes.STRING, allowNull: false },
-    description: { type: DataTypes.TEXT },
-    pictures: { type: DataTypes.JSON }, // array of URLs
-    numOfBeds: { type: DataTypes.INTEGER },
-    price: { type: DataTypes.FLOAT },
-    isFeatured: { type: DataTypes.BOOLEAN, defaultValue: false },
-    saleAmount: { type: DataTypes.FLOAT },
-    checkInDate: { type: DataTypes.DATEONLY },
-    checkOutDate: { type: DataTypes.DATEONLY },
-    hostId: { type: DataTypes.STRING, allowNull: false }, 
-    locationId: { type: DataTypes.STRING },
-    amenityIds: {
-  type: DataTypes.VIRTUAL,
-  get() {
-    return this.getDataValue('amenityIds') ?? [];
-  }
-},
-    listingStatus: { 
-      type: DataTypes.ENUM(
-        'ACTIVE',
-        'PENDING',
-        'SOLD',
-        'DELETED',
-        'REJECT',
-        'CANCELLED',
-        'EXPIRED',
-        'COMPLETED'
-      ), 
-      allowNull: false 
+    id: {
+      type: DataTypes.STRING(50),
+      primaryKey: true,
     },
-    locationType: { 
-      type: DataTypes.ENUM('ROOM', 'APARTMENT', 'HOUSE', 'COTTAGE', 'VILLA', 'SPACESHIP', 'CAMPSITE', 'OTHER'), 
-      allowNull: false 
+
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+
+    hostId: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
+
+    locationId: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
+
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
+    numOfBeds: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+    },
+
+    numOfGuests: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+    },
+
+    numOfBathrooms: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+    },
+
+    numOfRooms: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+    },
+
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 1.0,
+    },
+
+    picture: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+
+    isFeatured: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+
+    createdAt: {
+      type: DataTypes.DATE,
+    },
+
+    updatedAt: {
+      type: DataTypes.DATE,
     },
   },
   {
     sequelize,
-    modelName: 'Listing',
-    tableName: 'listings',
-    timestamps: true,
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
+    tableName: "listings",
+    timestamps: false,
   }
+)
 
- );
 
 export default ListingModel;

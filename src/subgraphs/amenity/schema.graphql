@@ -1,6 +1,6 @@
 schema
   @link(
-    url: "https://specs.apollo.dev/federation/v2.8"
+    url: "https://specs.apollo.dev/federation/v2.11"
     import: ["@key", "@shareable"]
   ) {
   query: Query
@@ -37,13 +37,22 @@ type CreateAmenityResponse implements Response {
   amenity: Amenity @shareable
 }
 
-type Query {
-  amenities: [Amenity] @shareable
+extend type Query {
+  amenities: [Amenity!]! @shareable
   amenity(id: ID!): Amenity @shareable
+  amenitiesByIds(ids: [ID!]!): [Amenity!]!
+}
+
+input UpdateAmenityInput {
+  id: ID!
+  name: String
+  category: AmenityCategory
 }
 
 type Mutation {
-  createAmenity(input: CreateAmenityInput!): CreateAmenityResponse @shareable
-  updateAmenity(id: ID!, name: String, category: AmenityCategory): Amenity @shareable
-  deleteAmenity(id: ID!): Amenity @shareable
-  }
+  createAmenity(input: CreateAmenityInput!): CreateAmenityResponse
+  updateAmenity(input: UpdateAmenityInput!): CreateAmenityResponse
+  deleteAmenity(id: ID!): CreateAmenityResponse
+}
+
+
