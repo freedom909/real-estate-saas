@@ -24,7 +24,7 @@ export interface ListingProps {
 
   price: number;
 
-  picture?: string[];
+  picture: string[];
 
   isFeatured: boolean;
 
@@ -43,8 +43,13 @@ export class Listing {
   // getters
   get id() { return this.props.id; }
   get hostId() { return this.props.hostId; }
-  get title() { return this.props.title.getValue(); }
-  get description() { return this.props.description.getValue(); }
+get title(): Title {
+  return this.props.title;
+}
+
+get description(): Description {
+  return this.props.description;
+}
   get locationId() { return this.props.locationId; }
   get categories() { return this.props.categories; }
   get amenityIds() { return this.props.amenityIds; }
@@ -81,13 +86,13 @@ export class Listing {
   // 🔥 AI行为（核心）
   generateTitlePrompt() {
     return this.props.title.buildAIPrompt({
-      description: this.description,
+      description: this.description.getValue(),
     });
   }
 
   generateDescriptionPrompt() {
     return this.props.description.buildAIPrompt({
-      title: this.title,
+      title: this.title.getValue(),
     });
   }
 
@@ -105,7 +110,9 @@ export class Listing {
 
   private validate(props: ListingProps) {
     if (!props.hostId) throw new Error("hostId required");
-    if (!props.locationId) throw new Error("locationId required");// "message": "locationId required",
-    if (!props.categories.length) throw new Error("categories required");
+    if (!props.locationId) throw new Error("locationId required");
+ if (!props.categories || props.categories.length === 0) {
+  throw new Error("categories required");
+}
   }
 }

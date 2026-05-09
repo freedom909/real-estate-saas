@@ -4,7 +4,9 @@ import { OpenAIAdapter } from "../../infrastructure/ai/openAI.adapter";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-import { IOpenAIAdapter } from "../../domain/entities/IOpenAIAdapter";
+import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
+import { ListingDTOMapper } from "../../infrastructure/mappers/listingDTOMapper";
+
 
 
 @injectable()
@@ -38,9 +40,6 @@ export class ApplyTitleSuggestionUseCase {
 
     await this.repo.save(listing);
 
-    return {
-      listingId,
-      title: listing.title,
-    };
+return ListingDTOMapper.toDTO(listing);
   }
 }

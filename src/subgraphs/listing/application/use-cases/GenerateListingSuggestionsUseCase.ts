@@ -29,8 +29,8 @@ export class GenerateListingSuggestionsUseCase {
     }
 
     const prompt = listingOptimizationPrompt(
-      listing.title,
-      listing.description
+      listing.title.getValue(),
+      listing.description.getValue()
     );
 
     return this.ai.generate(prompt);

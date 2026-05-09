@@ -24,10 +24,12 @@ console.info("Listing subgraph configuration loaded");
 // Register all dependencies for the listing subgraph
 // server.ts / bootstrap.ts
 
+
 import "@/shared/category/container";  // 👈 必须
+import { registerAIContainer } from "@/modules/container/ai.register";
 
 
-
+registerAIContainer()
 registerAuthDependencies(container);
 
 registerListingDependencies();

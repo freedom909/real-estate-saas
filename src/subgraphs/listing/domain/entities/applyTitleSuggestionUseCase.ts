@@ -30,9 +30,9 @@ export class ApplyTitleSuggestionUseCase {
     }
 
     const prompt = this.PROMPT_TEMPLATE
-      .replace("{currentTitle}", listing.title)
-      .replace("{currentDescription}", listing.description);
+      .replace("{currentTitle}", listing.title.getValue())
+      .replace("{currentDescription}", listing.description.getValue());
 
-    return this.openAIAdapter.generateText(prompt);
+    return this.openAIAdapter.generateText({prompt});
   }
 }

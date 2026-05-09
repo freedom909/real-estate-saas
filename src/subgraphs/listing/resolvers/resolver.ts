@@ -44,6 +44,7 @@ export const resolvers = {
 
     // ✅ 正确：调用 Apply（包含 save）
     applyTitleSuggestion: async (_: any, { listingId }: { listingId: string }) => {
+      console.log(listingId);
       const useCase = container.resolve(ApplyTitleSuggestionUseCase);
       return useCase.execute(listingId);
     },

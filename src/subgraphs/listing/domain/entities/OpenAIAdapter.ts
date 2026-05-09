@@ -1,5 +1,7 @@
 import { injectable } from "tsyringe";
 import fetch from "node-fetch";
+import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
+
 
 interface OpenAICompletionResponse {
   choices: Array<{
@@ -8,7 +10,7 @@ interface OpenAICompletionResponse {
 }
 
 @injectable()
-export class OpenAIAdapter {
+export class OpenAIAdapter implements IOpenAIAdapter{
   private readonly apiUrl: string;
   private readonly apiKey: string;
 
@@ -20,7 +22,8 @@ export class OpenAIAdapter {
     }
   }
 
-  async generateText(prompt: string): Promise<string> {
+  async generateText(input: { prompt: string; }): Promise<string> {
+    const { prompt } = input;
     const response = await fetch(this.apiUrl, {
       method: "POST",
       headers: {

@@ -43,8 +43,8 @@ static toPersistence(listing: Listing) {
   return {
     id: listing.id,
 
-    title: listing.title,
-    description: listing.description,
+title: listing.title.getValue(),
+description: listing.description.getValue(),
 
     hostId: listing.hostId,
     locationId: listing.locationId,

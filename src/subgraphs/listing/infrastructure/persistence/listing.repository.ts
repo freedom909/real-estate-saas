@@ -44,10 +44,38 @@ export class ListingRepository implements IListingRepository {
     return deletedCount > 0;
   }
 
-  async findById(id: string): Promise<Listing | null> {
-    const record = await this.model.findByPk(id);
-    return record ? ListingMapper.toDomain(record) : null;
-  }
+async findById(id: string): Promise<Listing | null> {
+
+  const listing = await this.model.findByPk(id);
+
+  if (!listing) return null;
+
+  // categories
+  const categoryRows =
+    await this.listingCategoryModel.findAll({
+      where: { listingId: id }
+    });
+
+  const categories = categoryRows.map(
+    (c: any) => c.categoryId
+  );
+
+  // amenities
+  const amenityRows =
+    await this.listingAmenityModel.findAll({
+      where: { listingId: id }
+    });
+
+  const amenityIds = amenityRows.map(
+    (a: any) => a.amenityId
+  );
+
+  return ListingMapper.toDomain({
+    ...listing.toJSON(),
+    categories,
+    amenityIds,
+  });
+}
 
   async findByHostId(hostId: string): Promise<Listing[]> {
     // Assuming hostId maps to hostId in the MySQL schema
