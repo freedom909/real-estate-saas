@@ -1,19 +1,21 @@
 import { injectable, inject } from "tsyringe";
 
-import { IListingRepository } from "../entities/IListingRepository";
-import { OpenAIAdapter } from "./OpenAIAdapter";
+import { OpenAIAdapter } from "./openAIAdapter";
+import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
+import { IListingRepository } from "./IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 
+
 @injectable()
-export class GenerateTitleSuggestionUseCase {
+export class ApplyDescriptionSuggestionUseCase {
   // Prompt template colocated with the use case
   private readonly PROMPT_TEMPLATE = `
-    You are an expert real estate listing title generator.
-    Given the following listing details, suggest a concise and appealing new title.
+    You are an expert real estate listing description writer.
+    Given the following listing details, suggest an improved, detailed, and engaging new description.
     Current Title: "{currentTitle}"
     Current Description: "{currentDescription}"
-    Suggest only the new title, nothing else.
+    Suggest only the new description, nothing else.
   `;
 
   constructor(

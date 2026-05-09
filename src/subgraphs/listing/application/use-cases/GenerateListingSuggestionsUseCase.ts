@@ -1,7 +1,7 @@
 //src/subgraphs/listing/application/use-cases/GenerateListingSuggestionsUseCase.ts
 import { injectable, inject } from "tsyringe";
 
-import { ILLMService } from "@/subgraphs/listing/application/ai/services/OpenAIService";
+import { ILLMService } from "@/subgraphs/listing/application/ai/services/openAIService";
 
 
 import { listingOptimizationPrompt } from "@/subgraphs/listing/application/ai/prompts/listing.prompt";

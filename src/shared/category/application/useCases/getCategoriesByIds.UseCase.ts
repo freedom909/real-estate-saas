@@ -3,12 +3,12 @@
 import { injectable, inject } from "tsyringe";
 
 import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
-import { ICategoryRepository } from "../../domain/ICategoryRepository";
+import { ICategoryRepository } from "../../domain/ICategory.repository";
 
 @injectable()
 class GetCategoriesByIdsUseCase {
   constructor(
-    @inject(TOKENS_CATEGORY.CategoryRepository)
+    @inject(TOKENS_CATEGORY.categoryRepository)
     private repo: ICategoryRepository
   ) {}
 

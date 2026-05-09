@@ -28,7 +28,7 @@ const typeDefs = gql(
   });
 
   const { url } = await startStandaloneServer(server, {
-    listen: { port: Number(process.env.PORT) || 4080 },
+    listen: { port: Number(process.env.PORT) || 4070 },
   });
   console.log(`Audit Subgraph ready at ${url}`);
 }

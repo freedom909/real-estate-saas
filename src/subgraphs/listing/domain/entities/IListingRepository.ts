@@ -1,4 +1,4 @@
-import { Listing } from '../entities/Listing';
+import { Listing } from '../entities/listing';
 
 export interface IListingRepository {
   findById(id: string): Promise<Listing | null>;

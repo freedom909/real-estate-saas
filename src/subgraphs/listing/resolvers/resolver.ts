@@ -2,12 +2,12 @@ import { container } from "tsyringe";
 
 // Existing UseCases
 import CreateListingUseCase from "../application/use-cases/createListingUseCase";
-import GetListingUseCase from "../application/use-cases/GetListingUseCase";
+import GetListingUseCase from "../application/use-cases/getListingUseCase";
 
 // AI UseCases（用 Apply，不用 Generate// Tokens
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
-import { ApplyTitleSuggestionUseCase } from "../application/use-cases/ApplyTitleSuggestionUseCase";
-import { ApplyDescriptionSuggestionUseCase } from "../application/use-cases/ApplyDescriptionSuggestionUseCase";
+import { ApplyTitleSuggestionUseCase } from "../application/use-cases/applyTitleSuggestionUseCase";
+import { ApplyDescriptionSuggestionUseCase } from "../application/use-cases/applyDescriptionSuggestionUseCase";
 
 export const resolvers = {
   Query: {
@@ -36,7 +36,6 @@ export const resolvers = {
 
   Mutation: {
     createListing: async (_: any, { input }: any) => {
-      console.log(input); //no output in the terminal
       const useCase = container.resolve<CreateListingUseCase>(
         TOKENS_LISTING.CreateListingUseCase
       );

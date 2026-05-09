@@ -2,15 +2,17 @@
 
 import { inject, injectable } from "tsyringe";
 import { IListingRepository } from "../../domain/entities/IListingRepository";
-import { OpenAIAdapter } from "../../domain/entities/OpenAIAdapter";
+import { IOpenAIAdapter } from "../../domain/entities/IOpenAIAdapter";
+
 import { buildTitlePrompt } from "../prompts/buildTitlePrompt";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
 @injectable()
 export class GenerateTitleSuggestionUseCase {
   constructor(
     @inject(TOKENS_LISTING.ListingRepository) private repo: IListingRepository,
-    @inject(TOKENS_LISTING.OpenAIAdapter) private ai: OpenAIAdapter
+    @inject(TOKENS_AI.OpenAIAdapter) private ai: IOpenAIAdapter
   ) {}
 
   async execute(listingId: string): Promise<string> {
@@ -19,6 +21,6 @@ export class GenerateTitleSuggestionUseCase {
 
     const prompt = buildTitlePrompt(listing);
 
-    return this.ai.generateText(prompt);
+    return this.ai.generateText({prompt});
   }
 }

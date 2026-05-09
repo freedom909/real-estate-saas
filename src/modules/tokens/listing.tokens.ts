@@ -1,16 +1,13 @@
 export const TOKENS_LISTING = {
     ListingModel: Symbol.for("ListingModel"),
     ListingService: Symbol.for("Listing.services.ListingService"),
-    ListingClient: Symbol.for("Listing.ListingClient"),
-    
+    ListingClient: Symbol.for("Listing.ListingClient"),   
     ListingRepository: Symbol.for('ListingRepository'),
     CreateListingUseCase: Symbol.for('CreateListingUseCase'),
     GetListingUseCase: Symbol.for('GetListingUseCase'),
     Sequelize: Symbol.for('Sequelize'),
-    OpenAIAdapter: Symbol.for('OpenAIAdapter'),
     Listing: Symbol.for('Listing'),
-    GenerateTitleSuggestionUseCase: Symbol.for('GenerateTitleSuggestionUseCase'),
-    GenerateDescriptionSuggestionUseCase: Symbol.for('GenerateDescriptionSuggestionUseCase'),
+    ApplyTitleSuggestionUseCase: Symbol.for('ApplyTitleSuggestionUseCase'),
     ApplyDescriptionSuggestionUseCase: Symbol.for('ApplyDescriptionSuggestionUseCase'),
     ListingCategories: Symbol.for('ListingCategories'),
     ListingCategoriesModel: Symbol.for('ListingCategoriesModelModel'),

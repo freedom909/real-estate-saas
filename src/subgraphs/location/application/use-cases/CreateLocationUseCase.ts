@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import { ILocationRepository } from "../../domain/repos/ILocationRepository";
-import { Location } from "../../domain/entities/Location";
+import { Location } from "../../domain/entities/location";
 
 import { TOKENS_LOCATION } from "@/modules/tokens/location.tokens";
 import { IEventBus } from "@/infrastructure/events/event-bus";

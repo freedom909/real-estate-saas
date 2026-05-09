@@ -12,7 +12,7 @@ import ListingAmenity from '../models/listingAmenities.model';
 import { Op } from 'sequelize';
 import Category from '../models/category.model';
 import CategoryModel from '@/shared/category/infrastructure/category.model';
-import { Listing } from '../../domain/entities/Listing';
+import { Listing } from '../../domain/entities/listing';
 
 @injectable()
 export class ListingRepository implements IListingRepository {

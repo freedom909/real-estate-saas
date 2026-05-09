@@ -1,17 +1,15 @@
 import { injectable, inject } from 'tsyringe';
-import { Listing } from '../../domain/entities/Listing';
+import { Listing } from '../../domain/entities/listing';
 import { v4 as uuidv4 } from 'uuid';
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';
 import { Title } from '../../domain/value-objects/Title';
-import { Description } from '../../domain/value-objects/Description';
+import { Description } from '../../domain/value-objects/description';
 import { IAmenityAdapter } from '../../adapters/IAmenity.adapter';
 
  // Assuming categoryAdapter token is under TOKENS_LISTING.adapters
-import { ICategoryRepository } from '@/shared/category/domain/ICategoryRepository';
+import { ICategoryRepository } from '@/shared/category/domain/ICategory.repository';
 import { TOKENS_CATEGORY } from '@/modules/tokens/category.tokens';
-
-
 
 export interface CreateListingInput {
   title: string;

@@ -1,6 +1,6 @@
-import { Listing } from "../../domain/entities/Listing";
+import { Listing } from "../../domain/entities/listing";
+import { Description } from "../../domain/value-objects/description";
 import { Title } from "../../domain/value-objects/Title";
-import { Description } from "../../domain/value-objects/Description";
 
 
 export class ListingMapper {

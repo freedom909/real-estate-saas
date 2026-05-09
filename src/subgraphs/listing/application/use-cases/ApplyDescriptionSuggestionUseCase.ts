@@ -1,15 +1,17 @@
 import { inject, injectable } from "tsyringe";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
-import { OpenAIAdapter } from "../../infrastructure/ai/OpenAI.adapter";
+
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { IOpenAIAdapter } from "../../domain/entities/IOpenAIAdapter";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
 @injectable()
 export class ApplyDescriptionSuggestionUseCase {
   constructor(
     @inject(TOKENS_LISTING.ListingRepository)
     private repo: ListingRepository,
-    @inject(TOKENS_LISTING.OpenAIAdapter)
-    private ai: OpenAIAdapter,
+    @inject(TOKENS_AI.OpenAIAdapter)
+    private ai: IOpenAIAdapter,
   ) { }
 
   async execute(listingId: string) {
@@ -24,7 +26,8 @@ Description: ${listing.description}
 `;
 
     // Fix: Pass prompt as a string, not an object
-    const newDesc = await this.ai.generateText(prompt);
+    const newDesc = await this.ai.generateText({ prompt });
+    console.log(newDesc); //no output in the terminal
 
     // Defensive Check: Ensure AI response meets domain requirements
     if (!newDesc || newDesc.trim().length < 10) {

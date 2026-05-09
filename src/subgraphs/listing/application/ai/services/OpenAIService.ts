@@ -11,7 +11,7 @@ export class OpenAIService {
     });
 
     async generate(prompt: string) {
-        console.log(prompt);
+        console.log(prompt); //no output in the terminal
 
         const response = await this.client.chat.completions.create({
            model: "gpt-4.1-mini",

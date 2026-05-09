@@ -1,4 +1,5 @@
 //src/modules/tokens/ai.tokens.ts
 export const TOKENS_AI = {
-  OpenAIService: "OpenAIService",
+  OpenAIService: Symbol.for("OpenAIService"),
+  OpenAIAdapter: Symbol.for("OpenAIAdapter"),
 }

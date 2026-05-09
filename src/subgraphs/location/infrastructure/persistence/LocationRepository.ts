@@ -2,7 +2,7 @@
 
 import { injectable } from "tsyringe";
 import { ILocationRepository } from "../../domain/repos/ILocationRepository";
-import { Location } from "../../domain/entities/Location";
+import { Location } from "../../domain/entities/location";
 
 @injectable()
 export class LocationRepository implements ILocationRepository {

@@ -3,10 +3,10 @@ import { injectable, inject } from 'tsyringe';
 
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 
-import { Listing, ListingProps } from '../domain/entities/Listing';
+import { Listing, ListingProps } from '../domain/entities/listing';
 
 import { IListingRepository } from '../domain/entities/IListingRepository';
-import CreateListingUseCase from '../application/use-cases/CreateListingUseCase';
+import CreateListingUseCase from '../application/use-cases/createListingUseCase';
 
 @injectable()
 export class ListingService {

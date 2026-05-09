@@ -1,4 +1,4 @@
-import { Listing } from "../../domain/entities/Listing";
+import { Listing } from "../../domain/entities/listing";
 
 export const buildTitlePrompt = (listing: Listing): string => `
 You are an expert Airbnb listing copywriter.
