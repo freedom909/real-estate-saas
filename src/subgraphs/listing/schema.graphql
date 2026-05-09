@@ -23,8 +23,8 @@ type Listing @key(fields: "id") {
   hostId: ID!
   locationId: ID!
 
-  categories: [String!]!
-  amenityIds: [String!]!
+  categories: [Category!]!
+  amenityIds: [Amenity!]!
 
   numOfBeds: Int!
   numOfGuests: Int!

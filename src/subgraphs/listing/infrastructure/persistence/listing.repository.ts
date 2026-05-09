@@ -1,6 +1,6 @@
 //src/subgraphs/listing/infrastructure/persistence/listing.repository.ts
 import { injectable, inject } from 'tsyringe';
-import { Listing } from '../../domain/entities/Listing';
+
 import { ListingMapper } from '../mappers/listing.mapper';
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';
@@ -12,6 +12,7 @@ import ListingAmenity from '../models/listingAmenities.model';
 import { Op } from 'sequelize';
 import Category from '../models/category.model';
 import CategoryModel from '@/shared/category/infrastructure/category.model';
+import { Listing } from '../../domain/entities/Listing';
 
 @injectable()
 export class ListingRepository implements IListingRepository {

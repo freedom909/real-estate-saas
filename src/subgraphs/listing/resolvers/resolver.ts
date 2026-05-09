@@ -1,7 +1,7 @@
 import { container } from "tsyringe";
 
 // Existing UseCases
-import CreateListingUseCase from "../application/use-cases/CreateListingUseCase";
+import CreateListingUseCase from "../application/use-cases/createListingUseCase";
 import GetListingUseCase from "../application/use-cases/GetListingUseCase";
 
 // AI UseCases（用 Apply，不用 Generate// Tokens
@@ -36,6 +36,7 @@ export const resolvers = {
 
   Mutation: {
     createListing: async (_: any, { input }: any) => {
+      console.log(input); //no output in the terminal
       const useCase = container.resolve<CreateListingUseCase>(
         TOKENS_LISTING.CreateListingUseCase
       );

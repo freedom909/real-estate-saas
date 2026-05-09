@@ -16,7 +16,6 @@
     "dev:listing": "tsx watch src/subgraphs/listing/index.ts",
     "dev:location": "tsx watch src/subgraphs/location/index.ts",
     "dev:review": "tsx watch src/subgraphs/review/index.ts",
-    
     "dev:order": "tsx watch src/subgraphs/order/index.ts",
     "dev:booking": "tsx watch src/subgraphs/booking/index.ts",
     "dev:payment": "tsx watch src/subgraphs/payment/index.ts"
@@ -43,7 +42,7 @@
     "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.19",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.4.2",
     "email-validator": "^2.0.4",
     "express": "^4.22.1",
     "geoip-lite": "^1.4.10",

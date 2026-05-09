@@ -1,8 +1,9 @@
 import { injectable, inject } from "tsyringe";
-import { LISTING_TOKENS } from "../../container/tokens";
+
 import { OpenAIAdapter } from "./OpenAIAdapter";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { IListingRepository } from "./IListingRepository";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 
 
@@ -18,7 +19,7 @@ export class GenerateDescriptionSuggestionUseCase {
   `;
 
   constructor(
-    @inject(LISTING_TOKENS.ListingRepository)
+    @inject(TOKENS_LISTING.ListingRepository)
     private listingRepository: IListingRepository,
     @inject(OpenAIAdapter)
     private openAIAdapter: OpenAIAdapter

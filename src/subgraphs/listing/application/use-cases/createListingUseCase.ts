@@ -42,10 +42,12 @@ export default class CreateListingUseCase {
   ) { }
 
   async execute(input: CreateListingInput): Promise<Listing> {
-  
+ 
     // Validate amenityIds
     if (input.amenityIds && input.amenityIds.length > 0) {
+      console.log(input.amenityIds); 
       const validIds = await this.amenityAdapter.getValidIds(input.amenityIds);
+      console.log("++validIds", validIds); //no output in the terminal
       const validSet = new Set(validIds);
       const invalidAmenityIds = input.amenityIds.filter(id => !validSet.has(id));
 
@@ -54,6 +56,8 @@ export default class CreateListingUseCase {
       }
     }
     const categories = await this.categoryRepo.findByIds(input.categories);
+
+    console.log(categories); //no output in the terminal
     if (categories.length === 0 && input.categories.length > 0) {
       throw new Error(`Invalid category names provided: ${input.categories.join(', ')}`);
     }
