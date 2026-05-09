@@ -21,9 +21,12 @@ type Listing @key(fields: "id") {
   address: String!
 
   hostId: ID!
+  ownerId: ID!
+  host: Host!
   locationId: ID!
 
-  categories: [String!]!
+  categories: [Category!]!
+  amenities: [Amenity!]!
   amenityIds: [String!]!
 
   numOfBeds: Int!
@@ -55,7 +58,7 @@ extend type Host @key(fields: "id") {
 # -----------------------------------
 type Category {
   id: ID!
-  name: String!
+  name: String
 }
 
 # -----------------------------------
@@ -113,6 +116,7 @@ type ApplyDescriptionResponse {
 # -----------------------------------
 type Query {
   listing(id: ID!): Listing
+  getListing(id: ID!): Listing
 
   listingsByHost(hostId: ID!): [Listing!]!
 }

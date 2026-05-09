@@ -1,5 +1,4 @@
 import { injectable } from "tsyringe";
-import fetch from "node-fetch";
 
 interface OpenAICompletionResponse {
   choices: Array<{

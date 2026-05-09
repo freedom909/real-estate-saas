@@ -11,6 +11,7 @@ export const TOKENS_LISTING = {
     Listing: Symbol.for('Listing'),
     GenerateTitleSuggestionUseCase: Symbol.for('GenerateTitleSuggestionUseCase'),
     GenerateDescriptionSuggestionUseCase: Symbol.for('GenerateDescriptionSuggestionUseCase'),
+    ApplyTitleSuggestionUseCase: Symbol.for('ApplyTitleSuggestionUseCase'),
     ApplyDescriptionSuggestionUseCase: Symbol.for('ApplyDescriptionSuggestionUseCase'),
     ListingCategories: Symbol.for('ListingCategories'),
     ListingCategoriesModel: Symbol.for('ListingCategoriesModelModel'),
