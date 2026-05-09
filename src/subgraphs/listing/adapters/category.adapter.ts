@@ -8,7 +8,7 @@ import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 @injectable()
 export class CategoryAdapter implements ICategoryAdapter {
   constructor(
-    @inject(TOKENS_CATEGORY.CategoryRepository)
+    @inject(TOKENS_CATEGORY.categoryRepository)
     private categoryRepository: ICategoryRepository
   ) {}
 

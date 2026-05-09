@@ -5,7 +5,10 @@ import { sequelize } from "@/infrastructure/config/seq";
 
 
 
-class ListingAmenities extends Model {}
+class ListingAmenities extends Model {
+  declare listingId: string;
+  declare amenityId: string;
+}
 
 ListingAmenities.init(
   {

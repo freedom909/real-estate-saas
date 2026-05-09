@@ -9,9 +9,6 @@ import ListingModel from '../models/listing.model';
 import ListingCategories from '../models/listingCategories.model';
 import ListingAmenity from '../models/listingAmenities.model';
 
-import { Op } from 'sequelize';
-import Category from '../models/category.model';
-import CategoryModel from '@/shared/category/infrastructure/category.model';
 
 @injectable()
 export class ListingRepository implements IListingRepository {
@@ -27,9 +24,7 @@ export class ListingRepository implements IListingRepository {
   ) {}
 
   async create(listing: Listing): Promise<Listing> {
-    const raw = ListingMapper.toPersistence(listing);
-    const created = await this.model.create(raw as any);
-    return ListingMapper.toDomain(created);
+    return this.save(listing);
   }
 
   async update(id: string, listing: Listing): Promise<boolean> {
@@ -45,24 +40,26 @@ export class ListingRepository implements IListingRepository {
 
   async findById(id: string): Promise<Listing | null> {
     const record = await this.model.findByPk(id);
-    return record ? ListingMapper.toDomain(record) : null;
+    return record ? this.toDomainWithRelations(record) : null;
   }
 
   async findByHostId(hostId: string): Promise<Listing[]> {
-    // Assuming hostId maps to hostId in the MySQL schema
-    const records = await this.model.findAll({ where: { hostId: hostId } });
-    return records.map(record => ListingMapper.toDomain(record));
+    const records = await this.model.findAll({ where: { hostId } });
+    return Promise.all(records.map(record => this.toDomainWithRelations(record)));
   }
 
-async findByIds(ids: string[]): Promise<Category[]> {
-  return CategoryModel.findAll({
-    where: {
-      id: {
-        [Op.in]: ids,
-      },
-    },
-  });
-}
+  private async toDomainWithRelations(record: ListingModel): Promise<Listing> {
+    const [categoryRows, amenityRows] = await Promise.all([
+      this.listingCategoryModel.findAll({ where: { listingId: record.id } }),
+      this.listingAmenityModel.findAll({ where: { listingId: record.id } }),
+    ]);
+
+    return ListingMapper.toDomain({
+      ...record.get({ plain: true }),
+      categories: categoryRows.map(row => row.getDataValue("categoryId")),
+      amenityIds: amenityRows.map(row => row.getDataValue("amenityId")),
+    });
+  }
 
   async save(listing: Listing): Promise<Listing> {
     const raw = ListingMapper.toPersistence(listing);
@@ -101,7 +98,7 @@ async findByIds(ids: string[]): Promise<Category[]> {
 
       if (amenityIds.length > 0) {
         await this.listingAmenityModel.bulkCreate(
-          amenityIds.map((amId: number) => ({
+          amenityIds.map((amId: string) => ({
             listingId: listing.id,
             amenityId: amId,
           })),
@@ -116,4 +113,5 @@ async findByIds(ids: string[]): Promise<Category[]> {
       await transaction.rollback();
       throw error;
     }
-}}
+}
+}

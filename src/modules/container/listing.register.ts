@@ -14,6 +14,7 @@ import { ApplyDescriptionSuggestionUseCase } from '@/subgraphs/listing/applicati
 import AmenityAdapter from '@/subgraphs/listing/adapters/amenity.adapter';
 import { CategoryAdapter } from '@/subgraphs/listing/adapters/category.adapter';
 import { sequelize } from '@/infrastructure/config/seq';
+import { OpenAIAdapter } from '@/subgraphs/listing/infrastructure/ai/OpenAI.adapter';
 
 
 export default function registerListingDependencies() {
@@ -45,12 +46,16 @@ container.register(TOKENS_LISTING.ListingLocationsModel, {
   useValue: ListingLocationsModel,
 });
 
-container.register("ApplyDescriptionSuggestionUseCase", {
+container.register(TOKENS_LISTING.ApplyDescriptionSuggestionUseCase, {
   useClass: ApplyDescriptionSuggestionUseCase,
 });
 
-container.register("ApplyTitleSuggestionUseCase", {
+container.register(TOKENS_LISTING.ApplyTitleSuggestionUseCase, {
   useClass: ApplyTitleSuggestionUseCase,
+});
+
+container.register(TOKENS_LISTING.OpenAIAdapter, {
+  useClass: OpenAIAdapter,
 });
 
 container.register(TOKENS_LISTING.adapters.amenityAdapter, {

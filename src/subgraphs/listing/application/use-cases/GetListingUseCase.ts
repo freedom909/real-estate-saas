@@ -1,4 +1,5 @@
 import { injectable, inject } from "tsyringe";
+import { Listing } from "../../domain/entities/Listing";
 import { IListingRepository } from "../../domain/repos/IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
@@ -9,19 +10,11 @@ class GetListingUseCase {
     private repo: IListingRepository
   ) {}
 
-  async execute(id: string) {
+  async execute(id: string): Promise<Listing> {
     const listing = await this.repo.findById(id);
     if (!listing) throw new Error("Listing not found");
-    
-    return {
-      id: listing.id,
-      hostId: listing.hostId,
-      title: listing.title,
-      description: listing.description,
-      amenityIds: listing.amenityIds,
-      locationId: listing.locationId,
-      categories: listing.categories,
-    };
+
+    return listing;
   }
 }
 

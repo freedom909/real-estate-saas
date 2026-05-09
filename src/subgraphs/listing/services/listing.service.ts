@@ -5,7 +5,7 @@ import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 
 import { Listing, ListingProps } from '../domain/entities/Listing';
 
-import { IListingRepository } from '../domain/entities/IListingRepository';
+import { IListingRepository } from '../domain/repos/IListingRepository';
 import CreateListingUseCase from '../application/use-cases/CreateListingUseCase';
 
 @injectable()

@@ -4,7 +4,23 @@ import "reflect-metadata";
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from "@/infrastructure/config/seq";
 
-class ListingModel extends Model {}
+class ListingModel extends Model {
+  declare id: string;
+  declare title: string;
+  declare description: string;
+  declare hostId: string;
+  declare locationId: string;
+  declare address: string;
+  declare numOfBeds: number;
+  declare numOfGuests: number;
+  declare numOfBathrooms: number;
+  declare numOfRooms: number;
+  declare price: number;
+  declare picture?: string[];
+  declare isFeatured: boolean;
+  declare createdAt: Date;
+  declare updatedAt: Date;
+}
 
 ListingModel.init(
   {

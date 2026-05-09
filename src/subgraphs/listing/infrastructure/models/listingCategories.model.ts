@@ -5,7 +5,10 @@ import Category from './category.model';
 import Listing from './listing.model';
 
 
-class ListingCategories extends Model {}
+class ListingCategories extends Model {
+  declare listingId: string;
+  declare categoryId: string;
+}
 
 ListingCategories.init(
   {

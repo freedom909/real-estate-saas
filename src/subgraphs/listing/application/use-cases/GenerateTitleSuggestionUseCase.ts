@@ -1,8 +1,8 @@
 // FILE: application/usecases/GenerateTitleSuggestionUseCase.ts
 
 import { inject, injectable } from "tsyringe";
-import { IListingRepository } from "../../domain/entities/IListingRepository";
-import { OpenAIAdapter } from "../../domain/entities/OpenAIAdapter";
+import { IListingRepository } from "../../domain/repos/IListingRepository";
+import { OpenAIAdapter } from "../../infrastructure/ai/OpenAI.adapter";
 import { buildTitlePrompt } from "../prompts/buildTitlePrompt";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
