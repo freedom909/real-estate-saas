@@ -28,9 +28,13 @@ export class ListingRepository implements IListingRepository {
   ) {}
 
   async create(listing: Listing): Promise<Listing> {
-    const raw = ListingMapper.toPersistence(listing);
-    const created = await this.model.create(raw as any);
-    return ListingMapper.toDomain(created);
+ const persistence =
+    ListingMapper.toPersistence(listing);
+
+  const created =
+    await this.model.create(persistence);
+
+  return ListingMapper.toDomain(created);
   }
 
   async update(id: string, listing: Listing): Promise<boolean> {

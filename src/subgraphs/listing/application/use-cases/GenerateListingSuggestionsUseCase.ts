@@ -1,9 +1,6 @@
 //src/subgraphs/listing/application/use-cases/GenerateListingSuggestionsUseCase.ts
 import { injectable, inject } from "tsyringe";
-
 import { ILLMService } from "@/subgraphs/listing/application/ai/services/openAIService";
-
-
 import { listingOptimizationPrompt } from "@/subgraphs/listing/application/ai/prompts/listing.prompt";
 import { IListingRepository } from "../../domain/entities/IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
@@ -29,8 +26,8 @@ export class GenerateListingSuggestionsUseCase {
     }
 
     const prompt = listingOptimizationPrompt(
-      listing.title.getValue(),
-      listing.description.getValue()
+      listing.title,
+      listing.description
     );
 
     return this.ai.generate(prompt);

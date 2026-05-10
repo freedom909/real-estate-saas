@@ -41,6 +41,10 @@ export class ListingAISuggestion {
     return this.props.prompt;
   }
 
+  get model() {
+    return this.props.model;
+  }
+
   get createdAt() {
     return this.props.createdAt;
   }

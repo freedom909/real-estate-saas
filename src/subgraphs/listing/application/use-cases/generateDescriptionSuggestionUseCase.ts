@@ -1,22 +1,21 @@
-// FILE: application/usecases/GenerateTitleSuggestionUseCase.ts
-
-import { inject, injectable } from "tsyringe";
+import { injectable, inject } from "tsyringe";
+import { ILLMService } from "@/subgraphs/listing/application/ai/services/openAIService";
+import { listingOptimizationPrompt } from "@/subgraphs/listing/application/ai/prompts/listing.prompt";
 import { IListingRepository } from "../../domain/entities/IListingRepository";
-import { IOpenAIAdapter } from "../../domain/entities/IOpenAIAdapter";
-import { v4 as uuidv4 } from 'uuid';
-
-import { buildTitlePrompt } from "../prompts/buildTitlePrompt";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { v4 as uuidv4 } from 'uuid';
+import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
+import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
 import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISuggestionRepository";
 import { ListingAISuggestion } from "../../domain/entities/listingAISuggestion";
 
 @injectable()
-export class GenerateTitleSuggestionUseCase {
+export class GenerateDescriptionSuggestionUseCase {
 
   constructor(
     @inject(TOKENS_LISTING.ListingRepository)
-    private repo: IListingRepository,
+    private repo: ListingRepository,
 
     @inject(TOKENS_AI.OpenAIAdapter)
     private ai: IOpenAIAdapter,
@@ -24,7 +23,7 @@ export class GenerateTitleSuggestionUseCase {
     @inject(TOKENS_AI.ListingAISuggestionRepository)
     private aiSuggestionRepo:
       IListingAISuggestionRepository
-  ) {}
+  ) { }
 
   async execute(listingId: string) {
 
@@ -45,10 +44,11 @@ Description: ${listing.description}
     const suggestion =
       await this.ai.generateText({ prompt });
 
-    if (!suggestion || suggestion.trim().length < 10) {
+    if (!suggestion ||
+      suggestion.trim().length < 10) {
 
       throw new Error(
-        "AI generated title too long"
+        "AI generated description too short"
       );
     }
 
@@ -60,7 +60,7 @@ Description: ${listing.description}
 
         listingId,
 
-        type: "TITLE",
+        type: "DESCRIPTION",
 
         prompt,
 
@@ -70,7 +70,7 @@ Description: ${listing.description}
 
         createdAt: new Date(),
       });
-
+    console.log(aiSuggestion);
     await this.aiSuggestionRepo.save(
       aiSuggestion
     );

@@ -13,18 +13,30 @@ export class ListingAISuggestionRepository implements IListingAISuggestionReposi
     constructor(
         @inject(TOKENS_AI.ListingAISuggestionModel)
         private model: typeof ListingAISuggestionModel,
-    ) {}
+    ) { }
+    async findById(id: string): Promise<ListingAISuggestion> {
+        if (!id) {
+            throw new Error("id is required");
+        }
+        const suggestion = await this.model.findByPk(id);// 
+        if (!suggestion) {
+            throw new Error("suggestion not found");
+        }
+        return suggestion as unknown as ListingAISuggestion;
+    }
+
     async findByListingId(listingId: string): Promise<ListingAISuggestion[]> {
         throw new Error("Method not implemented.");
     }
-async save(suggestion: ListingAISuggestion) {
-  await ListingAISuggestionModel.create({
-    ...suggestion,
-    listingId: suggestion.listingId,
-    type: suggestion.type,
-    prompt: suggestion.prompt,
-    suggestion: suggestion.suggestion,
-  });
-}
+    async save(suggestion: ListingAISuggestion) {
+        await ListingAISuggestionModel.create({
+            ...suggestion,
+            id: suggestion.id, // I added this line so that the error message came. 
+            listingId: suggestion.listingId,
+            type: suggestion.type,
+            prompt: suggestion.prompt,
+            suggestion: suggestion.suggestion,
+        });
+    }
 
 }

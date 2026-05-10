@@ -7,7 +7,12 @@ export interface IListingAISuggestionRepository {
     suggestion: ListingAISuggestion
   ): Promise<void>;
 
+  findById(
+    suggestionId: string
+  ): Promise<ListingAISuggestion>;
+
   findByListingId(
     listingId: string
   ): Promise<ListingAISuggestion[]>;
+
 }

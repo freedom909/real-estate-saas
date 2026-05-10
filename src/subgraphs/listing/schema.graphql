@@ -140,11 +140,15 @@ type ListingAISuggestion {
 type Mutation {
   createListing(input: CreateListingInput!): Listing!
 
-  applyTitleSuggestion(
+  generateTitleSuggestion(
     listingId: ID!
-  ): ApplyTitleResponse!
+  ): ListingAISuggestion!
 
-  applyDescriptionSuggestion(
+  generateDescriptionSuggestion(
     listingId: ID!
-  ): ApplyDescriptionResponse!
+  ): ListingAISuggestion!
+
+  applyAISuggestion(
+    suggestionId: ID!
+  ): Listing!
 }

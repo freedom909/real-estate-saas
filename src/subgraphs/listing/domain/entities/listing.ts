@@ -43,12 +43,12 @@ export class Listing {
   // getters
   get id() { return this.props.id; }
   get hostId() { return this.props.hostId; }
-get title(): Title {
-  return this.props.title;
+get title(): string {
+  return this.props.title.getValue();
 }
 
-get description(): Description {
-  return this.props.description;
+get description(): string {
+  return this.props.description.getValue();
 }
   get locationId() { return this.props.locationId; }
   get categories() { return this.props.categories; }
@@ -77,7 +77,7 @@ get description(): Description {
     this.props.address = address;
     this.touch();
   }
-  
+
   updateDescription(desc: string) {
     this.props.description = new Description(desc);
     this.touch();
@@ -86,13 +86,13 @@ get description(): Description {
   // 🔥 AI行为（核心）
   generateTitlePrompt() {
     return this.props.title.buildAIPrompt({
-      description: this.description.getValue(),
+      description: this.description,
     });
   }
 
   generateDescriptionPrompt() {
     return this.props.description.buildAIPrompt({
-      title: this.title.getValue(),
+      title: this.title,
     });
   }
 
@@ -111,8 +111,8 @@ get description(): Description {
   private validate(props: ListingProps) {
     if (!props.hostId) throw new Error("hostId required");
     if (!props.locationId) throw new Error("locationId required");
- if (!props.categories || props.categories.length === 0) {
-  throw new Error("categories required");
-}
+    if (!props.categories || props.categories.length === 0) {
+      throw new Error("categories required");
+    }
   }
 }
