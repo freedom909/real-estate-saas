@@ -113,10 +113,27 @@ type ApplyDescriptionResponse {
 # -----------------------------------
 type Query {
   listing(id: ID!): Listing
-
+  aiSuggestionsByListing(
+    listingId: ID!
+  ): [ListingAISuggestion!]!
   listingsByHost(hostId: ID!): [Listing!]!
 }
 
+type ListingAISuggestion {
+  id: ID!
+
+  listingId: ID!
+
+  type: String!
+
+  prompt: String!
+
+  suggestion: String!
+
+  model: String
+
+  createdAt: String!
+}
 # -----------------------------------
 # Mutations
 # -----------------------------------
