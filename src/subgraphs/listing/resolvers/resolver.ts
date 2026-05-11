@@ -12,6 +12,8 @@ import { GenerateTitleSuggestionUseCase } from "../application/use-cases/generat
 import { ApplyAISuggestionUseCase } from "../application/use-cases/applyAISuggestionUseCase";
 import { GenerateDescriptionSuggestionUseCase } from "../application/use-cases/generateDescriptionSuggestionUseCase";
 
+
+
 export const resolvers = {
   Query: {
     getListing: async (_: any, { id }: { id: string }) => {

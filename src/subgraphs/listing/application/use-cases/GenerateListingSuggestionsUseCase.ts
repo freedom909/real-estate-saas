@@ -6,8 +6,6 @@ import { IListingRepository } from "../../domain/entities/IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
-
-
 @injectable()
 export class GenerateListingSuggestionsUseCase {
   constructor(
@@ -18,8 +16,13 @@ export class GenerateListingSuggestionsUseCase {
     private repo: IListingRepository
   ) {}
 
-  async execute(listingId: string) {
+  async execute(listingId: string){
     const listing = await this.repo.findById(listingId);
+
+    if (!listing) {
+      throw new Error("Listing not found");
+    }
+   
 
     if (!listing) {
       throw new Error("Listing not found");

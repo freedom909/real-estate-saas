@@ -7,9 +7,9 @@ export class ListingDTOMapper {
     return {
       id: listing.id,
 
-      title: listing.title.getValue(),
+      title: listing.title,
 
-      description: listing.description.getValue(),
+      description: listing.description,
 
       address: listing.address,
 

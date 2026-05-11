@@ -10,6 +10,7 @@ import { IAmenityAdapter } from '../../adapters/IAmenity.adapter';
  // Assuming categoryAdapter token is under TOKENS_LISTING.adapters
 import { ICategoryRepository } from '@/shared/category/domain/ICategory.repository';
 import { TOKENS_CATEGORY } from '@/modules/tokens/category.tokens';
+import { GenerateTitleResult } from '../contracts/ai/generateTitleResult';
 
 export interface CreateListingInput {
   title: string;
@@ -39,7 +40,7 @@ export default class CreateListingUseCase {
     private categoryRepo: ICategoryRepository,// it should be the 'CategoryRepository' for the ICategoryAdapter   
   ) { }
 
-  async execute(input: CreateListingInput): Promise<Listing> {
+  async execute(input: CreateListingInput): Promise<GenerateTitleResult> {
  
     // Validate amenityIds
     if (input.amenityIds && input.amenityIds.length > 0) {

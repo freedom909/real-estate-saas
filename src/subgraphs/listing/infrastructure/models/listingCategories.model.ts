@@ -1,9 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from "@/infrastructure/config/seq";
 
-import Category from './category.model';
-import Listing from './listing.model';
-
 
 class ListingCategories extends Model {}
 

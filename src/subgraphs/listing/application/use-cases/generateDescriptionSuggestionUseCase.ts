@@ -9,6 +9,7 @@ import { ListingRepository } from "../../infrastructure/persistence/listing.repo
 import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
 import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISuggestionRepository";
 import { ListingAISuggestion } from "../../domain/entities/listingAISuggestion";
+import { GenerateDescriptionResult } from "../contracts/ai/generateDescriptionResult";
 
 @injectable()
 export class GenerateDescriptionSuggestionUseCase {
@@ -23,7 +24,7 @@ export class GenerateDescriptionSuggestionUseCase {
     @inject(TOKENS_AI.ListingAISuggestionRepository)
     private aiSuggestionRepo:
       IListingAISuggestionRepository
-  ) { }
+  ) {}
 
   async execute(listingId: string) {
 

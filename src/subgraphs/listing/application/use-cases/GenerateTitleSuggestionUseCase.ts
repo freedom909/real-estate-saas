@@ -1,11 +1,10 @@
 // FILE: application/usecases/GenerateTitleSuggestionUseCase.ts
 
 import { inject, injectable } from "tsyringe";
-import { IListingRepository } from "../../domain/entities/IListingRepository";
+import { IListingRepository } from "../../domain/repos/IListingRepository";
 import { IOpenAIAdapter } from "../../domain/entities/IOpenAIAdapter";
 import { v4 as uuidv4 } from 'uuid';
 
-import { buildTitlePrompt } from "../prompts/buildTitlePrompt";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISuggestionRepository";
@@ -36,19 +35,21 @@ export class GenerateTitleSuggestionUseCase {
     }
 
     const prompt = `
-Improve this listing description:
+Improve this listing title:
 
 Title: ${listing.title}
 Description: ${listing.description}
 `;
 
-    const suggestion =
+    const rawSuggestion =
       await this.ai.generateText({ prompt });
 
-    if (!suggestion || suggestion.trim().length < 10) {
+    const suggestion = (rawSuggestion || "").replace(/^["']|["']$/g, "").trim();
+
+    if (!suggestion || suggestion.length < 10) {
 
       throw new Error(
-        "AI generated title too long"
+        "AI generated title too short"
       );
     }
 
@@ -67,14 +68,12 @@ Description: ${listing.description}
         suggestion,
 
         model: "gpt-4.1-mini",
-
         createdAt: new Date(),
       });
 
     await this.aiSuggestionRepo.save(
       aiSuggestion
     );
-
     return aiSuggestion;
   }
 }

@@ -13,8 +13,8 @@ export class Title {
   }
 
   private validate(value: string) {
-    if (!value || value.trim().length < 5) {
-      throw new Error("Title must be at least 5 characters");
+    if (!value || value.trim().length > 30) {
+      throw new Error("Title must be under 30 characters");
     }
   }
 

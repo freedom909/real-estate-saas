@@ -32,8 +32,8 @@ export class ApplyDescriptionSuggestionUseCase {
     }
 
     const prompt = this.PROMPT_TEMPLATE
-      .replace("{currentTitle}", listing.title.getValue())
-      .replace("{currentDescription}", listing.description.getValue());
+      .replace("{currentTitle}", listing.title)
+      .replace("{currentDescription}", listing.description);
 
     return this.openAIAdapter.generateText({prompt});
   }
