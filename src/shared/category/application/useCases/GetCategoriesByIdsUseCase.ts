@@ -8,7 +8,7 @@ import { ICategoryRepository } from "../../domain/ICategoryRepository";
 @injectable()
 class GetCategoriesByIdsUseCase {
   constructor(
-    @inject(TOKENS_CATEGORY.CategoryRepository)
+    @inject(TOKENS_CATEGORY.categoryRepository)
     private repo: ICategoryRepository
   ) {}
 
