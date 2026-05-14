@@ -2,6 +2,7 @@
 
 import { Title } from "../value-objects/Title";
 import { Description } from "../value-objects/description";
+import { SuggestionStatus } from "./suggestionStatus";
 
 export interface ListingProps {
   id: string;
@@ -27,7 +28,7 @@ export interface ListingProps {
   picture: string[];
 
   isFeatured: boolean;
-
+  
   createdAt: Date;
   updatedAt: Date;
 }
@@ -64,6 +65,7 @@ get description(): string {
   get picture() { return this.props.picture; }
   get isFeatured() { return this.props.isFeatured; }
 
+  
 
   // ======================
   // Business Logic

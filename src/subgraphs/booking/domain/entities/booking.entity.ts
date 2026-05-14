@@ -1,6 +1,6 @@
 import { DateRange } from "../value-objects/date-range.vo";
 
-export type BookingStatus = "UPCOMING" | "CONFIRMED" | "CANCELLED";
+export type BookingStatus = | "PENDING"| "UPCOMING" | "CONFIRMED" | "CANCELLED";
 
 export interface BookingProps {
   id: string;
@@ -9,14 +9,18 @@ export interface BookingProps {
   dateRange: DateRange;
   totalCost: number;
   status: BookingStatus;
-  createdAt: Date;
-
+  createdAt: Date;  
 }
 
-export class Booking {
+export class Booking implements BookingProps {
   private constructor(
     private props: BookingProps)
      {}
+  listingId: string;
+  dateRange: DateRange;
+  totalCost: number;
+  status: BookingStatus;
+  createdAt: Date;
 
   static create(
     props: Omit<BookingProps, "status" | "createdAt">
@@ -45,14 +49,11 @@ export class Booking {
   }
 
   toJSON() {
-    if (!this.props.dateRange) {
-      return {
-         dateRange: "dateRange is required",
-      };
-    }
     return {
       ...this.props,
-      ...this.props.dateRange.toJSON(),// "message": "Cannot read listings of undefined (reading 'toJSON')",
+      dateRange: this.props.dateRange 
+        ? (typeof this.props.dateRange.toJSON === 'function' ? this.props.dateRange.toJSON() : this.props.dateRange)
+        : undefined,
     };
   }
 

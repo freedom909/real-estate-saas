@@ -2,4 +2,5 @@
 
 export interface GenerateTitleResult {
   title: string;
+  rawTitle: string;
 }

@@ -1,23 +1,43 @@
-// listingAISuggestionMapper.ts
-
 import { ListingAISuggestion } from "../../domain/entities/listingAISuggestion";
-import ListingAISuggestionModel from "../models/listing.ai.suggestion.model";
 
 export class ListingAISuggestionMapper {
-    
+  static toDomain(raw: any): ListingAISuggestion {
+    return new ListingAISuggestion({
+      id: raw.id,
 
-    static toPersistence(
-        suggestion: ListingAISuggestion
-    ) {
-        return {
-            id: suggestion.id,
-            listingId: suggestion.listingId,
-            type: suggestion.type,
-            prompt: suggestion.prompt,
-            suggestion: suggestion.suggestion,
-            model: suggestion.model,
-            createdAt: suggestion.createdAt,
-            updatedAt: new Date(),
-        } as unknown as typeof ListingAISuggestionModel;
-    }
+      listingId: raw.listingId,
+
+      type: raw.type,
+
+      prompt: raw.prompt,
+
+      suggestion: raw.suggestion, // Maps suggestion text to suggestion property
+
+      status: raw.status, // Maps status enum to status property
+
+      model: raw.model,
+
+      createdAt: raw.createdAt,
+    });
+  }
+
+  static toPersistence(entity: ListingAISuggestion) {
+    return {
+      id: entity.id,
+
+      listingId: entity.listingId,
+
+      type: entity.type,
+
+      prompt: entity.prompt,
+
+      suggestion: entity.suggestion, // ← string
+
+      status: entity.status, // ← enum
+
+      model: entity.model,
+
+      createdAt: entity.createdAt,
+    };
+  }
 }

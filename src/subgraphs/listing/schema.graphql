@@ -113,9 +113,8 @@ type ApplyDescriptionResponse {
 # -----------------------------------
 type Query {
   listing(id: ID!): Listing
-  aiSuggestionsByListing(
-    listingId: ID!
-  ): [ListingAISuggestion!]!
+  listingAISuggestions(listingId: ID!): [ListingAISuggestion!]!
+  listings: [Listing!]!
   listingsByHost(hostId: ID!): [Listing!]!
 }
 
@@ -128,12 +127,20 @@ type ListingAISuggestion {
 
   prompt: String!
 
-  suggestion: String!
+  suggestion: SuggestionStatus!
 
   model: String
 
   createdAt: String!
 }
+
+enum SuggestionStatus {
+PENDING
+APPLIED
+REJECTED
+EXPIRED
+}
+
 # -----------------------------------
 # Mutations
 # -----------------------------------

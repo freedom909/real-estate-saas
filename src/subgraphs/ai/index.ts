@@ -20,13 +20,13 @@ import {resolvers} from "./resolver"
 
 import  registerSecurityDependencies  from "../../modules/container/security.register.js";
 import registerAuditDependencies from "@/modules/container/audit.register"
+import { registerAIContainer } from "@/modules/container/ai.register"
+import registerAuthDependencies from "../auth/registerAuthDependencies"
 
 
 // ⭐ 注册 DI
-registerAuditDependencies(container)
-registerSecurityDependencies();
-
-console.log("Listing container loaded")//good
+registerAIContainer();
+console.log("AI container loaded")// 
 
 // ⭐ Mongo
 await mongoose.connect(
@@ -35,7 +35,7 @@ await mongoose.connect(
 
 // ⭐ schema
 const typeDefs = gql(
-  readFileSync("./src/subgraphs/ai/ai.schema.graphql", "utf-8")
+  readFileSync("./src/subgraphs/ai/schema.graphql", "utf-8")
 )
 
 const schema = buildSubgraphSchema([{
@@ -71,6 +71,6 @@ app.use(
   })
 )
 
-httpServer.listen(4070, () => {
-  console.log("🔐 AI subgraph running at http://localhost:4070/graphql")
+httpServer.listen(4060, () => {
+  console.log("🔐 AI subgraph running at http://localhost:4060/graphql")
 })

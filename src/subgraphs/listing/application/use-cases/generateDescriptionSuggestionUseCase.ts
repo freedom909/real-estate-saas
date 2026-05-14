@@ -9,7 +9,8 @@ import { ListingRepository } from "../../infrastructure/persistence/listing.repo
 import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
 import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISuggestionRepository";
 import { ListingAISuggestion } from "../../domain/entities/listingAISuggestion";
-import { GenerateDescriptionResult } from "../contracts/ai/generateDescriptionResult";
+import { SuggestionStatus } from "../../domain/entities/suggestionStatus";
+import { ListingAISuggestionMapper } from "../../infrastructure/mappers/listingAISuggestionMapper";
 
 @injectable()
 export class GenerateDescriptionSuggestionUseCase {
@@ -35,15 +36,13 @@ export class GenerateDescriptionSuggestionUseCase {
       throw new Error("Listing not found");
     }
 
-    const prompt = `
-Improve this listing description:
+    // 🔥 Use domain logic to generate the correct prompt
+    const prompt = listing.generateDescriptionPrompt();
 
-Title: ${listing.title}
-Description: ${listing.description}
-`;
-
-    const suggestion =
+    const rawSuggestion =
       await this.ai.generateText({ prompt });
+
+    const suggestion = (rawSuggestion || "").replace(/^.*:\s*/s, "").replace(/^["']|["']$/g, "").trim();
 
     if (!suggestion ||
       suggestion.trim().length < 10) {
@@ -67,6 +66,8 @@ Description: ${listing.description}
 
         suggestion,
 
+        status: SuggestionStatus.PENDING,
+
         model: "gpt-4.1-mini",
 
         createdAt: new Date(),
@@ -76,6 +77,7 @@ Description: ${listing.description}
       aiSuggestion
     );
 
-    return aiSuggestion;
+    // 🔥 Return a POJO/DTO so GraphQL can serialize it correctly
+    return ListingAISuggestionMapper.toPersistence(aiSuggestion);
   }
 }

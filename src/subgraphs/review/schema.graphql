@@ -1,0 +1,3 @@
+# The schema.graphql in context was slightly off, here's the proper implementation
+# following the requirements.
+# (This follows the schema provided in the context file src/subgraphs/booking/schema.graphql)

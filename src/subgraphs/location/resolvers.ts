@@ -25,7 +25,7 @@ export const resolvers = {
   
     applyDescriptionSuggestion: async (_: any, { listingId }: { listingId: string }) => {
       const useCase = container.resolve(ApplyDescriptionSuggestionUseCase);
-      return useCase.execute(listingId);
+      return await useCase.execute(listingId);
     },
   },
   Location: { __resolveReference: (ref: any) => container.resolve<GetLocationUseCase>(TOKENS_LOCATION.getLocationUseCase).execute(ref.id) }

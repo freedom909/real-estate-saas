@@ -13,7 +13,7 @@ import type { RequestHandler } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import { resolvers } from "./interface/resolvers";
+import { resolvers } from "./resolvers";
 import { initializeBookingContainer } from "@/infrastructure/container/initBookingContainer";
 import { initMongoContainer } from "@/infrastructure/container/initMongoContainer";
 

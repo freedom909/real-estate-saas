@@ -1,5 +1,6 @@
 //src/subgraphs/listing/application/ai/services/OpenAIService.ts
 import { OpenAI } from "openai";
+import { GenerateTitleResult } from "../../contracts/ai/generateTitleResult";
 
 export interface ILLMService {
   generate(prompt: string): Promise<string>
@@ -19,11 +20,7 @@ export class OpenAIService {
     });
   }
 
-  async generateText({
-    prompt,
-  }: {
-    prompt: string;
-  }) {
+  async generateTitle(prompt: string): Promise<GenerateTitleResult>{
 
     const response =
       await this.client
@@ -41,9 +38,15 @@ export class OpenAIService {
           temperature: 0.7,
         });
 
-    return response
+    return {
+      rawTitle: response
       .choices[0]
       .message
-      .content ?? "";
+      .content ?? "",
+      title: response
+        .choices[0]
+        .message
+        .content ?? "",
+    }
   }
 }

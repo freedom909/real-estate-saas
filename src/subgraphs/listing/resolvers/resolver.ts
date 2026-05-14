@@ -11,6 +11,7 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { GenerateTitleSuggestionUseCase } from "../application/use-cases/generateTitleSuggestionUseCase";
 import { ApplyAISuggestionUseCase } from "../application/use-cases/applyAISuggestionUseCase";
 import { GenerateDescriptionSuggestionUseCase } from "../application/use-cases/generateDescriptionSuggestionUseCase";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
 
 
@@ -36,6 +37,13 @@ export const resolvers = {
         findByHostId(hostId: string): Promise<unknown[]>;
       };
       return repo.findByHostId(hostId);
+    },
+
+    listingAISuggestions: async (_: any, { listingId }: { listingId: string }) => {
+      const repo = container.resolve(TOKENS_AI.ListingAISuggestionRepository) as {
+        findByListingId(listingId: string): Promise<unknown[]>;
+      };
+      return repo.findByListingId(listingId);
     },
   },
 

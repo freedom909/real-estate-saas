@@ -1,7 +1,7 @@
 // FILE: application/usecases/GenerateTitleSuggestionUseCase.ts
 
 import { inject, injectable } from "tsyringe";
-import { IListingRepository } from "../../domain/repos/IListingRepository";
+import { IListingRepository } from "../../domain/entities/IListingRepository";
 import { IOpenAIAdapter } from "../../domain/entities/IOpenAIAdapter";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,6 +9,8 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISuggestionRepository";
 import { ListingAISuggestion } from "../../domain/entities/listingAISuggestion";
+import { SuggestionStatus } from "../../domain/entities/suggestionStatus";
+import { ListingAISuggestionMapper } from "../../infrastructure/mappers/listingAISuggestionMapper";
 
 @injectable()
 export class GenerateTitleSuggestionUseCase {
@@ -34,19 +36,16 @@ export class GenerateTitleSuggestionUseCase {
       throw new Error("Listing not found");
     }
 
-    const prompt = `
-Improve this listing title:
-
-Title: ${listing.title}
-Description: ${listing.description}
-`;
+    // 🔥 Use domain logic to generate the correct prompt
+    const prompt = listing.generateTitlePrompt();
 
     const rawSuggestion =
       await this.ai.generateText({ prompt });
 
-    const suggestion = (rawSuggestion || "").replace(/^["']|["']$/g, "").trim();
+    // Sanitize: Remove conversational filler and quotes
+    const suggestion = (rawSuggestion || "").replace(/^.*:\s*/s, "").replace(/^["']|["']$/g, "").trim();
 
-    if (!suggestion || suggestion.length < 10) {
+    if (!suggestion || suggestion.trim().length < 10) {
 
       throw new Error(
         "AI generated title too short"
@@ -66,7 +65,7 @@ Description: ${listing.description}
         prompt,
 
         suggestion,
-
+        status: SuggestionStatus.PENDING,
         model: "gpt-4.1-mini",
         createdAt: new Date(),
       });
@@ -74,6 +73,8 @@ Description: ${listing.description}
     await this.aiSuggestionRepo.save(
       aiSuggestion
     );
-    return aiSuggestion;
+
+    return ListingAISuggestionMapper.toDomain(aiSuggestion);
+
   }
 }

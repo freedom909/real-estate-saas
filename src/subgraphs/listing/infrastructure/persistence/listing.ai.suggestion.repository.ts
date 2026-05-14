@@ -1,10 +1,11 @@
 // listing.ai.suggestion.repository.ts
 
 import { inject, injectable } from "tsyringe";
-
+import { ModelStatic } from "sequelize";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import ListingAISuggestionModel from "@/subgraphs/listing/infrastructure/models/listing.ai.suggestion.model";
 import { ListingAISuggestion } from "../../domain/entities/listingAISuggestion";
+import { ListingAISuggestionMapper } from "../mappers/listingAISuggestionMapper";
 import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISuggestionRepository";
 
 
@@ -12,7 +13,7 @@ import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISug
 export class ListingAISuggestionRepository implements IListingAISuggestionRepository {
     constructor(
         @inject(TOKENS_AI.ListingAISuggestionModel)
-        private model: typeof ListingAISuggestionModel,
+        private model: ModelStatic<any>,
     ) { }
     async findById(id: string): Promise<ListingAISuggestion> {
         if (!id) {
@@ -22,21 +23,16 @@ export class ListingAISuggestionRepository implements IListingAISuggestionReposi
         if (!suggestion) {
             throw new Error("suggestion not found");
         }
-        return suggestion as unknown as ListingAISuggestion;
+        return ListingAISuggestionMapper.toDomain(suggestion);
     }
 
     async findByListingId(listingId: string): Promise<ListingAISuggestion[]> {
         throw new Error("Method not implemented.");
     }
-    async save(suggestion: ListingAISuggestion) {
-        await ListingAISuggestionModel.create({
-            ...suggestion,
-            id: suggestion.id, // I added this line so that the error message came. 
-            listingId: suggestion.listingId,
-            type: suggestion.type,
-            prompt: suggestion.prompt,
-            suggestion: suggestion.suggestion,
-        });
-    }
+    
+   async save(suggestion: ListingAISuggestion) {
+            const persistenceData = ListingAISuggestionMapper.toPersistence(suggestion);
+            await this.model.create(persistenceData);
+        }
 
-}
+    }

@@ -1,29 +1,159 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: ["@key", "@shareable", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
 
+scalar DateTime
 
-# src/subgraphs/location/graphql/schema.graphql
+# -----------------------------------
+# Listing Entity
+# -----------------------------------
+type Listing @key(fields: "id") {
+  id: ID!
 
-type Location @key(fields: "id") {
+  title: String!
+  description: String!
+
+  address: String!
+
+  hostId: ID!
+  locationId: ID!
+
+  categories: [String!]!
+  amenityIds: [String!]!
+
+  numOfBeds: Int!
+  numOfGuests: Int!
+  numOfBathrooms: Int!
+  numOfRooms: Int!
+
+  price: Float!
+
+  picture: [String!]
+
+  isFeatured: Boolean!
+
+  createdAt: String!
+  updatedAt: String!
+}
+
+# -----------------------------------
+# Host Federation Extension
+# -----------------------------------
+extend type Host @key(fields: "id") {
+  id: ID! @external
+
+  listings: [Listing!]!
+}
+
+# -----------------------------------
+# Category
+# -----------------------------------
+type Category {
   id: ID!
   name: String!
-  province: String!
-  city: String!
-  country: String!
+}
+
+# -----------------------------------
+# Amenity
+# -----------------------------------
+type Amenity {
+  id: ID!
+  type: String
+}
+
+# -----------------------------------
+# Create Listing Input
+# -----------------------------------
+input CreateListingInput {
+  title: String!
+  description: String!
+
   address: String!
-  latitude: Float
-  longitude: Float
+
+  hostId: ID!
+  ownerId: ID
+
+  locationId: ID!
+
+  categories: [ID!]!
+  amenityIds: [ID!]
+
+  numOfBeds: Int
+  numOfGuests: Int
+  numOfBathrooms: Int
+  numOfRooms: Int
+
+  price: Float
+
+  picture: [String!]
+
+  isFeatured: Boolean
 }
 
-extend type Query {
-  getLocation(id: ID!): Location  
+# -----------------------------------
+# AI Responses
+# -----------------------------------
+type ApplyTitleResponse {
+  listingId: ID!
+  title: String!
 }
 
-extend type Mutation {
-  createLocation(input: CreateLocationInput!): Location!
+type ApplyDescriptionResponse {
+  listingId: ID!
+  description: String!
+}
+type ListingAISuggestion {
+  id: ID!
+
+  listingId: ID!
+
+  type: String!
+
+  prompt: String!
+
+  suggestion: String!
+
+  status: SuggestionStatus!
+
+  model: String
+
+  createdAt: String!
 }
 
-input CreateLocationInput {
-  name: String!
-  address: String!
-  latitude: Float
-  longitude: Float
+enum SuggestionStatus {
+  PENDING
+  APPLIED
+  REJECTED
+  EXPIRED
+}
+
+# -----------------------------------
+# Queries
+# -----------------------------------
+type Query {
+  listing(id: ID!): Listing
+    listingAISuggestions(
+    listingId: ID!
+  ): [ListingAISuggestion!]!
+  listingsByHost(hostId: ID!): [Listing!]!
+}
+
+# -----------------------------------
+# Mutations
+# -----------------------------------
+type Mutation {
+  createListing(input: CreateListingInput!): Listing!
+
+  applyTitleSuggestion(
+    listingId: ID!
+  ): ApplyTitleResponse!
+
+  applyDescriptionSuggestion(
+    listingId: ID!
+  ): ApplyDescriptionResponse!
 }

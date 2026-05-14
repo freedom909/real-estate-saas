@@ -2,49 +2,75 @@ import { injectable } from "tsyringe";
 import fetch from "node-fetch";
 import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
 
-
-interface OpenAICompletionResponse {
+interface OpenAIChatResponse {
   choices: Array<{
-    text: string;
+    message: {
+      content: string;
+    };
   }>;
 }
 
 @injectable()
-export class OpenAIAdapter implements IOpenAIAdapter{
+export class OpenAIAdapter implements IOpenAIAdapter {
   private readonly apiUrl: string;
   private readonly apiKey: string;
 
   constructor() {
-    this.apiUrl = process.env.OPENAI_API_URL || "https://api.openai.com/v1/completions";
-    this.apiKey = process.env.OPENAI_API_KEY || ""; // Ensure this is set in your environment
+    this.apiUrl =
+      process.env.OPENAI_API_URL ||
+      "https://api.openai.com/v1/chat/completions";
+
+    this.apiKey = process.env.OPENAI_API_KEY || "";
+
     if (!this.apiKey) {
-      console.warn("OPENAI_API_KEY is not set. OpenAIAdapter will not function correctly.");
+      console.warn("OPENAI_API_KEY is missing");
     }
   }
 
-  async generateText(input: { prompt: string; }): Promise<string> {
+  async generateText(input: {
+    prompt: string;
+  }): Promise<string> {
     const { prompt } = input;
+
     const response = await fetch(this.apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo-instruct", // Or another suitable model
-        prompt: prompt,
-        max_tokens: 150,
+        model: "gpt-4.1-mini",
+
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an AI assistant specialized in Airbnb listing optimization.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+
+        max_tokens: 200,
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
-      const errorBody = await response.json();
+      const errorBody = await response.text();
+
       console.error("OpenAI API error:", errorBody);
-      throw new Error(`Failed to generate text from OpenAI: ${response.statusText}`);
+
+      throw new Error("OpenAI error");
     }
 
-    const data = (await response.json()) as OpenAICompletionResponse;
-    return data.choices[0]?.text.trim() || "";
+    const data =
+      (await response.json()) as OpenAIChatResponse;
+
+    return (
+      data.choices?.[0]?.message?.content?.trim() || ""
+    );
   }
 }

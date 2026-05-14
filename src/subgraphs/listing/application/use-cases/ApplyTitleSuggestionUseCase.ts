@@ -1,6 +1,5 @@
 // FILE: application/usecases/ApplyTitleSuggestionUseCase.ts
 import { inject, injectable } from "tsyringe";
-import { OpenAIAdapter } from "../../infrastructure/ai/openAI.adapter";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
@@ -9,6 +8,7 @@ import { ListingDTOMapper } from "../../infrastructure/mappers/listingDTOMapper"
 import { ListingAISuggestion } from "../../domain/entities/listingAISuggestion";
 import { v4 as uuidv4 } from 'uuid';
 import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISuggestionRepository";
+import { SuggestionStatus } from "../../domain/entities/suggestionStatus";
 
 
 @injectable()
@@ -56,7 +56,8 @@ export class ApplyTitleSuggestionUseCase {
 
         suggestion,
 
-        model: "gpt-4.1",
+        model: "gpt-4.1-mini",
+        status: SuggestionStatus.PENDING,
 
         createdAt: new Date(),
       })

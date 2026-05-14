@@ -18,7 +18,8 @@
     "dev:review": "tsx watch src/subgraphs/review/index.ts",
     "dev:order": "tsx watch src/subgraphs/order/index.ts",
     "dev:booking": "tsx watch src/subgraphs/booking/index.ts",
-    "dev:payment": "tsx watch src/subgraphs/payment/index.ts"
+    "dev:payment": "tsx watch src/subgraphs/payment/index.ts",
+    "dev:ai": "tsx watch src/subgraphs/ai/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +51,7 @@
     "graphql": "^16.13.0",
     "graphql-request": "^7.4.0",
     "graphql-tag": "^2.12.6",
+    "graphql-type-json": "^0.3.2",
     "graphql-ws": "^6.0.8",
     "install": "^0.13.0",
     "ioredis": "^5.9.0",

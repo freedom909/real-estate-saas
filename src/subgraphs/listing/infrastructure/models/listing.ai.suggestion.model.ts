@@ -2,6 +2,7 @@
 
 import { DataTypes } from "sequelize";
 import { sequelize } from "@/infrastructure/config/seq";
+import { SuggestionStatus } from "../../domain/entities/suggestionStatus";
 
  const ListingAISuggestionModel =
   sequelize.define(
@@ -35,11 +36,17 @@ import { sequelize } from "@/infrastructure/config/seq";
       model: {
         type: DataTypes.STRING,
       },
+      status: {
+        type: DataTypes.ENUM(...Object.values(SuggestionStatus)),
+        allowNull: false,
+        defaultValue: SuggestionStatus.PENDING,
+      },
     },
     {
       tableName: "listing_ai_suggestions",
       timestamps: true,
-    }
+    },
+    
   );
 
 export default ListingAISuggestionModel;

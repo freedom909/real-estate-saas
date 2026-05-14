@@ -1,5 +1,7 @@
 // listingAISuggestion.ts
 
+import { SuggestionStatus } from "./suggestionStatus";
+
 export interface ListingAISuggestionProps {
   id: string;
 
@@ -10,7 +12,7 @@ export interface ListingAISuggestionProps {
   prompt: string;
 
   suggestion: string;
-
+  status: SuggestionStatus;
   model?: string;
 
   createdAt: Date;
@@ -36,7 +38,9 @@ export class ListingAISuggestion {
   get suggestion() {
     return this.props.suggestion;
   }
-
+  get status() {
+    return this.props.status;
+  }
   get prompt() {
     return this.props.prompt;
   }

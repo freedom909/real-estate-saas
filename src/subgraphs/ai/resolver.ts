@@ -1,13 +1,21 @@
 //
 // ai/resolver.ts
 import { container } from "tsyringe";
-import AIService  from "./services/ai.service";
+import { AgentRouterService } from "./application/orchestration/AgentRouterService";
+import GraphQLJSON from "graphql-type-json";
+
 
 export const resolvers = {
+  JSON: GraphQLJSON, //
+  Query: {
+    _aiHealth: () => true,
+  },
+  
   Mutation: {
+    // 调用 AgentRouterService 进行路由处理
     chat: async (_: any, { input }: any) => {
-      const service = container.resolve(AIService);
-      return service.chat(input);
+      const router = container.resolve(AgentRouterService);
+      return router.execute(input);
     },
   },
 };

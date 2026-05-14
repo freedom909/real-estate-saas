@@ -21,7 +21,13 @@ export const TOKENS_LISTING = {
         locationAdapter: Symbol.for("Listing.adapters.locationAdapter"),
         amenityAdapter: Symbol.for("Listing.adapters.AmenityAdapter"),
         categoryAdapter: Symbol.for("Listing.adapters.categoryAdapter"),
-    }
-} as const;
+    },
+ ai: {
+    OpenAIService: Symbol.for("OpenAIService"),
+  OpenAIAdapter: Symbol.for("OpenAIAdapter"),
+  ListingAISuggestionRepository: Symbol.for("ListingAISuggestionRepository"),
+  ListingAISuggestionModel: Symbol.for("ListingAISuggestionModel"),
+}
+ } as const;
 
 
