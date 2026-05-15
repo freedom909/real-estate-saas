@@ -1,6 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { TOKENS_REVIEW } from "@/modules/tokens/review.tokens";
-import { IReviewRepository } from "../repositories/IReviewRepository";
+import { IReviewRepository } from "../../IReviewRepository";
+import { Review } from "../../domain/entities/Review";
 
 @injectable()
 export class ReviewValidationService {
@@ -14,5 +15,9 @@ export class ReviewValidationService {
     if (existing) {
       throw new Error("Duplicate review prevention: Booking already reviewed.");
     }
+  }
+
+  async execute(review: Review): Promise<void> {
+    await this.validateOwnership(review.props.bookingId);
   }
 }

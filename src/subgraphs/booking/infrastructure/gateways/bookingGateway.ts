@@ -14,4 +14,4 @@ export interface Booking {
   status: BookingStatus;
 }
 
-export type BookingStatus = "UPCOMING" | "CONFIRMED" | "CANCELLED";
+export type BookingStatus = | "PENDING"| "UPCOMING" | "CONFIRMED" | "CANCELLED";

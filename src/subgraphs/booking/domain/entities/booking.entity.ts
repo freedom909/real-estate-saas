@@ -1,3 +1,4 @@
+import { injectable } from "tsyringe";
 import { DateRange } from "../value-objects/date-range.vo";
 
 export type BookingStatus = | "PENDING"| "UPCOMING" | "CONFIRMED" | "CANCELLED";
@@ -16,11 +17,6 @@ export class Booking implements BookingProps {
   private constructor(
     private props: BookingProps)
      {}
-  listingId: string;
-  dateRange: DateRange;
-  totalCost: number;
-  status: BookingStatus;
-  createdAt: Date;
 
   static create(
     props: Omit<BookingProps, "status" | "createdAt">
@@ -34,6 +30,13 @@ export class Booking implements BookingProps {
 
   static rehydrate(props: BookingProps): Booking {
     return new Booking(props);
+  }
+
+  confirm() {
+    if (this.props.status !== "UPCOMING") {
+      throw new Error("Only UPCOMING bookings can be confirmed");
+    }
+    this.props.status = "CONFIRMED";
   }
 
   cancel() {
@@ -57,11 +60,31 @@ export class Booking implements BookingProps {
     };
   }
 
+  get guestId() {
+    return this.props.guestId;
+  }
+
   get id() {
     return this.props.id;
   }
 
-  get guestId() {
-    return this.props.guestId;
+  get listingId() {
+    return this.props.listingId;
+  }
+
+  get dateRange() {
+    return this.props.dateRange;
+  }
+
+  get totalCost() {
+    return this.props.totalCost;
+  }
+
+  get status() {
+    return this.props.status;
+  }
+
+  get createdAt() {
+    return this.props.createdAt;
   }
 }

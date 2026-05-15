@@ -3,22 +3,25 @@
 import { container } from "tsyringe";
 import { TOKENS_REVIEW } from "../tokens/review.tokens";
 import { CreateReviewUseCase } from "@/subgraphs/review/application/usecase/CreateReviewUseCase";
+
+import { ReviewModel } from "@/subgraphs/review/infrastructure/models/ReviewModel";
+import { ReviewRepository } from "@/subgraphs/review/infrastructure/repos/ReviewRepository";
+import { ReviewValidationService } from "@/subgraphs/review/infrastructure/services/ReviewValidationService";
+import { ReviewModerationPolicy } from "@/subgraphs/review/infrastructure/services/ReviewModerationPolicy";
 import { UpdateReviewUseCase } from "@/subgraphs/review/application/usecase/UpdateReviewUseCase";
 import { DeleteReviewUseCase } from "@/subgraphs/review/application/usecase/DeleteReviewUseCase";
+
+import { ReportReviewUseCase } from "@/subgraphs/review/application/usecase/reportReviewUseCase";
 import { ReplyToReviewUseCase } from "@/subgraphs/review/application/usecase/ReplyToReviewUseCase";
-import { ReportReviewUseCase } from "@/subgraphs/review/application/usecase/ReportReviewUseCase";
-import { ReviewRepositoryImpl } from "@/subgraphs/review/infrastructure/repos/ReviewRepositoryImpl";
-import { ReviewModel } from "@/subgraphs/review/infrastructure/models/ReviewModel";
-import { ReviewModerationPolicy } from "@/subgraphs/review/domain/services/ReviewModerationPolicy";
-import { ReviewValidationService } from "@/subgraphs/review/domain/services/ReviewValidationService";
+
 
 export function registerReviewDependencies() {
   // Models
   container.register(TOKENS_REVIEW.infrastructure.mongooseModel, { useValue: ReviewModel });
 
   // Repositories
-  container.register(TOKENS_REVIEW.reviewRepository, { 
-    useClass: ReviewRepositoryImpl 
+  container.register(TOKENS_REVIEW.repository.reviewRepository, { 
+    useClass: ReviewRepository 
   });
 
   // Domain Services

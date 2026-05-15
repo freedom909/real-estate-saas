@@ -20,6 +20,7 @@ tool: {
   reviewReplyTool: Symbol.for("ReviewReplyTool"),
   reviewReportTool: Symbol.for("ReviewReportTool"),
   bookingFraudTool: Symbol.for("BookingFraudTool"),
+  paymentRiskTool: Symbol.for("PaymentRiskTool"),
 },
 agent: {
   listingOptimizationAgent: Symbol.for("ListingOptimizationAgent"),

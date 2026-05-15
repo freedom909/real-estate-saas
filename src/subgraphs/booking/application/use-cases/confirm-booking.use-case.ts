@@ -1,16 +1,16 @@
 //src/subgraphs/booking/application/use-cases/confirm-booking.use-case.ts
 
+import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens.js";
+import { BookingGateway } from "@/subgraphs/ai/resolvers/BookingGateway.js";
 import { inject, injectable } from "tsyringe";
+import { IBookingRepository } from "../../domain/repositories/i-booking.repository.js";
 
-import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
-import { BookingGateway } from "../../infrastructure/gateways/bookingGateway";
-import { BookingRepository } from "../../infrastructure/repositories/bookingRepository";
 
 @injectable()
 export class ConfirmBookingUseCase {
   constructor(
     @inject(TOKENS_BOOKING.gateway.bookingGateway) private bookingGateway: BookingGateway,
-    @inject(TOKENS_BOOKING.repository.bookingRepository) private bookingRepository: BookingRepository,
+    @inject(TOKENS_BOOKING.repository.bookingRepository) private bookingRepository: IBookingRepository,
   ) {}
   
   async execute(id: string) {
@@ -18,11 +18,8 @@ export class ConfirmBookingUseCase {
     if (!booking) {
       throw new Error("Booking not found");
     }
-    if (booking.status !== "UPCOMING") {// プロパティ 'status' は型 'Booking' に存在しません。
-      throw new Error("Only UPCOMING bookings can be confirmed");
-    }
-    booking.status = "CONFIRMED";
-    await this.bookingRepository.update(booking);
+    booking.confirm();
+    await this.bookingRepository.save(booking);
     return booking;
   }
 }

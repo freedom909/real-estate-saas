@@ -1,7 +1,8 @@
 import { container } from "tsyringe";
-import TOKENS from "@/modules/tokens/mq.tokens";
-import { RabbitMQEventBus } from "@/subgraphs/booking/interface/events/rabbitmq-event-bus";
+
+import { RabbitMQEventBus } from "../../subgraphs/booking/interface/events/rabbitmq-event-bus.js";
+import { TOKENS_EVENT } from "../tokens/event.tokens.js";
 
 export default function registerMQEventBus() {
-  container.registerSingleton(TOKENS.eventBus, RabbitMQEventBus);
+  container.registerSingleton(TOKENS_EVENT.eventBus, RabbitMQEventBus);
 }

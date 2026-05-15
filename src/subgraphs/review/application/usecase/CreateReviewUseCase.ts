@@ -1,8 +1,9 @@
+import { TOKENS_REVIEW } from "@/modules/tokens/review.tokens";
 import { inject, injectable } from "tsyringe";
-import { TOKENS_REVIEW } from "../../container/review.tokens";
-import { IReviewRepository } from "../../domain/repositories/IReviewRepository";
+import { IReviewRepository } from "../../IReviewRepository";
 import { Review, ReviewStatus } from "../../domain/entities/Review";
 import { Rating } from "../../domain/value-objects/Rating";
+
 
 @injectable()
 export class CreateReviewUseCase {

@@ -1,6 +1,6 @@
 import { Rating } from "../value-objects/Rating";
-import { ReviewReply } from "./ReviewReply";
-import { ReviewReport } from "./ReviewReport";
+import { ReviewReply } from "../../infrastructure/services/ReviewReply";
+import { ReviewReport } from "../../infrastructure/services/ReviewReport";
 
 export enum ReviewStatus {
   PENDING = "PENDING",

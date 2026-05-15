@@ -13,21 +13,20 @@ import type { RequestHandler } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import { resolvers } from "./resolvers";
-import { initializeBookingContainer } from "@/infrastructure/container/initBookingContainer";
-import { initMongoContainer } from "@/infrastructure/container/initMongoContainer";
+import { resolvers } from "./resolvers.js";
 
 import { container } from "tsyringe";
-import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
-import bookingConsumer from "@/MQ/consumer/bookingConsumer";
-import { RabbitMQEventBus } from "./interface/events/rabbitmq-event-bus";
-import TOKENS from "@/modules/tokens/mq.tokens";
-import registerMQEventBus from "@/modules/container/mq.register";
+
+import { TOKENS_EVENT } from "@/modules/tokens/event.tokens.js";
+import registerMQEventBus from "@/modules/container/event.register.js";
+import { RabbitMQEventBus } from "./interface/events/rabbitmq-event-bus.js";
+import { initializeBookingContainer } from "@/infrastructure/container/initBookingContainer.js";
+import initMongoContainer from "@/infrastructure/container/initMongoContainer.js";
+import getUserFromToken from "@/infrastructure/auth/getUserFromToken.js";
+import bookingConsumer from "@/MQ/consumer/bookingConsumer.js";
 dotenv.config();
 
-registerMQEventBus();
-const eventBus = container.resolve<RabbitMQEventBus>(TOKENS.eventBus);
-await eventBus.init();
+
 
 const typeDefs = gql(
   readFileSync("./src/subgraphs/booking/schema.graphql", { encoding: "utf-8" })
@@ -35,6 +34,10 @@ const typeDefs = gql(
 
 const startApolloServer = async () => {
   try {
+    registerMQEventBus();
+const eventBus = container.resolve<RabbitMQEventBus>(TOKENS_EVENT.eventBus);
+console.log("eventBus++", eventBus);
+await eventBus.init();
     // ✅ 初始化 DI（全局 container）
     console.log("⏳ Initializing containers...");
     await initializeBookingContainer();
@@ -77,6 +80,7 @@ const startApolloServer = async () => {
   expressMiddleware(server, {
     context: async ({ req }) => {
       const token = req.headers.authorization || "";
+      console.log("token++", token);//output of token is "",
       const user = await getUserFromToken(token);
 
       return { user, container };
@@ -85,8 +89,8 @@ const startApolloServer = async () => {
 );
 
     // ✅ 启动 HTTP
-    httpServer.listen({ port: 4070 }, async () => {
-      console.log("🚀 Server ready at http://localhost:4070/graphql");
+    httpServer.listen({ port: 4120 }, async () => {
+      console.log("🚀 Server ready at http://localhost:4120/graphql");
 
       // ✅ MQ consumer
       try {

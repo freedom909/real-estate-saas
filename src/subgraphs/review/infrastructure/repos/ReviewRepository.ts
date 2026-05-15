@@ -1,11 +1,18 @@
 import { injectable } from "tsyringe";
-import { IReviewRepository } from "../../../domain/repositories/IReviewRepository";
-import { Review } from "../../../domain/entities/Review";
-import { ReviewModel } from "./models/ReviewModel";
-import { ReviewMapper } from "../mappers/ReviewMapper";
+import mongoose from "mongoose";
+import { ReviewModel } from "../models/ReviewModel";
+import { IReviewRepository } from "../../IReviewRepository";
+import { Review } from "../../domain/entities/Review";
+import { ReviewMapper } from "../models/ReviewMapper";
+import { where } from "sequelize";
 
 @injectable()
-export class ReviewRepositoryImpl implements IReviewRepository {
+export class ReviewRepository implements IReviewRepository {
+ async findByBookingId(bookingId: string): Promise<Review | null> {
+    const doc = await ReviewModel.findOne(where);
+    return doc ? ReviewMapper.toDomain(doc) : null;
+    
+  }
   async findById(id: string): Promise<Review | null> {
     const doc = await ReviewModel.findById(id);
     return doc ? ReviewMapper.toDomain(doc) : null;
@@ -30,6 +37,11 @@ export class ReviewRepositoryImpl implements IReviewRepository {
     const docs = await ReviewModel.find({ hostId });
     return docs.map(ReviewMapper.toDomain);
   }
+
+  async update(review: Review): Promise<void> {
+    await ReviewModel.findByIdAndUpdate(review.props.id, ReviewMapper.toPersistence(review));
+  }
+
 
   async delete(id: string): Promise<void> {
     await ReviewModel.findByIdAndDelete(id);

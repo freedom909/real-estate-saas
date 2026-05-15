@@ -7,7 +7,7 @@ import { BookingModel } from "../models/booking.model";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
 
 @injectable()
-export class BookingRepository implements IBookingRepository {
+export class SequelizeBookingRepository implements IBookingRepository {
 
   async findById(id: string): Promise<Booking | null> {
     const model = await BookingModel.findByPk(id);
@@ -24,15 +24,13 @@ export class BookingRepository implements IBookingRepository {
       id: data.id,
       listingId: data.listingId,
       guestId: data.guestId,
-      checkInDate: data.dateRange.checkInDate,
-      checkOutDate: data.dateRange.checkOutDate,
+      checkInDate: data.dateRange?.checkInDate,
+      checkOutDate: data.dateRange?.checkOutDate,
       totalCost: data.totalCost,
       status: data.status,
       createdAt: data.createdAt,
       updatedAt: new Date(),
     });
-
-
   }
 
   async findByGuestId(guestId: string): Promise<Booking[]> {
@@ -68,6 +66,4 @@ export class BookingRepository implements IBookingRepository {
       createdAt: model.createdAt,
     });
   }
-
-  
 }

@@ -19,7 +19,8 @@
     "dev:order": "tsx watch src/subgraphs/order/index.ts",
     "dev:booking": "tsx watch src/subgraphs/booking/index.ts",
     "dev:payment": "tsx watch src/subgraphs/payment/index.ts",
-    "dev:ai": "tsx watch src/subgraphs/ai/index.ts"
+    "dev:ai": "tsx watch src/subgraphs/ai/index.ts",
+    "dev:notification": "tsx watch src/subgraphs/notification/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -34,7 +35,7 @@
     "@graphql-tools/load-files": "^7.0.1",
     "@graphql-tools/merge": "^9.1.7",
     "@graphql-tools/utils": "^10.11.0",
-    "amqplib": "^1.0.3",
+    "amqplib": "^1.2.0",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
@@ -59,6 +60,7 @@
     "jwks-rsa": "^3.2.0",
     "loader": "^2.1.1",
     "lodash": "^4.17.21",
+    "mongodb": "^7.2.0",
     "mongoose": "^9.0.2",
     "mysql2": "^3.20.0",
     "node-cache": "^5.1.2",
