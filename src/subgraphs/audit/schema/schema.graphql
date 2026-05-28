@@ -1,0 +1,46 @@
+extend schema
+@link(
+  url: "https://specs.apollo.dev/federation/v2.11",
+  import: ["@key"]
+)
+
+type AuditLog @key(fields: "id") {
+  id: ID!
+
+  userId: ID
+
+  tenantId: ID
+
+  hostId: ID
+
+  action: String!
+
+  resourceId: ID!
+
+  resourceType: String!
+
+  status: String!
+
+  correlationId: String
+
+  meta: JSON
+
+  createdAt: String!
+}
+
+type Query {
+
+  auditLog(
+    id: ID!
+  ): AuditLog
+
+  auditLogsByUser(
+    userId: ID!
+  ): [AuditLog!]!
+
+  auditLogsByResource(
+    resourceId: ID!
+  ): [AuditLog!]!
+}
+
+scalar JSON

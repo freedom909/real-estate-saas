@@ -1,0 +1,133 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: ["@key", "@shareable", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+
+# -----------------------------------
+# Listing Entity
+# -----------------------------------
+type Listing @key(fields: "id") {
+  id: ID!
+
+  title: String!
+  description: String!
+
+  address: String!
+
+  hostId: ID!
+  locationId: ID!
+
+  categories: [String!]!
+  amenityIds: [String!]!
+
+  numOfBeds: Int!
+  numOfGuests: Int!
+  numOfBathrooms: Int!
+  numOfRooms: Int!
+
+  price: Float!
+
+  picture: [String!]
+
+  isFeatured: Boolean!
+
+  createdAt: String!
+  updatedAt: String!
+}
+
+# -----------------------------------
+# Host Federation Extension
+# -----------------------------------
+extend type Host @key(fields: "id") {
+  id: ID! @external
+
+  listings: [Listing!]!
+}
+
+# -----------------------------------
+# Category
+# -----------------------------------
+type Category {
+  id: ID!
+  name: String!
+}
+
+# -----------------------------------
+# Amenity
+# -----------------------------------
+type Amenity {
+  id: ID!
+  type: String
+}
+
+# -----------------------------------
+# Create Listing Input
+# -----------------------------------
+input CreateListingInput {
+  title: String!
+  description: String!
+
+  address: String!
+
+  hostId: ID!
+  ownerId: ID
+
+  locationId: ID!
+
+  categories: [ID!]!
+  amenityIds: [ID!]
+
+  numOfBeds: Int
+  numOfGuests: Int
+  numOfBathrooms: Int
+  numOfRooms: Int
+
+  price: Float
+
+  picture: [String!]
+
+  isFeatured: Boolean
+}
+
+# -----------------------------------
+# AI Responses
+# -----------------------------------
+type ApplyTitleResponse {
+  listingId: ID!
+  title: String!
+}
+
+type ApplyDescriptionResponse {
+  listingId: ID!
+  description: String!
+}
+
+# -----------------------------------
+# Queries
+# -----------------------------------
+type Query {
+  listing(id: ID!): Listing
+
+  listingsByHost(hostId: ID!): [Listing!]!
+}
+
+# -----------------------------------
+# Mutations
+# -----------------------------------
+type Mutation {
+  createListing(input: CreateListingInput!): Listing!
+
+  applyTitleSuggestion(
+    listingId: ID!
+  ): ApplyTitleResponse!
+
+  applyDescriptionSuggestion(
+    listingId: ID!
+  ): ApplyDescriptionResponse!
+}

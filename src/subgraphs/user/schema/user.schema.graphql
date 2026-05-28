@@ -1,0 +1,83 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+
+type User @key(fields: "id") {
+ id: ID!
+ email: String!
+ profile: Profile!
+ status: AccountStatus!
+ createdAt: DateTime!
+}
+
+type Credential @key(fields: "id") {
+  id: ID!
+  user: User!
+  provider: AuthProvider!
+  providerUserId: String!
+  createdAt: DateTime!
+}
+
+type Profile {
+ name: String
+ avatar: String
+}
+
+enum AuthProvider {
+  
+  GOOGLE
+  APPLE
+  GITHUB
+  FACEBOOK
+  LINE
+}
+
+type Query {
+  user(id: ID!): User
+
+ userByEmail(email: String!): User
+}
+
+type Mutation {
+
+  oauthLogin(
+    provider: AuthProvider!
+    accessToken: String!
+  ): AuthPayload!
+
+ updateProfile(
+   userId: ID!
+   name: String
+   avatar: String
+ ): User!
+
+  logout: Boolean!
+
+  refreshToken(
+    token: String!
+  ): AuthPayload!
+
+   deactivateUser(
+   userId: ID!
+ ): Boolean!
+}
+
+type AuthPayload {
+  accessToken: String!
+  refreshToken: String!
+  user: User!
+}
+
+enum AccountStatus {
+ ACTIVE
+ SUSPENDED
+ BANNED
+ DELETED
+}

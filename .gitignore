@@ -1,0 +1,77 @@
+# =====================
+# Node
+# =====================
+node_modules/
+dist/
+*.tsbuildinfo
+
+# =====================
+# Env
+# =====================
+.env
+.env.*
+!.env.example
+!.env.template
+
+# =====================
+# OS / Editor
+# =====================
+.vscode/
+.DS_Store
+Thumbs.db
+
+# =====================
+# Logs
+# =====================
+*.log
+
+# =====================
+# Temp
+# =====================
+*.tmp
+*.bak
+
+# =====================
+# Security (VERY IMPORTANT)
+# =====================
+keys/
+**/keys/*
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+
+# =====================
+# Redis
+# =====================
+dump.rdb
+appendonly.aof
+
+# =====================
+# System
+# =====================
+pagefile.sys
+swapfile.sys
+System Volume Information/
+DumpStack.log.tmp
+
+# =====================
+# Frontend (if exists)
+# =====================
+.next/
+out/
+
+# =====================
+# Python 项目
+# =====================
+venv/
+__pycache__/
+*.pyc
+.env
+node_modules/
+dist/
+build/
+*.log
+.vscode/
+.idea/

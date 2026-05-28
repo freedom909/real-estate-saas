@@ -1,0 +1,58 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@shareable"]
+  ) {
+  query: Query
+}
+
+interface Response {
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+type Amenity @key(fields: "id") {
+  id: ID! @shareable
+  name: String! @shareable
+  category: AmenityCategory! @shareable
+}
+
+enum AmenityCategory {
+  ACCOMMODATION_DETAILS
+  SPACE_SURVIVAL
+  OUTDOORS
+  UNKNOWN
+}
+
+input CreateAmenityInput {
+  name: String!
+  category: AmenityCategory!
+}
+
+type CreateAmenityResponse implements Response {
+  success: Boolean! @shareable
+  code: Int! @shareable
+  message: String! @shareable
+  amenity: Amenity @shareable
+}
+
+extend type Query {
+  amenities: [Amenity!]! @shareable
+  amenity(id: ID!): Amenity @shareable
+  amenitiesByIds(ids: [ID!]!): [Amenity!]!
+}
+
+input UpdateAmenityInput {
+  id: ID!
+  name: String
+  category: AmenityCategory
+}
+
+type Mutation {
+  createAmenity(input: CreateAmenityInput!): CreateAmenityResponse
+  updateAmenity(input: UpdateAmenityInput!): CreateAmenityResponse
+  deleteAmenity(id: ID!): CreateAmenityResponse
+}
+
+

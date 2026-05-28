@@ -1,0 +1,23 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+
+ type ChatResponse {
+    reply: String!
+  }
+
+  input ChatInput {
+    message: String!
+    userId: String!
+  }
+
+  extend type Mutation {
+    chat(input: ChatInput!): ChatResponse!
+  }

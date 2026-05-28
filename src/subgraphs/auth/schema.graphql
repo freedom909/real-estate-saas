@@ -1,0 +1,190 @@
+
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@external", "@shareable"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+scalar JSON
+
+directive @auth(requires: [Role!] = []) on FIELD_DEFINITION | OBJECT
+directive @public on FIELD_DEFINITION
+
+# =====================
+# User (REFERENCE ONLY)
+# =====================
+extend type User @key(fields: "id") {
+  id: ID! @external  
+}
+
+# =====================
+# Host (REFERENCE)
+# =====================
+extend type Host @key(fields: "id") {
+  id: ID! @external
+}
+
+# =====================
+# Role
+# =====================
+enum Role {
+  ADMIN
+  OWNER
+  AGENT
+  CUSTOMER
+}
+
+# =====================
+# OAuth Provider
+# =====================
+enum OAuthProvider {
+  GOOGLE
+  FACEBOOK
+  GITHUB
+  APPLE
+  LINE
+}
+
+# =====================
+# Risk Level
+# =====================
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+# =====================
+# Risk Event Type
+# =====================
+enum RiskEventType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  OAUTH_BIND
+  OAUTH_UNBIND
+  SESSION_REVOKED
+  REFRESH_REUSE_DETECTED
+  TOKEN_REUSE
+}
+
+type OAuthAccount {
+  id: ID!
+  userId: ID!
+  provider: OAuthProvider!
+  createdAt: DateTime!
+}
+# =====================
+# Query
+# =====================
+type Query {
+  listOAuthAccounts: [OAuthAccount!]! @auth
+  me: User @auth
+  _authHealth: Boolean
+  mySessions: [Session!]!
+  mySecurityEvents(
+    limit: Int = 20
+  ): [RiskEvent!]!
+
+}
+
+# =====================
+# Session
+# =====================
+type Session {
+
+  id: ID!
+
+  userId: ID!
+
+  deviceId: String
+
+  ip: String
+
+  userAgent: String
+
+  createdAt: DateTime
+
+  lastSeenAt: DateTime
+
+}
+type Identity {
+  id: ID!
+  provider: String!
+  email: String
+}
+
+extend type Query {
+  myIdentities: [Identity!]!
+}
+# =====================
+# Risk Event
+# =====================
+type RiskEvent {
+
+  id: ID!
+
+  userId: ID!
+
+  hostId: ID
+
+  type: RiskEventType!
+
+  provider: OAuthProvider
+
+  ip: String
+
+  deviceId: String
+
+  userAgent: String
+
+  severity: RiskLevel
+
+  metadata: JSON
+
+  createdAt: DateTime
+
+}
+
+# =====================
+# Auth Payload
+# =====================
+type AuthPayload {
+  hostId: ID
+  accessToken: String
+  refreshToken: String
+  user: User
+  status: String
+  challengeId: ID
+}
+
+# =====================
+# Tokens
+# =====================
+type AuthTokens {
+  accessToken: String!
+}
+
+type OAuthLoginResponse {
+  accessToken: String
+  refreshToken: String
+  requiresChallenge: Boolean
+}
+
+# =====================
+# Mutation
+# =====================
+type Mutation {
+  refreshToken(refreshToken: String!): AuthTokens!
+  logout: Boolean!
+  revokeSession(sessionId: ID!): Boolean!
+  verifyOtp(challengeId: ID!, code: String!): AuthPayload
+  bindOAuthAccount(provider: OAuthProvider!, idToken: String!): Boolean!
+  unbindOAuthAccount(provider: OAuthProvider!): Boolean!
+  oauthLogin(provider: OAuthProvider!, idToken: String!): AuthPayload!
+  bindOAuth(provider: OAuthProvider!, idToken: String!): Boolean!
+  unbindOAuth(provider: OAuthProvider!): Boolean!
+}
