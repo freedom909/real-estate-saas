@@ -9,7 +9,7 @@ export interface CreateSystemLogDTO {
   message: string;
   correlationId?: string;
   requestId?: string;
-  metadata?: Record<
+  metadat?: Record<
     string,
     any
   >;

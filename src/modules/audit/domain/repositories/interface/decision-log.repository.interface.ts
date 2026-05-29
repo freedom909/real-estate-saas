@@ -1,4 +1,5 @@
-import { DecisionLogDocument } from "../../../infrastructure/database/models/decision-log.model";
+//src/modules/audit/domain/repositories/interface/decision-log.repository.interface.ts
+import { DecisionLog } from "../../types/decision-log.type";
 
 export interface IDecisionLogRepository {
   find(
@@ -8,8 +9,8 @@ export interface IDecisionLogRepository {
       skip?: number;
       sort?: any;
     }
-  ): Promise<DecisionLogDocument[]>;
+  ): Promise<DecisionLog[]>;
   count(filter: any): Promise<number>;
-  create(data: Partial<DecisionLogDocument>): Promise<DecisionLogDocument>;
-  findById(id: string): Promise<DecisionLogDocument | null>;
+  create(data: Partial<DecisionLog>): Promise<DecisionLog>;
+  findById(id: string): Promise<DecisionLog | null>;
 }

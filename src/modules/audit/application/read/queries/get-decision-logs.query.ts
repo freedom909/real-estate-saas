@@ -1,7 +1,7 @@
 //src/
 import { inject, injectable } from "tsyringe";
 import { IDecisionLogRepository } from "../../../domain/repositories/interface/decision-log.repository.interface";
-import { DecisionLogDocument } from "../../../infrastructure/database/models/decision-log.model";
+import { DecisionLog } from "../../../domain/types/decision-log.type";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 export interface GetDecisionLogsFilter {
@@ -22,7 +22,7 @@ export class GetDecisionLogsQuery {
 
   async execute(
     filter: GetDecisionLogsFilter
-  ): Promise<DecisionLogDocument[]> {
+  ): Promise<DecisionLog[]> {
     const {
       page = 1,
       limit = 20,

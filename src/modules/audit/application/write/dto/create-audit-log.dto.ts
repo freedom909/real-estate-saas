@@ -22,8 +22,12 @@ export interface CreateAuditLogDTO {
 
   correlationId?: string;
 
-  meta?: Record<
-    string,
-    any
-  >;
+  meta?: {
+  deviceId?: string;
+  ip?: string;
+  userAgent?: string;
+  provider?: string;
+  reason?: string;
+  
+  };
 }

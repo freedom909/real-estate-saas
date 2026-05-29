@@ -1,17 +1,22 @@
-//
+//src/modules/audit/application/write/audit-log.service.ts
+
 import { inject, injectable }
 from "tsyringe";
 
-
-import {
-  IAuditLogRepository,
-} from "../../../domain/repositories/interface/audit-log.repository.interface";
-
-import {
-  AuditLogDocument,
-} from "../../../infrastructure/database/models/audit-log.model";
-import { CreateAuditLogDTO } from "../dto/create-audit-log.dto";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+
+import {
+  IAuditLogRepository
+}
+from "../../../domain/repositories/interface/audit-log.repository.interface";
+
+import {
+  CreateAuditLogDTO
+}
+from "../dto/create-audit-log.dto";
+
+import { AuditLogDocument } from "@/modules/audit/infrastructure/database/models/audit-log.model";
+import { AuditLog } from "@/modules/audit/domain/types/audit-log.type";
 
 @injectable()
 export class AuditLogService {
@@ -24,12 +29,12 @@ export class AuditLogService {
       IAuditLogRepository
   ) {}
 
-//   async writeAuditLog(
-//     dto: CreateAuditLogDTO
-//   ): Promise<
-//     AuditLogDocument
-//   > {
+  async writeAuditLog(
+    dto: CreateAuditLogDTO
+  ): Promise<AuditLog> {
 
-//     return await this.repository.create(dto);
-//   }
+    return await this.repository.create(
+      dto
+    );
+  }
 }

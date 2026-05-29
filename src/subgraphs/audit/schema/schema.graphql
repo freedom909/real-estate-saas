@@ -23,7 +23,7 @@ type AuditLog @key(fields: "id") {
 
   correlationId: String
 
-  meta: JSON
+  metadata: JSON
 
   createdAt: String!
 }

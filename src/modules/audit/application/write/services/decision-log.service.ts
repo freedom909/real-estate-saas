@@ -1,44 +1,40 @@
+//src/modules/audit/application/write/decision-log.service.ts
 import { inject, injectable } from "tsyringe";
 import { IDecisionLogRepository } from "../../../domain/repositories/interface/decision-log.repository.interface";
-import { DecisionLogDocument } from "../../../infrastructure/database/models/decision-log.model";
+import { DecisionLog } from "../../../domain/types/decision-log.type";
 import { CreateDecisionLogDTO } from "../dto/create-decision-log.dto";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
-
-import mongoose from "mongoose";
+import { Types } from "mongoose";
 
 @injectable()
 export class DecisionLogService {
+
   constructor(
-    @inject(TOKENS_AUDIT.repos.decisionLog)
-    private readonly repository: IDecisionLogRepository
+    @inject(
+      TOKENS_AUDIT.repos.decisionLog
+    )
+    private readonly repository:
+      IDecisionLogRepository
   ) {}
 
   async writeDecisionLog(
     dto: CreateDecisionLogDTO
-  ): Promise<DecisionLogDocument> {
+  ): Promise<DecisionLog> {
 
-const payload = {
-  ...dto,
+    const payload = {
+      ...dto,
 
-  actor: {
-    ...dto.actor,
+      decision: {
+        ...dto.decision,
 
-    userId: dto.actor.userId
-      ? new mongoose.Types.ObjectId(
-          dto.actor.userId
-        )
-      : undefined,
-  },
+        requiresHumanReview:
+          dto.decision
+            .requiresHumanReview ??
+          false,
+      },
+    };
 
-  decision: {
-    ...dto.decision,
-
-    requiresHumanReview:
-      dto.decision.requiresHumanReview ??
-      false,
-  },
-};
-
-    return await this.repository.create(payload);
+    return await this.repository
+      .create(payload);
   }
 }

@@ -1,4 +1,5 @@
-import { SystemLogDocument } from "../../../infrastructure/database/models/system-log.model";
+//src/modules/audit/domain/repositories/interface/system-log.repository.interface.ts
+import { SystemLog } from "../../types/system-log.type";
 
 export interface ISystemLogRepository {
   find(
@@ -8,8 +9,8 @@ export interface ISystemLogRepository {
       skip?: number;
       sort?: any;
     }
-  ): Promise<SystemLogDocument[]>;
+  ): Promise<SystemLog[]>;
   count(filter: any): Promise<number>;
-  create(data: Partial<SystemLogDocument>): Promise<SystemLogDocument>;
-  findById(id: string): Promise<SystemLogDocument | null>;
+  create(data: Partial<SystemLog>): Promise<SystemLog>;
+  findById(id: string): Promise<SystemLog | null>;
 }

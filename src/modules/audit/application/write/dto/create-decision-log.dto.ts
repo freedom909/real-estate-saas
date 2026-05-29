@@ -2,7 +2,7 @@ import { DecisionSource } from "@/modules/audit/domain/enums/decision-log.enums"
 
 
 export interface CreateDecisionLogDTO {
-  metadata: {
+  meta: {
     executionId: string;
     correlationId?: string;
     requestId?: string;

@@ -133,6 +133,7 @@ export const AuditLogSchema =
         provider: String,
         ip: String,
         userAgent: String,
+        reason: String,
       },
 
       createdAt: {

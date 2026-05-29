@@ -1,0 +1,1 @@
+////src/subgraphs/auth/application/dto/auth.result.ts

@@ -1,3 +1,4 @@
+////src/modules/audit/domain/enums/system-log.enums.ts
 export const SYSTEM_LOG_LEVELS = ["DEBUG", "INFO", "WARN", "ERROR"] as const;
 export type SystemLogLevel = typeof SYSTEM_LOG_LEVELS[number];
 

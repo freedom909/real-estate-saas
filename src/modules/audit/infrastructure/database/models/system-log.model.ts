@@ -13,7 +13,7 @@ export interface SystemLogDocument extends Document {
   message: string;
   correlationId?: string;
   requestId?: string;
-  metadata?: Record<string, any>;
+  meta?: Record<string, any>;
   latencyMs?: number;
   stack?: string;
   createdAt: Date;
@@ -39,7 +39,7 @@ export const SystemLogSchema = new Schema<SystemLogDocument>(
     message: { type: String, required: true },
     correlationId: { type: String, index: true },
     requestId: { type: String, index: true },
-    metadata: { type: Schema.Types.Mixed },
+    meta: { type: Schema.Types.Mixed },
     latencyMs: { type: Number },
     stack: { type: String },
   },

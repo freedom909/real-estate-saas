@@ -1,28 +1,68 @@
-//
-import { inject, injectable } from "tsyringe";
-import { AuditLogDocument, AuditLogModel } from "../models/audit-log.model";
+import { inject, injectable }
+from "tsyringe";
 
-import { IAuditLogRepository } from "@/modules/audit/domain/repositories/interface/audit-log.repository.interface";
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+import {
+  AuditLogModel,
+} from "../models/audit-log.model";
 
+import {
+  IAuditLogRepository
+} from "@/modules/audit/domain/repositories/interface/audit-log.repository.interface";
 
+import {
+  TOKENS_AUDIT
+} from "@/modules/tokens/audit.tokens";
+
+import {
+  AuditLog
+} from "@/modules/audit/domain/types/audit-log.type";
 
 @injectable()
-export class AuditLogRepository implements IAuditLogRepository {
+export class AuditLogRepository
+implements IAuditLogRepository {
+
   constructor(
-    @inject(TOKENS_AUDIT.models.auditLog)
-    private readonly model: typeof AuditLogModel
+    @inject(
+      TOKENS_AUDIT.models.auditLog
+    )
+    private readonly model:
+      typeof AuditLogModel
   ) {}
- async find(
+
+  async create(
+    data: Partial<AuditLog>
+  ): Promise<AuditLog> {
+
+    const doc =
+      await this.model.create(data);
+
+    return this.toDomain(doc);
+  }
+
+  async findById(
+    id: string
+  ): Promise<AuditLog | null> {
+
+    const doc =
+      await this.model
+        .findById(id)
+        .exec();
+
+    if (!doc) {
+      return null;
+    }
+
+    return this.toDomain(doc);
+  }
+
+  async find(
     filter: any,
     options?: {
       limit?: number;
       skip?: number;
       sort?: any;
     }
-  ): Promise<
-    AuditLogDocument[]
-  > {
+  ): Promise<AuditLog[]> {
 
     const {
       limit = 50,
@@ -32,12 +72,17 @@ export class AuditLogRepository implements IAuditLogRepository {
       },
     } = options ?? {};
 
-    return await this.model
-      .find(filter)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    const docs =
+      await this.model
+        .find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .exec();
+
+    return docs.map(
+      this.toDomain
+    );
   }
 
   async count(
@@ -49,12 +94,45 @@ export class AuditLogRepository implements IAuditLogRepository {
       .exec();
   }
 
-  async create(data: Partial<AuditLogDocument>): Promise<AuditLogDocument> {
-    return await this.model.create(data);
-  }
+  private toDomain(
+    doc: any
+  ): AuditLog {
 
-  async findById(id: string): Promise<AuditLogDocument | null> {
-    return await this.model.findById(id).exec();
-  }
+    return {
+      id: doc._id.toString(),
 
+      userId:
+        doc.userId?.toString(),
+
+      tenantId:
+        doc.tenantId,
+
+      hostId:
+        doc.hostId,
+
+      action:
+        doc.action,
+
+      resourceId:
+        doc.resourceId,
+
+      resourceType:
+        doc.resourceType,
+
+      status:
+        doc.status,
+
+      requestId:
+        doc.requestId,
+
+      correlationId:
+        doc.correlationId,
+
+      meta:
+        doc.meta,
+
+      createdAt:
+        doc.createdAt,
+    };
+  }
 }

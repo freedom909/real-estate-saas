@@ -4,7 +4,7 @@ import mongoose, { Schema, Document, model } from "mongoose";
 
 
 export interface DecisionLogDocument extends Document {
-  metadata: {
+  meta: {
     executionId: string;
     correlationId?: string;
     requestId?: string;
@@ -34,7 +34,7 @@ export interface DecisionLogDocument extends Document {
 
 export const DecisionLogSchema = new Schema<DecisionLogDocument>(
   {
-    metadata: {
+    meta: {
       executionId: { type: String, required: true, index: true },
       correlationId: { type: String, index: true },
       requestId: { type: String, index: true },

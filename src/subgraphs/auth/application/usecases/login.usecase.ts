@@ -13,18 +13,22 @@ import { IUserGateway } from "../../domain/ports/user.gateway";
 import ChallengeRepo from "../../infrastructure/repos/challenge.repo";
 import SessionPort, { ISessionPort } from "../../domain/ports/session.port";
 import { AuthResult } from "../../domain/entities/authResult";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+import { AuditLogService } from "@/modules/audit/application/write/services/audit-log.service";
+import normalizeAuthError from "../utils/auth-error.util";
 
 
 @injectable()
 export class OAuthLoginUseCase {
   constructor(
+
     @inject(TOKENS_AUTH.usecases.providerRegistry)
     private registry: ProviderRegistry,
 
     @inject(TOKENS_AUTH.ports.userGateway)
     private userGateway: IUserGateway,
 
-    @inject(TOKENS_SECURITY.evaluateRiskUseCase)//it belongs to the 'security layer'
+    @inject(TOKENS_SECURITY.evaluateRiskUseCase)
     private riskUseCase: EvaluateRiskUseCase,
 
     @inject(TOKENS_AUTH.repos.challengeRepo)
@@ -34,101 +38,245 @@ export class OAuthLoginUseCase {
     private sessionPort: SessionPort,
 
     @inject(TOKENS_AUTH.repos.identityRepo)
-    private identityRepo: IdentityRepository
-  ) {}
+    private identityRepo: IdentityRepository,
 
-async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
+    @inject(TOKENS_AUDIT.services.auditLog)
+    private auditLogService:
+      AuditLogService
+  ) { }
 
-  // 1️⃣ provider verify
-  const provider = this.registry.get(cmd.provider.toLowerCase());
-  const profile = await provider.verify(cmd.idToken);
+  async execute(
+    cmd: OAuthLoginCommand
+  ): Promise<AuthResult> {
 
-  // 2️⃣ 查 identity（核心！！！）
-  let identity = await this.identityRepo.findByProvider(
-    profile.provider,
-    profile.providerId
-  );
+    const {
+      ip = "127.0.0.1",
+      userAgent = "unknown",
+      deviceId = "unknown",
+    } = cmd.request || {};
 
-  let user;
+    try {
 
-  // 3️⃣ 已存在 → 登录
-  if (identity) {
+      // ==========================
+      // provider verify
+      // ==========================
+      const provider =
+        this.registry.get(
+          cmd.provider.toLowerCase()
+        );
 
-    user = await this.userGateway.findById(identity.userId);// it should not have the uerRepo, how to instead of it?
-  } else {
+      const profile =
+        await provider.verify(
+          cmd.idToken
+        );
 
-    // 4️⃣ 尝试 email merge（高级策略）
-    if (profile.email) {
-      const existingUser = await this.userGateway.findByEmail(profile.email);
+      // ==========================
+      // identity
+      // ==========================
+      let identity =
+        await this.identityRepo
+          .findByProvider(
+            profile.provider,
+            profile.providerId
+          );
 
-      if (existingUser) {
-        user = existingUser;
+      let user;
+
+      if (identity) {
+
+        user =
+          await this.userGateway
+            .findById(
+              identity.userId
+            );
+
+      } else {
+
+        if (profile.email) {
+
+          const existingUser =
+            await this.userGateway
+              .findByEmail(
+                profile.email
+              );
+
+          if (existingUser) {
+            user = existingUser;
+          }
+        }
+
+        if (!user) {
+
+          user =
+            await this.userGateway
+              .createFromOAuth(
+                profile
+              );
+        }
+
+        await this.identityRepo
+          .create({
+            userId:
+              user.id,
+
+            provider:
+              profile.provider,
+
+            providerId:
+              profile.providerId,
+
+            email:
+              profile.email ?? null,
+          });
       }
+
+      if (!user) {
+        throw new Error(
+          "Login failed"
+        );
+      }
+
+      // ==========================
+      // risk
+      // ==========================
+      const riskResult =
+        await this.riskUseCase
+          .execute({
+            userId: user.id,
+            ip,
+            userAgent,
+            deviceId,
+            failedAttempts: 0,
+            isNewDevice:
+              !identity,
+            ipRisk: false,
+          });
+
+      if (
+        riskResult.decision ===
+        "BLOCK"
+      ) {
+
+        await this.auditLogService
+          .writeAuditLog({
+            action:
+              "USER_LOGIN_BLOCKED",
+
+            userId:
+              user.id,
+
+            resourceId:
+              user.id,
+
+            resourceType:
+              "AUTH",
+
+            status:
+              "FAILED",
+
+            meta: {
+              ip,
+              deviceId,
+              userAgent,
+              provider:
+                cmd.provider,
+            },
+          });
+
+        return {
+          status:
+            "BLOCKED",
+        };
+      }
+
+      if (
+        riskResult.decision ===
+        "CHALLENGE"
+      ) {
+
+        const challenge =
+          await this.challengeRepo
+            .create({
+              userId:
+                user.id,
+
+              deviceId,
+
+              type:
+                "OTP",
+
+              status:
+                "PENDING",
+
+              expiresAt:
+                new Date(
+                  Date.now() +
+                  5 * 60 * 1000
+                ),
+            });
+
+        return {
+          status:
+            "CHALLENGE",
+
+          challengeId:
+            challenge.id,
+        };
+      }
+
+      // ==========================
+      // success
+      // ==========================
+      const tokens =
+        await this.sessionPort
+          .createSession({
+            userId:
+              user.id,
+
+            deviceId,
+            ip,
+            userAgent,
+          });
+
+      return {
+        status:
+          "SUCCESS",
+
+        accessToken:
+          tokens.accessToken,
+
+        refreshToken:
+          tokens.refreshToken,
+      };
+
+    } catch (error) {
+
+      await this.auditLogService
+        .writeAuditLog({
+
+          action:
+            "USER_LOGIN_FAILED",
+
+          resourceId:
+            "unknown",
+
+          resourceType:
+            "AUTH",
+
+          status:
+            "FAILED",
+
+          meta: {
+            ip,
+            deviceId,
+            userAgent,
+            reason:normalizeAuthError(error),
+            provider:
+              cmd.provider,
+          },
+        });
+
+      throw error;
     }
-
-    // 5️⃣ 不存在 → 创建用户
-    if (!user) {
-      user = await this.userGateway.createFromOAuth(profile);
-    }
-
-    // 6️⃣ 创建 identity（关键）
-    await this.identityRepo.create({
-      userId: user.id,
-      provider: profile.provider,
-      providerId: profile.providerId,
-      email: profile.email ?? null
-    });
   }
-
-  if (!user) {
-    throw new Error("Login failed: User could not be resolved or created.");
-  }
-
-  const { ip = "127.0.0.1", userAgent = "unknown", deviceId = "unknown" } = cmd.request || {};
-
-  // 1️⃣ 执行风控评估
-  const riskResult = await this.riskUseCase.execute({
-    userId: user.id,
-    ip,
-    userAgent,
-    deviceId,
-    failedAttempts: 0,
-    isNewDevice: !identity,
-    ipRisk: false,
-  });
-
-    //  BLOCK
-  if (riskResult.decision === "BLOCK") {
-    return { status: "BLOCKED" };
-  }
-
-    // 5️⃣ CHALLENGE（核心🔥）
-  if (riskResult.decision === "CHALLENGE") {
-    const challenge = await this.challengeRepo.create({
-      userId: user.id,
-      deviceId,
-      type: "OTP",
-      status: "PENDING",
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000)
-    });
-     return {
-      status: "CHALLENGE",
-      challengeId: challenge.id
-    };
-  }
- // 2️⃣ 顺利进行：如果是 ALLOW 或者是开发环境，生成 Token
-
-
-    const tokens = await this.sessionPort.createSession({
-    userId: user.id,
-    deviceId,
-    ip,
-    userAgent
-  });
-  return {
-    status: "SUCCESS",
-    accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken
-  };
-}
 }

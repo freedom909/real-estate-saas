@@ -44,7 +44,7 @@ export default class RiskEventEntity {
 
   deviceId?: string
 
-  metadata?: Record<string, any>
+  meta?: Record<string, any>
 
   createdAt: Date
 
