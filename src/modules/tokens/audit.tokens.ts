@@ -17,6 +17,11 @@ export const TOKENS_AUDIT = {
       Symbol.for(
         "audit.models.systemLog"
       ),
+      securityLog:
+      Symbol.for(
+        "audit.models.securityLog"
+      ),
+
   },
 
   repos: {
@@ -34,6 +39,12 @@ export const TOKENS_AUDIT = {
       Symbol.for(
         "audit.repos.systemLog"
       ),
+
+      securityLog:
+      Symbol.for(
+        "audit.repos.securityLog"
+      ),
+
   },
 
   services: {
@@ -50,6 +61,11 @@ export const TOKENS_AUDIT = {
     systemLog:
       Symbol.for(
         "audit.services.systemLog"
+      ),
+
+      securityLog:
+      Symbol.for(
+        "audit.services.securityLog"
       ),
   },
 
