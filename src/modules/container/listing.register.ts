@@ -1,7 +1,7 @@
 // FILE: src/subgraphs/listing/container/index.ts
 
 import { container } from 'tsyringe';
-import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
+import { TOKENS_LISTING } from '@/modules/tokens/ai/listing.tokens';
 import ListingModel from '../../subgraphs/listing/infrastructure/models/listing.model';
 import {ListingRepository} from '../../subgraphs/listing/infrastructure/persistence/listing.repository';
 import CreateListingUseCase from '../../subgraphs/listing/application/use-cases/CreateListingUseCase';

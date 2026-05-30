@@ -1,5 +1,5 @@
 import { container } from "tsyringe";
-import { TOKENS_LOCATION } from "../../modules/tokens/location.tokens";
+import { TOKENS_LOCATION } from "../../modules/tokens/ai/location.tokens";
 import { CreateLocationUseCase } from "./application/use-cases/CreateLocationUseCase";
 import { GetLocationUseCase } from "./application/use-cases/GetLocationUseCase";
 

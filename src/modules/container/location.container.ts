@@ -2,7 +2,7 @@
 
 import { container } from "tsyringe";
 
-import { TOKENS_LOCATION } from "@/modules/tokens/location.tokens";
+import { TOKENS_LOCATION } from "@/modules/tokens/ai/location.tokens";
 import { LocationRepository } from "@/subgraphs/location/infrastructure/persistence/LocationRepository";
 import { GetLocationUseCase } from "@/subgraphs/location/application/use-cases/GetLocationUseCase";
 import { CreateLocationUseCase } from "@/subgraphs/location/application/use-cases/CreateLocationUseCase";

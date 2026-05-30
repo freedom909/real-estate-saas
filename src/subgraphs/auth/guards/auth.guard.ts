@@ -7,7 +7,7 @@ import SessionRepo from "../repos/session.repo";
 import { UnauthorizedError } from "../../../infrastructure/utils/errors";
 import Blacklist from "../../../security/blacklist/blacklist";
 import { TOKENS } from "@/shared/infra/tokens";
-import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+import { TOKENS_AUTH } from "@/modules/tokens/ai/auth.tokens";
 /**
  * AuthGuard handles token verification and session validation.
  */

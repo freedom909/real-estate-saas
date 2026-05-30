@@ -9,13 +9,12 @@ import {
   ISystemLogRepository
 } from "../../../domain/repositories/interface/system-log.repository.interface";
 
-import {
-  TOKENS_AUDIT
-} from "@/modules/tokens/audit.tokens";
+
 
 import {
   SystemLog
 } from "@/modules/audit/domain/types/system-log.type";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 
 

@@ -1,0 +1,92 @@
+Folder PATH listing
+Volume serial number is EA63-381F
+D:\MINSHUKU-SAAS\SRC\GATEWAY\COGNITION
++---application
+|   \---use-cases
+|           chat.input.ts
+|           chat.use-case.ts
+|           
++---domain
+|   +---actors
+|   |       actor-context.ts
+|   |       
+|   +---agents
+|   |   |   agent-router.service.ts
+|   |   |   
+|   |   +---booking
+|   |   |   |   booking.agent.ts
+|   |   |   |   
+|   |   |   \---facets
+|   |   |           booking-facet.resolver.ts
+|   |   |           
+|   |   +---listing
+|   |   |   |   listing.agent.ts
+|   |   |   |   
+|   |   |   \---facets
+|   |   |           listing-facet.resolver.ts
+|   |   |           
+|   |   \---payment
+|   |       |   payment.agent.ts
+|   |       |   
+|   |       \---facets
+|   |               payment-facet.resolver.ts
+|   |               
+|   +---orchestration
+|   |   \---router
+|   |           agent-router.service.ts
+|   |           
+|   +---planning
+|   |   +---planners
+|   |   |   |   execution-plan.ts
+|   |   |   |   index.ts
+|   |   |   |   planner.ts
+|   |   |   |   task.ts
+|   |   |   |   
+|   |   |   +---booking
+|   |   |   |       booking.planner.ts
+|   |   |   |       
+|   |   |   +---interfaces
+|   |   |   |       planner.interface.ts
+|   |   |   |       
+|   |   |   +---listing
+|   |   |   |       listing.planner.ts
+|   |   |   |       
+|   |   |   \---payment
+|   |   |           payment.planner.ts
+|   |   |           
+|   |   \---types
+|   |           enums.ts
+|   |           i-domain.agent.ts
+|   |           i-facet.resolver.ts
+|   |           ISubPlanner.ts
+|   |           
+|   +---runtime
+|   |   \---executors
+|   |           sequential.runtime.ts
+|   |           
+|   +---semantic
+|   |   |   semantic-context.ts
+|   |   |   
+|   |   +---extractors
+|   |   |       cancel-booking.executor.ts
+|   |   |       generate-content.executor.ts
+|   |   |       optimize-content.executor.ts
+|   |   |       refund-payment.executor.ts
+|   |   |       semantic.extractor.ts
+|   |   |       
+|   |   \---types
+|   |           i-semantic.extractor.ts
+|   |           semantic-result.type.ts
+|   |           
+|   \---types
+|       \---enums
+|               chat.response.ts
+|               
+\---register
+        agent.register.ts
+        cognition.register.ts
+        orchestration.register.ts
+        planner.register.ts
+        runtime.register.ts
+        semantic.register.ts
+        

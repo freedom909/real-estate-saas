@@ -9,13 +9,12 @@ import {
   IAuditLogRepository
 } from "@/modules/audit/domain/repositories/interface/audit-log.repository.interface";
 
-import {
-  TOKENS_AUDIT
-} from "@/modules/tokens/audit.tokens";
+
 
 import {
   AuditLog
 } from "@/modules/audit/domain/types/audit-log.type";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 @injectable()
 export class AuditLogRepository

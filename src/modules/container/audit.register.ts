@@ -1,6 +1,6 @@
 import { container, DependencyContainer } from 'tsyringe';
 
-import { TOKENS_AUDIT } from '../tokens/audit.tokens';
+
 import { AuditLogService } from '../audit/application/write/services/audit-log.service';
 import { AuditLogRepository } from '../audit/infrastructure/database/repositories/audit-log.repository';
 import { AuditLogModel } from '../audit/infrastructure/database/models/audit-log.model';
@@ -23,6 +23,7 @@ import { DecisionLogRepository } from '../audit/infrastructure/database/reposito
 import { SecurityLogService } from '@/security/infrastructure/services/securityLog.service';
 import { SecurityLogRepository } from '@/security/infrastructure/repos/securityLog.repository';
 import { SecurityLogModel } from '@/security/infrastructure/models/securityLog.model';
+import { TOKENS_AUDIT } from '../tokens/audit.tokens';
 
 
 export function registerAuditDependencies(): void {

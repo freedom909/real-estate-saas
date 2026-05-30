@@ -1,9 +1,10 @@
 // infrastructure/repos/challenge.repo.ts
 
-import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+
 import { ChallengeModel } from "../models/challenge.model";
 import { inject, injectable } from "tsyringe";
 import Challenge from "../../domain/entities/challenge.entity";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 
 @injectable()
 export class ChallengeRepo {

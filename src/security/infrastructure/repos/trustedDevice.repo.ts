@@ -1,10 +1,11 @@
 import { inject, injectable } from "tsyringe";
-import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+
 import { ITrustedDeviceRepo } from "../../domain/repos/ITrustedDeviceRepo";
 import { TrustedDevice } from "../../domain/entities/trustedDevice.entity";
 import { DeviceFingerprint } from "../../domain/valueObjects/deviceFingerprint";
 import TrustedDeviceModel from "@/security/infrastructure/models/trusted.device.model";
 import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
+
 
 
 @injectable()

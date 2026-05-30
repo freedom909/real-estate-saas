@@ -1,8 +1,8 @@
 // auth/application/usecases/verifyOtp.usecase.ts
-import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
+
 import { inject, injectable } from "tsyringe";
 import { EventBus } from "../../../../shared/events/eventBus";
-import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+
 import ChallengeRepo from "../../infrastructure/repos/challenge.repo";
 import { VerifyOtpCommand } from "../dto/verifyOtp.command";
 import { OtpVerifiedEvent } from "../../domain/events/otpVerified.event";
@@ -11,6 +11,8 @@ import SessionPort from "../../domain/ports/session.port";
 import { TrustedDevice } from "@/security/domain/entities/trustedDevice.entity";
 import { ITrustedDeviceRepo } from "@/security/domain/repos/ITrustedDeviceRepo";
 import { DeviceFingerprint } from "@/security/domain/valueObjects/deviceFingerprint";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 
 @injectable()
 export class VerifyOtpUseCase {

@@ -3,8 +3,9 @@ import { inject, injectable } from "tsyringe";
 import { IDecisionLogRepository } from "../../../domain/repositories/interface/decision-log.repository.interface";
 import { DecisionLog } from "../../../domain/types/decision-log.type";
 import { CreateDecisionLogDTO } from "../dto/create-decision-log.dto";
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+
 import { Types } from "mongoose";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 @injectable()
 export class DecisionLogService {

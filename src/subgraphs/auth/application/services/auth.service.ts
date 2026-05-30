@@ -9,7 +9,7 @@ import { AuditLogService }
     from "@/modules/audit/application/write/services/audit-log.service";
 
 import { TOKENS_AUDIT }
-    from "@/modules/tokens/audit.tokens";
+    from "@/modules/tokens/ai/audit.tokens";
 
 import { OAuth2Client }
     from "google-auth-library";

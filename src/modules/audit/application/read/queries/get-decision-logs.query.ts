@@ -4,6 +4,7 @@ import { IDecisionLogRepository } from "../../../domain/repositories/interface/d
 import { DecisionLog } from "../../../domain/types/decision-log.type";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
+
 export interface GetDecisionLogsFilter {
   executionId?: string;
   userId?: string;

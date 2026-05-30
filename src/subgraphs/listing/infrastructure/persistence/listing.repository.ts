@@ -2,7 +2,7 @@
 import { injectable, inject } from 'tsyringe';
 import { Listing } from '../../domain/entities/Listing';
 import { ListingMapper } from '../mappers/listing.mapper';
-import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
+import { TOKENS_LISTING } from '@/modules/tokens/ai/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';
 import { Sequelize } from 'sequelize';
 import ListingModel from '../models/listing.model';

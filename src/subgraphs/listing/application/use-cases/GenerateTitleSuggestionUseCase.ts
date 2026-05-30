@@ -4,7 +4,7 @@ import { inject, injectable } from "tsyringe";
 import { IListingRepository } from "../../domain/entities/IListingRepository";
 import { OpenAIAdapter } from "../../domain/entities/OpenAIAdapter";
 import { buildTitlePrompt } from "../prompts/buildTitlePrompt";
-import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
 
 @injectable()
 export class GenerateTitleSuggestionUseCase {

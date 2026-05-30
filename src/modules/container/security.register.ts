@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { TOKENS_SECURITY } from "../tokens/security.tokens";
+
 import { RiskEngine } from "../../security/domain/risk.engine";
 import { DecisionEngine } from "../../security/domain/decision.engine";
 import { EvaluateRiskUseCase } from "../../security/application/evaluateRisk.usecase";
@@ -9,6 +9,7 @@ import { MockAIService } from "../../security/infrastructure/ai.service";
 import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevice.repo";
 import { GeminiRiskEngine } from "@/security/infrastructure/ai/gemini.risk.engine";
 import GeminiClient from "@/security/infrastructure/geminiClient";
+import { TOKENS_SECURITY } from "../tokens/security.tokens";
 
 
 function registerSecurityDependencies() {

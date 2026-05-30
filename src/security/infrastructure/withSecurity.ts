@@ -1,5 +1,5 @@
 
-import { TOKENS_SECURITY } from "../../modules/tokens/security.tokens";
+import { TOKENS_SECURITY } from "../../modules/tokens/ai/security.tokens";
 
 // security/wrapper/withSecurity.ts
 function withSecurity(action: string, resolverFn: any) {

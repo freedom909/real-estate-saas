@@ -2,7 +2,7 @@
 
 import { injectable, inject } from "tsyringe";
 
-import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
+import { TOKENS_CATEGORY } from "@/modules/tokens/ai/category.tokens";
 import { ICategoryRepository } from "../../domain/ICategoryRepository";
 
 @injectable()

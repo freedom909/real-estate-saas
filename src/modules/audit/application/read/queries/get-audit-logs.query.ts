@@ -11,6 +11,8 @@ import {
 
 import { AuditLogDocument,} from "../../../infrastructure/database/models/audit-log.model";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+import { AuditLog } from "@/modules/audit/domain/types/audit-log.type";
+
 
 export interface GetAuditLogsFilter {
 
@@ -43,7 +45,7 @@ GetAuditLogsQuery {
     filter:
       GetAuditLogsFilter
   ): Promise<
-    AuditLogDocument[]
+    AuditLog[]
   > {
 
     const {

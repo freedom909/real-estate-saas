@@ -3,7 +3,7 @@
 import { inject, injectable }
 from "tsyringe";
 
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+
 
 import {
   IAuditLogRepository
@@ -17,6 +17,7 @@ from "../dto/create-audit-log.dto";
 
 import { AuditLogDocument } from "@/modules/audit/infrastructure/database/models/audit-log.model";
 import { AuditLog } from "@/modules/audit/domain/types/audit-log.type";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 @injectable()
 export class AuditLogService {

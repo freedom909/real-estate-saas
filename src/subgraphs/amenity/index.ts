@@ -17,13 +17,13 @@ import mongoose from "mongoose"
 import { container } from "tsyringe"
 import resolvers from "./resolvers"
 
-import  registerSecurityDependencies  from "../../modules/container/security.register";
+import registerSecurityDependencies  from "../../modules/container/security.register";
 import registerAuditDependencies from "../../modules/container/audit.register"
 import registerAmenityDependencies from "@/modules/container/amenity.register"
 
 console.log("process.env.DB_NAME:", process.env.DB_NAME);
 // ⭐ 注册 DI
-registerAuditDependencies(container)
+registerAuditDependencies()
 registerSecurityDependencies();
 registerAmenityDependencies()
 console.log("Amenity container loaded")

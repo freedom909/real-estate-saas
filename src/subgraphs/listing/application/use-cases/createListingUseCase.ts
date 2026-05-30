@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { Listing } from '../../domain/entities/Listing';
 import { v4 as uuidv4 } from 'uuid';
-import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
+import { TOKENS_LISTING } from '@/modules/tokens/ai/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';
 import { Title } from '../../domain/value-objects/Title';
 import { Description } from '../../domain/value-objects/Description';
@@ -9,7 +9,7 @@ import { IAmenityAdapter } from '../../adapters/IAmenity.adapter';
 
  // Assuming categoryAdapter token is under TOKENS_LISTING.adapters
 import { ICategoryRepository } from '@/shared/category/domain/ICategoryRepository';
-import { TOKENS_CATEGORY } from '@/modules/tokens/category.tokens';
+import { TOKENS_CATEGORY } from '@/modules/tokens/ai/category.tokens';
 
 
 

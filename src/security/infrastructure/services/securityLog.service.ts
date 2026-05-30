@@ -1,6 +1,7 @@
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+
 import { inject, injectable } from "tsyringe";
 import { SecurityLogRepository } from "../repos/securityLog.repository";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 //
 @injectable()

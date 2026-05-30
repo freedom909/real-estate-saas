@@ -1,7 +1,7 @@
 // src/modules/tokens/audit.tokens.ts
 
 export const TOKENS_AUDIT = {
-
+auditClient: Symbol.for("AuditClient"),
   models: {
     auditLog:
       Symbol.for(
@@ -21,7 +21,6 @@ export const TOKENS_AUDIT = {
       Symbol.for(
         "audit.models.securityLog"
       ),
-
   },
 
   repos: {
@@ -88,5 +87,7 @@ export const TOKENS_AUDIT = {
         "audit.queries.getSystemLogs"
       ),
   },
+
+  
 
 } as const;

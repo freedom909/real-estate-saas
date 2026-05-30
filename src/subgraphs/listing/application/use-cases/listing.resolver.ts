@@ -1,5 +1,5 @@
 import { container } from 'tsyringe';
-import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
+import { TOKENS_LISTING } from '@/modules/tokens/ai/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';
 import CreateListingUseCase from './CreateListingUseCase';
 

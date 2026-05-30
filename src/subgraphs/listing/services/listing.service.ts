@@ -1,7 +1,7 @@
 //src/subgraphs/listing/services/listing.service.ts
 import { injectable, inject } from 'tsyringe';
 
-import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
+import { TOKENS_LISTING } from '@/modules/tokens/ai/listing.tokens';
 
 import { Listing, ListingProps } from '../domain/entities/Listing';
 

@@ -39,8 +39,12 @@ export class AmenityRepository implements IAmenityRepository {
 
 
 static toDomain(raw: AmenityModel): Amenity {
-  if (!isValidAmenityCategory(raw.category)) { // プロパティ 'category' は型 'AmenityModel' に存在しません。
-    console.warn("Invalid category from DB:", raw.category);
+  // Ensure AmenityModel has 'category' defined in its attributes.
+  // Cast to 'any' temporarily if the model definition is not yet updated.
+  const rawCategory = (raw as any).category;
+
+  if (!isValidAmenityCategory(rawCategory)) {
+    console.warn("Invalid category from DB:", rawCategory);
 
     return new Amenity({
       id: raw.id,
@@ -52,7 +56,7 @@ static toDomain(raw: AmenityModel): Amenity {
   return new Amenity({
     id: raw.id,
     name: raw.name,
-    category: raw.category,
+    category: rawCategory,
   });
 }
 }

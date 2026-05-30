@@ -5,7 +5,7 @@ import { Booking } from "../../domain/entities/booking.entity";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
 import { v4 as uuidv4 } from "uuid";
 import { EventBus } from "@/infrastructure/events/event-bus";
-import TOKENS from "@/modules/tokens/mq.tokens";
+import TOKENS from "@/modules/tokens/ai/mq.tokens";
 import { RabbitMQEventBus } from "../../interface/events/rabbitmq-event-bus";
 
 @injectable()

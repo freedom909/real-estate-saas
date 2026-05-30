@@ -13,7 +13,7 @@ import {
 } from "@/modules/audit/application/read/queries/get-system-logs.query";
 import {
   TOKENS_AUDIT
-} from "@/modules/tokens/audit.tokens";
+} from "@/modules/tokens/ai/audit.tokens";
 
 import {
   container

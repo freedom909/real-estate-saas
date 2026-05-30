@@ -3,6 +3,8 @@ import { ISystemLogRepository } from "../../../domain/repositories/interface/sys
 import { SystemLogDocument } from "../../../infrastructure/database/models/system-log.model";
 import { SystemLogLevel } from "../../../domain/enums/system-log.enums";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+import { SystemLog } from "@/modules/audit/domain/types/system-log.type";
+
 
 export interface GetSystemLogsFilter {
   level?: SystemLogLevel;
@@ -21,7 +23,7 @@ export class GetSystemLogsQuery {
 
   async execute(
     filter: GetSystemLogsFilter
-  ): Promise<SystemLogDocument[]> {
+  ): Promise<SystemLog[]> {
     const {
       page = 1,
       limit = 20,

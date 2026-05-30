@@ -2,11 +2,13 @@
 
 import { inject, injectable } from "tsyringe";
 
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+
 
 import { IAuditLogRepository } from "@/modules/audit/domain/repositories/interface/audit-log.repository.interface";
 
 import { AuditLogDocument } from "@/modules/audit/infrastructure/database/models/audit-log.model";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+import { AuditLog } from "@/modules/audit/domain/types/audit-log.type";
 
 @injectable()
 export class GetAuditLogsByResourceQuery {
@@ -19,7 +21,7 @@ export class GetAuditLogsByResourceQuery {
 
   async execute(
     resourceId: string
-  ): Promise<AuditLogDocument[]> {
+  ): Promise<AuditLog[]> {
     return await this.repository.find(
       { resourceId },
       {

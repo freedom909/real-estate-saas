@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { OpenAIAdapter } from "../../infrastructure/ai/OpenAI.adapter";
-import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
 
 @injectable()
 export class ApplyDescriptionSuggestionUseCase {

@@ -1,6 +1,6 @@
 // FILE: src/subgraphs/amenity/application/useCase/GetAmenitiesUseCase.ts
 
-import { TOKENS_AMENITY } from "@/modules/tokens/amenity.tokens";
+import { TOKENS_AMENITY } from "@/modules/tokens/ai/amenity.tokens";
 import { inject, injectable } from "tsyringe";
 
 import AmenityMapper from "@/subgraphs/amenity/infrastructure/mappers/amenity.mapper";

@@ -3,9 +3,10 @@ import { Model } from "mongoose";
 
 import crypto from "crypto";
 import { inject, injectable } from "tsyringe";
-import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+
 import { Session } from "inspector";
 import { SessionDocument } from "../models/session.model";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 
 export interface CreateSessionInput {
   userId: string

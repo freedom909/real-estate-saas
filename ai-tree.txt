@@ -1,0 +1,16 @@
+Folder PATH listing
+Volume serial number is EA63-381F
+D:\MINSHUKU-SAAS\SRC\SUBGRAPHS\AI
+|   index.ts
+|   resolver.ts
+|   schema.graphql
+|   
++---container
+|       registerAIServiceDependencies.ts
+|       
++---reviewCode
+|       reviewCode.ts
+|       
+\---services
+        ai.service.ts
+        

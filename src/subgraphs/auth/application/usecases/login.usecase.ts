@@ -2,8 +2,7 @@
 
 import { inject, injectable } from "tsyringe";
 
-import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
-import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
+
 import { ProviderRegistry } from "../../infrastructure/oauth/provider.registry";
 import { OAuthLoginCommand } from "../dto/oauthLogin.command";
 import EvaluateRiskUseCase from "@/security/application/evaluateRisk.usecase";
@@ -13,9 +12,12 @@ import { IUserGateway } from "../../domain/ports/user.gateway";
 import ChallengeRepo from "../../infrastructure/repos/challenge.repo";
 import SessionPort, { ISessionPort } from "../../domain/ports/session.port";
 import { AuthResult } from "../../domain/entities/authResult";
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+
 import { AuditLogService } from "@/modules/audit/application/write/services/audit-log.service";
 import normalizeAuthError from "../utils/auth-error.util";
+import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 
 @injectable()

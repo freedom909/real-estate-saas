@@ -6,9 +6,9 @@ import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { AuditLogService }
   from "@/modules/audit/application/write/services/audit-log.service";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
-import { TOKENS_AUDIT }
-  from "@/modules/tokens/audit.tokens";
+
 
 @injectable()
 export class SessionService implements ISessionPort {

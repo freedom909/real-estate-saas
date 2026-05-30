@@ -3,7 +3,7 @@ import { CreateBookingUseCase } from "../application/use-cases/create-booking.us
 import { CancelBookingUseCase } from "../application/use-cases/cancel-booking.use-case";
 import { GetBookingUseCase } from "../application/use-cases/get-booking.use-case";
 import { RabbitMQEventBus } from "./events/rabbitmq-event-bus";
-import TOKENS from "@/modules/tokens/mq.tokens";
+import TOKENS from "@/modules/tokens/ai/mq.tokens";
 
 export const resolvers = {
   Query: {

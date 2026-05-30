@@ -10,13 +10,12 @@ import {
     IDecisionLogRepository
 } from "../../../domain/repositories/interface/decision-log.repository.interface";
 
-import {
-    TOKENS_AUDIT
-} from "@/modules/tokens/audit.tokens";
+
 
 import {
     DecisionLog
 } from "@/modules/audit/domain/types/decision-log.type";
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 @injectable()
 export class DecisionLogRepository implements IDecisionLogRepository {

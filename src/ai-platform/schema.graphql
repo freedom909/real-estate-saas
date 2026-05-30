@@ -1,0 +1,15 @@
+type ChatResponse {
+  reply: String!
+}
+
+input ChatInput {
+  message: String!
+}
+
+type Mutation {
+  chat(input: ChatInput!): ChatResponse!
+}
+
+type Query {
+  _empty: String
+}

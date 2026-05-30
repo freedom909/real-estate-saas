@@ -3,7 +3,7 @@
 import { injectable, inject } from "tsyringe";
 import { ICategoryAdapter } from "./ICategoryAdapter";
 import { ICategoryRepository } from "@/shared/category/domain/ICategoryRepository";
-import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
+import { TOKENS_CATEGORY } from "@/modules/tokens/ai/category.tokens";
 
 @injectable()
 export class CategoryAdapter implements ICategoryAdapter {

@@ -32,7 +32,7 @@ import { OAuthProvider } from "../../subgraphs/auth/adapters/oauth.profile";
 import { OAuthAdapter } from "../../subgraphs/auth/adapters/oauth/oauth.adapter";
 
 // tokens
-import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
+import { TOKENS_AUTH } from "../../modules/tokens/ai/auth.tokens";
 import verifyGoogleIdToken from "../../subgraphs/auth/adapters/verifiers/verify.google.idToken";
 
 import Blacklist from "@/security/blacklist/blacklist";

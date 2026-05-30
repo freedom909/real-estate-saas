@@ -1,6 +1,6 @@
 // src/modules/container/amenity.register.ts
 import { container } from 'tsyringe';
-import { TOKENS_AMENITY } from '../tokens/amenity.tokens';
+import { TOKENS_AMENITY } from '../tokens/ai/amenity.tokens';
 import { AmenityRepository } from '@/subgraphs/amenity/infrastructure/persistence/amenity.repository';
 import { CreateAmenityUseCase } from '@/subgraphs/amenity/application/useCase/CreateAmenityUseCase';
 import { GetAmenitiesUseCase } from '@/subgraphs/amenity/application/useCase/GetAmenitiesUseCase';

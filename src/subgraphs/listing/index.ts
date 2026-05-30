@@ -16,7 +16,7 @@ import { resolvers } from './resolvers/resolver';
 import { sequelize } from "@/infrastructure/config/seq";
 import registerAuthDependencies from "../auth/registerAuthDependencies";
 import { registerUserDependencies } from "../user/registerUserDependencies";
-import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
 import registerListingDependencies from "@/modules/container/listing.register";
 
 console.log(TOKENS_LISTING.adapters.amenityAdapter);

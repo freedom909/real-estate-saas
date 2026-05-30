@@ -5,7 +5,7 @@ import CreateListingUseCase from "../application/use-cases/CreateListingUseCase"
 import GetListingUseCase from "../application/use-cases/GetListingUseCase";
 
 // AI UseCases（用 Apply，不用 Generate// Tokens
-import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
 import { ApplyTitleSuggestionUseCase } from "../application/use-cases/ApplyTitleSuggestionUseCase";
 import { ApplyDescriptionSuggestionUseCase } from "../application/use-cases/ApplyDescriptionSuggestionUseCase";
 

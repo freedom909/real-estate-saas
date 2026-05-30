@@ -21,8 +21,9 @@ import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
 import { RabbitMQEventBus } from "./interface/events/rabbitmq-event-bus";
-import TOKENS from "@/modules/tokens/mq.tokens";
+
 import registerMQEventBus from "@/modules/container/mq.register";
+import TOKENS from "@/modules/tokens/mq.tokens";
 dotenv.config();
 
 registerMQEventBus();
