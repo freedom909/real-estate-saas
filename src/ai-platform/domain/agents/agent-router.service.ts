@@ -4,10 +4,11 @@ import { ListingAgent } from "./listing/listing.agent";
 import { BookingAgent } from "./booking/booking.agent";
 import { PaymentAgent } from "./payment/payment.agent";
 import { AIDomain } from "../planning/types/enums";
+import { SemanticContext } from "../semantic/semantic-context";
 
 
 export interface IDomainAgent {
-  execute(task: Task): Promise<any>;
+  semantic: SemanticContext
 }
 
 @injectable()
@@ -23,11 +24,11 @@ export class AgentRouterService {
       case "LISTING":
         return this.listingAgent;
 
-      case "BOOKING":
-        return this.bookingAgent;
+      // case "BOOKING":
+      //   return this.bookingAgent;
 
-      case "PAYMENT":
-        return this.paymentAgent;
+      // case "PAYMENT":
+      //   return this.paymentAgent;
 
       default:
         throw new Error(

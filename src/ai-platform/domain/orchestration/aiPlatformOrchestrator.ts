@@ -5,7 +5,7 @@ import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/extractor";
 import { RoutingService } from "./router/routing.service";
 import { TOKENS_FACTORY } from "@/ai-platform/container/tokens/factory";
 import { AgentFactory } from "../agents/agent.factory";
-import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestrator";
+import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
 
 @injectable()
 export class AIPlatformOrchestrator {
@@ -46,11 +46,8 @@ export class AIPlatformOrchestrator {
     // 4. execute
     // If IDomainAgent expects a Task, we should map the semantic context into a Task structure.
     // If the Agent is intended to process the context directly, consider updating IDomainAgent's signature.
-    return agent.execute({ //      "message": "Cannot read properties of undefined (reading 'execute')",
-      message,
-      id: crypto.randomUUID(), // Assuming Task requires an ID
-      type: agentName,         // Assuming Task requires a type
-      payload: { semantic, user } // Adjust based on your Task definition
-    } as any); // Use 'as any' only if Task is a generic DTO; otherwise, align with the Task interface.
+return agent.execute(
+  semantic
+);
   }
 }

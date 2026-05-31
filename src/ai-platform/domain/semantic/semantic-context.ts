@@ -10,7 +10,8 @@ export interface Entity {
   confidence: number;
 }
 
-export class SemanticContext {
+export class 
+SemanticContext {
   constructor(
     public readonly rawInput: string,
     public readonly intents: string[],

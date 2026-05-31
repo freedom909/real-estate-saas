@@ -11,12 +11,13 @@ import { RoutingService } from "@/ai-platform/domain/orchestration/router/routin
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatformOrchestrator";
 import { BookingAgent } from "@/ai-platform/domain/agents/booking/booking.agent";
 import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent";
-import { TOKENS_ORCHESTRATOR } from "../tokens/orchestrator";
+import { TOKENS_ORCHESTRATOR } from "../tokens/orchestration/orchestrator";
 import { TOKENS_AGENT } from "../tokens/agent/action.agent";
 import { TOKENS_FACTORY } from "../tokens/factory";
 import { AgentFactory } from "@/ai-platform/domain/agents/agent.factory";
 import { registerAgents } from "./agent.register";
 import { registerFacetResolvers } from "./facet-resolvers.register";
+import { registerOpenAIAdapter } from "./openai.adapter";
 
 export default function
 AIPlatformDependencies() {
@@ -65,6 +66,7 @@ AIPlatformDependencies() {
   // Register Agents and Facet Resolvers
   registerAgents();
   registerFacetResolvers();
+  registerOpenAIAdapter();
 
   // usecase
   container.register(

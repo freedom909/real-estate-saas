@@ -8,7 +8,7 @@ import { ChatInput } from "./chat.input";
 import { TaskStatus } from "../../domain/planning/types/enums";
 import { ChatResponse, UserContext } from "../../domain/types/enums/chat.response";
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatformOrchestrator";
-import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestrator";
+import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
 
 @injectable()
 export class ChatUseCase {
