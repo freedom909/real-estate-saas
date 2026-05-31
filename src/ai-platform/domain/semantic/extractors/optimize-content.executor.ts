@@ -1,14 +1,35 @@
 // src/ai-platform/cognition/domain/agents/listing/executors/optimize-content.executor.ts
 import { injectable } from "tsyringe";
 import { IExecutor } from "../../planning/types/i-facet.resolver";
+import { SemanticContext } from "../semantic-context";
 
 
 @injectable()
-export class OptimizeContentExecutor implements IExecutor {
-  async execute(payload: Record<string, any>): Promise<any> {
-    console.log(`Executing OptimizeContent for listingId: ${payload.listingId}, targetField: ${payload.targetField}`);
-    // Simulate API call or business logic
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { success: true, message: `Content optimized for listing ${payload.listingId} on field ${payload.targetField}` };
+export class OptimizeContentExecutor {
+
+  async execute(
+    semantic: SemanticContext
+  ) {
+
+    const listingId =
+      semantic.entities.find(
+        e => e.type === "listing_id"
+      )?.value;
+
+    const targetField =
+      "title";
+
+    console.log(
+      `Executing OptimizeContent for listingId:
+       ${listingId},
+       targetField:
+       ${targetField}`
+    );
+
+    return {
+      reply:
+        `Optimize ${targetField}
+         for listing ${listingId}`
+    };
   }
 }
