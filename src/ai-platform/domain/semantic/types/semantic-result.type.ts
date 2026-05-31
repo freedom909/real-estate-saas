@@ -1,5 +1,5 @@
-import { AIDomain } from "../../../../../shared/enums/ai-domain.enum";
-import { Intent } from "../../../../../shared/enums/intent.enum";
+import { AIDomain } from "../../planning/types/enums";
+
 
 export interface SemanticResult {
   domain: AIDomain;
@@ -9,4 +9,22 @@ export interface SemanticResult {
   intent: Intent;
 
   confidence: number;
+
+  entities?: Record<string,any>;
+}
+
+export enum Intent {
+  CANCEL_BOOKING =
+    "CANCEL_BOOKING",
+
+  REFUND =
+    "REFUND",
+
+  OPTIMIZE_TITLE =
+    "OPTIMIZE_TITLE",
+
+  OPTIMIZE_DESCRIPTION =
+    "OPTIMIZE_DESCRIPTION",
+
+  GENERAL ="GENERAL"
 }

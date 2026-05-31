@@ -1,4 +1,4 @@
 //
-export const TOKENS_FACTORY={
+export const TOKENS_AGENT_FACTORY={
     agentFactory:Symbol.for("agentFactory"),
 }

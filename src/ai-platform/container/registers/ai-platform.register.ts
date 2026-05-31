@@ -1,5 +1,5 @@
 import { TOKENS } from "@/shared/infra/tokens";
-import { TOKENS_EXTRACTOR } from "../tokens/extractor";
+import { TOKENS_EXTRACTOR } from "../tokens/semantic/extractor";
 import { container } from "tsyringe";
 import { SemanticExtractor } from "@/ai-platform/domain/semantic/extractors/semantic.extractor";
 
@@ -12,12 +12,13 @@ import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPla
 import { BookingAgent } from "@/ai-platform/domain/agents/booking/booking.agent";
 import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent";
 import { TOKENS_ORCHESTRATOR } from "../tokens/orchestration/orchestrator";
-import { TOKENS_AGENT } from "../tokens/agent/action.agent";
-import { TOKENS_FACTORY } from "../tokens/factory";
-import { AgentFactory } from "@/ai-platform/domain/agents/agent.factory";
+import { TOKENS_AGENT } from "../tokens/agent/module.agent";
+import { TOKENS_AGENT_FACTORY } from "../tokens/agent/factory";
+
 import { registerAgents } from "./agent.register";
 import { registerFacetResolvers } from "./facet-resolvers.register";
 import { registerOpenAIAdapter } from "./openai.adapter";
+import { AgentFactory } from "@/ai-platform/domain/agents/agent.factory";
 
 export default function
 AIPlatformDependencies() {
@@ -78,10 +79,25 @@ AIPlatformDependencies() {
   );
 
   container.register(
-   TOKENS_FACTORY.agentFactory,
+   TOKENS_AGENT.generalAgent,
     {
       useClass:
-        AgentFactory
+        GeneralAgent
     }
   );
+
+  container.register(
+    TOKENS_AGENT.listingAgent,
+    {
+      useClass:ListingAgent
+    }
+  );
+  container.register(
+    TOKENS_AGENT_FACTORY.agentFactory,
+    {
+      useClass:AgentFactory
+    }
+  );
+
+
 }

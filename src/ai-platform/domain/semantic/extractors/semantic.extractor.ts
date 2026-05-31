@@ -6,7 +6,7 @@ import { SemanticContext } from "../semantic-context";
 import {RuleExtractor} from "./rule.extractor";
 import LLMExtractor from "./llm.extractor";
 import { TOKENS_AMENITY } from "@/modules/tokens/amenity.tokens";
-import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/extractor";
+import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extractor";
 
 @injectable()
 export class SemanticExtractor  implements ISemanticExtractor {

@@ -14,8 +14,7 @@ export class RuleExtractor {
     const intents = [];
     const entities = [];
 
-    const lower =
-      message.toLowerCase();//         "TypeError: Cannot read properties of undefined (reading 'toLowerCase')"
+    const lower =message.toLowerCase();//         "TypeError: Cannot read properties of undefined (reading 'toLowerCase')"
 
     if (lower.includes("cancel")) {
       intents.push({

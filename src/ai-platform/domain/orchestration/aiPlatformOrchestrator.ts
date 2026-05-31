@@ -1,9 +1,9 @@
 import { inject, injectable } from "tsyringe";
 import { SemanticExtractor } from "../semantic/extractors/semantic.extractor";
 import { ChatResponse, UserContext } from "../types/enums/chat.response";
-import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/extractor";
+import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extractor";
 import { RoutingService } from "./router/routing.service";
-import { TOKENS_FACTORY } from "@/ai-platform/container/tokens/factory";
+import { TOKENS_AGENT_FACTORY } from "@/ai-platform/container/tokens/agent/factory";
 import { AgentFactory } from "../agents/agent.factory";
 import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
 
@@ -17,7 +17,7 @@ export class AIPlatformOrchestrator {
     @inject(TOKENS_ORCHESTRATOR.routingService)
     private routingService: RoutingService,
 
-    @inject(TOKENS_FACTORY.agentFactory) // Ensure this is registered
+    @inject(TOKENS_AGENT_FACTORY.agentFactory) // Ensure this is registered
     private agentFactory: AgentFactory
   ) { }
 
@@ -27,13 +27,10 @@ export class AIPlatformOrchestrator {
   ): Promise<ChatResponse> {
 
     // 1. semantics
-    const semantic =
-      await this.semanticExtractor
-        .extract(message);
+    const semantic =  await this.semanticExtractor.extract(message);
     console.log("semantic", semantic);
     // 2. routing
-    const agentName =
-      this.routingService.route(
+    const agentName =this.routingService.route(
         semantic
       );
     console.log("agentName", agentName);
@@ -46,8 +43,8 @@ export class AIPlatformOrchestrator {
     // 4. execute
     // If IDomainAgent expects a Task, we should map the semantic context into a Task structure.
     // If the Agent is intended to process the context directly, consider updating IDomainAgent's signature.
-return agent.execute(
-  semantic
-);
+    return agent.execute(
+      semantic
+    );
   }
 }

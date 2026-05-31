@@ -6,7 +6,7 @@ import { BookingAgent } from "./booking/booking.agent";
 import { GeneralAgent } from "./generalAgent";
 import { ListingAgent } from "./listing/listing.agent";
 // import { PaymentAgent } from "./payment/payment.agent";
-import { TOKENS_AGENT } from "@/ai-platform/container/tokens/agent/action.agent";
+import { TOKENS_AGENT } from "@/ai-platform/container/tokens/agent/module.agent";
 
 @injectable()
 export class AgentFactory {
@@ -27,7 +27,7 @@ export class AgentFactory {
     switch (agentName) {
       case "ListingAgent":
         return this.listingAgent;
-      case "BookingAgent":
+      //case "BookingAgent":
     //     return this.bookingAgent;
     //   case "PaymentAgent":
     //     return this.paymentAgent;
