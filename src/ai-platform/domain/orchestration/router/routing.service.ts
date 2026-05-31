@@ -18,12 +18,13 @@ export class RoutingService {
       return "GeneralAgent";
     }
 
-    switch (topIntent) {
+    switch (topIntent.name) {
 
       case "CANCEL_BOOKING":
         return "BookingAgent";
 
-      case "OPTIMIZE_LISTING":
+      case "OPTIMIZE_TITLE":
+      case "OPTIMIZE_DESCRIPTION":
         return "ListingAgent";
 
       case "SECURITY_ALERT":
