@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { OpenAIAdapter } from "../../infrastructure/ai/OpenAI.adapter";
-import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 @injectable()
 export class ApplyDescriptionSuggestionUseCase {
@@ -24,7 +24,7 @@ Description: ${listing.description}
 `;
 
     // Fix: Pass prompt as a string, not an object
-    const newDesc = await this.ai.generateText(prompt);
+    const newDesc = await this.ai.generateText({prompt});
 
     // Defensive Check: Ensure AI response meets domain requirements
     if (!newDesc || newDesc.trim().length < 10) {

@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import { IListingRepository } from "../../domain/repos/IListingRepository";
-import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 @injectable()
 class GetListingUseCase {

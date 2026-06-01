@@ -1,8 +1,8 @@
 //src/subgraphs/listing/infrastructure/persistence/listing.repository.ts
 import { injectable, inject } from 'tsyringe';
-import { Listing } from '../../domain/entities/Listing';
+
 import { ListingMapper } from '../mappers/listing.mapper';
-import { TOKENS_LISTING } from '@/modules/tokens/ai/listing.tokens';
+import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';
 import { Sequelize } from 'sequelize';
 import ListingModel from '../models/listing.model';
@@ -12,6 +12,7 @@ import ListingAmenity from '../models/listingAmenities.model';
 import { Op } from 'sequelize';
 import Category from '../models/category.model';
 import CategoryModel from '@/shared/category/infrastructure/category.model';
+import { Listing } from '../../domain/entities/listing';
 
 @injectable()
 export class ListingRepository implements IListingRepository {
@@ -27,9 +28,13 @@ export class ListingRepository implements IListingRepository {
   ) {}
 
   async create(listing: Listing): Promise<Listing> {
-    const raw = ListingMapper.toPersistence(listing);
-    const created = await this.model.create(raw as any);
-    return ListingMapper.toDomain(created);
+ const persistence =
+    ListingMapper.toPersistence(listing);
+
+  const created =
+    await this.model.create(persistence);
+
+  return ListingMapper.toDomain(created);
   }
 
   async update(id: string, listing: Listing): Promise<boolean> {
@@ -43,10 +48,87 @@ export class ListingRepository implements IListingRepository {
     return deletedCount > 0;
   }
 
-  async findById(id: string): Promise<Listing | null> {
-    const record = await this.model.findByPk(id);
-    return record ? ListingMapper.toDomain(record) : null;
+async findById(
+  id: string
+): Promise<Listing | null> {
+
+  console.log(
+    "REPO STEP 1"
+  );
+
+  const listing =
+    await this.model.findByPk(id);
+
+  console.log(
+    "REPO STEP 2 listing",
+    listing?.toJSON()
+  );
+
+  if (!listing) {
+    return null;
   }
+
+  console.log(
+    "REPO STEP 3 categories"
+  );
+
+  const categoryRows =
+    await this.listingCategoryModel.findAll({
+      where: {
+        listingId: id
+      }
+    });
+
+  console.log(
+    "REPO STEP 4 categoryRows",
+    categoryRows
+  );
+
+  const categories =
+    categoryRows.map(
+      (c: any) =>
+        c.categoryId
+    );
+
+  console.log(
+    "REPO STEP 5 amenities"
+  );
+
+  const amenityRows =
+    await this.listingAmenityModel.findAll({
+      where: {
+        listingId: id
+      }
+    });
+
+  console.log(
+    "REPO STEP 6 amenityRows",
+    amenityRows
+  );
+
+  const amenityIds =
+    amenityRows.map(
+      (a: any) =>
+        a.amenityId
+    );
+
+  console.log(
+    "REPO STEP 7 mapper"
+  );
+
+  const domain =
+    ListingMapper.toDomain({
+      ...listing.toJSON(),
+      categories,
+      amenityIds,
+    });
+
+  console.log(
+    "REPO STEP 8 success"
+  );
+
+  return domain;
+}
 
   async findByHostId(hostId: string): Promise<Listing[]> {
     // Assuming hostId maps to hostId in the MySQL schema

@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { ILocationRepository } from "../../domain/repos/ILocationRepository";
-import { Location } from "../../domain/entities/Location";
-import { TOKENS_LOCATION } from "@/modules/tokens/ai/location.tokens";
+import { Location } from "../../domain/entities/location";
+import { TOKENS_LOCATION } from "@/modules/tokens/location.tokens";
 
 @injectable()
 export class GetLocationUseCase {

@@ -2,12 +2,13 @@
 
 import { inject, injectable } from 'tsyringe';
 import CategoryModel from './category.model';
-import { TOKENS_CATEGORY } from "@/modules/tokens/ai/category.tokens";
+import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 import { Op } from 'sequelize';
 
 @injectable()
 export class CategoryRepository {
   async findByIds(ids: string[]) {
+    console.log(ids); //no output in the terminal
     return CategoryModel.findAll({
       where: {
         id: {

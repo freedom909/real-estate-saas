@@ -1,34 +1,88 @@
-// FILE: src/subgraphs/listing/infrastructure/ai/OpenAIAdapter.ts
-
 import { injectable } from "tsyringe";
 import fetch from "node-fetch";
+import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
+
+interface OpenAIChatResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
 
 @injectable()
-export class OpenAIAdapter {
+export class OpenAIAdapter implements IOpenAIAdapter {
+  private readonly apiUrl: string;
+  private readonly apiKey: string;
+
+  constructor() {
+    this.apiUrl =
+      process.env.OPENAI_API_URL ||
+      "https://api.openai.com/v1/chat/completions";
+
+    this.apiKey = process.env.OPENAI_API_KEY || "";
+
+    if (!this.apiKey) {
+      console.warn("OPENAI_API_KEY is missing");
+    }
+  }
+
   async generateText(input: {
     prompt: string;
-    temperature?: number;
-    maxTokens?: number;
   }): Promise<string> {
-    const res = await fetch("https://api.openai.com/v1/completions", {
+    const { prompt } = input;
+
+    const response = await fetch(this.apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo-instruct",
-        prompt: input.prompt,
-        temperature: input.temperature ?? 0.7,
-        max_tokens: input.maxTokens ?? 150,
+        model: "gpt-4.1-mini",
+
+  // ⭐⭐⭐ 核心修复点
+  response_format: {
+    type: "json_object"
+  },
+
+  messages: [
+    {
+      role: "system",
+      content: `
+You are an AI assistant specialized in Airbnb listing optimization.
+
+IMPORTANT:
+- Return ONLY valid JSON
+- No markdown
+- No \`\`\`json blocks
+- No explanations
+      `
+    },
+    {
+      role: "user",
+      content: prompt,
+    },
+  ],
+
+  max_tokens: 200,
+  temperature: 0.7,
       }),
     });
 
-    if (!res.ok) {
+    if (!response.ok) {
+      const errorBody = await response.text();
+
+      console.error("OpenAI API error:", errorBody);
+
       throw new Error("OpenAI error");
     }
 
-    const data: any = await res.json();
-    return data.choices?.[0]?.text?.trim() || "";
+    const data =
+      (await response.json()) as OpenAIChatResponse;
+
+   
+      return safeParse(data.choices?.[0]?.message?.content || "");
+  
   }
 }

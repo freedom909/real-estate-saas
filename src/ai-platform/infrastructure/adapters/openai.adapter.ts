@@ -1,3 +1,4 @@
+// src/infrastructure/adapters/openai.adapter.ts
 import { injectable } from "tsyringe";
 import OpenAI from "openai";
 

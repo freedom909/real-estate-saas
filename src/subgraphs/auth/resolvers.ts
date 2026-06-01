@@ -3,19 +3,19 @@
 import { container, DependencyContainer } from "tsyringe";
 
 import { ForbiddenError } from "../../infrastructure/utils/errors";
-
+import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
 
 import { GeminiSecurityService } from "@/security/infrastructure/geminiSecurity.service";
-
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 import { SecurityAssessment } from "@/domain/user/types/types";
 import withSecurity from "@/security/infrastructure/withSecurity";
 import { VerifyOtpUseCase } from "./application/usecases/verifyOtp.usecase";
 import { subgraphAuthGuard } from "./guards/subgraphAuthGuard";
 
+
 import Blacklist from "@/security/blacklist/blacklist";
 import { IdentityRepository } from "./infrastructure/repos/identity.repo";
 import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
-import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 
 interface User {
   userId: string;

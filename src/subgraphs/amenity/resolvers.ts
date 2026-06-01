@@ -1,4 +1,6 @@
 import { container } from 'tsyringe';
+
+import { TOKENS_AMENITY } from '@/modules/tokens/amenity.tokens';
 import { AmenityRepository } from './infrastructure/persistence/amenity.repository';
 import { GetAmenitiesUseCase } from './application/useCase/GetAmenitiesUseCase';
 import { GetAmenitiesByIdsUseCase } from './application/useCase/GetAmenitiesByIdsUseCase';

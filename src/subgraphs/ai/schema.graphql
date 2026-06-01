@@ -8,6 +8,7 @@ schema
 }
 
 scalar DateTime
+scalar JSON
 
  type ChatResponse {
     reply: String!
@@ -18,6 +19,15 @@ scalar DateTime
     userId: String!
   }
 
+type Query {
+  _empty: String
+}
   extend type Mutation {
     chat(input: ChatInput!): ChatResponse!
+    analyzeBookingFraud(bookingId: ID!): FraudAnalysisResponse!
+  }
+
+  type FraudAnalysisResponse {
+    agentName: String!
+    assessment: JSON! // Unknown type JSON
   }

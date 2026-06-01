@@ -13,7 +13,7 @@ import type { RequestHandler } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import { resolvers } from "./interface/resolvers";
+import { resolvers } from "./resolvers";
 import { initializeBookingContainer } from "@/infrastructure/container/initBookingContainer";
 import { initMongoContainer } from "@/infrastructure/container/initMongoContainer";
 
@@ -21,9 +21,8 @@ import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
 import { RabbitMQEventBus } from "./interface/events/rabbitmq-event-bus";
-
-import registerMQEventBus from "@/modules/container/mq.register";
 import TOKENS from "@/modules/tokens/mq.tokens";
+import registerMQEventBus from "@/modules/container/mq.register";
 dotenv.config();
 
 registerMQEventBus();

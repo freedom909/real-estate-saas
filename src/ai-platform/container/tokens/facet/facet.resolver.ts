@@ -5,7 +5,7 @@ export const TOKENS_FACET_RESOLVERS={
     paymentFacetResolver:Symbol.for("payment.facet.resolver"),
     reviewFacetResolver:Symbol.for("review.facet.resolver"),
     securityFacetResolver:Symbol.for("security.facet.resolver"),
-    generalFacetResolver:Symbol.for("general.facet.resolver")
-
-
+    generalFacetResolver:Symbol.for("general.facet.resolver"),
+    optimizeContentExecutor:Symbol.for("optimize.content.executor"),
+    generateContentExecutor:Symbol.for("generate.content.executor"),
 }

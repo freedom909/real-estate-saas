@@ -1,11 +1,22 @@
 // FILE: src/subgraphs/listing/application/prompts/buildDescriptionPrompt.ts
 
-import { Listing } from "../../domain/entities/Listing";
+import { Listing } from "../../domain/entities/listing";
 
 export const buildDescriptionPrompt = (listing: Listing): string => `
-You are an expert Airbnb listing copywriter.
+You are an expert Airbnb copywriter.
 
-Improve the description to be more engaging and persuasive.
+Generate an engaging property description.
+
+Requirements:
+
+- Natural human language
+- Guest-focused
+- Persuasive but realistic
+- No placeholders
+- No markdown
+- 100-200 words
+
+Property Information:
 
 Title:
 ${listing.title}
@@ -13,5 +24,15 @@ ${listing.title}
 Current Description:
 ${listing.description}
 
-Return ONLY the new description.
+Amenities:
+${listing.amenityIds.join(", ")}
+
+Categories:
+${listing.categories.join(", ")}
+
+Address:
+${listing.address}
+
+Return ONLY the improved description.
 `;
+

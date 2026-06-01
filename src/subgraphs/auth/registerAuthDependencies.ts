@@ -4,7 +4,7 @@ import "reflect-metadata";
 import { DependencyContainer } from "tsyringe";
 
 // TOKENS
-
+import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
 import { TOKENS } from "../../shared/infra/tokens";
 import { TOKENS_INFRA } from "../../infrastructure/infra.tokens";
 import { TOKENS_USER } from "../../modules/tokens/user.tokens";
@@ -15,13 +15,13 @@ import { createRedis } from "../../infrastructure/redis/redis";
 
 // ✅ blacklist
 // import { OAuthProvider } from "./adapters/normalized.oauth.profile";
-
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 // import { AuditAdapter } from "./adapters/audit.client";
 import { RiskEngine } from "@/security/domain/risk.engine";
 import Blacklist from "@/security/blacklist/blacklist";
 
 import AuditClient from "@/packages/audit-sdk/src/client/audit.client";
-
+import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 import { VerifyOtpUseCase } from "./application/usecases/verifyOtp.usecase";
 
 import { RiskEventRepo } from "./infrastructure/repos/risk.event.repo";
@@ -43,9 +43,6 @@ import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
 import { SessionService } from "./infrastructure/services/session.service";
 import { IdentityRepository } from "./infrastructure/repos/identity.repo";
 import { IdentityModel } from "./infrastructure/models/identity.model";
-import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
-import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 export default function registerAuthDependencies(container: DependencyContainer) {
 

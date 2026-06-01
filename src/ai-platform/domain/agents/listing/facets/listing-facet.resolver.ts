@@ -1,25 +1,56 @@
-// src/ai-platform/cognition/domain/agents/listing/facets/listing-facet.resolver.ts
+// src/ai-platform/domain/agents/listing/facets/listing-facet.resolver.ts
 import { inject, injectable } from "tsyringe";
 import { IExecutor, IFacetResolver } from "../../../planning/types/i-facet.resolver";
 import { OptimizeContentExecutor } from "../../../semantic/extractors/optimize-content.executor";
 import { GenerateContentExecutor } from "../../../semantic/extractors/generate-content.executor";
 import { CapabilityType } from "../../../planning/types/enums";
+import { TOKENS_LISTING_FACET_RESOLVERS } from "@/ai-platform/container/tokens/facet/listing.facet";
 
+import { TOKENS_FACET_RESOLVERS }
+from "@/ai-platform/container/tokens/facet/facet.resolver";
 
 @injectable()
-export class ListingFacetResolver implements IFacetResolver {
+export class ListingFacetResolver {
+
   constructor(
-    @inject(OptimizeContentExecutor)
-    private optimizeContentExecutor: OptimizeContentExecutor,
-    @inject(GenerateContentExecutor)
-    private generateContentExecutor: GenerateContentExecutor
+
+    @inject(
+      TOKENS_LISTING_FACET_RESOLVERS.optimizeContentExecutor
+    )
+    private optimizeContentExecutor:
+      OptimizeContentExecutor,
+
+    @inject(
+      TOKENS_LISTING_FACET_RESOLVERS.generateContentExecutor
+    )
+    private generateContentExecutor:
+      GenerateContentExecutor
+
   ) {}
 
-  resolve(capability: CapabilityType): IExecutor {
+  resolve(capability: string) {
+
+    console.log(
+      "ListingFacetResolver.resolve",
+      capability
+    );
+
     switch (capability) {
-      case CapabilityType.OPTIMIZE_CONTENT: return this.optimizeContentExecutor;
-      case CapabilityType.GENERATE_CONTENT: return this.generateContentExecutor;
-      default: throw new Error(`No executor found for Listing capability: ${capability}`);
+
+      case "OPTIMIZE_TITLE":
+      case "OPTIMIZE_DESCRIPTION":
+        return this
+          .optimizeContentExecutor;
+
+      case "GENERATE_TITLE":
+      case "GENERATE_DESCRIPTION":
+        return this
+          .generateContentExecutor;
+
+      default:
+        throw new Error(
+          `Unsupported capability: ${capability}`
+        );
     }
   }
 }

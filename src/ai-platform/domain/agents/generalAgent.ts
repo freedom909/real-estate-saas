@@ -3,6 +3,7 @@ import { inject, injectable } from "tsyringe";
 import { SemanticContext } from "../semantic/semantic-context";
 import { TOKENS_AI_ADAPTER } from "@/ai-platform/container/tokens/ai.adapter";
 import { OpenAIAdapter } from "@/ai-platform/infrastructure/adapters/openai.adapter";
+import { parseAIJson } from "@/ai-platform/infrastructure/utils/parserAIJson";
 
 @injectable()
 export class GeneralAgent {
@@ -19,7 +20,7 @@ const prompt = `
 You are an AI intent classifier.
 
 Return JSON only.
-
+response_format: { type: "json_object" }
 Domains:
 - LISTING
 - BOOKING
@@ -89,9 +90,10 @@ ${semantic.rawInput}
       "GPT reply:",
       reply
     );
-
+const parsed =
+  JSON.parse(reply);
     return {
-      reply
+      reply:parsed
     };
   }
 }

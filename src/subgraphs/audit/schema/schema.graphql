@@ -1,46 +1,23 @@
-extend schema
-@link(
-  url: "https://specs.apollo.dev/federation/v2.11",
-  import: ["@key"]
-)
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key"])
 
 type AuditLog @key(fields: "id") {
   id: ID!
-
-  userId: ID
-
-  tenantId: ID
-
-  hostId: ID
-
   action: String!
-
+  userId: ID!
   resourceId: ID!
+  timestamp: String!
+}
 
-  resourceType: String!
-
-  status: String!
-
-  correlationId: String
-
-  metadata: JSON
-
-  createdAt: String!
+type Mutation {
+   recordAuditLog(
+    action: String!
+    userId: ID!
+    resourceId: ID
+    metadata: String
+  ): AuditLog!
 }
 
 type Query {
-
-  auditLog(
-    id: ID!
-  ): AuditLog
-
-  auditLogsByUser(
-    userId: ID!
-  ): [AuditLog!]!
-
-  auditLogsByResource(
-    resourceId: ID!
-  ): [AuditLog!]!
+  getAuditLog(userId: ID!): AuditLog
+  getAuditLogsByResource(resourceId: ID!): [AuditLog!]!
 }
-
-scalar JSON

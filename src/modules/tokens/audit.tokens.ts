@@ -1,93 +1,18 @@
 // src/modules/tokens/audit.tokens.ts
-
 export const TOKENS_AUDIT = {
-auditClient: Symbol.for("AuditClient"),
-  models: {
-    auditLog:
-      Symbol.for(
-        "audit.models.auditLog"
-      ),
+   
+     auditClient: Symbol.for("AuditClient"),
+     graphqlClient: Symbol.for("AuditGraphQLClient"),
 
-    decisionLog:
-      Symbol.for(
-        "audit.models.decisionLog"
-      ),
+    models: {
+      audit: Symbol.for("audit.models.audit"),
+    },
 
-    systemLog:
-      Symbol.for(
-        "audit.models.systemLog"
-      ),
-      securityLog:
-      Symbol.for(
-        "audit.models.securityLog"
-      ),
-  },
+    repos: {
+      auditRepo: Symbol.for("audit.repos.auditRepo"),
+    },
 
-  repos: {
-    auditLog:
-      Symbol.for(
-        "audit.repos.auditLog"
-      ),
-
-    decisionLog:
-      Symbol.for(
-        "audit.repos.decisionLog"
-      ),
-
-    systemLog:
-      Symbol.for(
-        "audit.repos.systemLog"
-      ),
-
-      securityLog:
-      Symbol.for(
-        "audit.repos.securityLog"
-      ),
-
-  },
-
-  services: {
-    auditLog:
-      Symbol.for(
-        "audit.services.auditLog"
-      ),
-
-    decisionLog:
-      Symbol.for(
-        "audit.services.decisionLog"
-      ),
-
-    systemLog:
-      Symbol.for(
-        "audit.services.systemLog"
-      ),
-
-      securityLog:
-      Symbol.for(
-        "audit.services.securityLog"
-      ),
-  },
-
-  queries: {
-    getAuditLogs:
-      Symbol.for(
-        "audit.queries.getAuditLogs"
-      ),
-    getAuditLogsByResource:
-      Symbol.for(
-        "audit.queries.getAuditLogsByResource"
-      ),
-    getDecisionLogs:
-      Symbol.for(
-        "audit.queries.getDecisionLogs"
-      ),
-
-    getSystemLogs:
-      Symbol.for(
-        "audit.queries.getSystemLogs"
-      ),
-  },
-
-  
-
+    services: {
+      auditService: Symbol.for("audit.services.auditService"),
+    },
 } as const;

@@ -6,7 +6,7 @@ export interface AuditPort {
 export interface AuditEvent {
   userId: string;
   action: string;
-  metadat?: any;
+  metadata?: any;
   resourceId?: string;
   timestamp?: Date;
 }

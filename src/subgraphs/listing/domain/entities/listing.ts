@@ -1,7 +1,8 @@
 // src/subgraphs/listing/domain/entities/Listing.ts
 
 import { Title } from "../value-objects/Title";
-import { Description } from "../value-objects/Description";
+import { Description } from "../value-objects/description";
+import { SuggestionStatus } from "./suggestionStatus";
 
 export interface ListingProps {
   id: string;
@@ -24,10 +25,10 @@ export interface ListingProps {
 
   price: number;
 
-  picture?: string[];
+  picture: string[];
 
   isFeatured: boolean;
-
+  
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,8 +44,13 @@ export class Listing {
   // getters
   get id() { return this.props.id; }
   get hostId() { return this.props.hostId; }
-  get title() { return this.props.title.getValue(); }
-  get description() { return this.props.description.getValue(); }
+get title(): string {
+  return this.props.title.getValue();
+}
+
+get description(): string {
+  return this.props.description.getValue();
+}
   get locationId() { return this.props.locationId; }
   get categories() { return this.props.categories; }
   get amenityIds() { return this.props.amenityIds; }
@@ -59,6 +65,7 @@ export class Listing {
   get picture() { return this.props.picture; }
   get isFeatured() { return this.props.isFeatured; }
 
+  
 
   // ======================
   // Business Logic
@@ -72,7 +79,7 @@ export class Listing {
     this.props.address = address;
     this.touch();
   }
-  
+
   updateDescription(desc: string) {
     this.props.description = new Description(desc);
     this.touch();
@@ -105,7 +112,9 @@ export class Listing {
 
   private validate(props: ListingProps) {
     if (!props.hostId) throw new Error("hostId required");
-    if (!props.locationId) throw new Error("locationId required");// "message": "locationId required",
-    if (!props.categories.length) throw new Error("categories required");
+    if (!props.locationId) throw new Error("locationId required");
+    if (!props.categories || props.categories.length === 0) {
+      throw new Error("categories required");
+    }
   }
 }

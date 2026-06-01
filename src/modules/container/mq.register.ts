@@ -1,5 +1,5 @@
 import { container } from "tsyringe";
-import TOKENS from "@/modules/tokens/ai/mq.tokens";
+import TOKENS from "@/modules/tokens/mq.tokens";
 import { RabbitMQEventBus } from "@/subgraphs/booking/interface/events/rabbitmq-event-bus";
 
 export default function registerMQEventBus() {

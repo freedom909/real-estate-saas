@@ -1,7 +1,10 @@
 import { injectable, inject } from "tsyringe";
-import { LISTING_TOKENS } from "../../container/tokens";
+
 import { IListingRepository } from "../entities/IListingRepository";
-import { OpenAIAdapter } from "./OpenAIAdapter";
+
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { OpenAIAdapter } from "./openAIAdapter";
 
 
 @injectable()
@@ -16,9 +19,9 @@ export class GenerateTitleSuggestionUseCase {
   `;
 
   constructor(
-    @inject(LISTING_TOKENS.ListingRepository)
+    @inject(TOKENS_LISTING.ListingRepository)
     private listingRepository: IListingRepository,
-    @inject(OpenAIAdapter)
+    @inject(TOKENS_AI.OpenAIAdapter)
     private openAIAdapter: OpenAIAdapter
   ) {}
 
@@ -32,6 +35,6 @@ export class GenerateTitleSuggestionUseCase {
       .replace("{currentTitle}", listing.title)
       .replace("{currentDescription}", listing.description);
 
-    return this.openAIAdapter.generateText(prompt);
+  return this.openAIAdapter.generateText({prompt});
   }
 }

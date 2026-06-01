@@ -16,7 +16,7 @@ import { resolvers } from './resolvers/resolver';
 import { sequelize } from "@/infrastructure/config/seq";
 import registerAuthDependencies from "../auth/registerAuthDependencies";
 import { registerUserDependencies } from "../user/registerUserDependencies";
-import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import registerListingDependencies from "@/modules/container/listing.register";
 
 console.log(TOKENS_LISTING.adapters.amenityAdapter);
@@ -24,10 +24,12 @@ console.info("Listing subgraph configuration loaded");
 // Register all dependencies for the listing subgraph
 // server.ts / bootstrap.ts
 
+
 import "@/shared/category/container";  // 👈 必须
+import { registerAIContainer } from "@/modules/container/ai.register";
 
 
-
+registerAIContainer()
 registerAuthDependencies(container);
 
 registerListingDependencies();

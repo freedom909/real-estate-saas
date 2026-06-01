@@ -1,17 +1,16 @@
 import { injectable, inject } from 'tsyringe';
-import { Listing } from '../../domain/entities/Listing';
+import { Listing } from '../../domain/entities/listing';
 import { v4 as uuidv4 } from 'uuid';
-import { TOKENS_LISTING } from '@/modules/tokens/ai/listing.tokens';
+import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { IListingRepository } from '../../domain/repos/IListingRepository';
 import { Title } from '../../domain/value-objects/Title';
-import { Description } from '../../domain/value-objects/Description';
+import { Description } from '../../domain/value-objects/description';
 import { IAmenityAdapter } from '../../adapters/IAmenity.adapter';
 
  // Assuming categoryAdapter token is under TOKENS_LISTING.adapters
-import { ICategoryRepository } from '@/shared/category/domain/ICategoryRepository';
-import { TOKENS_CATEGORY } from '@/modules/tokens/ai/category.tokens';
-
-
+import { ICategoryRepository } from '@/shared/category/domain/ICategory.repository';
+import { TOKENS_CATEGORY } from '@/modules/tokens/category.tokens';
+import { GenerateTitleResult } from '../contracts/ai/generateTitleResult';
 
 export interface CreateListingInput {
   title: string;
@@ -41,11 +40,13 @@ export default class CreateListingUseCase {
     private categoryRepo: ICategoryRepository,// it should be the 'CategoryRepository' for the ICategoryAdapter   
   ) { }
 
-  async execute(input: CreateListingInput): Promise<Listing> {
-  
+  async execute(input: CreateListingInput): Promise<GenerateTitleResult> {
+ 
     // Validate amenityIds
     if (input.amenityIds && input.amenityIds.length > 0) {
+      console.log(input.amenityIds); 
       const validIds = await this.amenityAdapter.getValidIds(input.amenityIds);
+      console.log("++validIds", validIds); //no output in the terminal
       const validSet = new Set(validIds);
       const invalidAmenityIds = input.amenityIds.filter(id => !validSet.has(id));
 
@@ -54,6 +55,8 @@ export default class CreateListingUseCase {
       }
     }
     const categories = await this.categoryRepo.findByIds(input.categories);
+
+    console.log(categories); //no output in the terminal
     if (categories.length === 0 && input.categories.length > 0) {
       throw new Error(`Invalid category names provided: ${input.categories.join(', ')}`);
     }

@@ -10,13 +10,17 @@ import { SemanticContext } from "../../semantic/semantic-context";
 import { CapabilityType } from "../../planning/types/enums";
 
 @injectable()
-export class ListingAgent implements IDomainAgent {
+export class ListingAgent
+implements IDomainAgent {
 
-  constructor(
-    @inject(TOKENS_FACET_RESOLVERS.listingFacetResolver)
-    private facetResolver:ListingFacetResolver
+   constructor(
+    @inject(
+      TOKENS_FACET_RESOLVERS
+        .listingFacetResolver
+    )
+    private facetResolver:
+      ListingFacetResolver
   ) {}
-  semantic: SemanticContext;
 
   async execute(
     semantic: SemanticContext
@@ -26,29 +30,32 @@ export class ListingAgent implements IDomainAgent {
       "ListingAgent.execute"
     );
 
-    if (
-      semantic.hasIntent(
-        "OPTIMIZE_TITLE"
-      )
-    ) {
+    const capability =
+      semantic.intents?.[0]?.name;
 
-      console.log(
-        "route optimize"
-      );
+    console.log(
+      "capability",
+      capability
+    );
 
-      const executor =
-        this.facetResolver.resolve(
-          CapabilityType.OPTIMIZE_CONTENT
-        );
-
-      return executor.execute(
-        semantic
-      );
+    if (!capability) {
+      return {
+        reply:
+          "No capability found."
+      };
     }
 
-    return {
-      reply:
-        "Listing intent not supported."
-    };
+    const executor =
+      this.facetResolver
+        .resolve(capability);
+
+    console.log(
+      "executor",
+      executor
+    );
+
+    return await executor.execute(
+      semantic
+    );
   }
 }

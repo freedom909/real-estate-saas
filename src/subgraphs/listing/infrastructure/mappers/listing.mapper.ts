@@ -1,50 +1,114 @@
-import { Listing } from "../../domain/entities/Listing";
+import { Listing } from "../../domain/entities/listing";
+import { Description } from "../../domain/value-objects/description";
 import { Title } from "../../domain/value-objects/Title";
-import { Description } from "../../domain/value-objects/Description";
 
 
 export class ListingMapper {
 
-  // DB → Domain
 static toDomain(raw: any): Listing {
+ console.log("RAW LISTING++", raw)
+  
   return new Listing({
+
     id: raw.id,
 
     hostId: raw.hostId,
     locationId: raw.locationId,
 
-    title: new Title(raw.title),
+    title:
+      new Title(raw.title),
 
-    description: new Description(raw.description),
+    description:
+      new Description(
+        raw.description
+      ),
 
     address: raw.address,
 
-    categories: raw.categories || [],
-    amenityIds: raw.amenityIds || [],
+    categories:
+      raw.categories?.map(
+        (c: any) =>
+          c.categoryId
+      ) ?? [],
 
-    numOfBeds: raw.numOfBeds || 1,
-    numOfGuests: raw.numOfGuests || 1,
-    numOfBathrooms: raw.numOfBathrooms || 1,
-    numOfRooms: raw.numOfRooms || 1,
+    amenityIds:
+      raw.amenityIds?.map(
+        (a: any) =>
+          a.amenityId
+      ) ?? [],
 
-    price: Number(raw.price || 1),
+    numOfBeds:
+      raw.numOfBeds ?? 1,
 
-    picture: raw.picture || [],
+    numOfGuests:
+      raw.numOfGuests ?? 1,
 
-    isFeatured: raw.isFeatured || false,
+    numOfBathrooms:
+      raw.numOfBathrooms ?? 1,
 
-    createdAt: raw.createdAt,
-    updatedAt: raw.updatedAt,
+    numOfRooms:
+      raw.numOfRooms ?? 1,
+
+    price:
+      Number(raw.price ?? 1),
+
+    picture:
+      raw.picture ?? [],
+
+    isFeatured:
+      raw.isFeatured ?? false,
+
+    createdAt:
+      raw.createdAt,
+
+    updatedAt:
+      raw.updatedAt,
+
+      
   });
+  
 }
 
-  // Domain → DB
+  // DB → Domain
+// static toDomain(raw: any): Listing {
+//   return new Listing({
+//     id: raw.id,
+
+//     hostId: raw.hostId,
+//     locationId: raw.locationId,
+
+//     title: new Title(raw.title),
+
+//     description: new Description(raw.description),
+
+//     address: raw.address,
+
+//     categories: raw.categories || [],
+//     amenityIds: raw.amenityIds || [],
+
+//     numOfBeds: raw.numOfBeds || 1,
+//     numOfGuests: raw.numOfGuests || 1,
+//     numOfBathrooms: raw.numOfBathrooms || 1,
+//     numOfRooms: raw.numOfRooms || 1,
+
+//     price: Number(raw.price || 1),
+
+//     picture: raw.picture || [],
+
+//     isFeatured: raw.isFeatured || false,
+
+//     createdAt: raw.createdAt,
+//     updatedAt: raw.updatedAt,
+//   });
+// }
+
+  // Domain → DB 
 static toPersistence(listing: Listing) {
   return {
     id: listing.id,
 
-    title: listing.title,
-    description: listing.description,
+title: listing.title,
+description: listing.description,
 
     hostId: listing.hostId,
     locationId: listing.locationId,

@@ -20,7 +20,8 @@ export default class LLMExtractor {
     const prompt = `
 You are an AI intent classifier.
 
-Return JSON only.
+No markdown.
+Return ONLY valid JSON.
 
 Domains:
 - LISTING

@@ -1,35 +1,51 @@
-// src/ai-platform/cognition/domain/agents/listing/executors/optimize-content.executor.ts
-import { injectable } from "tsyringe";
-import { IExecutor } from "../../planning/types/i-facet.resolver";
+import { inject, injectable } from "tsyringe";
 import { SemanticContext } from "../semantic-context";
 
+import { TOKENS_AI }
+from "@/modules/tokens/ai.tokens";
+
+import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase";
 
 @injectable()
 export class OptimizeContentExecutor {
+
+  constructor(
+    @inject(
+      TOKENS_AI.usecase
+        .generateTitleSuggestionUseCase
+    )
+    private generateTitleSuggestionUseCase:
+      GenerateTitleSuggestionUseCase
+  ) {}
 
   async execute(
     semantic: SemanticContext
   ) {
 
-    const listingId =
-      semantic.entities.find(
-        e => e.type === "listing_id"
-      )?.value;
+const listingId =
+  semantic.entities.find(
+    e =>
+      e.type ===
+      "listing.id"
+  )?.value;
+console.log(
+  "semantic.entities",
+  semantic.entities
+);
+    if (!listingId) {
+      return {
+        reply:
+          "Listing ID not found."
+      };
+    }
 
-    const targetField =
-      "title";
-
-    console.log(
-      `Executing OptimizeContent for listingId:
-       ${listingId},
-       targetField:
-       ${targetField}`
-    );
+    const suggestion =
+      await this
+        .generateTitleSuggestionUseCase
+        .execute(listingId);
 
     return {
-      reply:
-        `Optimize ${targetField}
-         for listing ${listingId}`
+      reply: suggestion
     };
   }
 }

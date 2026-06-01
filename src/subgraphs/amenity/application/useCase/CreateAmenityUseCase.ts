@@ -1,6 +1,6 @@
 // FILE: src/subgraphs/amenity/application/useCase/CreateAmenityUseCase.ts
 
-import { TOKENS_AMENITY } from "@/modules/tokens/ai/amenity.tokens";
+import { TOKENS_AMENITY } from "@/modules/tokens/amenity.tokens";
 import { inject, injectable } from "tsyringe";
 import { IAmenityRepository } from "../../domain/entities/IAmenityRepo";
 import { AmenityFactory } from "../../domain/factories/AmenityFactory";

@@ -1,0 +1,24 @@
+[33mcommit 77f7a4016a083686dc2f363c4dd6e381b31b834f[m
+Author: freedom909 <gifu0@outlook.com>
+Date:   Sun May 10 20:05:09 2026 +0900
+
+    generateDescriptionSuggestion and generateTitleSuggestion work
+
+package-lock.json
+package.json
+src/subgraphs/listing/application/ai/services/OpenAIService.ts
+src/subgraphs/listing/application/prompts/buildDescriptionPrompt.ts
+src/subgraphs/listing/application/prompts/buildTitlePrompt.ts
+src/subgraphs/listing/application/use-cases/ApplyDescriptionSuggestionUseCase.ts
+src/subgraphs/listing/application/use-cases/GenerateListingSuggestionsUseCase.ts
+src/subgraphs/listing/application/use-cases/GenerateTitleSuggestionUseCase.ts
+src/subgraphs/listing/application/use-cases/applyAISuggestionUseCase.ts
+src/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase.ts
+src/subgraphs/listing/domain/entities/listing.ts
+src/subgraphs/listing/domain/entities/listingAISuggestion.ts
+src/subgraphs/listing/domain/repos/IListingAISuggestionRepository.ts
+src/subgraphs/listing/infrastructure/mappers/listingAISuggestionMapper.ts
+src/subgraphs/listing/infrastructure/persistence/listing.ai.suggestion.repository.ts
+src/subgraphs/listing/infrastructure/persistence/listing.repository.ts
+src/subgraphs/listing/resolvers/resolver.ts
+src/subgraphs/listing/schema.graphql

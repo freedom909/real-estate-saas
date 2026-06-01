@@ -1,13 +1,17 @@
 import { container } from "tsyringe";
 
 // Existing UseCases
-import CreateListingUseCase from "../application/use-cases/CreateListingUseCase";
-import GetListingUseCase from "../application/use-cases/GetListingUseCase";
+import CreateListingUseCase from "../application/use-cases/createListingUseCase";
+import GetListingUseCase from "../application/use-cases/getListingUseCase";
 
 // AI UseCases（用 Apply，不用 Generate// Tokens
-import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
-import { ApplyTitleSuggestionUseCase } from "../application/use-cases/ApplyTitleSuggestionUseCase";
-import { ApplyDescriptionSuggestionUseCase } from "../application/use-cases/ApplyDescriptionSuggestionUseCase";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { GenerateTitleSuggestionUseCase } from "../application/use-cases/generateTitleSuggestionUseCase";
+import { ApplyAISuggestionUseCase } from "../application/use-cases/applyAISuggestionUseCase";
+import { GenerateDescriptionSuggestionUseCase } from "../application/use-cases/generateDescriptionSuggestionUseCase";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+
+
 
 export const resolvers = {
   Query: {
@@ -32,27 +36,73 @@ export const resolvers = {
       };
       return repo.findByHostId(hostId);
     },
+
+    listingAISuggestions: async (_: any, { listingId }: { listingId: string }) => {
+      const repo = container.resolve(TOKENS_AI.ListingAISuggestionRepository) as {
+        findByListingId(listingId: string): Promise<unknown[]>;
+      };
+      return repo.findByListingId(listingId);
+    },
   },
 
-  Mutation: {
-    createListing: async (_: any, { input }: any) => {
-      const useCase = container.resolve<CreateListingUseCase>(
+Mutation: {
+  createListing: async (_: any, { input }: any) => {
+    const useCase =
+      container.resolve<CreateListingUseCase>(
         TOKENS_LISTING.CreateListingUseCase
       );
-      return useCase.execute(input);
-    },
 
-    // ✅ 正确：调用 Apply（包含 save）
-    applyTitleSuggestion: async (_: any, { listingId }: { listingId: string }) => {
-      const useCase = container.resolve(ApplyTitleSuggestionUseCase);
-      return useCase.execute(listingId);
-    },
-
-    applyDescriptionSuggestion: async (_: any, { listingId }: { listingId: string }) => {
-      const useCase = container.resolve(ApplyDescriptionSuggestionUseCase);
-      return useCase.execute(listingId);
-    },
+    return useCase.execute(input);
   },
+
+  // --------------------------------
+  // Generate TITLE suggestion
+  // --------------------------------
+  generateTitleSuggestion: async (
+    _: any,
+    { listingId }: { listingId: string }
+  ) => {
+
+    const useCase =
+      container.resolve(
+        GenerateTitleSuggestionUseCase
+      );
+
+    return useCase.execute(listingId);
+  },
+
+  // --------------------------------
+  // Generate DESCRIPTION suggestion
+  // --------------------------------
+  generateDescriptionSuggestion: async (
+    _: any,
+    { listingId }: { listingId: string }
+  ) => {
+
+    const useCase =
+      container.resolve(
+        GenerateDescriptionSuggestionUseCase
+      );
+
+    return useCase.execute(listingId);
+  },
+
+  // --------------------------------
+  // Apply accepted suggestion
+  // --------------------------------
+  applyAISuggestion: async (
+    _: any,
+    { suggestionId }: { suggestionId: string }
+  ) => {
+
+    const useCase =
+      container.resolve(
+        ApplyAISuggestionUseCase
+      );
+
+    return useCase.execute(suggestionId);
+  },
+},
 
   Listing: {
     host: (parent: any) => {

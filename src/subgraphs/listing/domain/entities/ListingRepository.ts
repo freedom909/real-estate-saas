@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
-import { Listing } from "../../domain/entities/Listing";
+import { Listing } from "./listing";
 
-import { TOKENS_LISTING } from "@/modules/tokens/ai/listing.tokens";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { ListingMapper } from "../../infrastructure/mappers/listing.mapper";
 import ListingModel from "../../infrastructure/models/listing.model";
 import { ModelStatic } from "sequelize";
