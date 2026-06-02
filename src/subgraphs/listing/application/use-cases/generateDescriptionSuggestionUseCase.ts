@@ -1,7 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { ILLMService } from "@/subgraphs/listing/application/ai/services/openAIService";
-import { listingOptimizationPrompt } from "@/subgraphs/listing/application/ai/prompts/listing.prompt";
-import { IListingRepository } from "../../domain/entities/IListingRepository";
+
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { v4 as uuidv4 } from 'uuid';

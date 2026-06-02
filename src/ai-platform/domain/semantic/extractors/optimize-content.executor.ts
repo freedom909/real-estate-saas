@@ -26,7 +26,7 @@ const listingId =
   semantic.entities.find(
     e =>
       e.type ===
-      "listing.id"
+      "listing_id"
   )?.value;
 console.log(
   "semantic.entities",

@@ -29,7 +29,7 @@ await mongoose.connect(
 
 // ⭐ schema
 const typeDefs = gql(
-  readFileSync("./src/ai-platform/schema.graphql", "utf-8")
+  readFileSync("./src/ai-platform/schemas/schema.graphql", "utf-8")
 )
 
 const schema = buildSubgraphSchema([{

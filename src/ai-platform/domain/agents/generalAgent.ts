@@ -4,6 +4,7 @@ import { SemanticContext } from "../semantic/semantic-context";
 import { TOKENS_AI_ADAPTER } from "@/ai-platform/container/tokens/ai.adapter";
 import { OpenAIAdapter } from "@/ai-platform/infrastructure/adapters/openai.adapter";
 import { parseAIJson } from "@/ai-platform/infrastructure/utils/parserAIJson";
+import { AISuggestionSchema } from "@/ai-platform/schemas/aiSuggestionSchema";
 
 @injectable()
 export class GeneralAgent {
@@ -92,8 +93,9 @@ ${semantic.rawInput}
     );
 const parsed =
   JSON.parse(reply);
+  const validated = AISuggestionSchema.parse(parsed);
     return {
-      reply:parsed
+      reply:validated
     };
   }
 }

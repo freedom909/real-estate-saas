@@ -1,21 +1,42 @@
-# Real Estate SaaS (Production-style Monorepo)
+# AI Real Estate SaaS Platform
 
-Tech Stack
+## Overview
+
+A real-estate SaaS platform built with:
+
+- DDD
+- Apollo Federation
+- TypeScript
+- FastAPI
+- AI Agent workflows
+
+## Features
+
+- OAuth Login
+- Audit Logging
+- User Management
+- Listing Management
+- Booking System (unfinished)
+- Review Management (unfinished)
+- AI Listing Optimization
+- AI Review Reply (unfinished)
+
+## Architecture
+
+DDD + GraphQL Federation + AI Agent
+
+## Tech Stack
+
 - Node.js
 - TypeScript
-- Apollo Federation
-- GraphQL
-- tsyringe (Dependency Injection)
-- MongoDB / Mongoose
-- Docker-ready structure
+- GraphQL Federation
+- FastAPI
+- MySQL
+- MongoDB
 
-Structure:
+## AI Architecture
 
-gateway/
-subgraphs/
-packages/
-shared/
-infra/
-scripts/
-
-This is a **simple SaaS architecture skeleton** designed for learning and extension.
+- Structured output
+- Tool calling
+- Workflow orchestration
+- AI suggestion system
