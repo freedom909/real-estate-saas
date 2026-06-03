@@ -63,8 +63,14 @@ type Mutation {
   createBooking(input: CreateBookingInput!): CreateBookingResponse! @shareable
   cancelBooking(id: ID!): CancelBookingResponse @shareable
   confirmBooking(id: ID!): Booking! @shareable
+  analyzeBookingFraud(bookingId: ID!): FraudAnalysisResponse!
 }
 
+type FraudAnalysisResponse {
+    agentName: String!
+    assessment: JSON! // Unknown type JSON
+  }
+  
 type CreateBookingResponse {
   code: Int! @shareable
   success: Boolean! @shareable

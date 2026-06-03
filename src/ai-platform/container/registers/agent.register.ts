@@ -2,7 +2,7 @@ import { container } from "tsyringe"
 import { TOKENS_AGENT } from "../tokens/agent/module.agent"
 import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent"
 import { BookingAgent } from "@/ai-platform/domain/agents/booking/booking.agent"
-import { PaymentAgent } from "@/ai-platform/domain/agents/payment/payment.agent"
+import { PaymentAgent } from "@/subgraphs/payment/application/agents/payment.agent"
 import { GeneralAgent } from "@/ai-platform/domain/agents/generalAgent"
 
 export function registerAgents() {

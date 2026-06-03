@@ -8,7 +8,7 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase";
 import { GenerateContentExecutor } from "@/ai-platform/domain/semantic/extractors/generate-content.executor";
-import { ListingRepository } from "@/subgraphs/listing/domain/entities/ListingRepository";
+import { ListingRepository } from "@/subgraphs/listing/domain/entities/listingRepository";
 import ListingModel from "@/subgraphs/listing/infrastructure/models/listing.model";
 import { ListingAISuggestionRepository } from "@/subgraphs/listing/infrastructure/persistence/listing.ai.suggestion.repository";
 import ListingAISuggestionModel from "@/subgraphs/listing/infrastructure/models/listing.ai.suggestion.model";

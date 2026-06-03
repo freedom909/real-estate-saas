@@ -2,7 +2,7 @@ import { injectable, container } from "tsyringe";
 import { Task } from "../planning/planners/task";
 import { ListingAgent } from "./listing/listing.agent";
 import { BookingAgent } from "./booking/booking.agent";
-import { PaymentAgent } from "./payment/payment.agent";
+import { PaymentAgent } from "../../../subgraphs/payment/application/agents/payment.agent";
 import { AIDomain } from "../planning/types/enums";
 import { SemanticContext } from "../semantic/semantic-context";
 

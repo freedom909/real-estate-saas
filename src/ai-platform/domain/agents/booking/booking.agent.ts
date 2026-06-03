@@ -1,8 +1,9 @@
 // src/ai-platform/cognition/domain/agents/booking/booking.agent.ts
 import { injectable } from "tsyringe";
-import { Task } from "../../planning/entities/task.domain";
-import { IDomainAgent } from "../types/i-domain.agent";
+
 import { BookingFacetResolver } from "./facets/booking-facet.resolver";
+import { SemanticContext } from "../../semantic/semantic-context";
+import { IDomainAgent } from "../agent-router.service";
 
 @injectable()
 export class BookingAgent implements IDomainAgent {
@@ -10,7 +11,7 @@ export class BookingAgent implements IDomainAgent {
     private facetResolver: BookingFacetResolver
   ) {}
 
-  async execute(task: Task): Promise<any> {
-    return this.facetResolver.resolve(task.capability).execute(task.payload);
+  async execute(semantic: SemanticContext): Promise<any> {
+    return await this.facetResolver.resolve(semantic.intents[0]?.name).execute(semantic);
   }
 }

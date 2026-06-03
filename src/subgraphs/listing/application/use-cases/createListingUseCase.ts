@@ -10,7 +10,7 @@ import { IAmenityAdapter } from '../../adapters/IAmenity.adapter';
  // Assuming categoryAdapter token is under TOKENS_LISTING.adapters
 import { ICategoryRepository } from '@/shared/category/domain/ICategory.repository';
 import { TOKENS_CATEGORY } from '@/modules/tokens/category.tokens';
-import { GenerateTitleResult } from '../contracts/ai/generateTitleResult';
+import { GenerateTitleResult } from '../contracts/generateTitleResult';
 
 export interface CreateListingInput {
   title: string;

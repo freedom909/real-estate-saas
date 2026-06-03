@@ -2,7 +2,7 @@ import { injectable, container } from "tsyringe";
 
 import { ListingAgent } from "../../agents/listing/listing.agent";
 import { BookingAgent } from "../../agents/booking/booking.agent";
-import { PaymentAgent } from "../../agents/payment/payment.agent";
+import { PaymentAgent } from "../../../../subgraphs/payment/application/agents/payment.agent";
 import { IDomainAgent } from "../../planning/types/i-domain.agent";
 import { AIDomain } from "../../planning/types/enums";
 

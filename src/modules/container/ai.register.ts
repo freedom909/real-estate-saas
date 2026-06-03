@@ -2,32 +2,38 @@
 
 import { container } from "tsyringe";
 import { TOKENS_AI } from "../tokens/ai.tokens";
-import { AnalyzeListingTool } from "@/subgraphs/ai/application/tools/listing/AnalyzeListingTool";
-import { CategoryOptimizationTool } from "@/subgraphs/ai/application/tools/listing/CategoryOptimizationTool";
-import { GenerateSEOKeywordsTool } from "@/subgraphs/ai/application/tools/listing/GenerateSEOKeywordsTool";
 
-import { PriceOptimizationTool } from "@/subgraphs/ai/application/tools/listing/PriceOptimizationTool";
-import { RewriteDescriptionTool } from "@/subgraphs/ai/application/tools/listing/RewriteDescriptionTool";
-import { RewriteTitleTool } from "@/subgraphs/ai/application/tools/listing/RewriteTitleTool";
-import { ListingOptimizationAgent } from "@/subgraphs/ai/application/agents/listing/ListingOptimizationAgent";
-import { RunListingAgentUseCase } from "@/subgraphs/ai/application/usecases/RunListingAgentUseCase";
-import { RunBookingAgentUseCase } from "@/subgraphs/ai/application/usecases/RunBookingAgentUseCase";
 
-import { BookingOptimizationAgent } from "@/subgraphs/ai/application/agents/booking/BookingOptimizationAgent";
-import { BookingOptimizationTool } from "@/subgraphs/ai/application/tools/booking/BookingOptimizationTool";
-import { BookingFraudTool } from "@/subgraphs/ai/application/tools/booking/BookingFraudTool";
-import { BookingFraudAgent } from "@/subgraphs/ai/application/agents/booking/BookingFraudAgent";
-import { BookingGateway } from "@/subgraphs/ai/domain/entities/contexts/BookingGateway";
-import { BookingACL } from "@/subgraphs/ai/domain/entities/contexts/BookingACL";
-import { ReviewACL } from "@/subgraphs/ai/domain/entities/contexts/ReviewACL";
-import { ReviewAnalysisAgent } from "@/subgraphs/ai/application/agents/review/ReviewAnalysisAgent";
-import { RunReviewAgentUseCase } from "@/subgraphs/ai/application/usecases/RunReviewAgentUseCase";
+
+import { BookingFraudAgent } from "@/subgraphs/booking/BookingFraudAgent";
+
+import { ReviewAnalysisAgent } from "@/subgraphs/review/application/agents/ReviewAnalysisAgent";
+
 import { OpenAIAdapter } from "@/subgraphs/listing/infrastructure/ai/OpenAI.adapter";
 import { ListingAISuggestionRepository } from "@/subgraphs/listing/infrastructure/persistence/listing.ai.suggestion.repository";
 
 
 import ListingAISuggestionModel from "@/subgraphs/listing/infrastructure/models/listing.ai.suggestion.model";
 import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase";
+
+import { PriceOptimizationTool } from "@/subgraphs/listing/application/tools/priceOptimizationTool";
+
+import { RunListingAgentUseCase } from "@/subgraphs/listing/application/use-cases/RunListingAgentUseCase";
+import { RunBookingAgentUseCase } from "@/subgraphs/booking/use-cases/RunBookingAgentUseCase";
+import { BookingOptimizationTool } from "@/subgraphs/booking/booking/BookingOptimizationTool";
+import { BookingOptimizationAgent } from "@/subgraphs/booking/booking/BookingOptimizationAgent";
+import { BookingFraudTool } from "@/subgraphs/booking/booking/BookingFraudTool";
+import { BookingGateway } from "@/subgraphs/booking/domain/entities/contexts/BookingGateway";
+import { BookingACL } from "@/subgraphs/booking/domain/entities/contexts/BookingACL";
+import { ReviewACL } from "@/subgraphs/booking/domain/entities/contexts/ReviewACL";
+import { RunReviewAgentUseCase } from "@/subgraphs/review/application/RunReviewAgentUseCase";
+import { RewriteTitleTool } from "@/subgraphs/listing/application/tools/rewriteTitleTool";
+import { ListingOptimizationAgent } from "@/subgraphs/listing/application/agents/listingOptimizationAgent";
+import { AnalyzeListingTool } from "@/subgraphs/listing/application/tools/AnalyzeListingTool";
+import { CategoryOptimizationTool } from "@/subgraphs/listing/application/tools/categoryOptimizationTool";
+import { GenerateSEOKeywordsTool } from "@/subgraphs/listing/application/tools/generateSEOKeywordsTool";
+import { RewriteDescriptionTool } from "@/subgraphs/listing/application/tools/rewriteDescriptionTool";
+
 
 
 export function registerAIContainer() {

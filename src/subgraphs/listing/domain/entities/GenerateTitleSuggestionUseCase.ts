@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 
-import { IListingRepository } from "../entities/IListingRepository";
+import { IListingRepository } from "./IListingRepository";
 
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
