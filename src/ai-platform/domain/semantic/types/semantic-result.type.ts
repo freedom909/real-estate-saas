@@ -1,4 +1,5 @@
-import { AIDomain } from "../../planning/types/enums";
+import { AIDomain } from "./ai.domain";
+
 
 
 export interface SemanticResult {
@@ -26,5 +27,6 @@ export enum Intent {
   OPTIMIZE_DESCRIPTION =
     "OPTIMIZE_DESCRIPTION",
 
-  GENERAL ="GENERAL"
+  GENERAL ="GENERAL",
+  CREATE_BOOKING = "CREATE_BOOKING"
 }

@@ -9,6 +9,7 @@ static toDomain(raw: any): Listing {
  console.log("RAW LISTING++", raw)
   
   return new Listing({
+    rawTitle: raw.title,
 
     id: raw.id,
 
@@ -25,17 +26,11 @@ static toDomain(raw: any): Listing {
 
     address: raw.address,
 
-    categories:
-      raw.categories?.map(
-        (c: any) =>
-          c.categoryId
-      ) ?? [],
+categories:
+  raw.categories ?? [],
 
-    amenityIds:
-      raw.amenityIds?.map(
-        (a: any) =>
-          a.amenityId
-      ) ?? [],
+amenityIds:
+  raw.amenityIds ?? [],
 
     numOfBeds:
       raw.numOfBeds ?? 1,

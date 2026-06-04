@@ -1,19 +1,22 @@
 // application/use-cases/create-booking.use-case.ts
 import { injectable, inject } from "tsyringe";
-import { IBookingRepository } from "../../domain/repositories/i-booking.repository";
-import { Booking } from "../../domain/entities/booking.entity";
-import { DateRange } from "../../domain/value-objects/date-range.vo";
+
 import { v4 as uuidv4 } from "uuid";
-import { EventBus } from "@/infrastructure/events/event-bus";
+
 import TOKENS from "@/modules/tokens/mq.tokens";
-import { RabbitMQEventBus } from "../../interface/events/rabbitmq-event-bus";
+import { IBookingRepository } from "../domain/repositories/i-booking.repository";
+import { RabbitMQEventBus } from "../interface/events/rabbitmq-event-bus";
+import { Booking } from "../domain/entities/booking.entity";
+import { DateRange } from "../domain/value-objects/date-range.vo";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+
 
 @injectable()
 export class CreateBookingUseCase {
   constructor(
-    @inject("BookingRepository") private repo: IBookingRepository,
+    @inject(TOKENS_AI.repos.bookingRepository) private repo: IBookingRepository,
     @inject(TOKENS.eventBus) private eventBus: RabbitMQEventBus
-  ) { }
+  ) {}
 
   async execute(input: any) {
     const booking = Booking.create({

@@ -1,6 +1,6 @@
 export class Description {
   private value: string;
-
+  
   constructor(value: string) {
     this.validate(value);
     this.value = value.trim();

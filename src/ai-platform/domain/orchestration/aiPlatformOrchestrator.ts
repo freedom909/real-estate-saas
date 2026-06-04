@@ -1,11 +1,14 @@
 import { inject, injectable } from "tsyringe";
 import { SemanticExtractor } from "../semantic/extractors/semantic.extractor";
-import { ChatResponse, UserContext } from "../types/enums/chat.response";
+import { ChatResponse } from "../types/enums/chat.response";
 import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extractor";
-import { RoutingService } from "./router/routing.service";
+
 import { TOKENS_AGENT_FACTORY } from "@/ai-platform/container/tokens/agent/factory";
 import { AgentFactory } from "../agents/agent.factory";
 import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
+import { AgentRouterService } from "./router/agentRouterService";
+import { UserContext } from "../semantic/types/userContext";
+
 
 @injectable()
 export class AIPlatformOrchestrator {
@@ -14,37 +17,54 @@ export class AIPlatformOrchestrator {
     @inject(TOKENS_EXTRACTOR.semanticExtractor)
     private semanticExtractor: SemanticExtractor,
 
-    @inject(TOKENS_ORCHESTRATOR.routingService)
-    private routingService: RoutingService,
+    @inject(TOKENS_ORCHESTRATOR.agentRouterService)
+    private routingService: AgentRouterService,
 
-    @inject(TOKENS_AGENT_FACTORY.agentFactory) // Ensure this is registered
-    private agentFactory: AgentFactory
+    // @inject(TOKENS_AGENT_FACTORY.agentFactory) // Ensure this is registered
+    // private agentFactory: AgentFactory
   ) { }
 
-  async handle(
-    message: string,
-    user?: UserContext
-  ): Promise<ChatResponse> {
+async handle(
+  message: string,
+  user?: UserContext
+): Promise<ChatResponse> {
 
-    // 1. semantics
-    const semantic =  await this.semanticExtractor.extract(message);
-    console.log("semantic", semantic);
-    // 2. routing
-    const agentName =this.routingService.route(
-        semantic
-      );
-    console.log("agentName", agentName);
-    // 3. resolve agent
-    const agent =
-      this.agentFactory.resolve(
-        agentName
-      );
-    console.log("agent", agent);
-    // 4. execute
-    // If IDomainAgent expects a Task, we should map the semantic context into a Task structure.
-    // If the Agent is intended to process the context directly, consider updating IDomainAgent's signature.
-    return agent.execute(
-      semantic
-    );
-  }
+ const semantic =
+  await this.semanticExtractor.extract(
+    message
+  );
+
+console.log(
+  "ORCH STEP 1 semantic",
+  semantic
+);
+
+const agent =
+  this.routingService.route(
+    semantic
+  );
+
+console.log(
+  "ORCH STEP 2 agent",
+  agent?.constructor?.name
+);
+
+const result =
+  await agent.execute(
+    semantic,
+    user
+  );
+
+console.log(
+  "ORCH STEP 3 result",
+  result
+);
+    return { // プロパティ 'summary' は型 '{ success: true; planId: string; reply: any; }' にありませんが、型 'ChatResponse' では必須です。
+      success: true,
+      planId: "test",
+      summary: [],
+           reply:
+        result.title
+    };
+}
 }

@@ -1,24 +1,41 @@
+import { AIDomain } from "./types/ai.domain";
+
+
 export interface SemanticIntent {
   name: string;
-  confidence: number;  
+  confidence: number;
 }
 
 export interface Entity {
   type: string;
   value: string;
-  confidence: number;
 }
 
-export class 
-SemanticContext {
+export class SemanticContext {
+
   constructor(
     public readonly rawInput: string,
     public readonly intents: SemanticIntent[],
-    public readonly entities:  Entity[],
-    public readonly confidence: number
+    public readonly entities: Entity[],
+    public readonly confidence: number,
+    public readonly domain: AIDomain,
   ) {}
 
-  public hasIntent(intent: string): boolean {
-    return this.intents.some(i => i.name === intent);
+  hasIntent(intent: string): boolean {
+    return this.intents.some(
+      i => i.name === intent
+    );
+  }
+
+  getTopIntent(): string | null {
+    return this.intents.length
+      ? this.intents[0].name
+      : null;
+  }
+
+  hasDomain(
+    domain: AIDomain
+  ): boolean {
+    return this.domain === domain;
   }
 }

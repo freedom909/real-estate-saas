@@ -7,7 +7,7 @@ import { ChatUseCase } from "@/ai-platform/application/use-cases/chat.use-case";
 import { GeneralAgent } from "@/ai-platform/domain/agents/generalAgent";
 import { RuleExtractor } from "@/ai-platform/domain/semantic/extractors/rule.extractor";
 import LLMExtractor from "@/ai-platform/domain/semantic/extractors/llm.extractor";
-import { RoutingService } from "@/ai-platform/domain/orchestration/router/routing.service";
+
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatformOrchestrator";
 import { BookingAgent } from "@/ai-platform/domain/agents/booking/booking.agent";
 import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent";
@@ -16,9 +16,13 @@ import { TOKENS_AGENT } from "../tokens/agent/module.agent";
 import { TOKENS_AGENT_FACTORY } from "../tokens/agent/factory";
 
 import { registerAgents } from "./agent.register";
-import { registerFacetResolvers } from "./facet-resolvers.register";
+
 import { registerOpenAIAdapter } from "./openai.adapter";
 import { AgentFactory } from "@/ai-platform/domain/agents/agent.factory";
+import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouterService";
+import registerListingDependencies from "@/modules/container/listing.register";
+import { registerAIContainer } from "@/modules/container/ai.register";
+
 
 export default function
 AIPlatformDependencies() {
@@ -50,10 +54,10 @@ AIPlatformDependencies() {
 
   // services
   container.register(
-    TOKENS_ORCHESTRATOR.routingService,
+    TOKENS_ORCHESTRATOR.agentRouterService,
     {
       useClass:
-        RoutingService
+        AgentRouterService
     }
   );
 
@@ -66,8 +70,12 @@ AIPlatformDependencies() {
 
   // Register Agents and Facet Resolvers
   registerAgents();
-  registerFacetResolvers();
+ 
   registerOpenAIAdapter();
+
+  registerListingDependencies();
+
+  registerAIContainer();
 
   // usecase
   container.register(
@@ -98,6 +106,4 @@ AIPlatformDependencies() {
       useClass:AgentFactory
     }
   );
-
-
 }

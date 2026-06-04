@@ -9,18 +9,13 @@ import { AnalysisResult } from "./analysisResult";
 
 
 export interface ListingAIContext {
-
- listingId: string;
+  id: string;
 
   title: string;
 
   description: string;
-
   categories: string[];
-
   amenities: string[];
-
-  address: string;
 
   price: number;
 

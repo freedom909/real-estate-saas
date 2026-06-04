@@ -2,41 +2,35 @@ import { Listing } from "../../domain/entities/listing";
 
 export const buildTitlePrompt = (listing: Listing): string => `
 
-You are an expert Airbnb SEO copywriter.
+You are a senior Airbnb SEO specialist.
 
-Generate ONLY ONE short Airbnb listing title.
+Your task is to rewrite the title of a vacation rental listing.
 
 Requirements:
+Listing Information:
 
-- Maximum 60 characters
-- No description
-- No explanation
-- No quotation marks
-- No markdown
-- No placeholders
-- Human sounding
-- SEO friendly
-
-Property Information:
-
-Current Title:
+Title:
 ${listing.title}
 
-Current Description:
+Description:
 ${listing.description}
 
-Categories:
+Category:
 ${listing.categories.join(", ")}
 
 Amenities:
 ${listing.amenityIds.join(", ")}
 
-Address:
+Location:
 ${listing.address}
-
-Do NOT generate description.
-Do NOT generate paragraphs.
-Do NOT explain anything.
-Return ONLY the title text.
+- Maximum 60 characters
+- Attractive to guests
+- SEO optimized
+- Highlight strongest selling points
+- Human sounding
+- Natural English
+- No quotation marks
+- No explanations
+- Return only the optimized title.
 
 `;

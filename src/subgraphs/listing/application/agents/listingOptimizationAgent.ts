@@ -3,7 +3,7 @@
 import { inject, injectable } from "tsyringe";
 
 import { CategoryOptimizationTool } from "../tools/categoryOptimizationTool";
-import { GenerateSEOKeywordsTool } from "../tools/generateSEOKeywordsTool";
+import { GenerateSEOKeywordsTool } from "../../../../ai-platform/application/capabilities/generateSEOKeywordsTool";
 import { PriceOptimizationTool } from "../tools/priceOptimizationTool";
 import { RewriteDescriptionTool } from "../tools/rewriteDescriptionTool";
 

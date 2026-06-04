@@ -7,7 +7,7 @@ import { ListingAIContext } from "../../domain/entities/listingAIContext";
 
 
 @injectable()
-export class RunListingAgentUseCase { //is this redundant? 
+export class RunListingAgentUseCase { 
   constructor(
     @inject(TOKENS_AI.agent.listingOptimizationAgent)
     private listingOptimizationAgent: ListingOptimizationAgent,

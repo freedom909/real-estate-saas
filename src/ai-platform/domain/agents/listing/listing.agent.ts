@@ -1,61 +1,83 @@
-// src/ai-platform/cognition/domain/agents/listing/listing.agent.ts
 import { inject, injectable } from "tsyringe";
-
-
-import { ListingFacetResolver } from "./facets/listing-facet.resolver";
-import { IDomainAgent } from "../../planning/types/i-domain.agent";
-import { Task } from "../../planning/planners/task";
-import { TOKENS_FACET_RESOLVERS } from "@/ai-platform/container/tokens/facet/facet.resolver";
+import { IDomainAgent } from "../../semantic/types/IDomainAgent";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase";
+import { SEOAnalysisUseCase } from "@/subgraphs/listing/application/use-cases/seoAnalysisUseCase";
 import { SemanticContext } from "../../semantic/semantic-context";
-import { CapabilityType } from "../../planning/types/enums";
+import { UserContext } from "../../semantic/types/userContext";
 
+
+//
 @injectable()
 export class ListingAgent
-implements IDomainAgent {
+  implements IDomainAgent {
 
-   constructor(
+  constructor(
+
     @inject(
-      TOKENS_FACET_RESOLVERS
-        .listingFacetResolver
+      TOKENS_AI.usecase
+        .generateTitleSuggestionUseCase
     )
-    private facetResolver:
-      ListingFacetResolver
-  ) {}
+    private titleUseCase:
+      GenerateTitleSuggestionUseCase,
+
+    @inject(
+      TOKENS_AI.usecase.seoAnalysisUseCase
+    )
+    private seoUseCase:
+      SEOAnalysisUseCase
+
+  ) { }
 
   async execute(
-    semantic: SemanticContext
-  ): Promise<any> {
-
+    semantic: SemanticContext,
+    user: UserContext
+  ) {
     console.log(
-      "ListingAgent.execute"
+      "LISTING AGENT START"
+    );
+    console.log(semantic);
+    const intent =
+      semantic.getTopIntent();
+
+    switch (intent) {
+
+      case "OPTIMIZE_TITLE":
+
+  const listingId =
+    semantic.entities.find(
+      e =>
+        e.type === "listing_id" ||
+        e.type === "listingid"
+    )?.value;
+
+  if (!listingId) {
+    throw new Error(
+      "Listing ID entity required"
+    );
+  }
+
+  console.log(
+    "LISTING AGENT OPTIMIZE_TITLE",
+    listingId
+  );
+
+  console.log(
+    "BEFORE TITLE USECASE"
+  );
+
+  const result =
+    await this.titleUseCase.execute(
+      user?.resources?.listingId ||
+      listingId
     );
 
-    const capability =
-      semantic.intents?.[0]?.name;
+  console.log(
+    "AFTER TITLE USECASE",
+    result
+  );
 
-    console.log(
-      "capability",
-      capability
-    );
-
-    if (!capability) {
-      return {
-        reply:
-          "No capability found."
-      };
-    }
-
-    const executor =
-      this.facetResolver
-        .resolve(capability);
-
-    console.log(
-      "executor",
-      executor
-    );
-
-    return await executor.execute(
-      semantic
-    );
+  return result;
+}
   }
 }

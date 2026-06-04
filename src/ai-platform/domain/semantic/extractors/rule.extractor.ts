@@ -2,6 +2,7 @@
 
 import { injectable } from "tsyringe";
 import { SemanticContext } from "../semantic-context";
+import { AIDomain } from "../types/ai.domain";
 
 
 @injectable()
@@ -14,7 +15,7 @@ export class RuleExtractor {
     const intents = [];
     const entities = [];
 
-    const lower =message.toLowerCase();//         "TypeError: Cannot read properties of undefined (reading 'toLowerCase')"
+    const lower =message.toLowerCase();//       
 
     if (lower.includes("cancel")) {
       intents.push({
@@ -36,11 +37,12 @@ export class RuleExtractor {
         ? 0.95
         : 0;
 
-    return new SemanticContext(
+    return new SemanticContext(// 5 個の引数が必要ですが、4 個指定されました。
       message,
       intents,
       entities,
-      confidence
+      confidence,
+      AIDomain.RULE,
     );
   }
 }

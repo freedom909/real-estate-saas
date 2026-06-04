@@ -1,12 +1,13 @@
 //
 
 import { inject, injectable } from "tsyringe";
-import { IDomainAgent } from "../planning/types/i-domain.agent";
+
 import { BookingAgent } from "./booking/booking.agent";
 import { GeneralAgent } from "./generalAgent";
 import { ListingAgent } from "./listing/listing.agent";
 // import { PaymentAgent } from "./payment/payment.agent";
 import { TOKENS_AGENT } from "@/ai-platform/container/tokens/agent/module.agent";
+import { IDomainAgent } from "../semantic/types/IDomainAgent";
 
 @injectable()
 export class AgentFactory {

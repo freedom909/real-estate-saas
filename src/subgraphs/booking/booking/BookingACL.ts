@@ -1,7 +1,8 @@
 import { injectable } from "tsyringe";
-import { BookingGateway } from "../../gateways/booking/BookingGateway";
-import { BookingAIContext } from "../../../domain/entities/contexts/BookingAIContext";
-import { BookingExternalDTO } from "../../gateways/booking/BookingDTO";
+import { BookingExternalDTO } from "../BookingDTO";
+import { BookingAIContext } from "../domain/entities/contexts/BookingAIContext";
+import { BookingGateway } from "../BookingGateway";
+
 
 @injectable()
 export class BookingACL {

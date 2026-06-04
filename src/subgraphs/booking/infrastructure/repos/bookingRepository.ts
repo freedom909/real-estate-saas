@@ -31,8 +31,15 @@ export class BookingRepository implements IBookingRepository {
       createdAt: data.createdAt,
       updatedAt: new Date(),
     });
+  }
 
 
+ async cancel(bookingId: string): Promise<void> {
+    await BookingModel.update({
+      status: "CANCELLED",
+    }, {
+      where: { id: bookingId },
+    });
   }
 
   async findByGuestId(guestId: string): Promise<Booking[]> {

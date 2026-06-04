@@ -2,6 +2,9 @@ import { injectable } from "tsyringe";
 import fetch from "node-fetch";
 import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
 
+
+
+
 interface OpenAIChatResponse {
   choices: Array<{
     message: {
@@ -84,5 +87,18 @@ IMPORTANT:
    
       return safeParse(data.choices?.[0]?.message?.content || "");
   
+  }
+}
+
+function safeParse(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return JSON.parse(
+      text
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim()
+    );
   }
 }

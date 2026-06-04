@@ -34,16 +34,38 @@ export const TOKENS_AI = {
     runBookingAgentUseCase: Symbol.for("RunBookingAgentUseCase"),
     runPaymentAgentUseCase: Symbol.for("RunPaymentAgentUseCase"),
     runReviewAgentUseCase: Symbol.for("RunReviewAgentUseCase"),
-    generateTitleSuggestionUseCase:Symbol.for("GenerateTitleSuggestionUseCase")
+    generateTitleSuggestionUseCase: Symbol.for("GenerateTitleSuggestionUseCase"),
+    seoAnalysisUseCase: Symbol.for("SEOAnalysisUseCase"),
+    priceOptimizationUseCase: Symbol.for("PriceOptimizationUseCase"),
+    categoryOptimizationUseCase: Symbol.for("CategoryOptimizationUseCase"),
+    bookingOptimizationUseCase: Symbol.for("BookingOptimizationUseCase"),
+    fraudDetectionUseCase: Symbol.for("FraudDetectionUseCase"),
+    anomalyDetectionUseCase: Symbol.for("AnomalyDetectionUseCase"),
+    paymentRiskScoringUseCase: Symbol.for("PaymentRiskScoringUseCase"),
+    reviewAnalysisUseCase: Symbol.for("ReviewAnalysisUseCase"),
+    sentimentAnalysisUseCase: Symbol.for("SentimentAnalysisUseCase"),
+    contentModerationUseCase: Symbol.for("ContentModerationUseCase"),
+    reviewValidationUseCase: Symbol.for("ReviewValidationUseCase"),
+    reviewReplyUseCase: Symbol.for("ReviewReplyUseCase"),
+    reviewReportUseCase: Symbol.for("ReviewReportUseCase"),
+    bookingFraudUseCase: Symbol.for("BookingFraudUseCase"),
+    cancelBookingUseCase: Symbol.for("CancelBookingUseCase"),
+    createBookingUseCase: Symbol.for("CreateBookingUseCase"),
+    createReviewUseCase: Symbol.for("CreateReviewUseCase"),
   },
   acl: {
     reviewACL: Symbol.for("ReviewACL"),
   },
-OpenAIService: Symbol.for("OpenAIService"),
+  OpenAIService: Symbol.for("OpenAIService"),
   OpenAIAdapter: Symbol.for("OpenAIAdapter"),
   ListingAISuggestionRepository: Symbol.for("ListingAISuggestionRepository"),
   ListingAISuggestionModel: Symbol.for("ListingAISuggestionModel"),
+
+  repos: {
+    bookingRepository: Symbol.for("BookingRepository"),
+  paymentRepository: Symbol.for("PaymentRepository"),
+  reviewRepository: Symbol.for("ReviewRepository"),
+  cancelBookingRepository: Symbol.for("CancelBookingRepository"),
+  },
   
-
-
 }

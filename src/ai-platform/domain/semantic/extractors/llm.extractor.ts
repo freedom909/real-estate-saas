@@ -4,6 +4,8 @@ import { TOKENS_AI_ADAPTER } from "@/ai-platform/container/tokens/ai.adapter";
 import { OpenAIAdapter } from "@/ai-platform/infrastructure/adapters/openai.adapter";
 import { AISuggestionSchema } from "@/ai-platform/schemas/aiSuggestionSchema";
 import { IntentSchema } from "@/ai-platform/schemas/intentSchema";
+import { AIDomain } from "../types/ai.domain";
+
 
 @injectable()
 export default class LLMExtractor {
@@ -100,11 +102,13 @@ const entities: Entity[] =
 });
 console.log("ENTITIES", entities);
 
-    return new SemanticContext(
-      message,
-      intents,
-      entities,
-      validated.confidence
-    );
+return new SemanticContext(
+  message,
+  intents,
+  entities,
+  validated.confidence,
+  validated.domain as AIDomain,
+  
+);
   }
 }

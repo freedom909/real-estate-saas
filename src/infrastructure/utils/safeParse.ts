@@ -1,3 +1,4 @@
+//src/infrastructure/utils/safeParse.ts
 function safeParse(text: string) {
   try {
     return JSON.parse(text);

@@ -1,17 +1,65 @@
-// src/ai-platform/cognition/domain/agents/booking/booking.agent.ts
-import { injectable } from "tsyringe";
+// src/ai-platform/domain/agents/booking/booking.agent.ts
 
-import { BookingFacetResolver } from "./facets/booking-facet.resolver";
-import { SemanticContext } from "../../semantic/semantic-context";
-import { IDomainAgent } from "../agent-router.service";
+import { inject, injectable } from "tsyringe";
+import { IDomainAgent } from "../../semantic/types/IDomainAgent";
+import { CancelBookingUseCase } from "@/subgraphs/booking/use-cases/cancel-booking.use-case";
+import { CreateBookingUseCase } from "@/subgraphs/booking/use-cases/create-booking.use-case";
+import { SemanticContext, SemanticIntent } from "../../semantic/semantic-context";
+
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { UserContext } from "../../semantic/types/userContext";
 
 @injectable()
-export class BookingAgent implements IDomainAgent {
+export class BookingAgent
+implements IDomainAgent {
+
   constructor(
-    private facetResolver: BookingFacetResolver
+    @inject(TOKENS_AI.usecase.cancelBookingUseCase)
+    private cancelBookingUseCase:
+      CancelBookingUseCase,
+
+    @inject(TOKENS_AI.usecase.createBookingUseCase) 
+    private createBookingUseCase:
+      CreateBookingUseCase,
+
   ) {}
 
-  async execute(semantic: SemanticContext): Promise<any> {
-    return await this.facetResolver.resolve(semantic.intents[0]?.name).execute(semantic);
+  async execute(
+    semantic: SemanticContext,
+    user:UserContext
+  ) {
+
+    switch(
+      semantic.getTopIntent()
+    ) {
+
+      case "CANCEL_BOOKING":
+        const bookingId = semantic.entities.find(
+          e => e.type === "booking_id"
+        )?.value;
+
+        if (!bookingId) throw new Error("Booking ID required for cancellation");
+
+        return this.cancelBookingUseCase
+          .execute(bookingId, user.userId);
+
+      case "CREATE_BOOKING":
+        const listingId = semantic.entities.find(e => e.type === "listing_id")?.value;
+        const checkIn = semantic.entities.find(e => e.type === "check_in")?.value;
+        const checkOut = semantic.entities.find(e => e.type === "check_out")?.value;
+
+        return this.createBookingUseCase.execute({
+          listingId,
+          guestId: user.userId,
+          checkInDate: checkIn,
+          checkOutDate: checkOut,
+          totalCost: 0 // To be calculated by the use case or domain
+        });
+
+      default:
+        throw new Error(
+          `No intent for ${semantic.getTopIntent()}`
+        );
+    }
   }
 }

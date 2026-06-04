@@ -91,9 +91,12 @@ ${semantic.rawInput}
       "GPT reply:",
       reply
     );
-const parsed =
-  JSON.parse(reply);
-  const validated = AISuggestionSchema.parse(parsed);
+
+
+const result =
+  parseAIJson(reply);
+console.log("result", result);
+  const validated = AISuggestionSchema.parse(result);
     return {
       reply:validated
     };

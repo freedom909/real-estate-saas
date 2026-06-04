@@ -1,10 +1,12 @@
 import { injectable, inject } from "tsyringe";
-import { IBookingRepository } from "../../domain/repositories/i-booking.repository";
+
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { IBookingRepository } from "../domain/repositories/i-booking.repository";
 
 @injectable()
 export class CancelBookingUseCase {
   constructor(
-    @inject("BookingRepository")
+    @inject(TOKENS_AI.repos.bookingRepository)
     private repo: IBookingRepository
   ) {}
 

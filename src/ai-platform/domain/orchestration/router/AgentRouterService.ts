@@ -1,34 +1,44 @@
-import { inject, injectable } from "tsyringe";
-import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-import { RunListingAgentUseCase } from "@/subgraphs/listing/application/use-cases/RunListingAgentUseCase";
-import { RunBookingAgentUseCase } from "@/subgraphs/booking/use-cases/RunBookingAgentUseCase";
+// src/ai-platform/domain/orchestration/router/agentRouterService.ts
+import { inject, injectable, delay } from "tsyringe";
+import { IDomainAgent } from "../../semantic/types/IDomainAgent";
+import { SemanticContext } from "../../semantic/semantic-context";
+import { ListingAgent } from "../../agents/listing/listing.agent";
+import { BookingAgent } from "../../agents/booking/booking.agent";
 
-// These use cases should be moved to their respective subgraphs per Rule 1
+import { TOKENS_AGENT } from "@/ai-platform/container/tokens/agent/module.agent";
+import { AIDomain } from "../../semantic/types/ai.domain";
 
 
 @injectable()
 export class AgentRouterService {
-    constructor(
-        @inject(TOKENS_AI.usecase.runListingAgentUseCase)
-        private listingUseCase: RunListingAgentUseCase,
 
-        @inject(TOKENS_AI.usecase.runBookingAgentUseCase)
-        private bookingUseCase: RunBookingAgentUseCase,
-    ) {}
+  constructor(
+    @inject(TOKENS_AGENT.listingAgent)
+    private listingAgent: ListingAgent,
+    @inject(TOKENS_AGENT.bookingAgent)
+    private bookingAgent: BookingAgent,
+    // @inject(TOKENS_AGENT.paymentAgent)
+    // private paymentAgent: PaymentAgent,
+  ) {}
 
-    /**
-     * Routes the AI task to the appropriate domain-specific agent use case.
-     */
-    async execute(input: { type: string; [key: string]: any }) {
-        switch (input.type) {
-            case "LISTING":
-                return this.listingUseCase.execute(input);
+ route(
+  semantic: SemanticContext
+): IDomainAgent {
 
-            case "BOOKING":
-                return this.bookingUseCase.execute(input.bookingId as string);
+  switch (semantic.domain) {
 
-            default:
-                throw new Error(`Unsupported AI task type: ${input.type}`);    
-        }
-    }
-}
+    case AIDomain.LISTING:
+      return this.listingAgent;
+
+    case AIDomain.BOOKING:
+      return this.bookingAgent;
+
+    // case AIDomain.PAYMENT:
+    //   return this.paymentAgent;
+
+    default:
+      throw new Error(
+        `No agent for ${semantic.domain}`
+      );
+  }
+}}

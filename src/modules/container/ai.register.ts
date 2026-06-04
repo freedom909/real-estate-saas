@@ -26,17 +26,38 @@ import { BookingFraudTool } from "@/subgraphs/booking/booking/BookingFraudTool";
 import { BookingGateway } from "@/subgraphs/booking/domain/entities/contexts/BookingGateway";
 import { BookingACL } from "@/subgraphs/booking/domain/entities/contexts/BookingACL";
 import { ReviewACL } from "@/subgraphs/booking/domain/entities/contexts/ReviewACL";
+import { SEOAnalysisUseCase } from "@/subgraphs/listing/application/use-cases/seoAnalysisUseCase";
 import { RunReviewAgentUseCase } from "@/subgraphs/review/application/RunReviewAgentUseCase";
 import { RewriteTitleTool } from "@/subgraphs/listing/application/tools/rewriteTitleTool";
+import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatformOrchestrator";
+
+import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
 import { ListingOptimizationAgent } from "@/subgraphs/listing/application/agents/listingOptimizationAgent";
 import { AnalyzeListingTool } from "@/subgraphs/listing/application/tools/AnalyzeListingTool";
 import { CategoryOptimizationTool } from "@/subgraphs/listing/application/tools/categoryOptimizationTool";
-import { GenerateSEOKeywordsTool } from "@/subgraphs/listing/application/tools/generateSEOKeywordsTool";
+import { GenerateSEOKeywordsTool } from "@/ai-platform/application/capabilities/generateSEOKeywordsTool";
 import { RewriteDescriptionTool } from "@/subgraphs/listing/application/tools/rewriteDescriptionTool";
+import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouterService";
+import { CancelBookingUseCase } from "@/subgraphs/booking/use-cases/cancel-booking.use-case";
+import { CreateBookingUseCase } from "@/subgraphs/booking/use-cases/create-booking.use-case";
+
+import { CancelBookingRepository } from "@/subgraphs/booking/infrastructure/repos/cancelBookingRepository";
+import { BookingRepository } from "@/subgraphs/booking/infrastructure/repos/bookingRepository";
+import { EventBus } from "@/shared/events/eventBus";
+import TOKENS from "@/modules/tokens/mq.tokens";
+
 
 
 
 export function registerAIContainer() {
+
+container.register(TOKENS_ORCHESTRATOR.aiPlatformOrchestrator, {
+  useClass: AIPlatformOrchestrator,
+});
+
+container.register(TOKENS_ORCHESTRATOR.agentRouterService, {
+  useClass: AgentRouterService,
+});
 
 container.register(TOKENS_AI.tool.analyzeListingTool, {
   useClass: AnalyzeListingTool,
@@ -123,4 +144,28 @@ container.register(
   container.register(TOKENS_AI.usecase.generateTitleSuggestionUseCase, {
     useClass: GenerateTitleSuggestionUseCase,
   })
+
+  container.register(TOKENS_AI.usecase.seoAnalysisUseCase, {
+    useClass: SEOAnalysisUseCase,
+  });
+
+  container.register(TOKENS_AI.usecase.cancelBookingUseCase, {
+    useClass: CancelBookingUseCase,
+  })
+
+  container.register(TOKENS_AI.usecase.createBookingUseCase, {
+    useClass: CreateBookingUseCase,
+  })
+
+  container.register(TOKENS_AI.repos.bookingRepository, {
+    useClass: BookingRepository,
+  })
+
+  container.register(TOKENS_AI.repos.cancelBookingRepository, {
+    useClass: CancelBookingRepository,
+  })
+
+  container.register(TOKENS.eventBus, {
+    useClass: EventBus,
+  });
 }
