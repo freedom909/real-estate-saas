@@ -4,7 +4,6 @@ import { IDecisionLogRepository } from "../../../domain/repositories/interface/d
 import { DecisionLog } from "../../../domain/types/decision-log.type";
 import { CreateDecisionLogDTO } from "../dto/create-decision-log.dto";
 
-import { Types } from "mongoose";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 @injectable()
@@ -12,7 +11,7 @@ export class DecisionLogService {
 
   constructor(
     @inject(
-      TOKENS_AUDIT.repos.decisionLog
+      TOKENS_AUDIT.repos.decisionLogRepo
     )
     private readonly repository:
       IDecisionLogRepository

@@ -70,7 +70,7 @@ export const TOKENS_AUTH = {
   guards: {
     authGuard: Symbol.for("auth.guards.authGuard"),
   },
-  eventBus: Symbol.for("eventBus"),
+ 
   // ports
   ports: {
   auditPort: Symbol.for("auditPort"),

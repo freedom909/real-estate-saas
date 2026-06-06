@@ -9,9 +9,9 @@ import {
   IAuditLogRepository,
 } from "../../../domain/repositories/interface/audit-log.repository.interface";
 
-import { AuditLogDocument,} from "../../../infrastructure/database/models/audit-log.model";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
-import { AuditLog } from "@/modules/audit/domain/types/audit-log.type";
+import { AuditRepo } from "@/security/infrastructure/audit.repo";
+
 
 
 export interface GetAuditLogsFilter {
@@ -35,7 +35,7 @@ GetAuditLogsQuery {
 
   constructor(
     @inject(
-      TOKENS_AUDIT.repos.auditLog
+      TOKENS_AUDIT.repos.auditRepo
     )
     private readonly repository:
       IAuditLogRepository
@@ -45,7 +45,7 @@ GetAuditLogsQuery {
     filter:
       GetAuditLogsFilter
   ): Promise<
-    AuditLog[]
+    AuditRepo[]
   > {
 
     const {

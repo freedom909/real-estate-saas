@@ -6,10 +6,11 @@ import { buildSubgraphSchema } from "@apollo/subgraph";
 import { gql } from "graphql-tag";
 import { container } from "tsyringe";
 import  {resolvers}  from "../../../audit/resolvers/audit.resolver";
-import  registerAuditDependencies  from "../../../audit/container/registerDependencies";
+
 import { readFileSync } from "fs";
 import { printSchema } from "graphql";
 import { generateTests } from "../ai/generator";
+import registerAuditDependencies from "@/modules/container/audit.register";
 
 export class AuditHarness {
   private server!: ApolloServer;

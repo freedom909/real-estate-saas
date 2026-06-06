@@ -1,15 +1,17 @@
 import { injectable } from "tsyringe";
 import { GraphQLClient, gql } from "graphql-request";
 import { BookingExternalDTO } from "./BookingDTO";
+import { BaseGateway } from "@/infrastructure/utils/baseGateway";
 
 @injectable()
-export class BookingGateway {
+export class BookingGateway extends BaseGateway {
   private client: GraphQLClient;
 
   constructor() {
+    super();
     const endpoint = process.env.BOOKING_SUBGRAPH_URL || "http://localhost:4030/graphql";
     this.client = new GraphQLClient(endpoint, {
-      timeout: 5000, // 5 second timeout
+
       headers: {
         Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
       },

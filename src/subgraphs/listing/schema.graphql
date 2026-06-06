@@ -47,7 +47,7 @@ type Listing @key(fields: "id") {
 extend type Host @key(fields: "id") {
   id: ID! @external
 
-  listings: [Listing!]!
+  listings: [Listing!] @shareable
 }
 
 # -----------------------------------
@@ -146,9 +146,6 @@ EXPIRED
 # -----------------------------------
 type Mutation {
   createListing(input: CreateListingInput!): Listing!
-
-
-
   generateTitleSuggestion(
     listingId: ID!
   ): String!

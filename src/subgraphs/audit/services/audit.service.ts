@@ -1,6 +1,8 @@
 import { injectable, inject } from 'tsyringe';
 import { AuditRepository } from '../repos/audit.repository';
 import { AuditLogDocument } from '../models/audit.model';
+import { AuditLogEvent } from '@/modules/audit/domain/event/audit-log.event';
+
 
 @injectable()
 export class AuditService {
@@ -19,4 +21,10 @@ export class AuditService {
   async createLog(action: string, userId: string, resourceId: string): Promise<AuditLogDocument> {
     return this.repo.create({ action, userId, resourceId });
   }
+  async record(event: AuditLogEvent) {
+  return this.repo.create({
+    ...event,
+    timestamp: new Date()
+  });
+}
 }

@@ -1,4 +1,4 @@
-// services/fileService.js
+// services/fileService.ts
 import { Storage } from "@google-cloud/storage";
 import { v4 as uuid } from "uuid";
 

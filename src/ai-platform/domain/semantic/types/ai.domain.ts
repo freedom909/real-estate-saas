@@ -7,4 +7,5 @@ export enum AIDomain {
   PAYMENT = "PAYMENT",
   SECURITY = "SECURITY",
   RULE = "RULE",
+  UNKNOWN = "UNKNOWN",
 }

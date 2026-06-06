@@ -2,7 +2,7 @@ schema
   @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key","@external","@shareable"]) {
   query: Query
 }
-
+scalar JSON
 scalar DateTime 
 type Query {
   ### Bookings
@@ -24,32 +24,30 @@ enum Role {
   PENDING_HOST
 }
 
-interface User @key(fields: "id") {
-  id: ID!
-  email: String!
-  picture: String
+extend type User @key(fields: "id") {
+  id: ID! @external
 }
 
-type Host implements User @key(fields: "id") {
+extend type Host @key(fields: "id") {
   id: ID! @shareable
   email: String! @shareable
   picture: String @shareable
   listings: [Listing!]! @shareable
 }
 
-type Guest implements User @key(fields: "id") {
+type Guest @key(fields: "id") {
   id: ID! @shareable
-  email: String! @shareable
-  picture: String @shareable
-  bookings: [Booking!]! @shareable
+  email: String! 
+  picture: String 
+  bookings: [Booking!]! 
 }
 
 extend type Listing @key(fields: "id") {
   id: ID! @external
 }
 
-extend type Order @key(fields: "id") {
-  id: ID! @external
+type Order @key(fields: "id") {
+  id: ID! @shareable
 }
 
 type CancelBookingResponse implements MutationResponse {
@@ -68,7 +66,7 @@ type Mutation {
 
 type FraudAnalysisResponse {
     agentName: String!
-    assessment: JSON! // Unknown type JSON
+    assessment: JSON! 
   }
   
 type CreateBookingResponse {

@@ -4,17 +4,19 @@ import { injectable, inject } from "tsyringe";
 import { v4 as uuidv4 } from "uuid";
 
 import TOKENS from "@/modules/tokens/mq.tokens";
-import { IBookingRepository } from "../domain/repositories/i-booking.repository";
-import { RabbitMQEventBus } from "../interface/events/rabbitmq-event-bus";
-import { Booking } from "../domain/entities/booking.entity";
-import { DateRange } from "../domain/value-objects/date-range.vo";
+
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { IBookingRepository } from "../../domain/repositories/i-booking.repository";
+import { RabbitMQEventBus } from "../../interface/events/rabbitmq-event-bus";
+import { Booking } from "../../domain/entities/booking.entity";
+import { DateRange } from "../../domain/value-objects/date-range.vo";
 
 
 @injectable()
 export class CreateBookingUseCase {
   constructor(
     @inject(TOKENS_AI.repos.bookingRepository) private repo: IBookingRepository,
+    
     @inject(TOKENS.eventBus) private eventBus: RabbitMQEventBus
   ) {}
 

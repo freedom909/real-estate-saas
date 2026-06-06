@@ -1,5 +1,6 @@
-import { UserContext } from "../../types/enums/chat.response";
+
 import { SemanticContext } from "../semantic-context";
+import { UserContext } from "./userContext";
 
 // src/ai-platform/domain/semantic/types/IDomainAgent.ts
 export interface IDomainAgent {

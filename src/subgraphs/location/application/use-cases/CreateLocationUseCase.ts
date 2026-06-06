@@ -3,7 +3,7 @@ import { ILocationRepository } from "../../domain/repos/ILocationRepository";
 import { Location } from "../../domain/entities/location";
 
 import { TOKENS_LOCATION } from "@/modules/tokens/location.tokens";
-import { IEventBus } from "@/infrastructure/events/event-bus";
+import { EventBus } from "@/infrastructure/events/event-bus";
 
 export interface CreateLocationInput {
   province: string;
@@ -21,7 +21,7 @@ export class CreateLocationUseCase {
     @inject(TOKENS_LOCATION.locationRepository)
     private locationRepository: ILocationRepository,
     @inject(TOKENS_LOCATION.eventBus)
-    private eventBus: IEventBus 
+    private eventBus: EventBus 
   ) {}
 
   async execute(input: CreateLocationInput): Promise<Location> {

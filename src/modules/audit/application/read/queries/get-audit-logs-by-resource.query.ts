@@ -8,20 +8,21 @@ import { IAuditLogRepository } from "@/modules/audit/domain/repositories/interfa
 
 import { AuditLogDocument } from "@/modules/audit/infrastructure/database/models/audit-log.model";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
-import { AuditLog } from "@/modules/audit/domain/types/audit-log.type";
+import { AuditRepo } from "@/security/infrastructure/audit.repo";
+
 
 @injectable()
 export class GetAuditLogsByResourceQuery {
   constructor(
     @inject(
-      TOKENS_AUDIT.repos.auditLog
+      TOKENS_AUDIT.repos.auditRepo
     )
     private readonly repository: IAuditLogRepository
   ) {}
 
   async execute(
     resourceId: string
-  ): Promise<AuditLog[]> {
+  ): Promise<AuditRepo[]> {
     return await this.repository.find(
       { resourceId },
       {

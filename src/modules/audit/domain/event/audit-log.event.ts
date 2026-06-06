@@ -1,5 +1,5 @@
-// shared/types/audit-log.type.ts
-export interface AuditLog {
+// shared/types/audit-log.event.ts
+export interface AuditLogEvent {
   id?: string;
   userId?: string;
   action: string;

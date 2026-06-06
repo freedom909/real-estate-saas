@@ -16,9 +16,11 @@ import { connectMongo } from "../../shared/db/mongo.js";
 import mongoose from "mongoose"
 import { container } from "tsyringe"
 
-import{ resolvers }from "./resolvers/host.resolver"
 
-import registerDependencies from "../../modules/container/host.register.js"
+
+
+import { resolvers } from "./resolvers/tenant.resolver.js"
+import registerTenantDependencies from "@/modules/container/tenant.register.js"
 
 
 // 🔍 启动时验证 env
@@ -33,7 +35,7 @@ await connectMongo(
 );
 
 // 🧰 2️⃣ Container
-const hostContainer = registerDependencies(container);
+const tenantContainer = registerTenantDependencies(container);
 
 // 🚀 3️⃣ App
 const app = express();
@@ -41,7 +43,7 @@ const httpServer = http.createServer(app);
 
 const typeDefs = gql(
   readFileSync(
-    "./src/subgraphs/host/host.schema.graphql",
+    "./src/subgraphs/tenant/tenant.schema.graphql",
     "utf-8"
   )
 );
@@ -70,7 +72,7 @@ app.use(
 
       return {
         user: userHeader ? JSON.parse(userHeader as string) : null,
-        container: hostContainer,
+        container: tenantContainer,
       };
     },
 
@@ -79,6 +81,6 @@ app.use(
 
 httpServer.listen(4040, () => {
   console.log(
-    "👤 Host 🔥🔥🔥 WHICH FILE IS THIS 🔥🔥🔥at http://localhost:4040/graphql"
+    "👤 Tenant Subgraph running at http://localhost:4040/graphql"
   );
 });

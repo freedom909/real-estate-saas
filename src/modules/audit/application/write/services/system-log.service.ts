@@ -11,7 +11,7 @@ import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 @injectable()
 export class SystemLogService {
   constructor(
-    @inject(TOKENS_AUDIT.repos.systemLog)
+    @inject(TOKENS_AUDIT.repos.systemLogRepo)
     private readonly repository: ISystemLogRepository
   ) {}
 

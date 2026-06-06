@@ -4,6 +4,7 @@ export interface AuditPort {
 }
 
 export interface AuditEvent {
+  id: string;
   userId: string;
   action: string;
   metadata?: any;

@@ -3,11 +3,11 @@ import { container } from "tsyringe";
 import { Sequelize } from "sequelize";
 
 import {  initBookingModel } from "@/subgraphs/booking/infrastructure/models/booking.model";
-
+import { SequelizeBookingRepository } from "@/subgraphs/booking/infrastructure/repos/sequelizeBookingRepository";
 import { CreateBookingUseCase } from "@/subgraphs/booking/application/use-cases/create-booking.use-case";
 import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
 import { GetBookingUseCase } from "@/subgraphs/booking/application/use-cases/get-booking.use-case";
-import { SequelizeBookingRepository } from "@/subgraphs/booking/infrastructure/repositories/sequelizeBookingRepository";
+import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 
 export async function initializeBookingContainer() {
   const sequelize = new Sequelize(process.env.MYSQL_URI!, {
@@ -21,7 +21,7 @@ export async function initializeBookingContainer() {
   // ✅ register infra
   container.register("Sequelize", { useValue: sequelize });
 
-  container.register("BookingRepository", {
+  container.register(TOKENS_BOOKING.repository.bookingRepository, {
     useClass: SequelizeBookingRepository,
   });
 

@@ -2,25 +2,23 @@
 
 import { inject, injectable } from "tsyringe";
 import { IDomainAgent } from "../../semantic/types/IDomainAgent";
-import { CancelBookingUseCase } from "@/subgraphs/booking/use-cases/cancel-booking.use-case";
-import { CreateBookingUseCase } from "@/subgraphs/booking/use-cases/create-booking.use-case";
+
 import { SemanticContext, SemanticIntent } from "../../semantic/semantic-context";
 
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { UserContext } from "../../semantic/types/userContext";
+import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
+import { CreateBookingUseCase } from "@/subgraphs/booking/application/use-cases/create-booking.use-case";
 
 @injectable()
-export class BookingAgent
-implements IDomainAgent {
+export class BookingAgent implements IDomainAgent {
 
   constructor(
     @inject(TOKENS_AI.usecase.cancelBookingUseCase)
-    private cancelBookingUseCase:
-      CancelBookingUseCase,
+    private cancelBookingUseCase:CancelBookingUseCase,
 
     @inject(TOKENS_AI.usecase.createBookingUseCase) 
-    private createBookingUseCase:
-      CreateBookingUseCase,
+    private createBookingUseCase:CreateBookingUseCase,
 
   ) {}
 

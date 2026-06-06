@@ -1,4 +1,5 @@
-export interface SystemLog {
+// src/modules/audit/domain/types/system-audit.event.ts
+export interface SystemLogEvent {
   id: string;
   level: string;
   type: string;

@@ -1,5 +1,5 @@
-//
-export interface DecisionLog {
+// src/modules/audit/domain/event/decision-log.event.ts
+export interface DecisionLogEvent {
  id?: string,
 
   meta: {

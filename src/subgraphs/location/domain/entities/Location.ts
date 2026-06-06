@@ -1,6 +1,5 @@
 // src/subgraphs/location/domain/entities/Location.ts
 
-// src/subgraphs/location/domain/entities/Location.ts
 
 import { v4 as uuidv4 } from 'uuid';
 

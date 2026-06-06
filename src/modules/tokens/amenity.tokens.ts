@@ -6,4 +6,5 @@ export const TOKENS_AMENITY = {
   CreateAmenityUseCase: Symbol.for("CreateAmenityUseCase"),
   GetAmenitiesUseCase: Symbol.for("GetAmenitiesUseCase"),
   GetAmenitiesByIdsUseCase: Symbol.for("GetAmenitiesByIdsUseCase"),
+ 
 };

@@ -4,47 +4,66 @@ import { injectable } from "tsyringe";
 import { SemanticContext } from "../semantic-context";
 import { AIDomain } from "../types/ai.domain";
 
-
 @injectable()
 export class RuleExtractor {
 
   async extract(
     message: string
   ): Promise<SemanticContext> {
-    
-    const intents = [];
-    const entities = [];
 
-    const lower =message.toLowerCase();//       
+    const lower =
+      message.toLowerCase();
 
     if (lower.includes("cancel")) {
-      intents.push({
-        name: "CANCEL_BOOKING",
-        confidence: 0.95
-      });
+      return new SemanticContext(
+        message,
+        [{
+          name: "CANCEL_BOOKING",
+          confidence: 0.99
+        }],
+        [],
+        0.99,
+        AIDomain.BOOKING,
+        true
+      );
     }
 
-    if (lower.includes("booking")) {
+    const entities = [];
+
+    const listingMatch =
+      message.match(
+        /listingid\s*=\s*([a-zA-Z0-9-]+)/i
+      );
+
+    if (listingMatch) {
       entities.push({
-        type: "bookingId",
-        value: "BK-999",
-        confidence: 0.91
+        type: "listing_id",
+        value: listingMatch[1]
       });
     }
 
-    const confidence =
-      intents.length
-        ? 0.95
-        : 0;
+    if (lower.includes("title")) {
+      return new SemanticContext(
+        message,
+        [{
+          name: "OPTIMIZE_TITLE",
+          confidence: 0.99
+        }],
+        entities,
+        0.99,
+        AIDomain.LISTING,
+        true
+      );
+    }
 
-    return new SemanticContext(// 5 個の引数が必要ですが、4 個指定されました。
+    return new SemanticContext(
       message,
-      intents,
-      entities,
-      confidence,
-      AIDomain.RULE,
+      [],
+      [],
+      0,
+      AIDomain.UNKNOWN,
+      false
     );
   }
 }
 
-//

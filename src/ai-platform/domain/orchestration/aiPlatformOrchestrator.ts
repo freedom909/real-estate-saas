@@ -3,11 +3,10 @@ import { SemanticExtractor } from "../semantic/extractors/semantic.extractor";
 import { ChatResponse } from "../types/enums/chat.response";
 import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extractor";
 
-import { TOKENS_AGENT_FACTORY } from "@/ai-platform/container/tokens/agent/factory";
-import { AgentFactory } from "../agents/agent.factory";
 import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
-import { AgentRouterService } from "./router/agentRouterService";
+
 import { UserContext } from "../semantic/types/userContext";
+import { AgentRouterService } from "./router/agentRouter.service";
 
 
 @injectable()
@@ -59,7 +58,7 @@ console.log(
   "ORCH STEP 3 result",
   result
 );
-    return { // プロパティ 'summary' は型 '{ success: true; planId: string; reply: any; }' にありませんが、型 'ChatResponse' では必須です。
+    return { 
       success: true,
       planId: "test",
       summary: [],

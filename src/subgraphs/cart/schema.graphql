@@ -23,14 +23,14 @@ enum BookingStatus {
   CONFIRMED
 }
 
-interface User @key(fields: "id") {
+type User @key(fields: "id") {
   id: ID!
   email: String!
   name: String!
   role: Role!
 }
 
-type Host implements User @key(fields: "id") {
+type Host @key(fields: "id") {
   id: ID! @shareable
   email: String! @shareable
   name: String! @shareable
@@ -38,7 +38,7 @@ type Host implements User @key(fields: "id") {
   listings: [Listing!]! @shareable
 }
 
-type Guest implements User @key(fields: "id") {
+type Guest @key(fields: "id") {
   id: ID! @shareable
   email: String! @shareable
   name: String! @shareable

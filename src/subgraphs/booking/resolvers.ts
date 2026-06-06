@@ -1,8 +1,9 @@
 import { container } from "tsyringe";
+import { GetBookingUseCase } from "./application/use-cases/get-booking.use-case";
 import { CreateBookingUseCase } from "./application/use-cases/create-booking.use-case";
 import { CancelBookingUseCase } from "./application/use-cases/cancel-booking.use-case";
-import { GetBookingUseCase } from "./application/use-cases/get-booking.use-case";
 import { ConfirmBookingUseCase } from "./application/use-cases/confirm-booking.use-case";
+
 
 
 export const resolvers = {
@@ -14,6 +15,9 @@ export const resolvers = {
 
   Mutation: {
     createBooking: async (_: any, { input }: any, { user }: any) => {
+      console.log("user", user);
+      console.log("input", input);
+
       const booking = await container
         .resolve(CreateBookingUseCase)
         .execute({ ...input, guestId: user.id });

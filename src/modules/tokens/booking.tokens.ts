@@ -4,7 +4,8 @@ export const TOKENS_BOOKING = {
     bookingGateway: Symbol.for("BookingGateway"),
   },
   usecase: {
-    confirmBooking: Symbol.for("ConfirmBookingUseCase"),
+    confirmBookingUseCase: Symbol.for("ConfirmBookingUseCase"),
+    cancelBookingUseCase: Symbol.for("CancelBookingUseCase"),
   },
   repository: {
     bookingRepository: Symbol.for("BookingRepository"),

@@ -1,7 +1,8 @@
 import { injectable, inject } from "tsyringe";
 
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-import { IBookingRepository } from "../domain/repositories/i-booking.repository";
+import { IBookingRepository } from "../../domain/repositories/i-booking.repository";
+
 
 @injectable()
 export class CancelBookingUseCase {

@@ -1,5 +1,5 @@
 // infrastructure/events/event-bus.interface.ts
 
-export interface IEventBus {
+export interface EventBus {
   publish(event: any): Promise<void>;
 }

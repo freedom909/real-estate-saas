@@ -2,8 +2,9 @@
 
 import { inject, injectable } from "tsyringe";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-import { BookingOptimizationTool } from "./BookingOptimizationTool";
-import { BookingAIContext } from "@/subgraphs/ai/domain/entities/contexts/BookingAIContext";
+import { BookingOptimizationTool } from "./infrastructure/tools/BookingOptimizationTool";
+import { BookingAIContext } from "./domain/entities/contexts/BookingAIContext";
+
 
 
 

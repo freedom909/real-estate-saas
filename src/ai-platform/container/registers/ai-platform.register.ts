@@ -19,7 +19,7 @@ import { registerAgents } from "./agent.register";
 
 import { registerOpenAIAdapter } from "./openai.adapter";
 import { AgentFactory } from "@/ai-platform/domain/agents/agent.factory";
-import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouterService";
+import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouter.service";
 import registerListingDependencies from "@/modules/container/listing.register";
 import { registerAIContainer } from "@/modules/container/ai.register";
 

@@ -19,11 +19,11 @@ import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/
 import { PriceOptimizationTool } from "@/subgraphs/listing/application/tools/priceOptimizationTool";
 
 import { RunListingAgentUseCase } from "@/subgraphs/listing/application/use-cases/RunListingAgentUseCase";
-import { RunBookingAgentUseCase } from "@/subgraphs/booking/use-cases/RunBookingAgentUseCase";
-import { BookingOptimizationTool } from "@/subgraphs/booking/booking/BookingOptimizationTool";
-import { BookingOptimizationAgent } from "@/subgraphs/booking/booking/BookingOptimizationAgent";
-import { BookingFraudTool } from "@/subgraphs/booking/booking/BookingFraudTool";
-import { BookingGateway } from "@/subgraphs/booking/domain/entities/contexts/BookingGateway";
+
+import { BookingOptimizationTool } from "@/subgraphs/booking/infrastructure/tools/BookingOptimizationTool";
+
+import { BookingFraudTool } from "@/subgraphs/booking/infrastructure/tools/BookingFraudTool";
+
 import { BookingACL } from "@/subgraphs/booking/domain/entities/contexts/BookingACL";
 import { ReviewACL } from "@/subgraphs/booking/domain/entities/contexts/ReviewACL";
 import { SEOAnalysisUseCase } from "@/subgraphs/listing/application/use-cases/seoAnalysisUseCase";
@@ -37,14 +37,18 @@ import { AnalyzeListingTool } from "@/subgraphs/listing/application/tools/Analyz
 import { CategoryOptimizationTool } from "@/subgraphs/listing/application/tools/categoryOptimizationTool";
 import { GenerateSEOKeywordsTool } from "@/ai-platform/application/capabilities/generateSEOKeywordsTool";
 import { RewriteDescriptionTool } from "@/subgraphs/listing/application/tools/rewriteDescriptionTool";
-import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouterService";
-import { CancelBookingUseCase } from "@/subgraphs/booking/use-cases/cancel-booking.use-case";
-import { CreateBookingUseCase } from "@/subgraphs/booking/use-cases/create-booking.use-case";
+import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouter.service";
+
 
 import { CancelBookingRepository } from "@/subgraphs/booking/infrastructure/repos/cancelBookingRepository";
 import { BookingRepository } from "@/subgraphs/booking/infrastructure/repos/bookingRepository";
 import { EventBus } from "@/shared/events/eventBus";
 import TOKENS from "@/modules/tokens/mq.tokens";
+import { CreateBookingUseCase } from "@/subgraphs/booking/application/use-cases/create-booking.use-case";
+import { RunBookingAgentUseCase } from "@/subgraphs/booking/application/use-cases/RunBookingAgentUseCase";
+import { BookingOptimizationAgent } from "@/subgraphs/booking/BookingOptimizationAgent";
+import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
+import { BookingGateway } from "@/subgraphs/booking/BookingGateway";
 
 
 
