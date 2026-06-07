@@ -1,5 +1,6 @@
 import { injectable } from "tsyringe";
-import { PaymentAIContext } from "../../domain/entities/contexts/PaymentAIContext";
+import { PaymentAIContext } from "./paymentAIContext";
+
 
 @injectable()
 export class FraudDetectionTool {

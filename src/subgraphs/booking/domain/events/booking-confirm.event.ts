@@ -1,11 +1,11 @@
-// booking/domain/events/booking-created.event.ts
+// FILE: domain/events/booking-confirm.event.ts 
 
-import { DomainEvent } from "@/shared/eventbus/domain.event";
 import { BookingStatus } from "../../infrastructure/models/booking.model";
+import { DomainEvent } from "@/shared/eventbus/domain.event";
 
-export class BookingCreatedEvent extends DomainEvent {
+export class BookingConfirmedEvent extends DomainEvent {
 
-  readonly eventName = BookingStatus.Pending;
+  readonly eventName = BookingStatus.Confirmed;
 
   constructor(
     public readonly bookingId: string,

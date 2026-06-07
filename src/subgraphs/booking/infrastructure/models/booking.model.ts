@@ -17,6 +17,18 @@ export interface BookingAttributes {
   updatedAt?: Date;
 }
 
+
+export enum BookingStatus {
+  Pending = "PENDING",
+  Confirmed = "CONFIRMED",
+  Upcoming = "UPCOMING",
+  Past = "PAST",
+  Canceled = "CANCELED",
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+}
+
+
 type BookingCreationAttributes = Optional<
   BookingAttributes,
   "id" | "createdAt" | "updatedAt"
@@ -32,7 +44,7 @@ export class BookingModel
   public checkInDate!: Date;
   public checkOutDate!: Date;
   public totalCost!: number;
-  public status!: string;
+  public status!: BookingStatus ;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;

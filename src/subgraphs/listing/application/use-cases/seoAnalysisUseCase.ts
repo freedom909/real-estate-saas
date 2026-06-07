@@ -1,7 +1,7 @@
 // seoAnalysisUseCase.ts
 
 import { SemanticContext } from "@/ai-platform/domain/semantic/semantic-context";
-import { GenerateSEOKeywordsTool } from "@/ai-platform/application/capabilities/generateSEOKeywordsTool";
+import { GenerateSEOKeywordsTool } from "@/ai-platform/application/capabilities/generateSEOKeywords.tool";
 import { inject, injectable } from "tsyringe";
 import { IListingRepository } from "../../domain/repos/IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";

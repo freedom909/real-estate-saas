@@ -2,19 +2,12 @@
 
 import { container } from "tsyringe";
 import { TOKENS_AI } from "../tokens/ai.tokens";
-
-
-
 import { BookingFraudAgent } from "@/subgraphs/booking/BookingFraudAgent";
-
 import { ReviewAnalysisAgent } from "@/subgraphs/review/application/agents/ReviewAnalysisAgent";
 
-import { OpenAIAdapter } from "@/subgraphs/listing/infrastructure/ai/OpenAI.adapter";
+import { OpenAIAdapter } from "@/subgraphs/listing/infrastructure/ai/openAI.adapter";
 import { ListingAISuggestionRepository } from "@/subgraphs/listing/infrastructure/persistence/listing.ai.suggestion.repository";
-
-
 import ListingAISuggestionModel from "@/subgraphs/listing/infrastructure/models/listing.ai.suggestion.model";
-import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase";
 
 import { PriceOptimizationTool } from "@/subgraphs/listing/application/tools/priceOptimizationTool";
 
@@ -24,34 +17,30 @@ import { BookingOptimizationTool } from "@/subgraphs/booking/infrastructure/tool
 
 import { BookingFraudTool } from "@/subgraphs/booking/infrastructure/tools/BookingFraudTool";
 
-import { BookingACL } from "@/subgraphs/booking/domain/entities/contexts/BookingACL";
-import { ReviewACL } from "@/subgraphs/booking/domain/entities/contexts/ReviewACL";
+import { BookingACL } from "@/subgraphs/booking/domain/entities/contexts/bookingACL";
+import { ReviewACL } from "@/subgraphs/booking/domain/entities/contexts/reviewACL";
 import { SEOAnalysisUseCase } from "@/subgraphs/listing/application/use-cases/seoAnalysisUseCase";
 import { RunReviewAgentUseCase } from "@/subgraphs/review/application/RunReviewAgentUseCase";
 import { RewriteTitleTool } from "@/subgraphs/listing/application/tools/rewriteTitleTool";
-import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatformOrchestrator";
+import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
 
 import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
 import { ListingOptimizationAgent } from "@/subgraphs/listing/application/agents/listingOptimizationAgent";
 import { AnalyzeListingTool } from "@/subgraphs/listing/application/tools/AnalyzeListingTool";
 import { CategoryOptimizationTool } from "@/subgraphs/listing/application/tools/categoryOptimizationTool";
-import { GenerateSEOKeywordsTool } from "@/ai-platform/application/capabilities/generateSEOKeywordsTool";
+import { GenerateSEOKeywordsTool } from "@/ai-platform/application/capabilities/generateSEOKeywords.tool";
 import { RewriteDescriptionTool } from "@/subgraphs/listing/application/tools/rewriteDescriptionTool";
 import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouter.service";
 
-
 import { CancelBookingRepository } from "@/subgraphs/booking/infrastructure/repos/cancelBookingRepository";
 import { BookingRepository } from "@/subgraphs/booking/infrastructure/repos/bookingRepository";
-import { EventBus } from "@/shared/events/eventBus";
-import TOKENS from "@/modules/tokens/mq.tokens";
+
 import { CreateBookingUseCase } from "@/subgraphs/booking/application/use-cases/create-booking.use-case";
-import { RunBookingAgentUseCase } from "@/subgraphs/booking/application/use-cases/RunBookingAgentUseCase";
+import { RunBookingAgentUseCase } from "@/subgraphs/booking/application/use-cases/runBookingAgentUseCase";
 import { BookingOptimizationAgent } from "@/subgraphs/booking/BookingOptimizationAgent";
 import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
 import { BookingGateway } from "@/subgraphs/booking/BookingGateway";
-
-
-
+import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase";
 
 export function registerAIContainer() {
 
@@ -168,8 +157,4 @@ container.register(
   container.register(TOKENS_AI.repos.cancelBookingRepository, {
     useClass: CancelBookingRepository,
   })
-
-  container.register(TOKENS.eventBus, {
-    useClass: EventBus,
-  });
 }

@@ -1,3 +1,5 @@
+// src/ai-platform/domain/semantic/extractors/semantic.extractor.ts
+
 import { inject, injectable } from "tsyringe";
 
 import { ISemanticExtractor }
@@ -10,7 +12,7 @@ import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extrac
 import { AIRequest } from "../../types/context/aiContext";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 import { SystemLogService } from "@/modules/audit/application/write/services/system-log.service";
-import { SystemLogType } from "@/modules/audit/domain/enums/system-log.enums";
+import { SystemLogLevel, SystemLogType } from "@/modules/audit/domain/enums/system-log.enums";
 
 @injectable()
 export class SemanticExtractor implements ISemanticExtractor {
@@ -29,16 +31,17 @@ export class SemanticExtractor implements ISemanticExtractor {
   async extract(request: AIRequest): Promise<SemanticContext> {
     // 1. RULE FIRST (hard override)
     const ruleResult = await this.ruleExtractor.extract(request);
-    this.logger.debug(
-      {
-        ...ruleResult,
-        message: request.message,
-        type: "RULE" as SystemLogType,
-        level: "DEBUG",
-        service: "semantic-extractor",
-      }       
-    );
 
+    this.logger.debug({
+      level: "DEBUG",
+      type:"SYSTEM",
+      
+      service: "AIPlatform",
+      module: "SemanticExtractor",
+      message: `Extracting semantic context for message: ${request.message.substring(0, 50)}...`,
+      correlationId: request.context.trace?.correlationId,
+      data: { isRuleMatched: ruleResult.isRuleMatched }
+    });
 
     if (ruleResult.isRuleMatched) {
       return ruleResult;

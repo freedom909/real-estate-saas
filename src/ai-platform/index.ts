@@ -17,8 +17,11 @@ import mongoose from "mongoose"
 import { container } from "tsyringe"
 import {resolvers} from "./resolvers/resolvers"
 import AIPlatformDependencies from "./container/registers/ai-platform.register"
+import registerAuditDependencies from "@/modules/container/audit.register"
 
 // ⭐ 注册 DI
+registerAuditDependencies(container)
+console.log("Audit container loaded")
 AIPlatformDependencies()
 console.log("AI Platform container loaded")
 

@@ -3,7 +3,7 @@
 import { inject, injectable } from "tsyringe";
 import { IDomainAgent } from "../../semantic/types/IDomainAgent";
 
-import { SemanticContext, SemanticIntent } from "../../semantic/semantic-context";
+import { SemanticContext} from "../../semantic/semantic-context";
 
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { UserContext } from "../../semantic/types/userContext";
@@ -29,7 +29,7 @@ export class BookingAgent implements IDomainAgent {
   ) {
 
     switch(
-      semantic.getTopIntent()
+      semantic.action[0]?.name || semantic.action[0]?.value || semantic.getTopAction()
     ) {
 
       case "CANCEL_BOOKING":
@@ -40,7 +40,7 @@ export class BookingAgent implements IDomainAgent {
         if (!bookingId) throw new Error("Booking ID required for cancellation");
 
         return this.cancelBookingUseCase
-          .execute(bookingId, context.userId);
+          .execute(bookingId, context.user.id);
 
       case "CREATE_BOOKING":
         const listingId = semantic.entities.find(e => e.type === "listing_id")?.value;
@@ -49,7 +49,7 @@ export class BookingAgent implements IDomainAgent {
 
         return this.createBookingUseCase.execute({
           listingId,
-          guestId: context.userId,
+          guestId: context.user.id,
           checkInDate: checkIn,
           checkOutDate: checkOut,
           totalCost: 0 // To be calculated by the use case or domain
@@ -57,7 +57,7 @@ export class BookingAgent implements IDomainAgent {
 
       default:
         throw new Error(
-          `No intent for ${semantic.getTopIntent()}`
+          `No intent for ${semantic.getTopAction()}`
         );
     }
   }

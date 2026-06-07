@@ -7,23 +7,26 @@ import TOKENS from "@/modules/tokens/mq.tokens";
 
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { IBookingRepository } from "../../domain/repositories/i-booking.repository";
-import { RabbitMQEventBus } from "../../interface/events/rabbitmq-event-bus";
+
 import { Booking } from "../../domain/entities/booking.entity";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
-
+import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
+import { IEventBus } from "@/shared/eventbus/IEventBus";
+import { BookingCreatedEvent } from "../../domain/events/booking-created.event";
 
 @injectable()
 export class CreateBookingUseCase {
   constructor(
     @inject(TOKENS_AI.repos.bookingRepository) private repo: IBookingRepository,
     
-    @inject(TOKENS.eventBus) private eventBus: RabbitMQEventBus
+    @inject(TOKENS_EVENT_BUS.eventBus) private eventBus: IEventBus
   ) {}
 
   async execute(input: any) {
     const booking = Booking.create({
       listingId: input.listingId,
       guestId: input.guestId,
+      tenantId: input.tenantId,
       dateRange: new DateRange(
         new Date(input.checkInDate),
         new Date(input.checkOutDate)
@@ -36,11 +39,13 @@ export class CreateBookingUseCase {
     await this.repo.save(booking);
 
     // ✅ 发布领域事件
-    await this.eventBus.publish({
-      type: "BOOKING_CREATED",
-      bookingId: booking.id,
-      guestId: booking.guestId,
-    });
+    await this.eventBus.publish(new BookingCreatedEvent(
+      booking.id,
+      booking.guestId,
+      input.tenantId,
+      booking.listingId,
+      booking.totalCost
+    ));
 
     return booking.toJSON();
   }

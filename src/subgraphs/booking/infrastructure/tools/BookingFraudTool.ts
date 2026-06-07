@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { BookingAIContext } from "../../../domain/entities/contexts/BookingAIContext";
+import { BookingAIContext } from "../../../domain/entities/contexts/bookingAIContext";
 
 @injectable()
 export class BookingFraudTool {

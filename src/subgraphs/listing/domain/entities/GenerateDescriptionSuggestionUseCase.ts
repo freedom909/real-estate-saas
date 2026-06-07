@@ -6,8 +6,6 @@ import { IListingRepository } from "./IListingRepository";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
-
-
 @injectable()
 export class GenerateDescriptionSuggestionUseCase {
   // Prompt template colocated with the use case

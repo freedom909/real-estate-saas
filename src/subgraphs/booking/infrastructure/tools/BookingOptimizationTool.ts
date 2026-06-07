@@ -2,7 +2,7 @@
 import { inject, injectable } from "tsyringe";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
-import { BookingAIContext } from "@/subgraphs/ai/domain/entities/contexts/BookingAIContext";
+import { BookingAIContext } from "@/subgraphs/ai/domain/entities/contexts/bookingAIContext";
 
 @injectable()
 export class BookingOptimizationTool {

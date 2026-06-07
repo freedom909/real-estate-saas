@@ -3,8 +3,6 @@ import fetch from "node-fetch";
 import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
 
 
-
-
 interface OpenAIChatResponse {
   choices: Array<{
     message: {

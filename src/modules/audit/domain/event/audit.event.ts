@@ -1,24 +1,18 @@
-export interface AuditPort {
-  record(event: AuditEvent): Promise<void>;
-  query(params: AuditQuery): Promise<AuditEvent[]>;
-}
+//src
 
-export interface AuditEvent {
-  id: string;
-  userId: string;
-  type: string;
-  intent: string;
-  domain: string;
-  confidence: number;
-  //action: string;
-  metadata?: any;
-  resourceId?: string;
-  timestamp?: Date;
-}
+import { DomainEvent }
+from "@/shared/eventbus/domain.event";
 
-export interface AuditQuery {
-  userId?: string;
-  action?: string;
-  from?: Date;
-  to?: Date;
+export class AuditEvent
+extends DomainEvent {
+
+  readonly eventName =
+    "audit.created";
+
+  constructor(
+    public readonly userId: string,
+    public readonly action: string
+  ) {
+    super();
+  }
 }

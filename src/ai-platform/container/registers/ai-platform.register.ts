@@ -8,7 +8,7 @@ import { GeneralAgent } from "@/ai-platform/domain/agents/generalAgent";
 import { RuleExtractor } from "@/ai-platform/domain/semantic/extractors/rule.extractor";
 import LLMExtractor from "@/ai-platform/domain/semantic/extractors/llm.extractor";
 
-import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatformOrchestrator";
+import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
 import { BookingAgent } from "@/ai-platform/domain/agents/booking/booking.agent";
 import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent";
 import { TOKENS_ORCHESTRATOR } from "../tokens/orchestration/orchestrator";

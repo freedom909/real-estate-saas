@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe";
 
-import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatformOrchestrator";
+import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
 import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
 import { AIRequest } from "@/ai-platform/domain/types/context/aiContext";
 

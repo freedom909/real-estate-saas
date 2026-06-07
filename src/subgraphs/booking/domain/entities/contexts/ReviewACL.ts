@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import { ReviewGateway } from "./ReviewGateway";
-import { ReviewAIContext } from "./ReviewAIContext";
+import { ReviewAIContext } from "./reviewAIContext";
 
 @injectable()
 export class ReviewACL {

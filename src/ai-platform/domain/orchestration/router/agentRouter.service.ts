@@ -9,36 +9,38 @@ import { TOKENS_AGENT } from "@/ai-platform/container/tokens/agent/module.agent"
 import { AIDomain } from "../../semantic/types/ai.domain";
 
 
+
 @injectable()
 export class AgentRouterService {
 
   constructor(
-    @inject(TOKENS_AGENT.listingAgent)
+    @inject(delay(() => TOKENS_AGENT.listingAgent))
     private listingAgent: ListingAgent,
-    @inject(TOKENS_AGENT.bookingAgent)
+    @inject(delay(() => TOKENS_AGENT.bookingAgent))
     private bookingAgent: BookingAgent,
     // @inject(TOKENS_AGENT.paymentAgent)
     // private paymentAgent: PaymentAgent,
   ) {}
 
- route(
-  semantic: SemanticContext
-): IDomainAgent {
+  route(
+    semantic: SemanticContext
+  ): IDomainAgent {
 
-  switch (semantic.domain) {
+    switch (semantic.domain) {
 
-    case AIDomain.LISTING:
-      return this.listingAgent;
+      case AIDomain.LISTING:
+        return this.listingAgent;
 
-    case AIDomain.BOOKING:
-      return this.bookingAgent;
+      case AIDomain.BOOKING:
+        return this.bookingAgent;
 
-    // case AIDomain.PAYMENT:
-    //   return this.paymentAgent;
+      // case AIDomain.PAYMENT:
+      //   return this.paymentAgent;
 
-    default:
-      throw new Error(
-        `No agent for ${semantic.domain}`
-      );
+      default:
+        throw new Error(
+          `No agent for ${semantic.domain}`
+        );
+    }
   }
-}}
+}

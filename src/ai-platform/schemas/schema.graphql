@@ -9,6 +9,9 @@ schema
 
 scalar DateTime
 scalar JSON
+type Query {
+  _empty: String
+}
 
 input ChatInput {
   message: String!

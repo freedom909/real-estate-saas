@@ -5,8 +5,6 @@ import { ListingRepository } from "../../infrastructure/persistence/listing.repo
 import { IListingRepository } from "./IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
-
-
 @injectable()
 export class ApplyDescriptionSuggestionUseCase {
   // Prompt template colocated with the use case

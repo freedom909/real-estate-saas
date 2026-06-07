@@ -1,7 +1,7 @@
 // container.ts
 
 
-import { EventBus } from "@/shared/events/eventBus";
+
 
 import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
 import { ConfirmBookingUseCase } from "@/subgraphs/booking/application/use-cases/confirm-booking.use-case";
@@ -18,7 +18,7 @@ export const BookingRegister = () => {
     useClass: BookingRepository,
   });
 
-container.register(TOKENS_BOOKING.eventBus.eventBus, { useClass: EventBus });
+
 container.register(TOKENS_BOOKING.usecase.confirmBookingUseCase, {
   useClass: ConfirmBookingUseCase,
 });

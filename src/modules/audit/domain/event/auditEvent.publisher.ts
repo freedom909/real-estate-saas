@@ -1,21 +1,20 @@
 // src/modules/audit/domain/types/auditEvent.publisher.ts   
 
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
-import { EventBus } from "@/shared/events/eventBus";
+
+import { IEventBus } from "@/shared/eventbus/IEventBus";
 import { injectable, inject } from "tsyringe";
-import { AuditLogEvent } from "./audit-log.event";
 
-
-
+import { DomainEvent } from "@/shared/eventbus/domain.event";
+import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 
 @injectable()
 export class AuditEventPublisher {
-
   constructor(
-    @inject(TOKENS_AUDIT.eventBus) private bus: EventBus
+    @inject(TOKENS_EVENT_BUS.eventBus)
+    private readonly eventBus: IEventBus
   ) {}
 
-  publish(event: AuditLogEvent) {
-    this.bus.emit(event);
+  async publish(event: DomainEvent) {
+    await this.eventBus.publish(event);
   }
-} 
+}

@@ -16,4 +16,5 @@ export interface CreateSystemLogDTO {
   >;
   latencyMs?: number;
   stack?: string;
+  timestamp?: Date;
 }

@@ -1,4 +1,4 @@
-// infrastructure/events/rabbitmq-event-bus.ts
+//src/subgraphs/booking/interface/events/rabbitmq-event-bus.ts
 import { injectable } from "tsyringe";
 
 import amqp, { Connection, Channel } from "amqplib";

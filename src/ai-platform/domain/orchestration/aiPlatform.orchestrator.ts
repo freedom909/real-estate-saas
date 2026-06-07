@@ -7,7 +7,7 @@ import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestratio
 
 import { UserContext } from "../semantic/types/userContext";
 import { AgentRouterService } from "./router/agentRouter.service";
-import { AIRequest } from "../types/context/aiContext";
+import { AIContext, AIRequest } from "../types/context/aiContext";
 import { AgentResult } from "../types/context/agent.result";
 
 
@@ -28,7 +28,7 @@ export class AIPlatformOrchestrator {
 
     const semantic =
       await this.semanticExtractor.extract(
-        request.message
+       request
       );
 
     const agent =

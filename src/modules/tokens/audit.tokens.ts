@@ -1,3 +1,5 @@
+import { SystemLogModel } from "../audit/infrastructure/database/models/system-log.model";
+
 // src/modules/tokens/audit.tokens.ts
 export const TOKENS_AUDIT = {
     eventBus: Symbol.for("eventBus"),
@@ -6,6 +8,8 @@ export const TOKENS_AUDIT = {
 
     models: {
       audit: Symbol.for("audit.models.audit"),
+      decisionLog: Symbol.for("audit.models.decisionLog"),
+      systemLogModel: Symbol.for("audit.models.systemLogModel"),
     },
 
     repos: {

@@ -12,6 +12,9 @@ import { ListingAgent } from "../../agents/listing/listing.agent";
 import { BookingAgent } from "../../agents/booking/booking.agent";
 
 import { AuditEventPublisher } from "@/ai-platform/domain/audit/auditEvent.publisher";
+import { AIDecisionEvent } from "@/modules/audit/domain/event/aiDecision.event";
+import { v4 as uuidv4 } from "uuid";
+import { AIContext } from "../../types/context/aiContext";
 
 @injectable()
 export class AIRouter {
@@ -29,7 +32,14 @@ export class AIRouter {
 
   async route(message: string, user: UserContext) {
 
-    const correlationId = crypto.randomUUID();
+    const correlationId = uuidv4();
+
+    const context: AIContext = {
+      user: { id: user.userId },
+      source: "web", // 必要に応じてリクエスト元から判定するロジックに変更可能
+      resources: {},
+      trace: { correlationId }
+    };
 
     // =====================================================
     // 1. RULE ENGINE (HARD PRIORITY)
@@ -38,21 +48,20 @@ export class AIRouter {
 
     if (rule.matched) {
 
-      this.auditPublisher.publish({
-        id: crypto.randomUUID(),
-        type: "RULE_MATCH",
-        intent: rule.intent!,
-        domain: rule.domain!,
-        confidence: rule.confidence,
-        userId: user.userId,
-       // action: rule.action!,
-        timestamp: new Date(),
-        metadata: {
-          source: "RULE_ENGINE"
-        }
-      });
+      await this.auditPublisher.publish(
+        new AIDecisionEvent(
+          uuidv4(),
+          "RULE_MATCH",
+          rule.intent!,
+          rule.domain!,
+          rule.confidence,
+          correlationId,
+          user.userId,
+          { source: "RULE_ENGINE" }
+        )
+      );
 
-      return this.execute(rule, user);
+      return this.execute(rule, context);
     }
 
     // =====================================================
@@ -63,54 +72,59 @@ export class AIRouter {
     // guard check
     if (!this.guard.shouldAccept(llm.confidence)) {
 
-      this.auditPublisher.publish({
-        id: crypto.randomUUID(),
-        type: "LLM_REJECTED",
-        intent: llm.intents[0].name,
-        domain: llm.domain,
-        confidence: llm.confidence,
-        userId: user.userId,
-       // action: llm.actions[0].name,
-        timestamp: new Date(),
-        metadata: {
-          reason: "LOW_CONFIDENCE"
-        }
-      });
+await this.auditPublisher.publish(
+  new AIDecisionEvent(
+    uuidv4(),
+    "LLM_REJECTED",
+
+    llm.action?.[0]?.name || "unknown", // intent
+
+    llm.domain,                         // domain
+
+    llm.confidence,                     // confidence
+
+    correlationId,
+
+    user.userId,
+
+    {
+      reason: "LOW_CONFIDENCE"
+    }
+  )
+);
 
       throw new Error("Low confidence AI decision");
     }
 
-    this.auditPublisher.publish({
-      id: crypto.randomUUID(),
-      type: "LLM_ACCEPTED",
-      
-      domain: llm.domain,
-      confidence: llm.confidence,
-      userId: user.userId,
-      
-      intent: llm.intents[0].name,
-     
-      timestamp: new Date(),
-      metadata: {
-        source: "LLM"
-      }
-    });
+    await this.auditPublisher.publish(
+      new AIDecisionEvent(
+        uuidv4(),
+        "LLM_ACCEPTED",
+        llm.action[0]?.name || "unknown",
+        llm.domain,
+        llm.confidence,
+        correlationId,
+        user.userId,
+        { source: "LLM" }
+      )
+    );
 
-    return this.execute(llm, user);
+    return this.execute(llm, context);
   }
 
   // =====================================================
   // 3. DOMAIN ROUTER
   // =====================================================
-  private execute(decision: any, user: UserContext) {
+  private execute(decision: any, context: AIContext) {
+    decision.correlationId = context.trace?.correlationId;
 
     switch (decision.domain) {
 
       case AIDomain.LISTING:
-        return this.listingAgent.execute(decision, user);
+        return this.listingAgent.execute(decision, context);
 
       case AIDomain.BOOKING:
-        return this.bookingAgent.execute(decision, user);
+        return this.bookingAgent.execute(decision, context);
 
       default:
         throw new Error(

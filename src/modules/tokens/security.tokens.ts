@@ -33,7 +33,7 @@ export const TOKENS_SECURITY = {
     trustedDevice: Symbol.for("security.trustedDeviceModel"),
     riskEventModel: Symbol.for("security.riskEventModel"),
   },
-  
+
 
   evaluateRiskUseCase: Symbol.for("security.evaluateRiskUseCase"),
 };

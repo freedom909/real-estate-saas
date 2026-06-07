@@ -7,20 +7,16 @@ export interface BookingProps {
   listingId: string;
   guestId: string;
   dateRange: DateRange;
+  tenantId: string;
   totalCost: number;
   status: BookingStatus;
   createdAt: Date;  
 }
 
-export class Booking implements BookingProps {
+export class Booking {
   private constructor(
     private props: BookingProps)
      {}
-  listingId: string;
-  dateRange: DateRange;
-  totalCost: number;
-  status: BookingStatus;
-  createdAt: Date;
 
   static create(
     props: Omit<BookingProps, "status" | "createdAt">
@@ -48,6 +44,14 @@ export class Booking implements BookingProps {
     this.props.status = "CANCELLED";
   }
 
+  confirm() {
+    if (this.props.status !== "PENDING" && this.props.status !== "UPCOMING") {
+      throw new Error("Only PENDING or UPCOMING bookings can be confirmed");
+    }
+
+    this.props.status = "CONFIRMED";
+  }
+
   toJSON() {
     return {
       ...this.props,
@@ -63,5 +67,29 @@ export class Booking implements BookingProps {
 
   get guestId() {
     return this.props.guestId;
+  }
+
+  get tenantId() {
+    return this.props.tenantId;
+  }
+
+  get listingId() {
+    return this.props.listingId;
+  }
+
+  get status() {
+    return this.props.status;
+  }
+
+  get totalCost() {
+    return this.props.totalCost;
+  }
+
+  get dateRange() {
+    return this.props.dateRange;
+  }
+
+  get createdAt() {
+    return this.props.createdAt;
   }
 }
