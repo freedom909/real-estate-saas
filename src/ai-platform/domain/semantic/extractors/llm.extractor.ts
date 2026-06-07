@@ -2,10 +2,9 @@ import { inject, injectable } from "tsyringe";
 import { SemanticContext, Entity } from "../semantic-context";
 import { TOKENS_AI_ADAPTER } from "@/ai-platform/container/tokens/ai.adapter";
 import { OpenAIAdapter } from "@/ai-platform/infrastructure/adapters/openai.adapter";
-import { AISuggestionSchema } from "@/ai-platform/schemas/aiSuggestionSchema";
-import { IntentSchema } from "@/ai-platform/schemas/intentSchema";
+
 import { AIDomain } from "../types/ai.domain";
-import { LLMResult } from "../types/llm.result";
+import { SemanticSchema } from "@/ai-platform/schemas/semantic.schema";
 
 
 @injectable()
@@ -16,11 +15,11 @@ export default class LLMExtractor {
     private ai: OpenAIAdapter
   ) { }
 
-    async extract(
-      message: string
-    ): Promise<SemanticContext> {
+  async extract(
+    message: string
+  ): Promise<SemanticContext> {
 
-      const prompt = `
+    const prompt = `
   You are an AI intent classifier.
 
   No markdown.
@@ -52,66 +51,61 @@ export default class LLMExtractor {
   ${message}
   `;
 
-      const raw =
-        await this.ai.generateText({
-          prompt
-        });
-  console.log("RAW AI", raw);
-      // clean markdown
-      const cleaned = raw
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
+    const raw = await this.ai.generateText({
+        prompt
+      });
+    console.log("RAW AI", raw);
+    // clean markdown
+    const cleaned = raw
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
 
-      // parse raw json
-      const parsed =
-        JSON.parse(cleaned);
-  console.log("PARSED", parsed);
-      // validate with zod
-      const validated =
-        IntentSchema.parse(parsed);
-  console.log("VALIDATED", validated);
-      const intents = [
-        {
-          name: validated.intent,//
-          confidence:
-            validated.confidence,
-        }
-      ];
-
-  const entities: Entity[] =
-    Object.entries(
-      validated.entities ?? {}
-    ).map(([type, value]) => {
-
-      const normalizedType =
-        type
-          .replace(/\./g, "_")
-          .replace(/-/g, "_")
-          .replace(
-            /([a-z])([A-Z])/g,
-            "$1_$2"
-          )
-          .toLowerCase();
-
-      return {
-        type: normalizedType,
-        value: String(value),
+    // parse raw json
+    const parsed =  JSON.parse(cleaned);
+    console.log("PARSED", parsed);
+    // validate with zod
+    const validated = SemanticSchema.parse(parsed);
+    console.log("VALIDATED", validated);
+    const intents = [
+      {
+        name: validated.primaryAction,// primaryAction is the intent
         confidence:
-          validated.confidence
-      };
-  });
-  console.log("ENTITIES", entities);
+          validated.confidence,
+      }
+    ];
 
-  return new SemanticContext(
-    message,
-    intents,
-    entities,
-    validated.confidence,
-    validated.domain as AIDomain,
+    const entities: Entity[] =
+      Object.entries(
+        validated.entities ?? {}
+      ).map(([type, value]) => {
 
-  );
+        const normalizedType =
+          type
+            .replace(/\./g, "_")
+            .replace(/-/g, "_")
+            .replace(
+              /([a-z])([A-Z])/g,
+              "$1_$2"
+            )
+            .toLowerCase();
+
+        return {
+          type: normalizedType,
+          value: String(value),
+          confidence:
+            validated.confidence
+        };
+      });
+    console.log("ENTITIES", entities);
+
+    return new SemanticContext(
+      message,
+      entities,
+      intents[0],
+      validated.confidence,
+      validated.domain as AIDomain,
+      false
+    );
   }
-
-
 }

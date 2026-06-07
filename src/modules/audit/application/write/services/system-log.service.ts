@@ -2,11 +2,12 @@
 
 import { inject, injectable } from "tsyringe";
 import { ISystemLogRepository } from "../../../domain/repositories/interface/system-log.repository.interface";
-import { SystemLogDocument } from "../../../infrastructure/database/models/system-log.model";
+
 import { CreateSystemLogDTO } from "../dto/create-system-log.dto";
 
-import { SystemLog } from "@/modules/audit/domain/types/system-log.type";
+
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+import { SystemLogDocument } from "@/modules/audit/infrastructure/database/models/system-log.model";
 
 @injectable()
 export class SystemLogService {
@@ -17,8 +18,14 @@ export class SystemLogService {
 
   async writeSystemLog(
     dto: CreateSystemLogDTO
-  ): Promise<SystemLog> {
-  
+  ): Promise<SystemLogDocument> {
+    return await this.repository.create(dto);
+  }
+
+  async debug(
+    dto: CreateSystemLogDTO
+  ): Promise<SystemLogDocument> {
+    
     return await this.repository.create(dto);
   }
 }

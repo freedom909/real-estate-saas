@@ -1,29 +1,52 @@
 
-extend schema @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key", "@shareable"])
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable"])
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
 
-type Host @key(fields: "id") {
+
+type Tenant @key(fields: "id") {
   id: ID! @shareable
   name: String! @shareable
   slug: String!
+  status: TenantStatus!
+  ownerUserId: String!
   createdAt: String
   updatedAt: String
 }
 
-type User @key(fields: "id") {
-  id: ID!
-  hosts: [Host!]!
+type PageInfo {
+  total: Int!
+  hasNextPage: Boolean!
 }
 
-input CreateHostInput {
+type TenantConnection {
+  items: [Tenant!]!
+  pageInfo: PageInfo!
+}
+
+input CreateTenantInput {
   name: String!
   slug: String!
+  ownerUserId: String!
+}
+
+input TenantFilterInput {
+  keyword: String
+  status: TenantStatus
+  limit: Int
+  offset: Int
 }
 
 type Query {
-  getHost(id: ID!): Host
-  getHosts: [Host!]!
+  getTenant(id: ID!): Tenant
+  getTenants(filter: TenantFilterInput): TenantConnection!
 }
 
 type Mutation {
-  createHost(input: CreateHostInput!): Host!
+  createTenant(input: CreateTenantInput!): Tenant!
+  updateTenant(id: ID!, name: String!): Tenant!
+  suspendTenant(id: ID!): Tenant!
 }

@@ -9,6 +9,7 @@ import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { UserContext } from "../../semantic/types/userContext";
 import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
 import { CreateBookingUseCase } from "@/subgraphs/booking/application/use-cases/create-booking.use-case";
+import { AIContext } from "../../types/context/aiContext";
 
 @injectable()
 export class BookingAgent implements IDomainAgent {
@@ -24,7 +25,7 @@ export class BookingAgent implements IDomainAgent {
 
   async execute(
     semantic: SemanticContext,
-    user:UserContext
+    context:AIContext
   ) {
 
     switch(
@@ -39,7 +40,7 @@ export class BookingAgent implements IDomainAgent {
         if (!bookingId) throw new Error("Booking ID required for cancellation");
 
         return this.cancelBookingUseCase
-          .execute(bookingId, user.userId);
+          .execute(bookingId, context.userId);
 
       case "CREATE_BOOKING":
         const listingId = semantic.entities.find(e => e.type === "listing_id")?.value;
@@ -48,7 +49,7 @@ export class BookingAgent implements IDomainAgent {
 
         return this.createBookingUseCase.execute({
           listingId,
-          guestId: user.userId,
+          guestId: context.userId,
           checkInDate: checkIn,
           checkOutDate: checkOut,
           totalCost: 0 // To be calculated by the use case or domain

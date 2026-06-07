@@ -9,7 +9,7 @@ import  {resolvers}  from "../../../audit/resolvers/audit.resolver";
 
 import { readFileSync } from "fs";
 import { printSchema } from "graphql";
-import { generateTests } from "../ai/generator";
+
 import registerAuditDependencies from "@/modules/container/audit.register";
 
 export class AuditHarness {

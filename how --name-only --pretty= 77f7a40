@@ -10,8 +10,8 @@ src/subgraphs/listing/application/ai/services/OpenAIService.ts
 src/subgraphs/listing/application/prompts/buildDescriptionPrompt.ts
 src/subgraphs/listing/application/prompts/buildTitlePrompt.ts
 src/subgraphs/listing/application/use-cases/ApplyDescriptionSuggestionUseCase.ts
-src/subgraphs/listing/application/use-cases/GenerateListingSuggestionsUseCase.ts
-src/subgraphs/listing/application/use-cases/GenerateTitleSuggestionUseCase.ts
+src/subgraphs/listing/application/use-cases/generateListingSuggestionsUseCase.ts
+src/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase.ts
 src/subgraphs/listing/application/use-cases/applyAISuggestionUseCase.ts
 src/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase.ts
 src/subgraphs/listing/domain/entities/listing.ts

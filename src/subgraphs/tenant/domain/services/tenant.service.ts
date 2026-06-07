@@ -4,7 +4,7 @@ import { HostDocument } from '../models/host.model';
 import { MembershipDocument } from '../models/membership.model';
 import { MembershipRepository } from '../repos/membership.repo';
 import { TOKENS_Host } from '@/modules/tokens/host.tokens';
-import { UserAdapter } from './user.adapter';
+import { UserAdapter } from '../../adapter/user.adapter';
 
 @injectable()
 export class HostService {

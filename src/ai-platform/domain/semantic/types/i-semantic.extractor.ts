@@ -1,9 +1,8 @@
-// src/gateway/cognition/domain/semantic/types/i-semantic.extractor.ts
-
+import { AIRequest } from "../../types/context/aiContext";
 import { SemanticContext } from "../semantic-context";
 
 
 
 export interface ISemanticExtractor {
-  extract(message: string): Promise<SemanticContext>;
+  extract(request: AIRequest): Promise<SemanticContext>;
 }

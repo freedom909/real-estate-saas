@@ -1,41 +1,36 @@
+
 import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 import { DependencyContainer } from 'tsyringe';
 
-
-
 export const resolvers = {
   Query: {
-    getHostTenant: async (_: any, { id }: { id: string }, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<any>(TOKENS_TENANT.services.tenantService);
-      return service.getHost(id);
-    },
     getTenant: async (_: any, { id }: { id: string }, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<any>(TOKENS_TENANT.services.tenantService);
-      return service.getTenant(id);
+      const useCase = container.resolve<any>(TOKENS_TENANT.useCases.getTenant);
+      return useCase.execute(id);
     },
-    getTenants: async (_: any, __: any, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<any>(TOKENS_TENANT.services.tenantService);
-      return service.getTenantsAll();
-    
+    getTenants: async (_: any, { filter }: any, { container }: { container: DependencyContainer }) => {
+      const useCase = container.resolve<any>(TOKENS_TENANT.useCases.listTenants);
+      return useCase.execute(filter || {});
     },
   },
   Mutation: {
-    createTenant: async (_: any, { input }: { input: { name: string; slug: string } }, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<any>(TOKENS_TENANT.services.tenantService);
-      console.log(input)
-      return service.createHost(input);
+    createTenant: async (_: any, { input }: any, { container }: { container: DependencyContainer }) => {
+      const useCase = container.resolve<any>(TOKENS_TENANT.useCases.createTenant);
+      return useCase.execute(input);
+    },
+    updateTenant: async (_: any, { id, name }: any, { container }: { container: DependencyContainer }) => {
+      const useCase = container.resolve<any>(TOKENS_TENANT.useCases.updateTenant);
+      return useCase.execute({ tenantId: id, name });
+    },
+    suspendTenant: async (_: any, { id }: any, { container }: { container: DependencyContainer }) => {
+      const useCase = container.resolve<any>(TOKENS_TENANT.useCases.suspendTenant);
+      return useCase.execute(id);
     },
   },
-  Host: {
+  Tenant: {
     __resolveReference: async (reference: { id: string }, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<any>(TOKENS_TENANT.services.tenantService);
-      return service.getHost(reference.id);
-    },
-  },
-  User: {
-    hosts: async (user: { id: string }, _: any, { container }: { container: DependencyContainer }) => {
-      const service = container.resolve<any>(TOKENS_TENANT.services.tenantService);
-      return service.getHostsForUser(user.id);
+      const useCase = container.resolve<any>(TOKENS_TENANT.useCases.getTenant);
+      return useCase.execute(reference.id);
     },
   },
 };

@@ -7,6 +7,8 @@ import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestratio
 
 import { UserContext } from "../semantic/types/userContext";
 import { AgentRouterService } from "./router/agentRouter.service";
+import { AIRequest } from "../types/context/aiContext";
+import { AgentResult } from "../types/context/agent.result";
 
 
 @injectable()
@@ -19,51 +21,28 @@ export class AIPlatformOrchestrator {
     @inject(TOKENS_ORCHESTRATOR.agentRouterService)
     private routingService: AgentRouterService,
 
-    // @inject(TOKENS_AGENT_FACTORY.agentFactory) // Ensure this is registered
-    // private agentFactory: AgentFactory
   ) { }
+  async handle(
+    request: AIRequest
+  ): Promise<AgentResult> {
 
-async handle(
-  message: string,
-  user?: UserContext
-): Promise<ChatResponse> {
+    const semantic =
+      await this.semanticExtractor.extract(
+        request.message
+      );
 
- const semantic =
-  await this.semanticExtractor.extract(
-    message
-  );
+    const agent =
+      this.routingService.route(
+        semantic
+      );
 
-console.log(
-  "ORCH STEP 1 semantic",
-  semantic
+      const result =  await agent.execute(
+      semantic,
+      request.context
+    ) as AgentResult;
+    console.log("AGENT RESULT++",
+  Object.keys(result)
 );
-
-const agent =
-  this.routingService.route(
-    semantic
-  );
-
-console.log(
-  "ORCH STEP 2 agent",
-  agent?.constructor?.name
-);
-
-const result =
-  await agent.execute(
-    semantic,
-    user
-  );
-
-console.log(
-  "ORCH STEP 3 result",
-  result
-);
-    return { 
-      success: true,
-      planId: "test",
-      summary: [],
-           reply:
-        result.title
-    };
-}
+    return result;
+  }
 }

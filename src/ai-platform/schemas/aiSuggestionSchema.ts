@@ -2,25 +2,20 @@
 // src/ai-platform/schemas/aiSuggestionSchema.ts
 import { z } from "zod";
 
-export const AISuggestionSchema =
+export const AIArtifactSchema =
   z.object({
-    listingId:
-      z.string(),
 
     type:
-      z.enum([
-        "TITLE",
-        "DESCRIPTION"
-      ]),
-
-    suggestion:
       z.string(),
 
+    content:
+      z.unknown(),
+
     confidence:
-      z.number()
+      z.number().optional()
   });
 
-export type AISuggestion =
+export type AIArtifact =
   z.infer<
-    typeof AISuggestionSchema
+    typeof AIArtifactSchema
   >;

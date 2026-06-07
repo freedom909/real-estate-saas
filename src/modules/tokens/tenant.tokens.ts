@@ -16,6 +16,15 @@ export const TOKENS_TENANT = {
     },
     services: {
         tenantService: Symbol.for("tenant.services.tenantService"),
-        membershipService: Symbol.for("tenant.services.membershipService"),
-    }
+        membershipService: Symbol.for("tenant.services.membershipService"),   
+        eventBus: Symbol.for("tenant.services.eventBus"),
+    },
+
+   useCases: {
+    createTenant: Symbol.for("createTenantUseCase"),
+    updateTenant: Symbol.for("updateTenantUseCase"),
+    suspendTenant: Symbol.for("suspendTenantUseCase"),
+    getTenant: Symbol.for("getTenantUseCase"),
+    listTenants: Symbol.for("listTenantsUseCase"),
+  },
 } as const;

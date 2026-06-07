@@ -16,5 +16,8 @@ export const TOKENS_AUDIT = {
 
     services: {
       auditService: Symbol.for("audit.services.auditService"),
+      auditLogger: Symbol.for("audit.services.auditLogger"),
+      decisionLogService: Symbol.for("audit.services.decisionLogService"),
+      systemLogService: Symbol.for("audit.services.systemLogService"),
     },
 } as const;

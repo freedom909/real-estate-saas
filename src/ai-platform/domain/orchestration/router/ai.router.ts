@@ -44,8 +44,8 @@ export class AIRouter {
         intent: rule.intent!,
         domain: rule.domain!,
         confidence: rule.confidence,
-        userId: user.id,
-        correlationId,
+        userId: user.userId,
+       // action: rule.action!,
         timestamp: new Date(),
         metadata: {
           source: "RULE_ENGINE"
@@ -66,11 +66,11 @@ export class AIRouter {
       this.auditPublisher.publish({
         id: crypto.randomUUID(),
         type: "LLM_REJECTED",
-        intent: llm.intent,
+        intent: llm.intents[0].name,
         domain: llm.domain,
         confidence: llm.confidence,
-        userId: user.id,
-        correlationId,
+        userId: user.userId,
+       // action: llm.actions[0].name,
         timestamp: new Date(),
         metadata: {
           reason: "LOW_CONFIDENCE"
@@ -83,11 +83,13 @@ export class AIRouter {
     this.auditPublisher.publish({
       id: crypto.randomUUID(),
       type: "LLM_ACCEPTED",
-      intent: llm.intent,
+      
       domain: llm.domain,
       confidence: llm.confidence,
-      userId: user.id,
-      correlationId,
+      userId: user.userId,
+      
+      intent: llm.intents[0].name,
+     
       timestamp: new Date(),
       metadata: {
         source: "LLM"

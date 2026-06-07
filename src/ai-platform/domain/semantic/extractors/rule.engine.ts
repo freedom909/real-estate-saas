@@ -28,6 +28,7 @@ export class RuleEngine {
         matched: true,
         intent: "OPTIMIZE_TITLE",
         domain: AIDomain.LISTING,
+        action: "optimize_title",
         confidence: 0.99,
         reason: "keyword: title"
       };

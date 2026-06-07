@@ -1,14 +1,8 @@
 import { inject, injectable } from "tsyringe";
 
-
-import { SemanticExtractor } from "../../domain/semantic/extractors/semantic.extractor";
-
-import { ChatInput } from "./chat.input";
-
-
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatformOrchestrator";
 import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
-import { UserContext } from "@/ai-platform/domain/semantic/types/userContext";
+import { AIRequest } from "@/ai-platform/domain/types/context/aiContext";
 
 @injectable()
 export class ChatUseCase {
@@ -17,24 +11,22 @@ export class ChatUseCase {
     @inject(TOKENS_ORCHESTRATOR.aiPlatformOrchestrator)
     private orchestrator:
       AIPlatformOrchestrator
-  ) {}
+  ) { }
 
   async execute(
-    message: string,
-    userInfo: UserContext
+    request: AIRequest
   ) {
-const result =
-  await this.orchestrator.handle(
-    message,
-    userInfo
-  );
 
-console.log(
-  "FINAL RESPONSE",
-  JSON.stringify(result, null, 2)
-);
+    const result =
+      await this.orchestrator.handle(
+        request
+      );
 
-return result;
+    console.log(
+      "FINAL RESPONSE",
+      JSON.stringify(result, null, 2)
+    );
+
+    return result;
   }
-
 }

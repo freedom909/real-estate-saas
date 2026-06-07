@@ -4,7 +4,9 @@ import { SemanticContext } from "../semantic/semantic-context";
 import { TOKENS_AI_ADAPTER } from "@/ai-platform/container/tokens/ai.adapter";
 import { OpenAIAdapter } from "@/ai-platform/infrastructure/adapters/openai.adapter";
 import { parseAIJson } from "@/ai-platform/infrastructure/utils/parserAIJson";
-import { AISuggestionSchema } from "@/ai-platform/schemas/aiSuggestionSchema";
+import { SemanticSchema } from "@/ai-platform/schemas/semantic.schema";
+
+
 
 @injectable()
 export class GeneralAgent {
@@ -96,7 +98,11 @@ ${semantic.rawInput}
 const result =
   parseAIJson(reply);
 console.log("result", result);
-  const validated = AISuggestionSchema.parse(result);
+  const validated = SemanticSchema.parse(result);
+    console.log(
+      "validated",
+      validated
+    );
     return {
       reply:validated
     };

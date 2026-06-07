@@ -4,8 +4,7 @@ import { inject, injectable } from "tsyringe";
 
 
 
-import { TOKENS_FACET_RESOLVERS }
-from "@/ai-platform/container/tokens/facet/facet.resolver";
+
 import { OptimizeContentExecutor } from "@/ai-platform/domain/semantic/extractors/optimize-content.executor";
 import { GenerateContentExecutor } from "@/ai-platform/domain/semantic/extractors/generate-content.executor";
 

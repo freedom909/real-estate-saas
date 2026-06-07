@@ -1,6 +1,14 @@
-type ChatResponse {
-  reply: String!
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: ["@key", "@shareable", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
 }
+
+scalar DateTime
+scalar JSON
 
 input ChatInput {
   message: String!
@@ -10,6 +18,27 @@ type Mutation {
   chat(input: ChatInput!): ChatResponse!
 }
 
-type Query {
-  _empty: String
+type ChatResponse {
+
+  success: Boolean!
+
+  summary: String!
+
+  artifacts: [Artifact!]!
+}
+
+type Artifact {
+
+  type: ArtifactType!
+
+  content: JSON!
+}
+
+enum ArtifactType {
+  TITLE
+  DESCRIPTION
+  SEO
+  BOOKING
+  REVIEW
+  PRICE
 }

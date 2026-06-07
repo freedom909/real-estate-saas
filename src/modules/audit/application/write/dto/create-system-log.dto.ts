@@ -7,6 +7,7 @@ export interface CreateSystemLogDTO {
   module?: string;
   action?: string;
   message: string;
+  data?: any;
   correlationId?: string;
   requestId?: string;
   metadat?: Record<

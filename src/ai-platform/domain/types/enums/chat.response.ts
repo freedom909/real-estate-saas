@@ -1,15 +1,12 @@
-import { UserContext } from "../../semantic/types/userContext";
+
+import { AgentArtifact } from "../context/agent.result";
 
 export interface ChatResponse {
+
   success: boolean;
-  planId: string;
 
-  summary: Array<{
-    id: string;
-    capability: string;
-    status: string;
-  }>;
+  summary: string;
 
-  userInfo?: UserContext;// 名前 'UserContext' が見つかりません。
-  reply?: string;
+  artifacts: AgentArtifact[];
+
 }
