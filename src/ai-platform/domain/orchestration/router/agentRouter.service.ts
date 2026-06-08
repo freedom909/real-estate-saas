@@ -8,15 +8,13 @@ import { BookingAgent } from "../../agents/booking/booking.agent";
 import { TOKENS_AGENT } from "@/ai-platform/container/tokens/agent/module.agent";
 import { AIDomain } from "../../semantic/types/ai.domain";
 
-
-
 @injectable()
 export class AgentRouterService {
 
   constructor(
-    @inject(delay(() => TOKENS_AGENT.listingAgent))
+    @inject(TOKENS_AGENT.listingAgent)
     private listingAgent: ListingAgent,
-    @inject(delay(() => TOKENS_AGENT.bookingAgent))
+    @inject(TOKENS_AGENT.bookingAgent)
     private bookingAgent: BookingAgent,
     // @inject(TOKENS_AGENT.paymentAgent)
     // private paymentAgent: PaymentAgent,

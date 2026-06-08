@@ -3,13 +3,13 @@ import { TOKENS_EXTRACTOR } from "../tokens/semantic/extractor";
 import { container } from "tsyringe";
 import { SemanticExtractor } from "@/ai-platform/domain/semantic/extractors/semantic.extractor";
 
-import { ChatUseCase } from "@/ai-platform/application/use-cases/chat.use-case";
+
 import { GeneralAgent } from "@/ai-platform/domain/agents/generalAgent";
 import { RuleExtractor } from "@/ai-platform/domain/semantic/extractors/rule.extractor";
 import LLMExtractor from "@/ai-platform/domain/semantic/extractors/llm.extractor";
 
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
-import { BookingAgent } from "@/ai-platform/domain/agents/booking/booking.agent";
+
 import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent";
 import { TOKENS_ORCHESTRATOR } from "../tokens/orchestration/orchestrator";
 import { TOKENS_AGENT } from "../tokens/agent/module.agent";
@@ -22,6 +22,8 @@ import { AgentFactory } from "@/ai-platform/domain/agents/agent.factory";
 import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouter.service";
 import registerListingDependencies from "@/modules/container/listing.register";
 import { registerAIContainer } from "@/modules/container/ai.register";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { ChatUseCase } from "@/ai-platform/application/usecases/chatUseCase";
 
 
 export default function
@@ -78,11 +80,10 @@ AIPlatformDependencies() {
   registerAIContainer();
 
   // usecase
-  container.register(
-    ChatUseCase,
+  container.register(TOKENS_AI.chatUseCase,
     {
       useClass:
-        ChatUseCase
+        ChatUseCase 
     }
   );
 
@@ -106,4 +107,7 @@ AIPlatformDependencies() {
       useClass:AgentFactory
     }
   );
+
+
+
 }

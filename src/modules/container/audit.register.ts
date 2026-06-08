@@ -11,6 +11,7 @@ import { AuditService } from '@/subgraphs/audit/services/audit.service';
 import { RiskEventRepo } from '@/subgraphs/auth/infrastructure/repos/risk.event.repo';
 import { SystemLogService } from '../audit/application/write/services/system-log.service';
 import { SystemLogRepository } from '../audit/infrastructure/database/repositories/system-log.repository';
+import { SystemLogModel } from '../audit/infrastructure/database/models/system-log.model';
 
 function registerAuditDependencies(container: DependencyContainer) {
   container.register(TOKENS_AUDIT.models.audit, { useValue: AuditModel });
@@ -48,5 +49,10 @@ function registerAuditDependencies(container: DependencyContainer) {
 container.register(TOKENS_AUDIT.repos.systemLogRepo, {
   useClass: SystemLogRepository
 })
+
+container.register(TOKENS_AUDIT.models.systemLogModel, {
+  useValue: SystemLogModel
+})
+
 }
 export default registerAuditDependencies;

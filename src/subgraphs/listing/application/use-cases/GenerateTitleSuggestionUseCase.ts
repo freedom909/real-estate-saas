@@ -3,15 +3,10 @@
 import { inject, injectable } from "tsyringe";
 import { IListingRepository } from "../../domain/entities/IListingRepository";
 import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
-import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISuggestionRepository";
 
-import { v4 as uuidv4 } from 'uuid';
-
-import { buildTitlePrompt } from "../prompts/buildTitlePrompt";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-import { ListingAISuggestion } from "../../domain/entities/listingAISuggestion";
-import { SuggestionStatus } from "../../domain/entities/suggestionStatus";
+
 
 @injectable()
 export class GenerateTitleSuggestionUseCase {

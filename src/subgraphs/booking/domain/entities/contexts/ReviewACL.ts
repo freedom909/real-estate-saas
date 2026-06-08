@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { ReviewGateway } from "./ReviewGateway";
+import { ReviewGateway } from "./reviewGateway";
 import { ReviewAIContext } from "./reviewAIContext";
 
 @injectable()

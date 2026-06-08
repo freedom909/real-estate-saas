@@ -13,18 +13,21 @@ import type { RequestHandler } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import { resolvers } from "./resolvers";
-import { initializeReviewContainer } from "@/infrastructure/container/initReviewContainer";
+import { reviewResolvers as resolvers} from "./review.resolver";
+
+
 import { initMongoContainer } from "@/infrastructure/container/initMongoContainer";
-import { initMysqlContainer } from "@/infrastructure/container/initMysqlContainer";
+
 
 import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
-import { RabbitMQEventBus } from "./interface/events/rabbitmq-event-bus";
+
 import TOKENS from "@/modules/tokens/mq.tokens";
 import registerMQEventBus from "@/modules/container/mq.register";
-dotenv.config();
+import { registerReviewDependencies } from "@/modules/container/review.register";
+import { RabbitMQEventBus } from "../booking/interface/events/rabbitmq-event-bus";
 
+dotenv.config();
 registerMQEventBus();
 const eventBus = container.resolve<RabbitMQEventBus>(TOKENS.eventBus);
 await eventBus.init();
@@ -37,7 +40,7 @@ const startApolloServer = async () => {
   try {
     // ✅ 初始化 DI（全局 container）
     console.log("⏳ Initializing containers...");
-    await initializeReviewContainer();
+    await registerReviewDependencies();
     await initMysqlContainer();
     await initMongoContainer();
     console.log("✅ Containers initialized");

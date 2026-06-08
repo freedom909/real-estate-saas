@@ -2,31 +2,19 @@
 import { inject, injectable } from "tsyringe";
 
 import {
-  SystemLogModel
+  SystemLogModel as MongooseSystemLogModel
 } from "../models/system-log.model";
-
-import {
-  ISystemLogRepository
-} from "../../../domain/repositories/interface/system-log.repository.interface";
-
-
-
-import {
-  SystemLog
-} from "@/modules/audit/domain/types/system-log.type";
+import { ISystemLogRepository } from "../../../domain/repositories/interface/system-log.repository.interface";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
-
+import { SystemLog } from "@/modules/audit/domain/entities/systemLog.entity";
 
 
 @injectable()
 export class SystemLogRepository implements ISystemLogRepository {
 
   constructor(
-    @inject(
-      TOKENS_AUDIT.models.systemLog
-    )
-    private readonly model:
-      typeof SystemLogModel
+    @inject(TOKENS_AUDIT.models.systemLogModel)
+    private readonly model: typeof MongooseSystemLogModel
   ) {}
 
   async find(

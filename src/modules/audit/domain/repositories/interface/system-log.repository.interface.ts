@@ -1,5 +1,8 @@
 //src/modules/audit/domain/repositories/interface/system-log.repository.interface.ts
-import { SystemLog } from "../../types/system-log.type";
+
+import { SystemLog } from "../../entities/systemLog.entity";
+
+
 
 export interface ISystemLogRepository {
   find(

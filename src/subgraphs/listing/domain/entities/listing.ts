@@ -6,6 +6,8 @@ import { SuggestionStatus } from "./suggestionStatus";
 
 export interface ListingProps {
   id: string;
+  rawTitle?: string;
+  rawDescription?: string;
 
   hostId: string;
   locationId: string;
@@ -64,9 +66,10 @@ get description(): string {
   get price() { return this.props.price; }
   get picture() { return this.props.picture; }
   get isFeatured() { return this.props.isFeatured; }
-
+  get rawTitle() { return this.props.rawTitle; }
+  get rawDescription() { return this.props.rawDescription;
   
-
+  }
   // ======================
   // Business Logic
   // ======================

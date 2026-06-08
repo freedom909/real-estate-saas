@@ -2,15 +2,38 @@ import { AIDomain } from "./types/ai.domain";
 
 
 export interface SemanticAction {
-  name: string;
+  type: ListAction;
   confidence: number;
 }
 
+export enum ListAction {
+  OPTIMIZE_TITLE = "OPTIMIZE_TITLE",
+  OPTIMIZE_DESCRIPTION = "OPTIMIZE_DESCRIPTION",
+    SEO_ANALYSIS ="SEO_ANALYSIS",
+}
+
 export interface Entity {
-  type: string; // this should be the an enum type which is defined in the domain
+  type: EntityType; // this should be the an enum type which is defined in the domain
   value: string;// if it is an object
 }
 
+export enum EntityType {
+
+  LISTING_ID =
+    "LISTING_ID",
+
+  BOOKING_ID =
+    "BOOKING_ID",
+
+  REVIEW_ID =
+    "REVIEW_ID",
+
+  USER_ID =
+    "USER_ID",
+
+  TENANT_ID =
+    "TENANT_ID",
+}
 export class SemanticContext {
   constructor(
     public readonly rawInput: string, 
@@ -22,13 +45,13 @@ export class SemanticContext {
   ) {}
 
 
-  hasAction(action: string): boolean {
-    return this.action !== null && this.action.name === action;
+  hasAction(action: ListAction): boolean {
+    return this.action !== null && this.action.type === action;
   }
   
   getTopAction(): string | null {
     return this.action !== null
-      ? this.action.name
+      ? this.action.type
       : null;
   }
 

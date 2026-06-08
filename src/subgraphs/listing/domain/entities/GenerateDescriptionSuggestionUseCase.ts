@@ -1,9 +1,7 @@
 import { injectable, inject } from "tsyringe";
 
 import { OpenAIAdapter } from "./openAIAdapter";
-import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { IListingRepository } from "./IListingRepository";
-import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 @injectable()

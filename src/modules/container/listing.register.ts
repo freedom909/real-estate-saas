@@ -15,50 +15,53 @@ import AmenityAdapter from '@/subgraphs/listing/adapters/amenity.adapter';
 import { CategoryAdapter } from '@/subgraphs/listing/adapters/category.adapter';
 import { sequelize } from '@/infrastructure/config/seq';
 import GetListingUseCase from '@/subgraphs/listing/application/use-cases/getListingUseCase';
-import { ApplyDescriptionSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/applyDescriptionSuggestionUseCase';
-import { ApplyTitleSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/applyTitleSuggestionUseCase';
-import { RunListingAgentUseCase } from '@/subgraphs/listing/application/use-cases/RunListingAgentUseCase';
+import { RunListingAgentUseCase } from '@/subgraphs/listing/application/use-cases/runListingAgentUseCase';
 import { ListingRepository } from '@/subgraphs/listing/infrastructure/persistence/listing.repository';
-
-
-
+import { GenerateTitleSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase';
+import { SEOAnalysisUseCase } from '@/subgraphs/listing/application/use-cases/seoAnalysisUseCase';
+import { GenerateDescriptionSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase';
+import { ListingAISuggestion } from '@/subgraphs/listing/domain/entities/listingAISuggestion';
 
 
 export default function registerListingDependencies() {
-  container.register(TOKENS_LISTING.ListingModel, {
+  container.register(TOKENS_LISTING.listingModel, {
     useValue: ListingModel,
   });
 
-  container.register(TOKENS_LISTING.ListingRepository, {
+  container.register(TOKENS_LISTING.repos.listingRepository, {
     useClass: ListingRepository,
   });
 
-container.register(TOKENS_LISTING.CreateListingUseCase, {
+container.register(TOKENS_LISTING.usecase.createListingUseCase, {
   useClass: CreateListingUseCase,
 });
 
-container.register(TOKENS_LISTING.GetListingUseCase, {
+container.register(TOKENS_LISTING.usecase.getListingUseCase, {
   useClass: GetListingUseCase,
 });
 
-container.register(TOKENS_LISTING.ListingCategoriesModel, {
+container.register(TOKENS_LISTING.listingCategoriesModel, {
   useValue: ListingCategoriesModel,
 });
 
-container.register(TOKENS_LISTING.ListingAmenityModel, {
+container.register(TOKENS_LISTING.listingAmenityModel, {
   useValue: ListingAmenityModel,
 });
 
-container.register(TOKENS_LISTING.ListingLocationsModel, {
+container.register(TOKENS_LISTING.listingLocationsModel, {
   useValue: ListingLocationsModel,
 });
 
-container.register(TOKENS_LISTING.ApplyDescriptionSuggestionUseCase, {
-  useClass: ApplyDescriptionSuggestionUseCase,
+container.register(TOKENS_LISTING.usecase.seoAnalysisUseCase, {
+  useClass: SEOAnalysisUseCase,
 });
 
-container.register(TOKENS_LISTING.ApplyTitleSuggestionUseCase, {
-  useClass: ApplyTitleSuggestionUseCase,
+container.register(TOKENS_LISTING.usecase.generateDescriptionSuggestionUseCase, {
+  useClass: GenerateDescriptionSuggestionUseCase,
+});
+
+container.register(TOKENS_LISTING.usecase.generateTitleSuggestionUseCase, {
+  useClass: GenerateTitleSuggestionUseCase,
 });
 
 container.register(TOKENS_AI.usecase.runListingAgentUseCase, {
@@ -73,10 +76,16 @@ container.register(TOKENS_LISTING.adapters.categoryAdapter, {
   useClass: CategoryAdapter,
 });
 
-container.register(TOKENS_LISTING.Sequelize, {
+container.register(TOKENS_LISTING.sequelize, {
   useValue: sequelize,
 });
 
+container.register(TOKENS_LISTING.repos.aiSuggestion, {
+  useClass: ListingAISuggestion,
+});
 
+container.register(TOKENS_LISTING.listing,{
+  useValue: sequelize.models.Listing,
+});
 
 }

@@ -1,6 +1,6 @@
 //src/modules/tokens/ai.tokens.ts
 export const TOKENS_AI = {
-
+  chatUseCase: Symbol.for("ChatUseCase"),
   tool: {
     rewriteDescriptionTool: Symbol.for("RewriteDescriptionTool"),
     rewriteTitleTool: Symbol.for("RewriteTitleTool"),
@@ -53,20 +53,24 @@ export const TOKENS_AI = {
     createBookingUseCase: Symbol.for("CreateBookingUseCase"),
     createReviewUseCase: Symbol.for("CreateReviewUseCase"),
     generateDescriptionSuggestionUseCase: Symbol.for("GenerateDescriptionSuggestionUseCase"),
+    generateOptimizeTitleUseCase: Symbol.for("GenerateOptimizeTitleUseCase"),
+
   },
   acl: {
     reviewACL: Symbol.for("ReviewACL"),
   },
   OpenAIService: Symbol.for("OpenAIService"),
   OpenAIAdapter: Symbol.for("OpenAIAdapter"),
-  ListingAISuggestionRepository: Symbol.for("ListingAISuggestionRepository"),
-  ListingAISuggestionModel: Symbol.for("ListingAISuggestionModel"),
+  services: {
+    listingAIService: Symbol.for("ListingAIService"),
+    paymentRiskService: Symbol.for("PaymentRiskService"),
+  },
 
   repos: {
     bookingRepository: Symbol.for("BookingRepository"),
-  paymentRepository: Symbol.for("PaymentRepository"),
-  reviewRepository: Symbol.for("ReviewRepository"),
-  cancelBookingRepository: Symbol.for("CancelBookingRepository"),
+    paymentRepository: Symbol.for("PaymentRepository"),
+    reviewRepository: Symbol.for("ReviewRepository"),
+    cancelBookingRepository: Symbol.for("CancelBookingRepository"),
   },
-  
+
 }

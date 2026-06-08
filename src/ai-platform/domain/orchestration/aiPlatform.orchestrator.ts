@@ -1,27 +1,24 @@
 import { inject, injectable } from "tsyringe";
-import { SemanticExtractor } from "../semantic/extractors/semantic.extractor";
-import { ChatResponse } from "../types/enums/chat.response";
 import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extractor";
+import {  TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
 
-import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
-
-import { UserContext } from "../semantic/types/userContext";
 import { AgentRouterService } from "./router/agentRouter.service";
-import { AIContext, AIRequest } from "../types/context/aiContext";
-import { AgentResult } from "../types/context/agent.result";
-
+import { ISemanticExtractor } from "../semantic/types/i-semantic.extractor";
+import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
+import { AgentResult } from "@/ai-platform/context/types/context/agent.result";
 
 @injectable()
 export class AIPlatformOrchestrator {
 
   constructor(
+    
     @inject(TOKENS_EXTRACTOR.semanticExtractor)
-    private semanticExtractor: SemanticExtractor,
+    private semanticExtractor: ISemanticExtractor,
 
     @inject(TOKENS_ORCHESTRATOR.agentRouterService)
-    private routingService: AgentRouterService,
+    private routingService: AgentRouterService
 
-  ) { }
+  ) {}
   async handle(
     request: AIRequest
   ): Promise<AgentResult> {

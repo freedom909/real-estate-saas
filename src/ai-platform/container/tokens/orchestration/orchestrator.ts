@@ -4,3 +4,8 @@ export const TOKENS_ORCHESTRATOR={
     agentRouterService:Symbol.for("agentRouterService"),
     agentFactory:Symbol.for("agentFactory")
 }
+
+
+export const TOKENS_ROUTER={
+  domainRouter:Symbol.for("domainRouter")
+}

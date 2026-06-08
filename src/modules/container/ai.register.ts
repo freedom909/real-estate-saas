@@ -10,12 +10,9 @@ import { ListingAISuggestionRepository } from "@/subgraphs/listing/infrastructur
 import ListingAISuggestionModel from "@/subgraphs/listing/infrastructure/models/listing.ai.suggestion.model";
 
 import { PriceOptimizationTool } from "@/subgraphs/listing/application/tools/priceOptimizationTool";
-
-import { RunListingAgentUseCase } from "@/subgraphs/listing/application/use-cases/RunListingAgentUseCase";
-
-import { BookingOptimizationTool } from "@/subgraphs/booking/infrastructure/tools/BookingOptimizationTool";
-
-import { BookingFraudTool } from "@/subgraphs/booking/infrastructure/tools/BookingFraudTool";
+import { RunListingAgentUseCase } from "@/subgraphs/listing/application/use-cases/runListingAgentUseCase";
+import { BookingOptimizationTool } from "@/subgraphs/booking/infrastructure/tools/bookingOptimizationTool";
+import { BookingFraudTool } from "@/subgraphs/booking/infrastructure/tools/bookingFraudTool";
 
 import { BookingACL } from "@/subgraphs/booking/domain/entities/contexts/bookingACL";
 import { ReviewACL } from "@/subgraphs/booking/domain/entities/contexts/reviewACL";
@@ -125,22 +122,6 @@ container.register(
     useClass:
       OpenAIAdapter
   })
-
-  container.register(TOKENS_AI.ListingAISuggestionRepository, {
-    useClass: ListingAISuggestionRepository,
-  })
-
-  container.register(TOKENS_AI.ListingAISuggestionModel, {
-    useValue: ListingAISuggestionModel,
-  })
-
-  container.register(TOKENS_AI.usecase.generateTitleSuggestionUseCase, {
-    useClass: GenerateTitleSuggestionUseCase,
-  })
-
-  container.register(TOKENS_AI.usecase.seoAnalysisUseCase, {
-    useClass: SEOAnalysisUseCase,
-  });
 
   container.register(TOKENS_AI.usecase.cancelBookingUseCase, {
     useClass: CancelBookingUseCase,

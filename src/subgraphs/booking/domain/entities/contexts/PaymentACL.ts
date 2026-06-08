@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
-import { PaymentGateway } from "./PaymentGateway";
-import { PaymentAIContext } from "./PaymentAIContext";
+import { PaymentGateway } from "./paymentGateway";
+import { PaymentAIContext } from "./paymentAIContext";
 
 @injectable()
 export class PaymentACL {

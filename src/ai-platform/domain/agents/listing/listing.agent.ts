@@ -1,13 +1,28 @@
 import { inject, injectable } from "tsyringe";
-import { IDomainAgent } from "../../semantic/types/IDomainAgent";
-import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
-import { SEOAnalysisUseCase } from "@/subgraphs/listing/application/use-cases/seoAnalysisUseCase";
-import { SemanticContext } from "../../semantic/semantic-context";
-import { UserContext } from "../../semantic/types/userContext";
-import { AIContext } from "../../types/context/aiContext";
+import { IDomainAgent }
+  from "../../semantic/types/IDomainAgent";
 
-import { GenerateDescriptionSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase";
+import { SemanticContext }
+  from "../../semantic/semantic-context";
+
+
+
+import {
+  GenerateDescriptionSuggestionUseCase
+} from "@/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase";
+import { EntityType } from "../../semantic/semantic-context";
+
+import {
+  SEOAnalysisUseCase
+} from "@/subgraphs/listing/application/use-cases/seoAnalysisUseCase";
+
+import {
+  TOKENS_LISTING
+} from "@/modules/tokens/listing.tokens";
+import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase";
+
+import { AIContext } from "@/ai-platform/context/types/context/aiContext";
 
 @injectable()
 export class ListingAgent
@@ -15,75 +30,83 @@ export class ListingAgent
 
   constructor(
 
-    @inject(TOKENS_AI.usecase.generateOptimizeTitleUseCase)
-    private titleUseCase:GenerateOptimizeTitleUseCase,
-
-    @inject(TOKENS_AI.usecase.generateDescriptionSuggestionUseCase)
-    private descriptionUseCase:GenerateDescriptionSuggestionUseCase,
     @inject(
-      TOKENS_AI.usecase.seoAnalysisUseCase
+      TOKENS_LISTING.usecase
+        .generateTitleSuggestionUseCase
     )
-    private seoUseCase:
+    private readonly titleUseCase:
+      GenerateTitleSuggestionUseCase,
+
+    @inject(
+      TOKENS_LISTING.usecase
+        .generateDescriptionSuggestionUseCase
+    )
+    private readonly descriptionUseCase:
+      GenerateDescriptionSuggestionUseCase,
+
+    @inject(
+      TOKENS_LISTING.usecase
+        .seoAnalysisUseCase
+    )
+    private readonly seoUseCase:
       SEOAnalysisUseCase
 
-  ) { }
+  ) {}
 
   async execute(
     semantic: SemanticContext,
     context: AIContext
   ) {
-    console.log(
-      "LISTING AGENT START"
-    );
-    const listingId = context?.resources?.listingId;
+
+ console.log(
+  "📌 ListingAgent",
+  semantic.action.type
+);
+
+    const listingId =
+      semantic.entities.find(
+        e =>
+          e.type === EntityType.LISTING_ID
+      )?.value;
 
     if (!listingId) {
       throw new Error(
-        "Listing context required"
+        "Listing ID not found in semantic context."
       );
     }
-    console.log(semantic);
-    const intent =
-      semantic.getTopIntent();
 
-    switch (intent) {
 
-      case "OPTIMIZE_TITLE":
+const action =
+  semantic.action?.type;
 
-        const listingId =
-          semantic.entities.find(
-            e =>
-              e.type === "listing_id" ||
-              e.type === "listingid"
-          )?.value;
 
-        if (!listingId) {
-          throw new Error(
-            "Listing ID entity required"
-          );
-        }
 
-        console.log(
-          "LISTING AGENT OPTIMIZE_TITLE",
-          listingId
-        );
 
-        console.log(
-          "BEFORE TITLE USECASE"
-        );
+switch (action) {
 
-        const result =
-          await this.titleUseCase.execute(
-            context?.resources?.listingId ||
-            listingId
-          );
+  case "OPTIMIZE_TITLE":
 
-        console.log(
-          "AFTER TITLE USECASE",
-          result
-        );
+    return await this.titleUseCase.execute(
+      listingId
+    );
 
-        return result;
-    }
-  }
+  case "OPTIMIZE_DESCRIPTION":
+
+    return await this.descriptionUseCase.execute(
+      listingId
+    );
+
+  case "SEO_ANALYSIS":
+
+    return await this.seoUseCase.execute(
+      listingId //名前 'listingId' が見つかりません。
+    );
+
+  default:
+
+    throw new Error(
+      `Unsupported action: ${action}`
+    );
+}
+}
 }

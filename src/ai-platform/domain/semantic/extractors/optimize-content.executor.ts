@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { SemanticContext } from "../semantic-context";
+import { EntityType, SemanticContext } from "../semantic-context";
 
 import { TOKENS_AI }
 from "@/modules/tokens/ai.tokens";
@@ -25,8 +25,7 @@ export class OptimizeContentExecutor {
 const listingId =
   semantic.entities.find(
     e =>
-      e.type ===
-      "listing_id"
+      e.type === EntityType.LISTING_ID
   )?.value;
 console.log(
   "semantic.entities",

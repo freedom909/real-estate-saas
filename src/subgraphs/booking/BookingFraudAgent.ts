@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe";
-import { BookingFraudTool } from "../ai/application/tools/booking/BookingFraudTool";
-import { BookingAIContext } from "@/subgraphs/ai/domain/entities/contexts/BookingAIContext";
+import { BookingFraudTool } from "../ai/application/tools/booking/bookingFraudTool";
+import { BookingAIContext } from "@/subgraphs/ai/domain/entities/contexts/bookingAIContext";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
 @injectable()

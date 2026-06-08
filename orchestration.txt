@@ -1,0 +1,24 @@
+Folder PATH listing
+Volume serial number is EA63-381F
+D:\MINSHUKU-SAAS\SRC\AI-PLATFORM\DOMAIN
++---actors
++---agents
+¦   +---booking
+¦   +---listing
+¦       +---domain
+¦       ¦   +---repositories
+¦       +---infrastructure
+¦           +---persistence
+¦               +---mongo
++---audit
++---orchestration
+¦   +---router
++---runtime
+¦   +---executors
++---semantic
+¦   +---extractors
+¦   +---types
++---types
+    +---context
+    +---enums
+    +---usecases

@@ -1,12 +1,12 @@
 import { inject, injectable } from "tsyringe";
-import { BookingGateway } from "./BookingGateway";
+
 import { BookingAIContext } from "./bookingAIContext";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
 @injectable()
 export class BookingACL {
   constructor(
-    private gateway: BookingGateway
+    
   ) {}
 
   async getContext(bookingId: string): Promise<BookingAIContext> {

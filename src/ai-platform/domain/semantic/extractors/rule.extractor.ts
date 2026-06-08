@@ -1,27 +1,25 @@
 //
 
 import { injectable } from "tsyringe";
-import { SemanticContext } from "../semantic-context";
+import { ListAction, SemanticContext } from "../semantic-context";
 import { AIDomain } from "../types/ai.domain";
-import { AIRequest } from "../../types/context/aiContext";
+import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
+
 
 @injectable()
 export class RuleExtractor {
 
-  async extract( 
+  async extract(
     request: AIRequest // request seems to have no its use
   ): Promise<SemanticContext> {
-    const message = request.message;
-    
-    console.log(
-      "RuleExtractor message:",
-      message,
-    );
+
+    const message = request?.message ?? "";
+    console.log("message:", message);
     const lower = message.toLowerCase();
 
     if (lower.includes("cancel")) {
       return new SemanticContext(
-        message,      
+        message,
         [],
         null,
         0.99,
@@ -49,7 +47,7 @@ export class RuleExtractor {
         message,
         entities,
         {
-          name: "OPTIMIZE_TITLE",
+          type: "OPTIMIZE_TITLE" as ListAction,
           confidence: 0.99
         },
         0.99,
@@ -68,4 +66,3 @@ export class RuleExtractor {
     );
   }
 }
-

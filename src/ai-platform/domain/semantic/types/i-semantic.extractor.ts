@@ -1,4 +1,5 @@
-import { AIRequest } from "../../types/context/aiContext";
+
+import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
 import { SemanticContext } from "../semantic-context";
 
 

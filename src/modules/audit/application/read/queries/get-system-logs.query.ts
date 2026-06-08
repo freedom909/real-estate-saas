@@ -17,7 +17,7 @@ export interface GetSystemLogsFilter {
 @injectable()
 export class GetSystemLogsQuery {
   constructor(
-    @inject(TOKENS_AUDIT.repos.systemLog)
+    @inject(TOKENS_AUDIT.repos.systemLogRepo)
     private readonly repository: ISystemLogRepository
   ) {}
 

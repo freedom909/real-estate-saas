@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { BookingExternalDTO } from "../../BookingDTO";
+import { BookingExternalDTO } from "../../bookingDTO";
 import { BookingAIContext } from "../../domain/entities/contexts/bookingAIContext";
 import { BookingGateway } from "../../BookingGateway";
 
