@@ -16,7 +16,7 @@ export class GenerateDescriptionSuggestionUseCase {
   `;
 
   constructor(
-    @inject(TOKENS_LISTING.ListingRepository)
+    @inject(TOKENS_LISTING.repos.listingRepository)
     private listingRepository: IListingRepository,
     @inject(OpenAIAdapter)
     private openAIAdapter: OpenAIAdapter

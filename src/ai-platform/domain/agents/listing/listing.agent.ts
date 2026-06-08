@@ -29,25 +29,18 @@ export class ListingAgent
   implements IDomainAgent {
 
   constructor(
-
-    @inject(
-      TOKENS_LISTING.usecase
-        .generateTitleSuggestionUseCase
-    )
+    @inject(TOKENS_LISTING.usecase
+      .generateTitleSuggestionUseCase)
     private readonly titleUseCase:
       GenerateTitleSuggestionUseCase,
 
-    @inject(
-      TOKENS_LISTING.usecase
-        .generateDescriptionSuggestionUseCase
-    )
+    @inject(TOKENS_LISTING.usecase
+      .generateDescriptionSuggestionUseCase)
     private readonly descriptionUseCase:
       GenerateDescriptionSuggestionUseCase,
 
-    @inject(
-      TOKENS_LISTING.usecase
-        .seoAnalysisUseCase
-    )
+    @inject(TOKENS_LISTING.usecase
+      .seoAnalysisUseCase)
     private readonly seoUseCase:
       SEOAnalysisUseCase
 

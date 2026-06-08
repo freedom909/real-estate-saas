@@ -1,6 +1,5 @@
 // FILE: application/usecases/generateTitleSuggestionUseCase.ts
-
-import { inject, injectable } from "tsyringe";
+import { inject, injectable, delay } from "tsyringe"; // Import delay
 import { IListingRepository } from "../../domain/entities/IListingRepository";
 import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
 
@@ -12,7 +11,7 @@ import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 export class GenerateTitleSuggestionUseCase {
 
   constructor(
-    @inject(TOKENS_LISTING.ListingRepository)
+    @inject(delay(() => TOKENS_LISTING.repos.listingRepository)) // Apply delay here
     private repo: IListingRepository,
 
     @inject(TOKENS_AI.OpenAIAdapter)

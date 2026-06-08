@@ -12,9 +12,9 @@ import { AIDomain } from "../../semantic/types/ai.domain";
 export class AgentRouterService {
 
   constructor(
-    @inject(TOKENS_AGENT.listingAgent)
+    @inject(delay(() => TOKENS_AGENT.listingAgent))
     private listingAgent: ListingAgent,
-    @inject(TOKENS_AGENT.bookingAgent)
+    @inject(delay(() => TOKENS_AGENT.bookingAgent))
     private bookingAgent: BookingAgent,
     // @inject(TOKENS_AGENT.paymentAgent)
     // private paymentAgent: PaymentAgent,
