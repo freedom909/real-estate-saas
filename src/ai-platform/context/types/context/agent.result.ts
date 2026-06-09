@@ -1,15 +1,15 @@
+// src/ai-platform/domain/types/context/agent.result.ts
+
+import { AIDomain } from "@/ai-platform/domain/semantic/types/ai.domain";
 import { AIContext } from "./aiContext";
 
-// src/ai-platform/domain/types/context/agent.result.ts
 export interface AgentResult {
 
   success: boolean;
 
-  domain: string;
+  domain: AIDomain;
 
-  primaryAction: string;
-
-  actions: string[];
+  primaryAction: AIAction;
 
   summary: string;
 
@@ -20,10 +20,11 @@ export interface AgentResult {
 
 export interface AgentArtifact {
 
-  type: string;
+  type: ArtifactType;
 
-  content: unknown;
+  content: Record<string, unknown>;
 }
+
 export interface AgentMetadata {
 
   durationMs?: number;
@@ -33,8 +34,27 @@ export interface AgentMetadata {
   executedSteps?: string[];
 
   tokenUsage?: {
+
     prompt: number;
+
     completion: number;
+
     total: number;
   };
+}
+
+export enum ArtifactType {
+  TITLE = "TITLE",
+  DESCRIPTION = "DESCRIPTION",
+  SEO = "SEO",
+  BOOKING = "BOOKING",
+  REVIEW = "REVIEW",
+  PRICE = "PRICE"
+}
+
+export interface AIAction {
+
+  name: string;
+
+  confidence: number;
 }

@@ -11,7 +11,6 @@ import { SemanticContext }
 import {
   GenerateDescriptionSuggestionUseCase
 } from "@/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase";
-import { EntityType } from "../../semantic/semantic-context";
 
 import {
   SEOAnalysisUseCase
@@ -34,10 +33,8 @@ export class ListingAgent
     private readonly titleUseCase:
       GenerateTitleSuggestionUseCase,
 
-    @inject(TOKENS_LISTING.usecase
-      .generateDescriptionSuggestionUseCase)
-    private readonly descriptionUseCase:
-      GenerateDescriptionSuggestionUseCase,
+    @inject(TOKENS_LISTING.usecase.generateDescriptionSuggestionUseCase)
+    private readonly descriptionUseCase:GenerateDescriptionSuggestionUseCase,
 
     @inject(TOKENS_LISTING.usecase
       .seoAnalysisUseCase)
@@ -59,7 +56,7 @@ export class ListingAgent
     const listingId =
       semantic.entities.find(
         e =>
-          e.type === EntityType.LISTING_ID
+          e.type === "listing_id"
       )?.value;
 
     if (!listingId) {
@@ -92,7 +89,7 @@ switch (action) {
   case "SEO_ANALYSIS":
 
     return await this.seoUseCase.execute(
-      listingId //名前 'listingId' が見つかりません。
+      listingId
     );
 
   default:

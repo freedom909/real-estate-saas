@@ -1,6 +1,6 @@
 //src/modules/tokens/ai.tokens.ts
 export const TOKENS_AI = {
-  chatUseCase: Symbol.for("ChatUseCase"),
+  
   tool: {
     rewriteDescriptionTool: Symbol.for("RewriteDescriptionTool"),
     rewriteTitleTool: Symbol.for("RewriteTitleTool"),
@@ -30,6 +30,9 @@ export const TOKENS_AI = {
   },
 
   usecase: {
+    chatUseCase: Symbol.for("ChatUseCase"),
+    optimizeContentUseCase: Symbol.for("OptimizeContentUseCase"),
+    generateContentUseCase: Symbol.for("GenerateContentUseCase"),
     runListingAgentUseCase: Symbol.for("RunListingAgentUseCase"),
     runBookingAgentUseCase: Symbol.for("RunBookingAgentUseCase"),
     runPaymentAgentUseCase: Symbol.for("RunPaymentAgentUseCase"),
@@ -71,6 +74,8 @@ export const TOKENS_AI = {
     paymentRepository: Symbol.for("PaymentRepository"),
     reviewRepository: Symbol.for("ReviewRepository"),
     cancelBookingRepository: Symbol.for("CancelBookingRepository"),
+    listingAISuggestionRepository: Symbol.for("ListingAISuggestionRepository"),
+
   },
 
 }

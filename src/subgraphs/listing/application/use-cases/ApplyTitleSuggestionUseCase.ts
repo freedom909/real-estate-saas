@@ -1,5 +1,5 @@
 // FILE: application/usecases/ApplyTitleSuggestionUseCase.ts
-import { inject, injectable } from "tsyringe";
+import { inject, injectable, delay } from "tsyringe";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
@@ -14,11 +14,11 @@ import { SuggestionStatus } from "../../domain/entities/suggestionStatus";
 @injectable()
 export class ApplyTitleSuggestionUseCase {
   constructor(
-    @inject(TOKENS_LISTING.ListingRepository)
+    @inject(TOKENS_LISTING.repos.listingRepository)
     private repo: ListingRepository,
     @inject(TOKENS_AI.OpenAIAdapter)
     private ai: IOpenAIAdapter,
-    @inject(TOKENS_AI.ListingAISuggestionRepository)
+    @inject(TOKENS_AI.repos.listingAISuggestionRepository)
     private aiSuggestionRepo: IListingAISuggestionRepository,
   ) { }
 
@@ -67,5 +67,3 @@ export class ApplyTitleSuggestionUseCase {
     return ListingDTOMapper.toDTO(listing);
   }
 }
-
-

@@ -17,13 +17,13 @@ import { Listing } from '../../domain/entities/listing';
 @injectable()
 export class ListingRepository implements IListingRepository {
   constructor(
-    @inject(TOKENS_LISTING.ListingModel)
+    @inject(TOKENS_LISTING.listingModel)
     private model: typeof ListingModel,
-    @inject(TOKENS_LISTING.ListingCategoriesModel)
+    @inject(TOKENS_LISTING.listingCategoriesModel)
     private listingCategoryModel: typeof ListingCategories,
-    @inject(TOKENS_LISTING.ListingAmenityModel)
+    @inject(TOKENS_LISTING.listingAmenityModel)
     private listingAmenityModel: typeof ListingAmenity,
-    @inject(TOKENS_LISTING.Sequelize)
+    @inject(TOKENS_LISTING.sequelize)
     private sequelize: Sequelize,
   ) {}
 

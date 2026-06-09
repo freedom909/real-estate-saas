@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+import { injectable, inject, delay } from 'tsyringe';
 import { Listing } from '../../domain/entities/listing';
 import { v4 as uuidv4 } from 'uuid';
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
@@ -32,7 +32,7 @@ export interface CreateListingInput {
 @injectable()
 export default class CreateListingUseCase {
   constructor(
-    @inject(TOKENS_LISTING.ListingRepository)
+    @inject(TOKENS_LISTING.repos.listingRepository)
     private listingRepository: IListingRepository,
     @inject(TOKENS_LISTING.adapters.amenityAdapter)
     private amenityAdapter: IAmenityAdapter,

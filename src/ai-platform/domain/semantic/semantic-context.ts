@@ -2,14 +2,16 @@ import { AIDomain } from "./types/ai.domain";
 
 
 export interface SemanticAction {
-  type: ListAction;
+  type: AgentAction;
   confidence: number;
 }
 
-export enum ListAction {
+export enum AgentAction {
   OPTIMIZE_TITLE = "OPTIMIZE_TITLE",
   OPTIMIZE_DESCRIPTION = "OPTIMIZE_DESCRIPTION",
     SEO_ANALYSIS ="SEO_ANALYSIS",
+    CANCEL_BOOKING = "CANCEL_BOOKING",
+  CREATE_BOOKING = "CREATE_BOOKING",
 }
 
 export interface Entity {
@@ -24,6 +26,12 @@ export enum EntityType {
 
   BOOKING_ID =
     "BOOKING_ID",
+  CHECK_IN =
+    "check_in",
+
+  CHECK_OUT =
+    "check_out",
+ 
 
   REVIEW_ID =
     "REVIEW_ID",
@@ -45,7 +53,7 @@ export class SemanticContext {
   ) {}
 
 
-  hasAction(action: ListAction): boolean {
+  hasAction(action: AgentAction): boolean {
     return this.action !== null && this.action.type === action;
   }
   

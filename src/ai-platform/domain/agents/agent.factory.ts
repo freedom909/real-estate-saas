@@ -6,7 +6,7 @@ import { BookingAgent } from "./booking/booking.agent";
 import { GeneralAgent } from "./generalAgent";
 import { ListingAgent } from "./listing/listing.agent";
 // import { PaymentAgent } from "./payment/payment.agent";
-import { TOKENS_AGENT } from "@/ai-platform/container/tokens/agent/module.agent";
+import { TOKENS_AGENT } from "@/ai-platform/container/agents/agent.token";
 import { IDomainAgent } from "../semantic/types/IDomainAgent";
 
 @injectable()

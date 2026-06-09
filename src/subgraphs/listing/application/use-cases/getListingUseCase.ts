@@ -1,11 +1,11 @@
-import { injectable, inject } from "tsyringe";
+import { injectable, inject, delay } from "tsyringe";
 import { IListingRepository } from "../../domain/repos/IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 @injectable()
 class GetListingUseCase {
   constructor(
-    @inject(TOKENS_LISTING.ListingRepository)
+    @inject(TOKENS_LISTING.repos.listingRepository)
     private repo: IListingRepository
   ) {}
 

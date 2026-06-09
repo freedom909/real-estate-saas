@@ -11,9 +11,9 @@ import LLMExtractor from "@/ai-platform/domain/semantic/extractors/llm.extractor
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
 
 import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent";
-import { TOKENS_ORCHESTRATOR } from "../tokens/orchestration/orchestrator";
-import { TOKENS_AGENT } from "../tokens/agent/module.agent";
-import { TOKENS_AGENT_FACTORY } from "../tokens/agent/factory";
+import { TOKENS_ORCHESTRATOR } from "../context/orchestrator/orchestrator";
+import { TOKENS_AGENT } from "../agents/agent.token";
+import { TOKENS_AGENT_FACTORY } from "../agents/factory.token";
 
 import { registerAgents } from "./agent.register";
 
@@ -80,7 +80,7 @@ AIPlatformDependencies() {
   registerAIContainer();
 
   // usecase
-  container.register(TOKENS_AI.chatUseCase,
+  container.register(TOKENS_AI.usecase.chatUseCase,
     {
       useClass:
         ChatUseCase 

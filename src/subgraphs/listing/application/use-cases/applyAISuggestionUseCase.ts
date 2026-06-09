@@ -11,9 +11,9 @@ import { IListingAISuggestionRepository } from "../../domain/repos/IListingAISug
 @injectable()
 export class ApplyAISuggestionUseCase {
   constructor(
-    @inject(TOKENS_LISTING.ListingRepository)
+    @inject(TOKENS_LISTING.repos.listingRepository)
     private listingRepo: ListingRepository,
-    @inject(TOKENS_AI.ListingAISuggestionRepository)
+    @inject(TOKENS_AI.repos.listingAISuggestionRepository)
     private aiSuggestionRepo:
       IListingAISuggestionRepository,
 

@@ -21,7 +21,7 @@ import { RunReviewAgentUseCase } from "@/subgraphs/review/application/RunReviewA
 import { RewriteTitleTool } from "@/subgraphs/listing/application/tools/rewriteTitleTool";
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
 
-import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
+import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/context/orchestrator/orchestrator";
 import { ListingOptimizationAgent } from "@/subgraphs/listing/application/agents/listingOptimizationAgent";
 import { AnalyzeListingTool } from "@/subgraphs/listing/application/tools/AnalyzeListingTool";
 import { CategoryOptimizationTool } from "@/subgraphs/listing/application/tools/categoryOptimizationTool";

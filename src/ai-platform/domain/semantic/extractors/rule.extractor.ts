@@ -1,7 +1,7 @@
 //
 
 import { injectable } from "tsyringe";
-import { ListAction, SemanticContext } from "../semantic-context";
+import {  AgentAction, SemanticContext } from "../semantic-context";
 import { AIDomain } from "../types/ai.domain";
 import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
 
@@ -47,7 +47,7 @@ export class RuleExtractor {
         message,
         entities,
         {
-          type: "OPTIMIZE_TITLE" as ListAction,
+          type: "OPTIMIZE_TITLE" as AgentAction,
           confidence: 0.99
         },
         0.99,

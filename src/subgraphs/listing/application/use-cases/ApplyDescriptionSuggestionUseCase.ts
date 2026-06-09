@@ -1,4 +1,4 @@
-import { inject, injectable } from "tsyringe";
+import { inject, injectable, delay } from "tsyringe";
 import { ListingRepository } from "../../infrastructure/persistence/listing.repository";
 import { OpenAIAdapter } from "../../infrastructure/ai/openAI.adapter";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
@@ -6,9 +6,9 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 @injectable()
 export class ApplyDescriptionSuggestionUseCase {
   constructor(
-    @inject(TOKENS_LISTING.ListingRepository)
+    @inject(TOKENS_LISTING.repos.listingRepository)
     private repo: ListingRepository,
-    @inject(TOKENS_LISTING.OpenAIAdapter)
+    @inject(TOKENS_LISTING.ai.openAIAdapter)
     private ai: OpenAIAdapter,
   ) { }
 

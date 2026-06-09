@@ -13,10 +13,7 @@ export class AIRequestFactory {
   // GraphQL
   // =====================================
 
-  static fromGraphQL(
-    input: any,
-    context: any
-  ): AIRequest {
+  static fromGraphQL(input: any,context: any): AIRequest {
 
     return {
       message: input.message,
@@ -34,8 +31,6 @@ export class AIRequestFactory {
           timezone: context.timezone,
 
           sessionId: context.sessionId,
-
-
           device: {
             type: "desktop",
           },

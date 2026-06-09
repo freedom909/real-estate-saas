@@ -14,7 +14,8 @@ import { BookingAgent } from "../../agents/booking/booking.agent";
 import { AuditEventPublisher } from "@/ai-platform/domain/audit/auditEvent.publisher";
 import { AIDecisionEvent } from "@/modules/audit/domain/event/aiDecision.event";
 import { v4 as uuidv4 } from "uuid";
-import { AIContext } from "../../types/context/aiContext";
+import { AIContext, AIRequest } from "@/ai-platform/context/types/context/aiContext";
+
 
 @injectable()
 export class AIRouter {
@@ -28,26 +29,24 @@ export class AIRouter {
 
     @inject(AuditEventPublisher)
     private auditPublisher: AuditEventPublisher
-  ) {}
+  ) { }
 
-  async route(message: string, user: UserContext) {
+  async route(request: AIRequest) {
 
     const correlationId = uuidv4();
-
-    const context: AIContext = {
-      user: { id: user.userId },
-      source: "web", // 必要に応じてリクエスト元から判定するロジックに変更可能
-      resources: {},
-      trace: { correlationId }
-    };
+    const context = request.context;
+    if (context.trace) {
+      context.trace.correlationId = correlationId;
+    } else {
+      context.trace = { correlationId };
+    }
 
     // =====================================================
     // 1. RULE ENGINE (HARD PRIORITY)
     // =====================================================
-    const rule = this.ruleEngine.match(message);
+    const rule = this.ruleEngine.match(request.message);
 
     if (rule.matched) {
-
       await this.auditPublisher.publish(
         new AIDecisionEvent(
           uuidv4(),
@@ -56,7 +55,7 @@ export class AIRouter {
           rule.domain!,
           rule.confidence,
           correlationId,
-          user.userId,
+          context.identity.user?.id || "anonymous",
           { source: "RULE_ENGINE" }
         )
       );
@@ -67,31 +66,29 @@ export class AIRouter {
     // =====================================================
     // 2. LLM FALLBACK
     // =====================================================
-    const llm = await this.llmExtractor.extract(message);
+    const llm = await this.llmExtractor.extract(request.message);
 
     // guard check
     if (!this.guard.shouldAccept(llm.confidence)) {
 
-await this.auditPublisher.publish(
-  new AIDecisionEvent(
-    uuidv4(),
-    "LLM_REJECTED",
+      await this.auditPublisher.publish(
+        new AIDecisionEvent(
+          uuidv4(),
+          "LLM_REJECTED",
 
-    llm.action?.[0]?.name || "unknown", // intent
+          llm.action?.[0]?.name || "unknown", // intent
 
-    llm.domain,                         // domain
+          llm.domain,                         // domain
 
-    llm.confidence,                     // confidence
+          llm.confidence,                     // confidence
+          correlationId,
+          context.identity.user?.id || "anonymous",
 
-    correlationId,
-
-    user.userId,
-
-    {
-      reason: "LOW_CONFIDENCE"
-    }
-  )
-);
+          {
+            reason: "LOW_CONFIDENCE"
+          }
+        )
+      );
 
       throw new Error("Low confidence AI decision");
     }
@@ -104,7 +101,7 @@ await this.auditPublisher.publish(
         llm.domain,
         llm.confidence,
         correlationId,
-        user.userId,
+        context.identity.user?.id || "anonymous",
         { source: "LLM" }
       )
     );

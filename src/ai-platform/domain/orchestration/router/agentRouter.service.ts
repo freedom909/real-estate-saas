@@ -5,7 +5,7 @@ import { SemanticContext } from "../../semantic/semantic-context";
 import { ListingAgent } from "../../agents/listing/listing.agent";
 import { BookingAgent } from "../../agents/booking/booking.agent";
 
-import { TOKENS_AGENT } from "@/ai-platform/container/tokens/agent/module.agent";
+import { TOKENS_AGENT } from "@/ai-platform/container/agents/agent.token";
 import { AIDomain } from "../../semantic/types/ai.domain";
 
 @injectable()

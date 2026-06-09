@@ -1,5 +1,5 @@
 import { container } from "tsyringe"
-import { TOKENS_AGENT } from "../tokens/agent/module.agent"
+import { TOKENS_AGENT } from "../agents/agent.token"
 import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent"
 import { BookingAgent } from "@/ai-platform/domain/agents/booking/booking.agent"
 

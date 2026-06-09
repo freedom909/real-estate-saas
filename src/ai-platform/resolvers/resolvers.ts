@@ -7,9 +7,14 @@ import { ChatUseCase } from "../application/usecases/chatUseCase";
 export const resolvers = {
   Mutation: {
     chat: async (_, { input }, context) => {
-      const request =AIRequestFactory.fromGraphQL(input, context);
-      return container.resolve<ChatUseCase>( TOKENS_AI.chatUseCase).execute(request);// 
-      //名前 'ChatUseCase' が見つかりません。プロパティ 'execute' は型 'unknown' に存在しません。
+      const request = AIRequestFactory.fromGraphQL(input, context);
+      const result = await container.resolve<ChatUseCase>(TOKENS_AI.usecase.chatUseCase).execute(request)
+      console.log(
+        "FINAL RESULT",
+        JSON.stringify(result, null, 2)
+      );
+      return result;
+
     },
 
   }

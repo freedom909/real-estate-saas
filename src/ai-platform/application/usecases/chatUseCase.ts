@@ -1,6 +1,6 @@
 //src/
 
-import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/tokens/orchestration/orchestrator";
+import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/context/orchestrator/orchestrator";
 import { AgentResult } from "@/ai-platform/context/types/context/agent.result";
 import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
