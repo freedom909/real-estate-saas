@@ -1,6 +1,6 @@
 // src/ai-platform/domain/agents/booking/booking.agent.ts
 
-import { inject, injectable } from "tsyringe";
+import { inject, injectable, delay } from "tsyringe";
 import { IDomainAgent } from "../../semantic/types/IDomainAgent";
 
 import { AgentAction, EntityType, SemanticContext} from "../../semantic/semantic-context";
@@ -9,17 +9,17 @@ import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
 import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
 import { CreateBookingUseCase } from "@/subgraphs/booking/application/use-cases/create-booking.use-case";
-import { AIContext } from "@/ai-platform/context/types/context/aiContext";
+import { AIContext } from "@/ai-platform/context/types/context/ai.context";
 
 
 @injectable()
 export class BookingAgent implements IDomainAgent {
 
   constructor(
-    @inject(TOKENS_AI.usecase.cancelBookingUseCase)
+    @inject(delay(() => CancelBookingUseCase))
     private cancelBookingUseCase:CancelBookingUseCase,
 
-    @inject(TOKENS_AI.usecase.createBookingUseCase) 
+    @inject(delay(() => CreateBookingUseCase))
     private createBookingUseCase:CreateBookingUseCase,
 
   ) {}
@@ -29,14 +29,17 @@ export class BookingAgent implements IDomainAgent {
     context:AIContext
   ) {
 
-    switch(
-      semantic.action[0]?.name || semantic.action[0]?.value || semantic.getTopAction()
-    ) {
+    switch(semantic.action?.type) {
 
       case "CANCEL_BOOKING":
-        const bookingId = semantic.entities.find(
+        let bookingId = semantic.entities.find(
           e => e.type === EntityType.BOOKING_ID
         )?.value;
+
+        // If bookingId not found in semantic entities, try context resources
+        if (!bookingId && context.resources?.bookingId) {
+          bookingId = context.resources.bookingId;
+        }
 
         if (!bookingId) throw new Error("Booking ID required for cancellation");
 
@@ -44,11 +47,22 @@ export class BookingAgent implements IDomainAgent {
           .execute(bookingId, context.identity.user.id);
 
       case "CREATE_BOOKING":
-        const listingId = semantic.entities.find(e => e.type === EntityType.LISTING_ID)?.value;
+        let listingId = semantic.entities.find(e => e.type === EntityType.LISTING_ID)?.value;
+        // If listingId not found in semantic entities, try context resources
+        if (!listingId && context.resources?.listingId) {
+          listingId = context.resources.listingId;
+        }
+
+        if (!listingId) throw new Error("Listing ID required for booking creation.");
+
         const checkIn = semantic.entities.find(e => e.type === "check_in")?.value;
         const checkOut = semantic.entities.find(e => e.type === "check_out")?.value;
 
+        if (!checkIn) throw new Error("Check-in date required for booking creation.");
+        if (!checkOut) throw new Error("Check-out date required for booking creation.");
+
         return this.createBookingUseCase.execute({
+          // Ensure listingId is not undefined here
           listingId,
           guestId: context.identity.user.id,
           checkInDate: checkIn,

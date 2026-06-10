@@ -16,7 +16,7 @@ import { BookingFraudTool } from "@/subgraphs/booking/infrastructure/tools/booki
 
 import { BookingACL } from "@/subgraphs/booking/domain/entities/contexts/bookingACL";
 import { ReviewACL } from "@/subgraphs/booking/domain/entities/contexts/reviewACL";
-import { SEOAnalysisUseCase } from "@/subgraphs/listing/application/use-cases/seoAnalysisUseCase";
+import { SEOAnalysisUseCase } from "@/subgraphs/listing/application/usecases/seoAnalysisUseCase";
 import { RunReviewAgentUseCase } from "@/subgraphs/review/application/RunReviewAgentUseCase";
 import { RewriteTitleTool } from "@/subgraphs/listing/application/tools/rewriteTitleTool";
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";

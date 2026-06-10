@@ -1,6 +1,6 @@
 // ai-request.factory.ts
 
-import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
+import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 
 
 

@@ -8,10 +8,17 @@ export interface SemanticAction {
 
 export enum AgentAction {
   OPTIMIZE_TITLE = "OPTIMIZE_TITLE",
+  OPTIMIZE_PRICE = "OPTIMIZE_PRICE",
+  OPTIMIZE_CATEGORY = "OPTIMIZE_CATEGORY",
+  OPTIMIZE_LISTING = "OPTIMIZE_LISTING",
+  OPTIMIZE_LOCATION = "OPTIMIZE_LOCATION",
+  OPTIMIZE_AMENITY = "OPTIMIZE_AMENITY",
+  
   OPTIMIZE_DESCRIPTION = "OPTIMIZE_DESCRIPTION",
     SEO_ANALYSIS ="SEO_ANALYSIS",
     CANCEL_BOOKING = "CANCEL_BOOKING",
   CREATE_BOOKING = "CREATE_BOOKING",
+
 }
 
 export interface Entity {
@@ -49,7 +56,7 @@ export class SemanticContext {
     public readonly action: SemanticAction | null,// 动作
     public readonly confidence: number,
     public readonly domain: AIDomain,
-    public readonly isRuleMatched: boolean = false, // ⭐新增
+    public readonly isRuleMatched: boolean = false, // 
   ) {}
 
 

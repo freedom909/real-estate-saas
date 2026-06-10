@@ -19,7 +19,7 @@ export const TOKENS_LISTING = {
     aiSuggestion: Symbol.for("ListingAISuggestion"),
   },
   usecase: {
-    generateTitleSuggestionUseCase: Symbol.for('GenerateTitleSuggestionUseCase'),
+    generateListingAIOptimizationUseCase: Symbol.for('GenerateListingAIOptimizationUseCase'),
     generateDescriptionSuggestionUseCase: Symbol.for('GenerateDescriptionSuggestionUseCase'),
     seoAnalysisUseCase: Symbol.for('SEOAnalysisUseCase'),
     priceOptimizationUseCase: Symbol.for('PriceOptimizationUseCase'),

@@ -1,7 +1,7 @@
 // src/ai-platform/domain/types/context/agent.result.ts
 
 import { AIDomain } from "@/ai-platform/domain/semantic/types/ai.domain";
-import { AIContext } from "./aiContext";
+
 
 export interface AgentResult {
 
@@ -49,7 +49,8 @@ export enum ArtifactType {
   SEO = "SEO",
   BOOKING = "BOOKING",
   REVIEW = "REVIEW",
-  PRICE = "PRICE"
+  PRICE = "PRICE",
+  TIPS = "TIPS"
 }
 
 export interface AIAction {

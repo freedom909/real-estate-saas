@@ -1,7 +1,5 @@
 import { AIDomain } from "./ai.domain";
 
-
-
 export interface SemanticResult {
   domain: AIDomain;
 

@@ -22,8 +22,7 @@ export class SEOAnalysisUseCase {
     GenerateSEOKeywordsTool,
 
   @inject(delay(() => ListingAIContextFactory))
-  private contextFactory:
-    ListingAIContextFactory
+  private contextFactory:ListingAIContextFactory
   ) { }
 
   async execute(listingId: string) {

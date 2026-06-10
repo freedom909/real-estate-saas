@@ -13,7 +13,7 @@ import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extrac
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 import { SystemLogService } from "@/modules/audit/application/write/services/system-log.service";
 import { SystemLogLevel, SystemLogType } from "@/modules/audit/domain/enums/system-log.enums";
-import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
+import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 
 @injectable()
 export class SemanticExtractor implements ISemanticExtractor {

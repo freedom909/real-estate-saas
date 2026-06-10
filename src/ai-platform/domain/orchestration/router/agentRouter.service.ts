@@ -1,5 +1,5 @@
 // src/ai-platform/domain/orchestration/router/agentRouterService.ts
-import { inject, injectable, delay } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { IDomainAgent } from "../../semantic/types/IDomainAgent";
 import { SemanticContext } from "../../semantic/semantic-context";
 import { ListingAgent } from "../../agents/listing/listing.agent";
@@ -12,9 +12,9 @@ import { AIDomain } from "../../semantic/types/ai.domain";
 export class AgentRouterService {
 
   constructor(
-    @inject(delay(() => TOKENS_AGENT.listingAgent))
+    @inject(TOKENS_AGENT.listingAgent)
     private listingAgent: ListingAgent,
-    @inject(delay(() => TOKENS_AGENT.bookingAgent))
+    @inject(TOKENS_AGENT.bookingAgent)
     private bookingAgent: BookingAgent,
     // @inject(TOKENS_AGENT.paymentAgent)
     // private paymentAgent: PaymentAgent,

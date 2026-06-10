@@ -14,7 +14,7 @@ import { BookingAgent } from "../../agents/booking/booking.agent";
 import { AuditEventPublisher } from "@/ai-platform/domain/audit/auditEvent.publisher";
 import { AIDecisionEvent } from "@/modules/audit/domain/event/aiDecision.event";
 import { v4 as uuidv4 } from "uuid";
-import { AIContext, AIRequest } from "@/ai-platform/context/types/context/aiContext";
+import { AIContext, AIRequest } from "@/ai-platform/context/types/context/ai.context";
 
 
 @injectable()

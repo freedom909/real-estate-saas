@@ -4,7 +4,7 @@ import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/context/orchestrato
 
 import { AgentRouterService } from "./router/agentRouter.service";
 import { ISemanticExtractor } from "../semantic/types/i-semantic.extractor";
-import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
+import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 import { AgentResult } from "@/ai-platform/context/types/context/agent.result";
 
 @injectable()

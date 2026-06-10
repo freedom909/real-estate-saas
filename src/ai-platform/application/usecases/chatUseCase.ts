@@ -2,7 +2,7 @@
 
 import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/context/orchestrator/orchestrator";
 import { AgentResult } from "@/ai-platform/context/types/context/agent.result";
-import { AIRequest } from "@/ai-platform/context/types/context/aiContext";
+import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
 import { inject, injectable } from "tsyringe";
 

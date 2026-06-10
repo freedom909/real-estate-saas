@@ -1,7 +1,8 @@
 // src/subgraphs/listing/domain/entities/Listing.ts
 
-import { Title } from "../value-objects/Title";
 import { Description } from "../value-objects/description";
+import { Title } from "../value-objects/Title";
+
 import { SuggestionStatus } from "./suggestionStatus";
 
 export interface ListingProps {

@@ -22,6 +22,7 @@ import { AgentFactory } from "@/ai-platform/domain/agents/agent.factory";
 import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouter.service";
 import registerListingDependencies from "@/modules/container/listing.register";
 import { registerAIContainer } from "@/modules/container/ai.register";
+import { registerEventBus } from "@/modules/container/event.bus.register";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ChatUseCase } from "@/ai-platform/application/usecases/chatUseCase";
 
@@ -69,6 +70,8 @@ AIPlatformDependencies() {
         AIPlatformOrchestrator
     }
   );
+
+  registerEventBus();
 
   // Register Agents and Facet Resolvers
   registerAgents();

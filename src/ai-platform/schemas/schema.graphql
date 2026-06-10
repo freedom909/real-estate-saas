@@ -44,4 +44,6 @@ enum ArtifactType {
   BOOKING
   REVIEW
   PRICE
+  TIPS
 }
+

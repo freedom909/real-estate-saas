@@ -5,7 +5,7 @@ import crypto from "crypto";
 import {
   AIRequest,
   AIContext
-} from "../context/types/context/aiContext";
+} from "../context/types/context/ai.context";
 
 export class AIRequestFactory {
 

@@ -31,7 +31,7 @@ export default class LLMExtractor {
   constructor(
     @inject(TOKENS_AI_ADAPTER.aiAdapter)
     private ai: OpenAIAdapter
-  ) {}
+  ) { }
 
   async extract(
     message: string
@@ -74,25 +74,44 @@ User input:
 ${message}
 `;
 
-    const raw =
-      await this.ai.generateText({
-        prompt
-      });
+    const response = await this.ai.generateText({
+      prompt
+    });
 
-    console.log("RAW AI", raw);
+    console.log("RAW AI", response);
+    const raw = typeof response === 'string' ? response : JSON.stringify(response);
 
     const cleaned = raw
       .replace(/```json/g, "")
       .replace(/```/g, "")
       .trim();
+    console.log(
+  "CLEANED AI >>>",
+  cleaned
+);
 
-    const parsed =
-      JSON.parse(cleaned);
+ let parsed;
+
+try {
+
+  parsed = JSON.parse(cleaned);
+
+} catch (error) {
+
+  console.error(
+    "JSON PARSE ERROR"
+  );
+
+  console.error(cleaned);
+
+  throw error;
+}
 
     console.log(
       "PARSED",
       parsed
     );
+
 
     const validated =
       SemanticSchema.parse(parsed);
@@ -109,6 +128,10 @@ ${message}
       confidence:
         validated.confidence
     };
+    console.log(
+      "ACTION",
+      action
+    );
 
     const entities: Entity[] =
       Object.entries(
@@ -149,4 +172,3 @@ ${message}
     );
   }
 }
-

@@ -18,7 +18,7 @@ import GetListingUseCase from '@/subgraphs/listing/application/use-cases/getList
 import { RunListingAgentUseCase } from '@/subgraphs/listing/application/use-cases/runListingAgentUseCase';
 import { ListingRepository } from '@/subgraphs/listing/infrastructure/persistence/listing.repository';
 import { GenerateTitleSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase';
-import { SEOAnalysisUseCase } from '@/subgraphs/listing/application/use-cases/seoAnalysisUseCase';
+import { SEOAnalysisUseCase } from '@/subgraphs/listing/application/usecases/seoAnalysisUseCase';
 import { GenerateDescriptionSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase';
 import { ListingAISuggestion } from '@/subgraphs/listing/domain/entities/listingAISuggestion';
 
