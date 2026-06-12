@@ -4,7 +4,7 @@ import { EntityType, SemanticContext } from "../semantic-context";
 import { TOKENS_AI }
 from "@/modules/tokens/ai.tokens";
 
-import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase";
+import { GenerateTitleSuggestionUseCase } from "@/subgraphs/listing/application/usecases/generateTitleSuggestionUseCase";
 
 @injectable()
 export class OptimizeContentExecutor {

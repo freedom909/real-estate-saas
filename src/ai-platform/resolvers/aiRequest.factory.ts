@@ -53,13 +53,10 @@ export class AIRequestFactory {
   // Mobile
   // =====================================
 
-  static fromMobile(
-    payload: any
-  ): AIRequest {
+  static fromMobile(payload: any): AIRequest {
 
     return {
       message: payload.message,
-
       context: {
         identity: {
           user: payload.user,
@@ -68,13 +65,9 @@ export class AIRequestFactory {
 
         runtime: {
           source: "mobile",
-
           locale: payload.locale,
           timezone: payload.timezone,
-
           sessionId: payload.sessionId,
-
-
           device: {
             type: "mobile",
           },
@@ -90,8 +83,6 @@ export class AIRequestFactory {
           correlationId:
             crypto.randomUUID(),
         },
-
-
       },
     };
   }
@@ -121,7 +112,6 @@ export class AIRequestFactory {
 
           locale: payload.locale,
           timezone: payload.timezone,
-
 
           device: {
             type: "voice",

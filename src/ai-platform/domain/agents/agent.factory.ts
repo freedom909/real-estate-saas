@@ -3,7 +3,7 @@
 import { inject, injectable } from "tsyringe";
 
 import { BookingAgent } from "./booking/booking.agent";
-import { GeneralAgent } from "./generalAgent";
+import { GeneralAgent } from "./general.agent";
 import { ListingAgent } from "./listing/listing.agent";
 // import { PaymentAgent } from "./payment/payment.agent";
 import { TOKENS_AGENT } from "@/ai-platform/container/agents/agent.token";

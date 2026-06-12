@@ -1,23 +1,19 @@
 import { container } from "tsyringe";
 
 // Existing UseCases
-import CreateListingUseCase from "../application/use-cases/createListingUseCase";
-import GetListingUseCase from "../application/use-cases/getListingUseCase";
+
 
 // AI UseCases（用 Apply，不用 Generate// Tokens
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
-import { GenerateTitleSuggestionUseCase } from "../application/use-cases/generateTitleSuggestionUseCase";
-import { ApplyAISuggestionUseCase } from "../application/use-cases/applyAISuggestionUseCase";
-import { GenerateDescriptionSuggestionUseCase } from "../application/use-cases/generateDescriptionSuggestionUseCase";
-import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-
-
+import GetListingUseCase from "@/core/listing/application/usecase/getListingUseCase";
+import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
+import CreateListingUseCase from "@/core/listing/application/usecase/createListingUseCase";
 
 export const resolvers = {
   Query: {
     getListing: async (_: any, { id }: { id: string }) => {
       const useCase = container.resolve<GetListingUseCase>(
-        TOKENS_LISTING.GetListingUseCase
+        TOKENS_LISTING.usecase.getListingUseCase
       );
       return useCase.execute(id);
     },
@@ -25,31 +21,26 @@ export const resolvers = {
     // 保留一个 listing（删除重复 repo 版本）
     listing: async (_: any, { id }: { id: string }) => {
       const useCase = container.resolve<GetListingUseCase>(
-        TOKENS_LISTING.GetListingUseCase
+        TOKENS_LISTING.usecase.getListingUseCase
       );
       return useCase.execute(id);
     },
 
     listingsByHost: async (_: any, { hostId }: { hostId: string }) => {
-      const repo = container.resolve(TOKENS_LISTING.ListingRepository) as {
-        findByHostId(hostId: string): Promise<unknown[]>;
-      };
+      const repo = container.resolve<IListingRepository>(
+        TOKENS_LISTING.repos.listingRepository
+      );
       return repo.findByHostId(hostId);
     },
 
-    listingAISuggestions: async (_: any, { listingId }: { listingId: string }) => {
-      const repo = container.resolve(TOKENS_AI.ListingAISuggestionRepository) as {
-        findByListingId(listingId: string): Promise<unknown[]>;
-      };
-      return repo.findByListingId(listingId);
-    },
+
   },
 
 Mutation: {
   createListing: async (_: any, { input }: any) => {
     const useCase =
       container.resolve<CreateListingUseCase>(
-        TOKENS_LISTING.CreateListingUseCase
+        TOKENS_LISTING.usecase.createListingUseCase
       );
 
     return useCase.execute(input);
@@ -58,50 +49,16 @@ Mutation: {
   // --------------------------------
   // Generate TITLE suggestion
   // --------------------------------
-  generateTitleSuggestion: async (
-    _: any,
-    { listingId }: { listingId: string }
-  ) => {
 
-    const useCase =
-      container.resolve(
-        GenerateTitleSuggestionUseCase
-      );
-
-    return useCase.execute(listingId);
-  },
 
   // --------------------------------
   // Generate DESCRIPTION suggestion
   // --------------------------------
-  generateDescriptionSuggestion: async (
-    _: any,
-    { listingId }: { listingId: string }
-  ) => {
 
-    const useCase =
-      container.resolve(
-        GenerateDescriptionSuggestionUseCase
-      );
-
-    return useCase.execute(listingId);
-  },
 
   // --------------------------------
   // Apply accepted suggestion
   // --------------------------------
-  applyAISuggestion: async (
-    _: any,
-    { suggestionId }: { suggestionId: string }
-  ) => {
-
-    const useCase =
-      container.resolve(
-        ApplyAISuggestionUseCase
-      );
-
-    return useCase.execute(suggestionId);
-  },
 },
 
   Listing: {
@@ -131,7 +88,7 @@ Mutation: {
     // ✅ Federation reference resolver
     __resolveReference: async (ref: { id: string }) => {
       const useCase = container.resolve<GetListingUseCase>(
-        TOKENS_LISTING.GetListingUseCase
+        TOKENS_LISTING.usecase.getListingUseCase
       );
       return useCase.execute(ref.id);
     },
@@ -139,9 +96,9 @@ Mutation: {
 
   Host: {
     listings: async (parent: { id: string }) => {
-      const repo = container.resolve(TOKENS_LISTING.ListingRepository) as {
-        findByHostId(hostId: string): Promise<unknown[]>;
-      };
+      const repo = container.resolve<IListingRepository>(
+        TOKENS_LISTING.repos.listingRepository
+      );
       return repo.findByHostId(parent.id);
     },
   },

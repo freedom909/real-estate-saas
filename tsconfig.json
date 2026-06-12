@@ -20,5 +20,5 @@
       "@infrastructure/*": ["src/infrastructure/*"]
     }
   },
-  "include": ["src", "__tests__", "src/security/**/*.ts", "src/subgraphs/booking/BookingOptimizationAgent.ts"]
+  "include": ["src", "__tests__", "src/security/**/*.ts", "src/subgraphs/booking/bookingOptimizationAgent.ts"]
 }

@@ -11,7 +11,7 @@ import {
 } from "@/modules/tokens/listing.tokens";
 
 import { AIContext } from "@/ai-platform/context/types/context/ai.context";
-import { GenerateListingAIOptimizationUseCase } from "@/subgraphs/listing/application/usecases/generateListingAIOptimizationUseCase";
+import { GenerateListingAIOptimizationUseCase } from "@/ai-platform/application/usecases/listing/generateListingAIOptimization.usecase";
 
 @injectable()
 export class ListingAgent implements IDomainAgent {

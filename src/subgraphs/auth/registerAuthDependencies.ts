@@ -6,7 +6,7 @@ import { DependencyContainer } from "tsyringe";
 // TOKENS
 import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
 import { TOKENS } from "../../shared/infra/tokens";
-import { TOKENS_INFRA } from "../../infrastructure/infra.tokens";
+import { TOKENS_INFRA } from "../../modules/tokens/infra.tokens";
 import { TOKENS_USER } from "../../modules/tokens/user.tokens";
 
 // infra
@@ -53,7 +53,7 @@ export default function registerAuthDependencies(container: DependencyContainer)
     useValue: redis,
   });
 
-  container.register(TOKENS.security.blacklist, {
+  container.register(TOKENS_SECURITY.services.blacklist, {
     useValue: new Blacklist(redis),
   });
 

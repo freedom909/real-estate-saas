@@ -1,4 +1,4 @@
-// FILE: src/subgraphs/order/application/use-cases/confirm-order.use-case.ts
+// FILE: src/subgraphs/order/application/usecases/confirm-order.usecase.ts
 
 import { injectable, inject } from 'tsyringe';
 import { IOrderRepository } from '../../domain/repositories/order.repository.interface';

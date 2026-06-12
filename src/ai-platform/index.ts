@@ -18,10 +18,13 @@ import { container } from "tsyringe"
 import {resolvers} from "./resolvers/resolvers"
 import AIPlatformDependencies from "./container/registers/ai-platform.register"
 import registerAuditDependencies from "@/modules/container/audit.register"
+import { cacheContainer } from "@/modules/container/cache.register"
 
 // ⭐ 注册 DI
 registerAuditDependencies(container)
 console.log("Audit container loaded")
+cacheContainer()
+console.log("Cache container loaded")
 AIPlatformDependencies()
 console.log("AI Platform container loaded")
 

@@ -9,19 +9,18 @@ import {
 
 } from "../semantic-context";
 
-import {
-  TOKENS_AI_ADAPTER
-} from "@/ai-platform/container/tokens/ai.adapter";
+
 
 import { OpenAIAdapter }
   from "@/ai-platform/infrastructure/adapters/openai.adapter";
 
 import { AIDomain }
   from "../types/ai.domain";
+import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { ListingOptimizationResult } from "@/core/listing/application/dto/listingOptimization.result";
+import { SemanticSchema } from "@/ai-platform/schemas/semantic.schema";
 
-import {
-  SemanticSchema
-} from "@/ai-platform/schemas/semantic.schema";
+
 
 
 
@@ -29,7 +28,7 @@ import {
 export default class LLMExtractor {
 
   constructor(
-    @inject(TOKENS_AI_ADAPTER.aiAdapter)
+    @inject(TOKENS_AI.OpenAIAdapter)
     private ai: OpenAIAdapter
   ) { }
 
@@ -76,7 +75,7 @@ ${message}
 
     const response = await this.ai.generateText({
       prompt
-    });
+    })  as unknown as ListingOptimizationResult;
 
     console.log("RAW AI", response);
     const raw = typeof response === 'string' ? response : JSON.stringify(response);

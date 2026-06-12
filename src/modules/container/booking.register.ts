@@ -3,14 +3,15 @@
 
 
 
-import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
-import { ConfirmBookingUseCase } from "@/subgraphs/booking/application/use-cases/confirm-booking.use-case";
-import { BookingGateway } from "@/subgraphs/booking/BookingGateway";
-import { IBookingRepository } from "@/subgraphs/booking/domain/repositories/i-booking.repository";
+import { CancelBookingUseCase } from "@/subgraphs/booking/application/usecases/cancel-booking.usecase";
+import { ConfirmBookingUseCase } from "@/subgraphs/booking/application/usecases/confirm-booking.usecase";
+import { BookingGateway } from "@/subgraphs/booking/bookingGateway";
+
 import { BookingRepository } from "@/subgraphs/booking/infrastructure/repos/bookingRepository";
 
 import { container } from "tsyringe";
 import { TOKENS_BOOKING } from "../tokens/booking.tokens";
+import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 
 export const BookingRegister = () => {
 

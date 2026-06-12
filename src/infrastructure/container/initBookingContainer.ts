@@ -4,9 +4,9 @@ import { Sequelize } from "sequelize";
 
 import {  initBookingModel } from "@/subgraphs/booking/infrastructure/models/booking.model";
 import { SequelizeBookingRepository } from "@/subgraphs/booking/infrastructure/repos/sequelizeBookingRepository";
-import { CreateBookingUseCase } from "@/subgraphs/booking/application/use-cases/create-booking.use-case";
-import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
-import { GetBookingUseCase } from "@/subgraphs/booking/application/use-cases/get-booking.use-case";
+import { CreateBookingUseCase } from "@/subgraphs/booking/application/usecases/create-booking.usecase";
+import { CancelBookingUseCase } from "@/subgraphs/booking/application/usecases/cancel-booking.usecase";
+import { GetBookingUseCase } from "@/subgraphs/booking/application/usecases/get-booking.usecase";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 
 export async function initializeBookingContainer() {

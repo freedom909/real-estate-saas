@@ -2,11 +2,8 @@
 
 import { inject, injectable } from "tsyringe";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-import { BookingOptimizationTool } from "./infrastructure/tools/bookingOptimizationTool";
-import { BookingAIContext } from "./domain/entities/contexts/bookingAIContext";
-
-
-
+import { BookingOptimizationTool } from "./infrastructure/tools/bookingOptimization.tool";
+import { BookingAIContext } from "./domain/entities/contexts/bookingAI.context";
 
 @injectable()
 export class BookingOptimizationAgent {

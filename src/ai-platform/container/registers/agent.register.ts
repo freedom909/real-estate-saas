@@ -4,7 +4,7 @@ import { ListingAgent } from "@/ai-platform/domain/agents/listing/listing.agent"
 import { BookingAgent } from "@/ai-platform/domain/agents/booking/booking.agent"
 
 //import { SecurityAgent } from "@/ai-platform/domain/agents/security/security.agent"
-import { GeneralAgent } from "@/ai-platform/domain/agents/generalAgent"
+import { GeneralAgent } from "@/ai-platform/domain/agents/general.agent"
 
 export function registerAgents() {
   container.register(TOKENS_AGENT.listingAgent, { useClass: ListingAgent });

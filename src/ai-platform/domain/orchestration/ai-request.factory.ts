@@ -12,22 +12,16 @@ export class AIRequestFactory {
 
     return {
       message: input.message,
-
       context: {
-
         identity: {
           user: context.user,
-
           tenant: context.tenant,
         },
 
         runtime: {
           source: "web",
-
           locale: context.locale,
-
           timezone: context.timezone,
-
           sessionId:
             context.sessionId,
         },

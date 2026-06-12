@@ -4,7 +4,7 @@ import { TOKENS_USER } from "../../modules/tokens/user.tokens"
 import  UserRepository  from "./repos/user.repo"
 import  UserService  from "./services/user.service"
 import userModel from "./models/user.model"
-import { TOKENS_INFRA } from "@/infrastructure/infra.tokens"
+import { TOKENS_INFRA } from "@/modules/tokens/infra.tokens"
 import RedisService from "@/infrastructure/redis/redisService"
 import { UserClient } from "@/packages/user-sdk/src"
 

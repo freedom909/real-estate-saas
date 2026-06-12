@@ -1,8 +1,8 @@
 import { container } from "tsyringe";
-import { GetBookingUseCase } from "./application/use-cases/get-booking.use-case";
-import { CreateBookingUseCase } from "./application/use-cases/create-booking.use-case";
-import { CancelBookingUseCase } from "./application/use-cases/cancel-booking.use-case";
-import { ConfirmBookingUseCase } from "./application/use-cases/confirm-booking.use-case";
+import { GetBookingUseCase } from "./application/usecases/get-booking.usecase";
+import { CreateBookingUseCase } from "./application/usecases/create-booking.usecase";
+import { CancelBookingUseCase } from "./application/usecases/cancel-booking.usecase";
+import { ConfirmBookingUseCase } from "./application/usecases/confirm-booking.usecase";
 
 
 

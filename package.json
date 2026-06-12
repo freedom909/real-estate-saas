@@ -29,7 +29,7 @@
   "dependencies": {
     "@apollo/client": "^4.1.6",
     "@apollo/gateway": "^2.14.1",
-    "@apollo/server": "^4.9.5",
+    "@apollo/server": "",
     "@apollo/subgraph": "^2.12.2",
     "@as-integrations/express4": "^1.1.2",
     "@google-cloud/storage": "^7.19.0",

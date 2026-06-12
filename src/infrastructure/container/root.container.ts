@@ -8,5 +8,5 @@ export async function initAppContainer() {
   await initializeBookingContainer();
   await initMongoContainer();
 
-  return container; // ✅ 统一一个 container
+  return container; 
 }

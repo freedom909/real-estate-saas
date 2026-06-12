@@ -1,11 +1,12 @@
 import { inject, injectable } from "tsyringe";
-import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extractor";
+
 import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/context/orchestrator/orchestrator";
 
 import { AgentRouterService } from "./router/agentRouter.service";
 import { ISemanticExtractor } from "../semantic/types/i-semantic.extractor";
 import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 import { AgentResult } from "@/ai-platform/context/types/context/agent.result";
+import { TOKENS_EXTRACTOR } from "@/ai-platform/container/semantic/extractor";
 
 @injectable()
 export class AIPlatformOrchestrator {
@@ -33,10 +34,7 @@ export class AIPlatformOrchestrator {
         semantic
       );
 
-    const result = await agent.execute(
-      semantic,
-      request.context
-    ) as AgentResult;
+    const result = await agent.execute(semantic,request.context) as AgentResult;
     console.log("AGENT RESULT++",
       Object.keys(result)
     );

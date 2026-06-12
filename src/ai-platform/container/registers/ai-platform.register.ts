@@ -1,10 +1,10 @@
 import { TOKENS } from "@/shared/infra/tokens";
-import { TOKENS_EXTRACTOR } from "../tokens/semantic/extractor";
+
 import { container } from "tsyringe";
 import { SemanticExtractor } from "@/ai-platform/domain/semantic/extractors/semantic.extractor";
 
 
-import { GeneralAgent } from "@/ai-platform/domain/agents/generalAgent";
+import { GeneralAgent } from "@/ai-platform/domain/agents/general.agent";
 import { RuleExtractor } from "@/ai-platform/domain/semantic/extractors/rule.extractor";
 import LLMExtractor from "@/ai-platform/domain/semantic/extractors/llm.extractor";
 
@@ -25,10 +25,10 @@ import { registerAIContainer } from "@/modules/container/ai.register";
 import { registerEventBus } from "@/modules/container/event.bus.register";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ChatUseCase } from "@/ai-platform/application/usecases/chatUseCase";
+import { TOKENS_EXTRACTOR } from "../semantic/extractor";
 
 
-export default function
-AIPlatformDependencies() {
+export default function AIPlatformDependencies() {
 
   // extractors
   container.register(

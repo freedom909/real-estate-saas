@@ -3,28 +3,27 @@
 import { container } from 'tsyringe';
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { TOKENS_AI } from '@/modules/tokens/ai.tokens';
-import ListingModel from '@/subgraphs/listing/infrastructure/models/listing.model';
 
-import CreateListingUseCase from '../../subgraphs/listing/application/use-cases/createListingUseCase';
 
-import ListingAmenityModel from '@/subgraphs/listing/infrastructure/models/listingAmenities.model';
-import ListingCategoriesModel from '@/subgraphs/listing/infrastructure/models/listingCategories.model';
-import ListingLocationsModel from '@/subgraphs/listing/infrastructure/models/listingLocations.model';
 
-import AmenityAdapter from '@/subgraphs/listing/adapters/amenity.adapter';
-import { CategoryAdapter } from '@/subgraphs/listing/adapters/category.adapter';
+import { GenerateListingAIOptimizationUseCase } from '@/ai-platform/application/usecases/listing/generateListingAIOptimization.usecase';
+import ListingModel from '@/core/listing/infrastructure/models/listing.model';
+import { ListingRepository } from '@/core/listing/infrastructure/persistence/listing.repository';
+import CreateListingUseCase from '@/core/listing/application/usecase/createListingUseCase';
+import GetListingUseCase from '@/core/listing/application/usecase/getListingUseCase';
+import { RunListingAgentUseCase } from '@/core/listing/application/usecase/runListingAgentUseCase';
+import AmenityAdapter from '@/core/listing/application/adapters/amenity.adapter';
+import { CategoryAdapter } from '@/core/listing/application/adapters/category.adapter';
 import { sequelize } from '@/infrastructure/config/seq';
-import GetListingUseCase from '@/subgraphs/listing/application/use-cases/getListingUseCase';
-import { RunListingAgentUseCase } from '@/subgraphs/listing/application/use-cases/runListingAgentUseCase';
-import { ListingRepository } from '@/subgraphs/listing/infrastructure/persistence/listing.repository';
-import { GenerateTitleSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase';
-import { SEOAnalysisUseCase } from '@/subgraphs/listing/application/usecases/seoAnalysisUseCase';
-import { GenerateDescriptionSuggestionUseCase } from '@/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase';
-import { ListingAISuggestion } from '@/subgraphs/listing/domain/entities/listingAISuggestion';
+import { SEOAnalysisUseCase } from '@/core/listing/application/usecase/seoAnalysisUseCase';
+import ListingLocations from '@/core/listing/infrastructure/models/listingLocations.model';
+import ListingAmenities from '@/core/listing/infrastructure/models/listingAmenities.model';
+import ListingCategories from '@/core/listing/infrastructure/models/listingCategories.model';
+import { ListingAISuggestionRepository } from '@/core/listing/infrastructure/persistence/listing.ai.suggestion.repository';
 
 
 export default function registerListingDependencies() {
-  container.register(TOKENS_LISTING.listingModel, {
+  container.register(TOKENS_LISTING.models.listingCategoriesModel, {
     useValue: ListingModel,
   });
 
@@ -40,28 +39,25 @@ container.register(TOKENS_LISTING.usecase.getListingUseCase, {
   useClass: GetListingUseCase,
 });
 
-container.register(TOKENS_LISTING.listingCategoriesModel, {
-  useValue: ListingCategoriesModel,
+container.register(TOKENS_LISTING.models.listingCategoriesModel, {
+  useValue: ListingCategories,
 });
 
-container.register(TOKENS_LISTING.listingAmenityModel, {
-  useValue: ListingAmenityModel,
+container.register(TOKENS_LISTING.models.listingAmenityModel, {
+  useValue: ListingAmenities,
 });
 
-container.register(TOKENS_LISTING.listingLocationsModel, {
-  useValue: ListingLocationsModel,
+container.register(TOKENS_LISTING.models.listingLocationsModel, {
+  useValue: ListingLocations,
 });
 
 container.register(TOKENS_LISTING.usecase.seoAnalysisUseCase, {
   useClass: SEOAnalysisUseCase,
 });
 
-container.register(TOKENS_LISTING.usecase.generateDescriptionSuggestionUseCase, {
-  useClass: GenerateDescriptionSuggestionUseCase,
-});
 
-container.register(TOKENS_LISTING.usecase.generateTitleSuggestionUseCase, {
-  useClass: GenerateTitleSuggestionUseCase,
+container.register(TOKENS_LISTING.usecase.generateListingAIOptimizationUseCase, {
+  useClass: GenerateListingAIOptimizationUseCase,
 });
 
 container.register(TOKENS_AI.usecase.runListingAgentUseCase, {
@@ -80,12 +76,19 @@ container.register(TOKENS_LISTING.sequelize, {
   useValue: sequelize,
 });
 
-container.register(TOKENS_LISTING.repos.aiSuggestion, {
-  useClass: ListingAISuggestion,
+container.register(TOKENS_LISTING.models.listingModel, {
+  useValue:  ListingModel,
 });
 
 container.register(TOKENS_LISTING.listing,{
   useValue: sequelize.models.Listing,
 });
 
+container.register(TOKENS_LISTING.repos.listingAISuggestionRepository,{
+  useValue: ListingAISuggestionRepository,
+});
+
+container.register(TOKENS_LISTING.ai.listingAISuggestionModel,{
+  useValue: ListingModel,
+})
 }

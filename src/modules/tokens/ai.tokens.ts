@@ -31,6 +31,7 @@ export const TOKENS_AI = {
 
   usecase: {
     chatUseCase: Symbol.for("ChatUseCase"),
+    llmProvider: Symbol.for("LLMProvider"),
     optimizeContentUseCase: Symbol.for("OptimizeContentUseCase"),
     generateContentUseCase: Symbol.for("GenerateContentUseCase"),
     runListingAgentUseCase: Symbol.for("RunListingAgentUseCase"),

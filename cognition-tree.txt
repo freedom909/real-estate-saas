@@ -2,9 +2,9 @@ Folder PATH listing
 Volume serial number is EA63-381F
 D:\MINSHUKU-SAAS\SRC\GATEWAY\COGNITION
 +---application
-|   \---use-cases
+|   \---usecases
 |           chat.input.ts
-|           chat.use-case.ts
+|           chat.usecase.ts
 |           
 +---domain
 |   +---actors

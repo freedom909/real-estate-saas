@@ -10,8 +10,7 @@ export default async function connectMongoDB(mongoUri?: string) {
         console.log("MONGO_URI:", mongoUri);
         console.log("Loading MONGO_URI from env:", process.env.MONGO_URI);
         // console.log("All env variables:", process.env);
-        const MONGO_URI =  mongoUri || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/nakano';
-
+        const MONGO_URI =  mongoUri || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mie';
 
         await mongoose.connect(MONGO_URI, {
             serverSelectionTimeoutMS: 5000,

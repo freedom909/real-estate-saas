@@ -9,11 +9,11 @@ package.json
 src/subgraphs/listing/application/ai/services/OpenAIService.ts
 src/subgraphs/listing/application/prompts/buildDescriptionPrompt.ts
 src/subgraphs/listing/application/prompts/buildTitlePrompt.ts
-src/subgraphs/listing/application/use-cases/ApplyDescriptionSuggestionUseCase.ts
-src/subgraphs/listing/application/use-cases/generateListingSuggestionsUseCase.ts
-src/subgraphs/listing/application/use-cases/generateTitleSuggestionUseCase.ts
-src/subgraphs/listing/application/use-cases/applyAISuggestionUseCase.ts
-src/subgraphs/listing/application/use-cases/generateDescriptionSuggestionUseCase.ts
+src/subgraphs/listing/application/usecases/ApplyDescriptionSuggestionUseCase.ts
+src/subgraphs/listing/application/usecases/generateListingSuggestionsUseCase.ts
+src/subgraphs/listing/application/usecases/generateTitleSuggestionUseCase.ts
+src/subgraphs/listing/application/usecases/applyAISuggestionUseCase.ts
+src/subgraphs/listing/application/usecases/generateDescriptionSuggestionUseCase.ts
 src/subgraphs/listing/domain/entities/listing.ts
 src/subgraphs/listing/domain/entities/listingAISuggestion.ts
 src/subgraphs/listing/domain/repos/IListingAISuggestionRepository.ts

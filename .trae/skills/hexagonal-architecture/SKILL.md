@@ -1,6 +1,6 @@
 ---
 name: hexagonal-architecture
-description: Design, implement, and refactor Ports & Adapters systems with clear domain boundaries, dependency inversion, and testable use-case orchestration across TypeScript, Java, Kotlin, and Go services.
+description: Design, implement, and refactor Ports & Adapters systems with clear domain boundaries, dependency inversion, and testable usecase orchestration across TypeScript, Java, Kotlin, and Go services.
 origin: ECC
 ---
 
@@ -21,7 +21,7 @@ Use this skill when the request involves boundaries, domain-centric design, refa
 
 - **Domain model**: Business rules and entities/value objects. No framework imports.
 - **Use cases (application layer)**: Orchestrate domain behavior and workflow steps.
-- **Inbound ports**: Contracts describing what the application can do (commands/queries/use-case interfaces).
+- **Inbound ports**: Contracts describing what the application can do (commands/queries/usecase interfaces).
 - **Outbound ports**: Contracts for dependencies the application needs (repositories, gateways, event publishers, clock, UUID, etc.).
 - **Adapters**: Infrastructure and delivery implementations of ports (HTTP controllers, DB repositories, queue consumers, SDK wrappers).
 - **Composition root**: Single wiring location where concrete adapters are bound to use cases.
@@ -57,7 +57,7 @@ Use case class/function receives ports via constructor/arguments. It validates a
 
 ### Step 4: Build adapters at the edge
 
-- Inbound adapter converts protocol input to use-case input.
+- Inbound adapter converts protocol input to usecase input.
 - Outbound adapter maps app contracts to concrete APIs/ORM/query builders.
 - Mapping stays in adapters, not inside use cases.
 
@@ -101,7 +101,7 @@ src/
           outbound/
             OrderRepositoryPort.ts
             PaymentGatewayPort.ts
-        use-cases/
+        usecases/
           CreateOrderUseCase.ts
       adapters/
         inbound/
@@ -214,7 +214,7 @@ Use the same boundary rules across ecosystems; only syntax and wiring style chan
   - Packages: `domain`, `application.port.in`, `application.port.out`, `application.usecase`, `adapter.in`, `adapter.out`.
   - Ports: interfaces in `application.port.*`.
   - Use cases: plain classes (Spring `@Service` is optional, not required).
-  - Composition: Spring config or manual wiring class; keep wiring out of domain/use-case classes.
+  - Composition: Spring config or manual wiring class; keep wiring out of domain/usecase classes.
 - **Kotlin**
   - Modules/packages mirror the Java split (`domain`, `application.port`, `application.usecase`, `adapter`).
   - Ports: Kotlin interfaces.
@@ -231,13 +231,13 @@ Use the same boundary rules across ecosystems; only syntax and wiring style chan
 - Domain entities importing ORM models, web framework types, or SDK clients.
 - Use cases reading directly from `req`, `res`, or queue metadata.
 - Returning database rows directly from use cases without domain/application mapping.
-- Letting adapters call each other directly instead of flowing through use-case ports.
+- Letting adapters call each other directly instead of flowing through usecase ports.
 - Spreading dependency wiring across many files with hidden global singletons.
 
 ## Migration Playbook
 
 1. Pick one vertical slice (single endpoint/job) with frequent change pain.
-2. Extract a use-case boundary with explicit input/output types.
+2. Extract a usecase boundary with explicit input/output types.
 3. Introduce outbound ports around existing infrastructure calls.
 4. Move orchestration logic from controllers/services into the use case.
 5. Keep old adapters, but make them delegate to the new use case.
@@ -249,25 +249,25 @@ Use the same boundary rules across ecosystems; only syntax and wiring style chan
 - **Strangler approach**: keep current endpoints, route one use case at a time through new ports/adapters.
 - **No big-bang rewrites**: migrate per feature slice and preserve behavior with characterization tests.
 - **Facade first**: wrap legacy services behind outbound ports before replacing internals.
-- **Composition freeze**: centralize wiring early so new dependencies do not leak into domain/use-case layers.
+- **Composition freeze**: centralize wiring early so new dependencies do not leak into domain/usecase layers.
 - **Slice selection rule**: prioritize high-churn, low-blast-radius flows first.
 - **Rollback path**: keep a reversible toggle or route switch per migrated slice until production behavior is verified.
 
 ## Testing Guidance (Same Hexagonal Boundaries)
 
 - **Domain tests**: test entities/value objects as pure business rules (no mocks, no framework setup).
-- **Use-case unit tests**: test orchestration with fakes/stubs for outbound ports; assert business outcomes and port interactions.
+- **usecase unit tests**: test orchestration with fakes/stubs for outbound ports; assert business outcomes and port interactions.
 - **Outbound adapter contract tests**: define shared contract suites at port level and run them against each adapter implementation.
-- **Inbound adapter tests**: verify protocol mapping (HTTP/CLI/queue payload to use-case input and output/error mapping back to protocol).
+- **Inbound adapter tests**: verify protocol mapping (HTTP/CLI/queue payload to usecase input and output/error mapping back to protocol).
 - **Adapter integration tests**: run against real infrastructure (DB/API/queue) for serialization, schema/query behavior, retries, and timeouts.
 - **End-to-end tests**: cover critical user journeys through inbound adapter -> use case -> outbound adapter.
 - **Refactor safety**: add characterization tests before extraction; keep them until new boundary behavior is stable and equivalent.
 
 ## Best Practices Checklist
 
-- Domain and use-case layers import only internal types and ports.
+- Domain and usecase layers import only internal types and ports.
 - Every external dependency is represented by an outbound port.
-- Validation occurs at boundaries (inbound adapter + use-case invariants).
+- Validation occurs at boundaries (inbound adapter + usecase invariants).
 - Use immutable transformations (return new values/entities instead of mutating shared state).
 - Errors are translated across boundaries (infra errors -> application/domain errors).
 - Composition root is explicit and easy to audit.

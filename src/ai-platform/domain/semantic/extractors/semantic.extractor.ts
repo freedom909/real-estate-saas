@@ -8,12 +8,13 @@ import { SemanticContext } from "../semantic-context";
 import { RuleExtractor } from "./rule.extractor";
 import LLMExtractor from "./llm.extractor";
 
-import { TOKENS_EXTRACTOR } from "@/ai-platform/container/tokens/semantic/extractor";
+
 
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 import { SystemLogService } from "@/modules/audit/application/write/services/system-log.service";
 import { SystemLogLevel, SystemLogType } from "@/modules/audit/domain/enums/system-log.enums";
 import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
+import { TOKENS_EXTRACTOR } from "@/ai-platform/container/semantic/extractor";
 
 @injectable()
 export class SemanticExtractor implements ISemanticExtractor {

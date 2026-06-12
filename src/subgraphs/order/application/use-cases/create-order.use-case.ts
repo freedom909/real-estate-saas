@@ -1,4 +1,4 @@
-// FILE: src/subgraphs/order/application/use-cases/create-order.use-case.ts
+// FILE: src/subgraphs/order/application/usecases/create-order.usecase.ts
 
 import { injectable, inject } from 'tsyringe';
 import { Order, OrderProps } from '../../domain/entities/order.entity';

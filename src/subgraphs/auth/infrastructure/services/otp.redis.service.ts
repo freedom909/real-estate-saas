@@ -2,7 +2,7 @@
 
 import { inject, injectable } from "tsyringe";
 
-import { TOKENS_INFRA } from "@/infrastructure/infra.tokens";
+import { TOKENS_INFRA } from "@/modules/tokens/infra.tokens";
 import Redis from "ioredis";
 import { RedisKeys } from "../cache/redisKey.factory";
 

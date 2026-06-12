@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import { GraphQLClient, gql } from "graphql-request";
-import { BookingExternalDTO } from "./BookingDTO";
+import { BookingExternalDTO } from "./bookingDTO";
 import { BaseGateway } from "@/infrastructure/utils/baseGateway";
 
 @injectable()

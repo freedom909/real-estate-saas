@@ -7,9 +7,10 @@ import { AgentAction, EntityType, SemanticContext} from "../../semantic/semantic
 
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
-import { CancelBookingUseCase } from "@/subgraphs/booking/application/use-cases/cancel-booking.use-case";
-import { CreateBookingUseCase } from "@/subgraphs/booking/application/use-cases/create-booking.use-case";
+
 import { AIContext } from "@/ai-platform/context/types/context/ai.context";
+import { CancelBookingUseCase } from "@/subgraphs/booking/application/usecases/cancel-booking.usecase";
+import { CreateBookingUseCase } from "@/subgraphs/booking/application/usecases/create-booking.usecase";
 
 
 @injectable()

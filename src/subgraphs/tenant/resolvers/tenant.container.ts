@@ -3,11 +3,11 @@ import { TOKENS_TENANT } from "../domain/entities/tenant.tokens";
 
 import { TenantModel } from "../infrastructure/models/tenant.model";
 import { EventBus } from "../infrastructure/services/event-bus.service";
-import { CreateTenantUseCase } from "../application/usecase/create-tenant.use-case";
-import { UpdateTenantUseCase } from "../application/usecase/update-tenant.use-case";
-import { SuspendTenantUseCase } from "../application/usecase/suspend-tenant.use-case";
-import { ListTenantsUseCase } from "../application/usecase/list-tenants.use-case";
-import { GetTenantUseCase } from "../application/usecase/get-tenant.use-case";
+import { CreateTenantUseCase } from "../application/usecase/create-tenant.usecase";
+import { UpdateTenantUseCase } from "../application/usecase/update-tenant.usecase";
+import { SuspendTenantUseCase } from "../application/usecase/suspend-tenant.usecase";
+import { ListTenantsUseCase } from "../application/usecase/list-tenants.usecase";
+import { GetTenantUseCase } from "../application/usecase/get-tenant.usecase";
 import { TenantRepository } from "../infrastructure/repos/tenant.repository";
 
 export function registerTenantDependencies(container: DependencyContainer) {

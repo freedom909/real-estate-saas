@@ -7,7 +7,7 @@ import { createMock } from "./mock.factory";
 // tokens
 import { TOKENS_AUTH } from "../modules/tokens/auth.tokens";
 import { TOKENS_USER } from "../modules/tokens/user.tokens";
-import { TOKENS_INFRA } from "../infrastructure/infra.tokens";
+import { TOKENS_INFRA } from "../modules/tokens/infra.tokens";
 import { TOKENS } from "../shared/infra/tokens";
 
 // services

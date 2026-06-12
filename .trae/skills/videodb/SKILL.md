@@ -352,7 +352,7 @@ Reference documentation is in the `reference/` directory adjacent to this SKILL.
 - [reference/rtstream-reference.md](reference/rtstream-reference.md) - RTStream SDK methods and AI pipelines
 - [reference/capture.md](reference/capture.md) - Desktop capture workflow
 - [reference/capture-reference.md](reference/capture-reference.md) - Capture SDK and WebSocket events
-- [reference/use-cases.md](reference/use-cases.md) - Common video processing patterns and examples
+- [reference/usecases.md](reference/usecases.md) - Common video processing patterns and examples
 
 **Do not use ffmpeg, moviepy, or local encoding tools** when VideoDB supports the operation. The following are all handled server-side by VideoDB — trimming, combining clips, overlaying audio or music, adding subtitles, text/image overlays, transcoding, resolution changes, aspect-ratio conversion, resizing for platform requirements, transcription, and media generation. Only fall back to local tools for operations listed under Limitations in reference/editor.md (transitions, speed changes, crop/zoom, colour grading, volume mixing).
 

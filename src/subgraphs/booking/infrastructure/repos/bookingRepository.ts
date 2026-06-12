@@ -1,10 +1,12 @@
 // FILE: src/subgraphs/booking/infrastructure/repositories/sequelize-booking.repository.ts
 
 import { injectable } from "tsyringe";
-import { IBookingRepository } from "../../domain/repositories/i-booking.repository";
-import { Booking } from "../../domain/entities/booking.entity";
+
 import { BookingModel, BookingStatus } from "../models/booking.model";
-import { DateRange } from "../../domain/value-objects/date-range.vo";
+import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
+import { Booking } from "@/core/booking/domain/entities/booking.entity";
+import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
+
 
 @injectable()
 export class BookingRepository implements IBookingRepository {
