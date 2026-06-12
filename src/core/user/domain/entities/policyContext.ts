@@ -1,6 +1,8 @@
-
-import { Action, Resource } from "./types";
 import { Role } from "./role";
+import { Resource, Action } from "./types";
+
+
+
 
 export interface PolicyContext {
   user: PolicyUser | null;

@@ -4,7 +4,6 @@ import { inject, injectable } from "tsyringe";
 
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
-import { ArtifactType } from "@/ai-platform/context/types/context/agent.result";
 import { AIDomain } from "@/ai-platform/domain/semantic/types/ai.domain";
 
 
@@ -17,6 +16,9 @@ import { ListingAISuggestion } from "@/core/listing/domain/entities/listingAI.su
 import { TOKENS } from "@/shared/infra/tokens";
 import { TOKENS_CACHE } from "@/modules/tokens/cache.token";
 import RedisService from "@/infrastructure/redis/redisService";
+import { AIResponsePayload, ArtifactFactory } from "./artifact.factory";
+import { BaseArtifactDTO } from "./base-artifact.dto";
+
 
 
 @injectable()
@@ -35,6 +37,8 @@ export class GenerateListingAIOptimizationUseCase {
     // インフラ層で定義されているキャッシュサービスを注入
     @inject(TOKENS_CACHE.service.cacheService) 
     private cacheService: RedisService,
+
+    private artifactFactory: ArtifactFactory,
   ) {}
 
   async execute(listingId: string) {
@@ -65,7 +69,9 @@ export class GenerateListingAIOptimizationUseCase {
 
     const cleaned = raw.replace(/```json/g, "").replace(/```/g, "");
 
-    const parsed = JSON.parse(cleaned);
+    const parsed: AIResponsePayload = JSON.parse(cleaned);
+
+    const artifactDTOs: BaseArtifactDTO[] = this.artifactFactory.createFromAIResponse(parsed);
 
     const result = {
       success: true,
@@ -75,24 +81,7 @@ export class GenerateListingAIOptimizationUseCase {
         confidence: 1.0
       },
       summary: "Listing AI optimization completed",
-      artifacts: [
-        {
-          type: ArtifactType.TITLE,
-          content: { title: parsed.title }
-        },
-        {
-          type: ArtifactType.DESCRIPTION,
-          content: { description: parsed.description }
-        },
-        {
-          type: ArtifactType.SEO,
-          content: { keywords: parsed.seo }
-        },
-        {
-          type: ArtifactType.TIPS,
-          content: { tips: parsed.tips }
-        }
-      ]
+      artifacts: artifactDTOs
     };
 
     // 4. キャッシュへの書き込み（1日有効）

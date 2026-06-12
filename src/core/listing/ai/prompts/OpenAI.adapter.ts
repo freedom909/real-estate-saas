@@ -1,6 +1,7 @@
 import { injectable } from "tsyringe";
 import fetch from "node-fetch";
-import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
+import { IOpenAIAdapter } from "../../domain/entities/IOpenAIAdapter";
+
 
 
 interface OpenAIChatResponse {

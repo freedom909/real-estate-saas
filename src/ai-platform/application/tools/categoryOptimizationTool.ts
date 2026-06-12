@@ -1,6 +1,8 @@
 // CategoryOptimizationTool.ts
 
-import { ListingAIContext } from "@/subgraphs/listing/domain/entities/listingAI.context";
+import { ListingAIContext } from "@/core/listing/domain/entities/listingAI.context";
+
+
 
 export class CategoryOptimizationTool {
 

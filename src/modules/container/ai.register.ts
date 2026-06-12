@@ -30,15 +30,16 @@ import { BookingACL } from "@/subgraphs/booking/application/adapter/bookingACL";
 import { OpenAIAdapter } from "@/ai-platform/infrastructure/adapters/openai.adapter";
 import { CancelBookingUseCase } from "@/subgraphs/booking/application/usecases/cancel-booking.usecase";
 import { CreateBookingUseCase } from "@/subgraphs/booking/application/usecases/create-booking.usecase";
-import { AnalyzeListingTool } from "@/core/listing/ai/tools/analyzeListing.tool";
-import { CategoryOptimizationTool } from "@/core/listing/ai/tools/categoryOptimizationTool";
-import { RewriteTitleTool } from "@/core/listing/ai/tools/rewriteTitleTool";
-import { RewriteDescriptionTool } from "@/core/listing/ai/tools/rewriteDescriptionTool";
-import { PriceOptimizationTool } from "@/core/listing/ai/tools/priceOptimizationTool";
-import { ListingOptimizationAgent } from "@/core/listing/ai/agents/listingOptimizationAgent";
+
 import { RunListingAgentUseCase } from "@/core/listing/application/usecase/runListingAgentUseCase";
 import { ReviewACL } from "@/core/booking/domain/entities/contexts/ReviewACL";
 import { RunReviewAgentUseCase } from "@/subgraphs/review/application/RunReviewAgentUseCase";
+import { AnalyzeListingTool } from "@/ai-platform/application/tools/analyzeListing.tool";
+import { CategoryOptimizationTool } from "@/ai-platform/application/tools/categoryOptimizationTool";
+import { RewriteTitleTool } from "@/ai-platform/application/tools/rewriteTitleTool";
+import { RewriteDescriptionTool } from "@/ai-platform/application/tools/rewriteDescriptionTool";
+import { PriceOptimizationTool } from "@/ai-platform/application/tools/priceOptimizationTool";
+import { ListingOptimizationAgent } from "@/ai-platform/application/agents/listingOptimizationAgent";
 
 export function registerAIContainer() {
 

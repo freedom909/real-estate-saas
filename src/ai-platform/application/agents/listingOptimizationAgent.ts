@@ -2,16 +2,20 @@
 
 import { inject, injectable } from "tsyringe";
 
-import { CategoryOptimizationTool } from "../tools/categoryOptimizationTool";
-import { GenerateSEOKeywordsTool } from "../../../../ai-platform/application/capabilities/generateSEOKeywords.tool";
-import { PriceOptimizationTool } from "../tools/priceOptimizationTool";
-import { RewriteDescriptionTool } from "../tools/rewriteDescriptionTool";
+
 
 
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+
+import { GenerateSEOKeywordsTool } from "../capabilities/generateSEOKeywords.tool";
+
+import { ListingAIContext } from "@/core/listing/domain/entities/listingAI.context";
 import { AnalyzeListingTool } from "../tools/analyzeListing.tool";
 import { RewriteTitleTool } from "../tools/rewriteTitleTool";
-import { ListingAIContext } from "../../domain/entities/listingAI.context";
+import { RewriteDescriptionTool } from "../tools/rewriteDescriptionTool";
+import { PriceOptimizationTool } from "../tools/priceOptimizationTool";
+import { CategoryOptimizationTool } from "../tools/categoryOptimizationTool";
+
 
 @injectable()
 export class ListingOptimizationAgent {
