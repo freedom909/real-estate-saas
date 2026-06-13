@@ -16,30 +16,22 @@ type Query {
   bookingsByOrder(orderId: ID!): [Booking!]! @shareable
 }
 
-enum Role {
-  ADMIN
-  HOST
-  GUEST
-  USER
-  PENDING_HOST
-}
+
 
 extend type User @key(fields: "id") {
   id: ID! @external
 }
 
 extend type Host @key(fields: "id") {
-  id: ID! @shareable
-  email: String! @shareable
-  picture: String @shareable
+  id: ID! @external
   listings: [Listing!]! @shareable
 }
 
-type Guest @key(fields: "id") {
-  id: ID! @shareable
-  email: String! 
-  picture: String 
-  bookings: [Booking!]! 
+extend type Guest @key(fields: "id") {
+  id: ID! @external
+  
+  bookings: [Booking!]! @shareable
+ 
 }
 
 extend type Listing @key(fields: "id") {

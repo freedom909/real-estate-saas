@@ -2,8 +2,7 @@
 
 import { container } from "tsyringe";
 import { TOKENS_AI } from "../tokens/ai.tokens";
-import { BookingFraudAgent } from "@/subgraphs/booking/bookingFraud.agent";
-import { ReviewAnalysisAgent } from "@/subgraphs/review/application/agents/ReviewAnalysisAgent";
+
 
 
 
@@ -15,31 +14,31 @@ import { GenerateSEOKeywordsTool } from "@/ai-platform/application/capabilities/
 
 import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouter.service";
 
-import { CancelBookingRepository } from "@/subgraphs/booking/infrastructure/repos/cancelBookingRepository";
-import { BookingRepository } from "@/subgraphs/booking/infrastructure/repos/bookingRepository";
-
-import { BookingOptimizationAgent } from "@/subgraphs/booking/bookingOptimizationAgent";
-
-import { BookingGateway } from "@/subgraphs/booking/bookingGateway";
-
-import { BookingOptimizationTool } from "@/subgraphs/booking/infrastructure/tools/bookingOptimization.tool";
-import { RunBookingAgentUseCase } from "@/subgraphs/booking/application/usecases/runBookingAgent.usecase";
-import { BookingFraudTool } from "@/subgraphs/booking/infrastructure/tools/bookingFraud.tool";
-import { BookingACL } from "@/subgraphs/booking/application/adapter/bookingACL";
-
 import { OpenAIAdapter } from "@/ai-platform/infrastructure/adapters/openai.adapter";
-import { CancelBookingUseCase } from "@/subgraphs/booking/application/usecases/cancel-booking.usecase";
-import { CreateBookingUseCase } from "@/subgraphs/booking/application/usecases/create-booking.usecase";
+
 
 import { RunListingAgentUseCase } from "@/core/listing/application/usecase/runListingAgentUseCase";
 import { ReviewACL } from "@/core/booking/domain/entities/contexts/ReviewACL";
-import { RunReviewAgentUseCase } from "@/subgraphs/review/application/RunReviewAgentUseCase";
+
 import { AnalyzeListingTool } from "@/ai-platform/application/tools/analyzeListing.tool";
 import { CategoryOptimizationTool } from "@/ai-platform/application/tools/categoryOptimizationTool";
 import { RewriteTitleTool } from "@/ai-platform/application/tools/rewriteTitleTool";
 import { RewriteDescriptionTool } from "@/ai-platform/application/tools/rewriteDescriptionTool";
 import { PriceOptimizationTool } from "@/ai-platform/application/tools/priceOptimizationTool";
 import { ListingOptimizationAgent } from "@/ai-platform/application/agents/listingOptimizationAgent";
+import { RunBookingAgentUseCase } from "@/core/booking/application/usecases/runBookingAgent.usecase";
+import { BookingOptimizationTool } from "@/core/booking/infrastructure/tools/bookingOptimization.tool";
+import { BookingOptimizationAgent } from "@/core/booking/bookingOptimizationAgent";
+import { BookingFraudTool } from "@/core/booking/infrastructure/tools/bookingFraud.tool";
+import { BookingFraudAgent } from "@/core/booking/bookingFraud.agent";
+import { TOKENS_BOOKING } from "../tokens/booking.tokens";
+import { BookingACL } from "@/core/booking/domain/entities/contexts/BookingACL";
+import { ReviewAnalysisAgent } from "@/core/review/application/agents/ReviewAnalysisAgent";
+import { RunReviewAgentUseCase } from "@/core/review/application/runReviewAgentUseCase";
+import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
+import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
+import { BookingRepository } from "@/core/booking/infrastructure/repos/bookingRepository";
+import { CancelBookingRepository } from "@/core/booking/infrastructure/repos/cancelBookingRepository";
 
 export function registerAIContainer() {
 
@@ -103,8 +102,8 @@ container.register(TOKENS_AI.agent.bookingFraudAgent, {
   useClass: BookingFraudAgent,
 });
 
-container.register(BookingGateway, { useClass: BookingGateway });
-container.register(BookingACL, { useClass: BookingACL });
+
+container.register(TOKENS_BOOKING.acl.bookingACL, { useClass: BookingACL });
 
 container.register(TOKENS_AI.acl.reviewACL, {
   useClass: ReviewACL,

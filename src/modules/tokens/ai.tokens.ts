@@ -18,6 +18,7 @@ export const TOKENS_AI = {
     contentModerationTool: Symbol.for("ContentModerationTool"),
     reviewValidationTool: Symbol.for("ReviewValidationTool"),
     reviewReplyTool: Symbol.for("ReviewReplyTool"),
+    reviewScoringTool: Symbol.for("ReviewScoringTool"),
     reviewReportTool: Symbol.for("ReviewReportTool"),
     bookingFraudTool: Symbol.for("BookingFraudTool"),
   },

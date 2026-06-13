@@ -3,9 +3,10 @@
 import { container } from "tsyringe";
 
 import { TOKENS_LOCATION } from "@/modules/tokens/location.tokens";
-import { LocationRepository } from "@/subgraphs/location/infrastructure/persistence/LocationRepository";
-import { GetLocationUseCase } from "@/subgraphs/location/application/usecases/getLocationUseCase";
-import { CreateLocationUseCase } from "@/subgraphs/location/application/usecases/CreateLocationUseCase";
+import { LocationRepository } from "@/core/location/infrastructure/persistence/LocationRepository";
+import { GetLocationUseCase } from "@/core/location/application/usecases/getLocationUseCase";
+import { CreateLocationUseCase } from "@/core/location/application/usecases/CreateLocationUseCase";
+
 
 function registerLocationDependencies() {
   // Repositories

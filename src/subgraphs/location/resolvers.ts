@@ -1,8 +1,8 @@
 import { container } from "tsyringe";
 import { TOKENS_LOCATION } from "../../modules/tokens/location.tokens";
-import { CreateLocationUseCase } from "./application/usecases/createLocationUseCase";
-import { GetLocationUseCase } from "./application/usecases/getLocationUseCase";
-import { ApplyDescriptionSuggestionUseCase } from "../listing/domain/entities/applyDescriptionSuggestionUseCase";
+import { GetLocationUseCase } from "@/core/location/application/usecases/getLocationUseCase";
+import { CreateLocationUseCase } from "@/core/location/application/usecases/CreateLocationUseCase";
+
 
 
 export const resolvers = {
@@ -22,11 +22,7 @@ export const resolvers = {
       return await useCase.execute(input);
     },
 
-  
-    applyDescriptionSuggestion: async (_: any, { listingId }: { listingId: string }) => {
-      const useCase = container.resolve(ApplyDescriptionSuggestionUseCase);
-      return await useCase.execute(listingId);
-    },
+
   },
   Location: { __resolveReference: (ref: any) => container.resolve<GetLocationUseCase>(TOKENS_LOCATION.getLocationUseCase).execute(ref.id) }
 };

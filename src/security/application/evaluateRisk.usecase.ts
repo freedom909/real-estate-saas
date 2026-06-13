@@ -7,7 +7,7 @@ import { IAuditRepo, RiskResult, SecurityEvent } from "../types";
 import { TOKENS_SECURITY } from "../../modules/tokens/security.tokens";
 import { ITrustedDeviceRepo } from "../domain/repos/ITrustedDeviceRepo";
 import { IAiRiskEngine } from "../domain/ai.risk.engine";
-import AIService from "@/subgraphs/ai/services/ai.service";
+
 import { TOKENS_INFRA } from "@/modules/tokens/infra.tokens";
 import Redis from "ioredis";
 import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";

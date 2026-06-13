@@ -20,6 +20,9 @@ export const TOKENS_TENANT = {
         eventBus: Symbol.for("tenant.services.eventBus"),
     },
 
+    events: {
+        tenantCreated: Symbol.for("tenant.events.tenantCreated"),
+    },
    useCases: {
     createTenant: Symbol.for("createTenantUseCase"),
     updateTenant: Symbol.for("updateTenantUseCase"),
@@ -28,3 +31,4 @@ export const TOKENS_TENANT = {
     listTenants: Symbol.for("listTenantsUseCase"),
   },
 } as const;
+

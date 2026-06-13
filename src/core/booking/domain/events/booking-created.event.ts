@@ -1,7 +1,8 @@
 // booking/domain/events/booking-created.event.ts
 
 import { DomainEvent } from "@/shared/eventbus/domain.event";
-import { BookingStatus } from "@/subgraphs/booking/infrastructure/models/booking.model";
+import { BookingStatus } from "../../infrastructure/models/booking.model";
+
 
 
 export class BookingCreatedEvent extends DomainEvent {

@@ -61,8 +61,8 @@ type Category {
 # -----------------------------------
 # Amenity
 # -----------------------------------
-type Amenity {
-  id: ID!
+extend type Amenity @key(fields: "id") {
+  id: ID! @external 
   type: String
 }
 

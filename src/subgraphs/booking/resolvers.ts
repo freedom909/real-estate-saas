@@ -1,15 +1,14 @@
+import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
+import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
+import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
+import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booking.usecase";
+import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { container } from "tsyringe";
-import { GetBookingUseCase } from "./application/usecases/get-booking.usecase";
-import { CreateBookingUseCase } from "./application/usecases/create-booking.usecase";
-import { CancelBookingUseCase } from "./application/usecases/cancel-booking.usecase";
-import { ConfirmBookingUseCase } from "./application/usecases/confirm-booking.usecase";
-
-
 
 export const resolvers = {
   Query: {
     booking: async (_: any, { id }: any) => {
-      return container.resolve(GetBookingUseCase).execute(id);
+      return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(id);
     },
   },
 
@@ -19,8 +18,8 @@ export const resolvers = {
       console.log("input", input);
 
       const booking = await container
-        .resolve(CreateBookingUseCase)
-        .execute({ ...input, guestId: user.id });
+        .resolve<CreateBookingUseCase>(TOKENS_BOOKING.usecase.createBookingUseCase)
+        .execute({ ...input, guestId: user.id });// "message": "Cannot read properties of null (reading 'id')",
 
       return {
         code: 200,
@@ -32,7 +31,7 @@ export const resolvers = {
 
     cancelBooking: async (_: any, { id }: any, { user }: any) => {
       const booking = await container
-        .resolve(CancelBookingUseCase)
+        .resolve<CancelBookingUseCase>(TOKENS_BOOKING.usecase.cancelBookingUseCase)
         .execute(id, user.id);
 
       return {
@@ -45,7 +44,7 @@ export const resolvers = {
 
     confirmBooking: async (_: any, { id }: any, { user }: any) => {
       return container
-        .resolve(ConfirmBookingUseCase)
+        .resolve<ConfirmBookingUseCase>(TOKENS_BOOKING.usecase.confirmBookingUseCase)
         .execute(id);
     },
   },

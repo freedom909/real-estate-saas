@@ -1,5 +1,5 @@
 
-extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable"])
+schema @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key", "@shareable"])
 enum TenantStatus {
   ACTIVE
   SUSPENDED
@@ -12,9 +12,9 @@ type Tenant @key(fields: "id") {
   name: String! @shareable
   slug: String!
   status: TenantStatus!
-  ownerUserId: String!
+  ownerUserId: String!@shareable
   createdAt: String
-  updatedAt: String
+  updatedAt: String @shareable
 }
 
 type PageInfo {

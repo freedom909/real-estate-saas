@@ -26,7 +26,7 @@ export function formatUser(user) {
 }
 
 // CORRECT: Explicit types on public APIs
-interface User {
+type User  {
   firstName: string
   lastName: string
 }
@@ -43,7 +43,7 @@ export function formatUser(user: User): string {
 - Prefer string literal unions over `enum` unless an `enum` is required for interoperability
 
 ```typescript
-interface User {
+type User  {
   id: string
   email: string
 }
@@ -83,7 +83,7 @@ function getErrorMessage(error: unknown): string {
 - Do not use `React.FC` unless there is a specific reason to do so
 
 ```typescript
-interface User {
+type User  {
   id: string
   email: string
 }
@@ -118,7 +118,7 @@ export function formatUser(user) {
 Use spread operator for immutable updates:
 
 ```typescript
-interface User {
+type User  {
   id: string
   name: string
 }
@@ -143,7 +143,7 @@ function updateUser(user: Readonly<User>, name: string): User {
 Use async/await with try-catch and narrow unknown errors safely:
 
 ```typescript
-interface User {
+type User  {
   id: string
   email: string
 }

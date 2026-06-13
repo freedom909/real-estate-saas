@@ -4,13 +4,10 @@ import { inject, injectable, delay } from "tsyringe";
 import { IDomainAgent } from "../../semantic/types/IDomainAgent";
 
 import { AgentAction, EntityType, SemanticContext} from "../../semantic/semantic-context";
-
-import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-
-
 import { AIContext } from "@/ai-platform/context/types/context/ai.context";
-import { CancelBookingUseCase } from "@/subgraphs/booking/application/usecases/cancel-booking.usecase";
-import { CreateBookingUseCase } from "@/subgraphs/booking/application/usecases/create-booking.usecase";
+import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
+import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
+
 
 
 @injectable()

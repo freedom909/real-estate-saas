@@ -19,11 +19,6 @@ import { registerTenantDependencies } from "./resolvers/tenant.container.js"
 import { resolvers } from "./resolvers/tenant.resolver.js"
 
 
-
-
-
-
-
 // 🔍 启动时验证 env
 console.log(
   "BOOT USER_SUBGRAPH_URL =",

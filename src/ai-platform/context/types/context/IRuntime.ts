@@ -1,5 +1,6 @@
-import { SequentialRuntime } from "../../runtime/executors/sequential.runtime";
-import { SemanticContext } from "../../semantic/semantic-context";
+import { SequentialRuntime } from "@/ai-platform/domain/runtime/executors/sequential.runtime";
+import { SemanticContext } from "@/ai-platform/domain/semantic/semantic-context";
+
 
 // src/ai-platform/domain/types/context/IRuntime.ts
 export interface IRuntime {

@@ -17,8 +17,6 @@ const ROUTING_KEYS = [
 ];
 
 // MQ/consumer/bookingConsumer.ts
-
-
 let connection: amqp.Connection;
 let channel: amqp.Channel;
 
@@ -26,7 +24,7 @@ const QUEUE = "booking_queue";
 
 export const initializeConsumer = async () => {
   try {
-    connection = await amqp.connect("amqp://127.0.0.1:5672");
+    const connection = await amqp.connect("amqp://127.0.0.1:5672");
 
     channel = await connection.createChannel(); // ✅ 必须有
 

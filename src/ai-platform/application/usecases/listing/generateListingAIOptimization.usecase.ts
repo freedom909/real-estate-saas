@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
 import { ILLMProvider } from "@/ai-platform/domain/interface/ILLMProvider";
 import { IListingAISuggestionRepository } from "@/core/listing/domain/entities/IListingAISuggestionRepository";
-import { listingOptimizationPrompt } from "@/core/listing/application/usecase/prompts/listing.prompt";
+import { listingOptimizationPrompt } from "@/ai-platform/resources/prompts/listing/prompts/listing.optimization.prompt";
 import { ListingAISuggestion } from "@/core/listing/domain/entities/listingAI.suggestion";
 import { TOKENS } from "@/shared/infra/tokens";
 import { TOKENS_CACHE } from "@/modules/tokens/cache.token";

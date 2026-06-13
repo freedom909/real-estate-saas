@@ -1,12 +1,13 @@
 // src/infrastructure/adapters/openai.adapter.ts
 import { injectable } from "tsyringe";
 import OpenAI from "openai";
+import { IOpenAIAdapter } from "./IOpenAIAdapter";
 
 /**
  * Infrastructure adapter for interacting with OpenAI API.
  */
 @injectable()
-export class OpenAIAdapter {
+export class OpenAIAdapter implements IOpenAIAdapter{
   private client: OpenAI;
 
   constructor() {

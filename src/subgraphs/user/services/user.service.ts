@@ -2,7 +2,7 @@ import { injectable, inject } from "tsyringe";
 import { TOKENS_USER} from "../../../modules/tokens/user.tokens";
 import { normalizeRole } from "@/core/user/domain/entities/role";
 
-interface User {
+type User = {
   id: string;
   role: string;
   [key: string]: any;

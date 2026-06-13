@@ -1,43 +1,32 @@
-extend schema
+schema
   @link(
-    url: "https://specs.apollo.dev/federation/v2.8",
-    import: ["@key", "@shareable"]
-  )
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: ["@key", "@shareable", "@external"]
+  ){
+  query: Query
+  mutation: Mutation
+}
 
 scalar DateTime
 
-enum Role {
-  HOST
-  GUEST
-  ADMIN
-  USER
-  PENDING_HOST
-}
 
 ### User Types
-interface User {
-  id: ID!
-  name: String
-  "The user's profile photo URL"
-  picture: String!  
-  role: Role
+extend type User @key(fields: "id") {
+  id: ID! @external
+
 }
 
-type Host @key(fields: "id") {
-  role: Role @shareable
-  id: ID! @shareable
-  name: String! @shareable
-  overallRating: Float @shareable
-  picture: String! @shareable
-  bookings: [Booking!] @shareable
-  listings: [Listing!] @shareable
+extend type Host @key(fields: "id") {
+  
+  id: ID! @external
+  listings: [Listing!]@shareable
 }
 
-type Guest @key(fields: "id") {
-  id: ID! @shareable 
-  name: String! @shareable
-  picture: String! @shareable
-  role: Role @shareable
+extend type Guest @key(fields: "id") {
+  id: ID! @external
+
+ 
+  
   overallRating: Float @shareable
   bookings: [Booking!] @shareable
   listings: [Listing!] @shareable

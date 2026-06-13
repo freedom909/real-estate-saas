@@ -7,17 +7,16 @@ import UserRepository from '../../subgraphs/user/repos/user.repo';
 import { TOKENS_USER } from '@/modules/tokens/user.tokens';
 import MembershipModel from '@/subgraphs/user/models/membership.model';
 
-import { MembershipRepository } from '@/subgraphs/tenant/repos/membership.repo';
-import { UserAdapter } from '@/subgraphs/tenant/services/user.adapter';
-import { HostService } from '@/subgraphs/tenant/services/tenant.service';
+
 import { TOKENS_TENANT } from '../tokens/tenant.tokens';
+import { Tenant } from '@/core/tenant/domain/entities/tenant.entity';
+import { TenantRepository } from '@/core/tenant/infrastructure/repos/tenant.repository';
+import { MembershipRepository } from '@/core/tenant/infrastructure/repos/membership.repo';
+import { UserAdapter } from '@/core/tenant/adapter/user.adapter';
 
 function registerTenantDependencies(container: DependencyContainer): DependencyContainer {
-  container.register(TOKENS_TENANT.models.tenant, { useValue: TenantModel });
+  container.register(TOKENS_TENANT.models.tenant, { useValue: Tenant });
   container.register(TOKENS_TENANT.models.membership, { useValue: MembershipModel }); 
-
-  // Register Redis placeholder to satisfy UserRepository dependency
-  container.register(Symbol.for("infra.redis"), { useValue: {} });
 
   container.register(TOKENS_USER.models.user, { useValue: UserModel });
   container.register(TOKENS_TENANT.repos.tenantRepo, { useClass: TenantRepository });
@@ -27,8 +26,8 @@ function registerTenantDependencies(container: DependencyContainer): DependencyC
   container.register(TOKENS_TENANT.repos.tenantRepo, { useClass: TenantRepository });
   container.register(TOKENS_TENANT.adapters.userAdapter, { useClass: UserAdapter });
   
-  container.register(TOKENS_TENANT.services.membershipService, { useClass: MembershipService });
-  container.register(TOKENS_TENANT.services.tenantService, { useClass: TenantService });
+  // container.register(TOKENS_TENANT.services.membershipService, { useClass: MembershipService });
+  // container.register(TOKENS_TENANT.services.tenantService, { useClass: TenantService });
 
 
 

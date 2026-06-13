@@ -1,4 +1,5 @@
-import { Category } from "@/subgraphs/listing/domain/entities/Category";
+import { Category } from "@/core/listing/domain/entities/category";
+
 
 // ICategoryRepository.ts
 export interface ICategoryRepository {

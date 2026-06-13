@@ -6,8 +6,7 @@ import { gql } from "graphql-tag";
 import { readFileSync } from "fs";
 import express from "express";
 import http from "http";
-
-import { expressMiddleware } from "@apollo/server/express4";
+import { expressMiddleware } from "@as-integrations/express4"
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import type { RequestHandler } from "express";
 import cors from "cors";
@@ -20,9 +19,10 @@ import { initMongoContainer } from "@/infrastructure/container/initMongoContaine
 import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
-import { RabbitMQEventBus } from "./interface/events/rabbitmq-event-bus";
+
 import TOKENS from "@/modules/tokens/mq.tokens";
 import registerMQEventBus from "@/modules/container/mq.register";
+import { RabbitMQEventBus } from "@/core/booking/interface/events/rabbitmq-event-bus";
 dotenv.config();
 
 registerMQEventBus();

@@ -1,7 +1,7 @@
 schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.11"
-    import: ["@key", "@shareable"]
+    import: ["@key", "@shareable", "@external"]
   ) {
   query: Query
 }
@@ -13,9 +13,9 @@ interface Response {
 }
 
 type Amenity @key(fields: "id") {
-  id: ID! @shareable
-  name: String! @shareable
-  category: AmenityCategory! @shareable
+  id: ID! 
+  name: String! 
+  category: AmenityCategory! 
 }
 
 enum AmenityCategory {

@@ -1,5 +1,6 @@
+import { ListingAIContext } from "@/core/listing/domain/entities/listingAI.context";
 import { injectable } from "tsyringe";
-import { ListingAIContext } from "../../domain/entities/listingAI.context";
+
 // Note: ListingAIContext should also move to the listing subgraph
 
 

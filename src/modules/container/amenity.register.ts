@@ -1,10 +1,10 @@
 // src/modules/container/amenity.register.ts
 import { container } from 'tsyringe';
 import { TOKENS_AMENITY } from '../tokens/amenity.tokens';
-import { AmenityRepository } from '@/subgraphs/amenity/infrastructure/persistence/amenity.repository';
-import { CreateAmenityUseCase } from '@/subgraphs/amenity/application/useCase/CreateAmenityUseCase';
-import { GetAmenitiesUseCase } from '@/subgraphs/amenity/application/useCase/GetAmenitiesUseCase';
-import { GetAmenitiesByIdsUseCase } from '@/subgraphs/amenity/application/useCase/GetAmenitiesByIdsUseCase';
+import { AmenityRepository } from '@/core/amenity/infrastructure/persistence/amenity.repository';
+import { CreateAmenityUseCase } from '@/core/amenity/application/useCase/createAmenityUseCase';
+import { GetAmenitiesUseCase } from '@/core/amenity/application/useCase/getAmenitiesUseCase';
+
 
 export default function registerAmenityDependencies() {
 container.register(TOKENS_AMENITY.AmenityRepository, {
@@ -20,7 +20,7 @@ container.register(TOKENS_AMENITY.GetAmenitiesUseCase, {
 });
 
 container.register(TOKENS_AMENITY.GetAmenitiesByIdsUseCase, {
-  useClass: GetAmenitiesByIdsUseCase,
+  useClass: GetAmenitiesUseCase,
 });
 
 }

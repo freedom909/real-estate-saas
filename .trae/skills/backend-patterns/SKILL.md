@@ -390,7 +390,7 @@ export async function GET(request: Request) {
 ```typescript
 type Permission = 'read' | 'write' | 'delete' | 'admin'
 
-interface User {
+type User  {
   id: string
   role: 'admin' | 'moderator' | 'user'
 }
