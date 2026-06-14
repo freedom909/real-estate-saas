@@ -1,7 +1,7 @@
 import express from "express"
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
-import { ApolloGateway, IntrospectAndCompose } from "@apollo/gateway"
+import { ApolloGateway, RemoteGraphQLDataSource, IntrospectAndCompose } from "@apollo/gateway"
 
 async function start(){
 console.log("start gateway")
@@ -21,8 +21,24 @@ const gateway = new ApolloGateway({
     //   {name:"location",url:"http://localhost:4080/graphql"},
     //  // {name:"payment",url:"http://localhost:4050/graphql"},
     ]
-  })
-})
+  }),
+   buildService({ url }) {
+    return new RemoteGraphQLDataSource({
+      url,
+
+      willSendRequest({ request, context }) {
+
+        if (context.token) {
+          request.http?.headers.set(
+            "authorization",
+            context.token
+          );
+        }
+      },
+    });
+  },
+});
+
 console.log("gateway:",gateway)
   const server = new ApolloServer({
     gateway
@@ -31,7 +47,15 @@ console.log("server:",server)
   await server.start()
   const app = express()
 
-  app.use("/graphql",express.json(),expressMiddleware(server))
+  app.use("/graphql",express.json(),
+  expressMiddleware(server, {
+    context: async ({ req }) => {
+
+      return {
+        token: req.headers.authorization,
+      };
+    },
+  }))
 
   app.listen(4000,()=>{
     console.log("🚀 Gateway running at http://localhost:4000/graphql")

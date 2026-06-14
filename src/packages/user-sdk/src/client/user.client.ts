@@ -1,10 +1,17 @@
 import { GraphQLClient } from "graphql-request";
 
 export class UserClient {
-  constructor(private url: string) {}
+  constructor(
+    private url: string,
+    private serviceToken?: string
+  ) {}
 
   private get client() {
-    return new GraphQLClient(this.url);
+    return new GraphQLClient(this.url, {
+      headers: this.serviceToken 
+        ? { "x-service-token": this.serviceToken } 
+        : {},
+    });
   }
 
   // ✅ 1. findByEmail

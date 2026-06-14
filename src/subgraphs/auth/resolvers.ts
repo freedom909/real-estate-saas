@@ -123,7 +123,7 @@ export default {
         TOKENS_AUTH.usecases.oauthLoginUseCase
       );
 
-      return usecase.execute({
+      const result = await usecase.execute({
         provider,
         idToken,
         request: {
@@ -132,6 +132,24 @@ export default {
           deviceId: (ctx.req.headers["x-device-id"] as string) || "unknown",
         },
       });
+
+      console.log("__typename:", result)
+  if (result.status === "SUCCESS") {
+  return {
+    __typename: "AuthPayload",
+
+    accessToken: result.accessToken,
+    refreshToken: result.refreshToken,
+
+    user: {
+      __typename: "User",
+      id: result.user.id,
+      email: result.user.email,
+      name: result.user.name,
+      role: result.user.role,
+    },
+  };
+}
     },
 
     // refreshToken: async (
@@ -184,11 +202,11 @@ export default {
     //   );
     // },
 
-myIdentities: async (_: any, __: any, ctx: Context) => {
-  return ctx.container
-    .resolve(IdentityRepository)
-    .findByUser(ctx.user.userId);
-},
+    myIdentities: async (_: any, __: any, ctx: Context) => {
+      return ctx.container
+        .resolve(IdentityRepository)
+        .findByUser(ctx.user.userId);
+    },
 
     verifyOtp: async (
       _: unknown,
@@ -267,32 +285,37 @@ myIdentities: async (_: any, __: any, ctx: Context) => {
     //   );
     // },
 
-  //   unbindOAuth: async (
-  //     _: unknown,
-  //     { provider }: { provider: OAuthProvider },
-  //     ctx: Context
-  //   ) => {
-  //     if (!ctx.user) throw new Error("Unauthorized");
+    //   unbindOAuth: async (
+    //     _: unknown,
+    //     { provider }: { provider: OAuthProvider },
+    //     ctx: Context
+    //   ) => {
+    //     if (!ctx.user) throw new Error("Unauthorized");
 
-  //     const authService = ctx.container.resolve<AuthService>(
-  //       TOKENS_AUTH.services.authService
-  //     );
+    //     const authService = ctx.container.resolve<AuthService>(
+    //       TOKENS_AUTH.services.authService
+    //     );
 
-  //     return authService.unbindOAuthAccount(
-  //       ctx.user.userId,
-  //       provider,
-  //       {
-  //         ip: ctx.request.ip,
-  //         deviceId: ctx.request.deviceId ?? null,
-  //       }
-  //     );
-  //   },
- },
-  
+    //     return authService.unbindOAuthAccount(
+    //       ctx.user.userId,
+    //       provider,
+    //       {
+    //         ip: ctx.request.ip,
+    //         deviceId: ctx.request.deviceId ?? null,
+    //       }
+    //     );
+    //   },
+  },
+
   AuthPayload: {
-    user: (parent: AuthPayload) => ({
-      __typename: "User",
-      id: parent.userId,
-    }),
+    user: (parent: any) => {
+      if (parent.user) {
+        return { __typename: "User", ...parent.user };
+      }
+      return parent.userId ? {
+        __typename: "User",
+        id: parent.userId,
+      } : null;
+    },
   },
 }

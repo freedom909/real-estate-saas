@@ -116,7 +116,8 @@ container.register(TOKENS_AUTH.repos.credentialRepo, {
 container.register(TOKENS_USER.userClient, {
   useFactory: () =>
     new UserClient(
-      process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql"
+      process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql",
+      process.env.INTERNAL_SERVICE_TOKEN // Ensure your UserClient constructor handles this
     ),
 });
 

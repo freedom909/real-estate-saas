@@ -1,7 +1,7 @@
 import ChallengeRepo from "@/subgraphs/auth/infrastructure/repos/challenge.repo";
 
 export const TOKENS_AUTH = {
-
+  eventBus: Symbol.for("auth.eventBus"),
   // adapters
   adapters: {
     oauthAdapter: Symbol.for("auth.adapters.oauthAdapter"),

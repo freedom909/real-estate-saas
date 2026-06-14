@@ -13,6 +13,7 @@ import { IUserGateway } from "../../domain/ports/user.gateway";
 import ChallengeRepo from "../../infrastructure/repos/challenge.repo";
 import SessionPort, { ISessionPort } from "../../domain/ports/session.port";
 import { AuthResult } from "../../domain/entities/authResult";
+import { AuthResponseMapper } from "../dto/auth-response.mapper";
 
 
 @injectable()
@@ -118,17 +119,24 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
   }
  // 2️⃣ 顺利进行：如果是 ALLOW 或者是开发环境，生成 Token
 
-
+const userDTO =
+  AuthResponseMapper.toUserDTO(user);
     const tokens = await this.sessionPort.createSession({
     userId: user.id,
     deviceId,
     ip,
     userAgent
   });
+  console.log("dto:",userDTO)
+
+
+
   return {
+    
     status: "SUCCESS",
     accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken
-  };
+    refreshToken: tokens.refreshToken,
+    user: userDTO,
+  }
 }
 }

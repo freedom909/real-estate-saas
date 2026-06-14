@@ -14,12 +14,14 @@ export const resolvers = {
 
   Mutation: {
     createBooking: async (_: any, { input }: any, { user }: any) => {
-      console.log("user", user);
-      console.log("input", input);
+      const userId = user?.id || user?.userId;
+      if (!userId) {
+        throw new Error("Unauthenticated: Please log in to create a booking.");
+      }
 
       const booking = await container
         .resolve<CreateBookingUseCase>(TOKENS_BOOKING.usecase.createBookingUseCase)
-        .execute({ ...input, guestId: user.id });// "message": "Cannot read properties of null (reading 'id')",
+        .execute({ ...input, guestId: userId });
 
       return {
         code: 200,
@@ -30,9 +32,14 @@ export const resolvers = {
     },
 
     cancelBooking: async (_: any, { id }: any, { user }: any) => {
+      const userId = user?.id || user?.userId;
+      if (!userId) {
+        throw new Error("Unauthenticated: Please log in to cancel a booking.");
+      }
+
       const booking = await container
         .resolve<CancelBookingUseCase>(TOKENS_BOOKING.usecase.cancelBookingUseCase)
-        .execute(id, user.id);
+        .execute(id, userId);
 
       return {
         code: 200,
@@ -53,7 +60,7 @@ export const resolvers = {
     listing: (parent: any) => ({ __typename: "Listing", id: parent.listingId }),
     guest: (parent: any) => ({ __typename: "Guest", id: parent.guestId }),
     __resolveReference: async (reference: { id: string }) => {
-      return container.resolve(GetBookingUseCase).execute(reference.id);
+      return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(reference.id);
     },
   },
 
