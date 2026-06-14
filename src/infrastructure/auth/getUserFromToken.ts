@@ -2,19 +2,21 @@
 import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
 import logger from '../utils/logger'; // adjust path if needed
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function getUserFromToken(reqOrToken) {
-  // ✅ Evaluate secret inside the function to ensure env vars are loaded
-  const secret = 
-    process.env.ACCESS_TOKEN_SECRET || 
-    process.env.JWT_SECRET || 
-    'minshuku_jwt_secret_key_2024_secure_random_string';
-
-  // 🔍 DIAGNOSTIC LOG: Compare this output in BOTH Auth and Booking subgraph consoles
-  if (process.env.NODE_ENV !== 'production') {
-    const secretPreview = secret.substring(0, 3) + "..." + secret.substring(secret.length - 3);
-    console.log(`[JWT Debug] Verifying with secret: ${secretPreview} (Length: ${secret.length})`);
+  const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
+  const publicKey = process.env.JWT_PUBLIC_KEY;
+  const fallbackSecret = 'minshuku_jwt_secret_key_2024_secure_random_string';
+  const keySource = process.env.ACCESS_TOKEN_SECRET ? 'ACCESS_TOKEN_SECRET' : (process.env.JWT_SECRET ? 'JWT_SECRET' : 'fallback');
+  const activeSecret = secret || fallbackSecret;
+  if (!secret && !publicKey && process.env.NODE_ENV !== 'production') {
+    console.warn("[JWT Warning] No secret or public key found in environment variables. Falling back to default string.");
   }
 
   let token;
@@ -35,33 +37,73 @@ async function getUserFromToken(reqOrToken) {
   }
 
   try {
-    // Peek at the header to check the algorithm without verifying yet
-    const unverified = jwt.decode(token, { complete: true });
-    if (unverified?.header?.alg === 'RS256') {
-      console.warn("[JWT Warning] Token is RS256 but you are verifying with a symmetric secret. This WILL fail.");
+    const decodedHeader = jwt.decode(token, { complete: true });
+    const alg = decodedHeader?.header?.alg;
+    
+    let verifyKey: string | Buffer = activeSecret;
+
+    // If the token uses RS256, we MUST use the public key
+    if (alg === 'RS256') {
+      if (!publicKey) {
+        throw new Error("Token uses RS256 but JWT_PUBLIC_KEY is not defined in .env");
+      }
+      // Handle if publicKey is a path or actual PEM content
+      if (publicKey.includes('BEGIN PUBLIC KEY')) {
+        verifyKey = publicKey;
+      } else {
+        // 🔍 Resolve path relative to project root (3 levels up from src/infrastructure/auth)
+        const projectRoot = path.resolve(__dirname, "../../../");
+        const absoluteKeyPath = path.isAbsolute(publicKey) 
+          ? publicKey 
+          : path.resolve(projectRoot, publicKey);
+        
+        if (!fs.existsSync(absoluteKeyPath)) {
+          throw new Error(`Public key file not found at: ${absoluteKeyPath}`);
+        }
+        verifyKey = fs.readFileSync(absoluteKeyPath, 'utf8');
+      }
     }
 
-    const decoded = jwt.verify(token, secret, { clockTolerance: 300 });
+    if (process.env.NODE_ENV !== 'production') {
+      const keyDisplay = alg === 'RS256' ? 'Public Key' : 'Symmetric Secret';
+      if (verifyKey === fallbackSecret) {
+        logger.warn("Verifying signature using hardcoded fallback secret!");
+      }
+    }
 
-    if (!decoded.userId || !decoded.email) {
-      throw new GraphQLError('Invalid token format', {
-        extensions: { code: 'INVALID_TOKEN' }
+    const decoded = jwt.verify(token, verifyKey, { 
+      clockTolerance: 300,
+      algorithms: alg === 'RS256' ? ['RS256'] : ['HS256']
+    }) as any;
+
+    const userId = decoded.userId || decoded.id || decoded.sub;
+
+    // 🔍 Only enforce the userId as it is mandatory for subsequent logic
+    if (!userId) {
+      throw new GraphQLError('Invalid token format: missing userId', {
+        extensions: { code: 'INVALID_TOKEN', fields: Object.keys(decoded) }
       });
     }
 
     logger.info('User extracted from token:', {
-      userId: decoded.userId,
-      email: decoded.email,
+      userId: userId,
+      email: decoded.email || 'not provided',
       role: decoded.role
     });
 
-    return decoded;
+    return { ...decoded, userId };
 
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
+    // ✅ 1. If it's already a GraphQLError, re-throw it to preserve the specific message
+    if (error instanceof GraphQLError) {
+      throw error;
+    }
+
+    // ✅ 2. Use error names for more reliable checking
+    if (error.name === 'TokenExpiredError') {
       throw new GraphQLError('Token has expired', { extensions: { code: 'TOKEN_EXPIRED' } });
     }
-    if (error instanceof jwt.JsonWebTokenError) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'NotBeforeError') {
       logger.error('JWT Verification Failed:', error.message);
       throw new GraphQLError(`Invalid token: ${error.message}`, { extensions: { code: 'INVALID_TOKEN' } });
     }

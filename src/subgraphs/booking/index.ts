@@ -1,9 +1,15 @@
 import "reflect-metadata";
 import dotenv from "dotenv";
 import path from "path";
+import { fileURLToPath } from "url";
+
+// ✅ Define __dirname for ES module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ✅ Dotenv must be configured BEFORE any other local imports that use environment variables
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+// This ensures we find the .env in the root, even if we are deep in the tree
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 console.log("Booking Subgraph - Secret Check:", {
   hasAccessTokenSecret: !!process.env.ACCESS_TOKEN_SECRET,
@@ -36,16 +42,13 @@ import { UserClient } from "@/packages/user-sdk/src/client/user.client";
 import registerMQEventBus from "@/modules/container/mq.register";
 import { RabbitMQEventBus } from "@/core/booking/interface/events/rabbitmq-event-bus";
 
-registerMQEventBus();
-const eventBus = container.resolve<RabbitMQEventBus>(TOKENS_MQ.eventBus);
-await eventBus.init();
-
-const typeDefs = gql(
-  readFileSync("./src/subgraphs/booking/schema.graphql", { encoding: "utf-8" })
-);
-
 const startApolloServer = async () => {
   try {
+    // ✅ Robust Path Resolution for Schema
+    const schemaPath = path.resolve(__dirname, "schema.graphql");
+    const typeDefs = gql(readFileSync(schemaPath, { encoding: "utf-8" }));
+    console.log("📖 Schema loaded from:", schemaPath);
+
     // ✅ 初始化 DI（全局 container）
     console.log("⏳ Initializing containers...");
     await initializeBookingContainer();
@@ -63,6 +66,12 @@ const startApolloServer = async () => {
 
     const app = express();
     const httpServer = http.createServer(app);
+
+    // ✅ MQ Initialize (inside startup to catch errors)
+    registerMQEventBus();
+    const eventBus = container.resolve<RabbitMQEventBus>(TOKENS_MQ.eventBus);
+    await eventBus.init();
+    console.log("✅ RabbitMQ Event Bus initialized");
 
     // ✅ Apollo Server
     const server = new ApolloServer({
@@ -88,6 +97,7 @@ const startApolloServer = async () => {
     });
 
     await server.start();
+    console.log("✅ Apollo Server started");
 
     // ✅ 统一 context（唯一正确入口）
 //    app.use(

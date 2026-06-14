@@ -19,7 +19,8 @@ export interface BookingAttributes {
 
 
 export enum BookingStatus {
-  Pending = "PENDING",
+  Created = "CREATED",
+
   Confirmed = "CONFIRMED",
   Upcoming = "UPCOMING",
   Past = "PAST",

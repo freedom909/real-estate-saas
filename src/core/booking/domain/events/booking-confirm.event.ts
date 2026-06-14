@@ -5,7 +5,8 @@ import { DomainEvent } from "@/shared/eventbus/domain.event";
 
 export class BookingConfirmedEvent extends DomainEvent {
 
-  readonly eventName = BookingStatus.Confirmed;
+  public readonly type = "BOOKING_CONFIRMED";
+  public readonly eventName = "CONFIRMED";
 
   constructor(
     public readonly bookingId: string,

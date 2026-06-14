@@ -48,17 +48,23 @@ const processBookingEvent = async (msg: amqp.ConsumeMessage | null) => {
 
     console.log("📨 Received:", event);
 
-    switch (event.type) {
+    const eventType = event.type || event.eventName;
+
+    switch (eventType) {
       case "BOOKING_CREATED":
+      case "CREATED":
         console.log("✅ Booking created");
+        await handleBookingCreated(event);
         break;
 
       case "BOOKING_CANCELLED":
+      case "CANCELLED":
         console.log("❌ Booking cancelled");
+        await handleBookingCancelled(event);
         break;
 
       default:
-        console.warn("⚠️ Unknown event:", event.type);
+        console.warn("⚠️ Unknown event:", eventType);
     }
 
     channel.ack(msg); // ✅ 必须 ack

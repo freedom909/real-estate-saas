@@ -1,5 +1,12 @@
 import "reflect-metadata"
-import "dotenv/config"
+import dotenv from "dotenv"
+import path from "path"
+import { fileURLToPath } from "url"
+
+// ✅ Define __dirname for ES module scope and load root .env
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 import express from "express"
 import http from "http"
@@ -38,8 +45,9 @@ await mongoose.connect(
 )
 
 // ⭐ schema
+const schemaPath = path.resolve(__dirname, "schema.graphql");
 const typeDefs = gql(
-  readFileSync("./src/subgraphs/auth/schema.graphql", "utf-8")
+  readFileSync(schemaPath, "utf-8")
 )
 
 const schema = buildSubgraphSchema([{

@@ -10,6 +10,11 @@ export const resolvers = {
     booking: async (_: any, { id }: any) => {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(id);
     },
+    bookingsForGuest: async (_: any, { userId }: any) => {
+      // Return bookings filtered by guestId
+      // Replace with actual UseCase if available
+      return []; 
+    },
   },
 
   Mutation: {
@@ -50,6 +55,11 @@ export const resolvers = {
     },
 
     confirmBooking: async (_: any, { id }: any, { user }: any) => {
+      const userId = user?.id || user?.userId;
+      if (!userId) {
+        throw new Error("Unauthenticated: Please log in to confirm a booking.");
+      }
+
       return container
         .resolve<ConfirmBookingUseCase>(TOKENS_BOOKING.usecase.confirmBookingUseCase)
         .execute(id);
@@ -57,10 +67,26 @@ export const resolvers = {
   },
 
   Booking: {
-    listing: (parent: any) => ({ __typename: "Listing", id: parent.listingId }),
-    guest: (parent: any) => ({ __typename: "Guest", id: parent.guestId }),
+    listing: (parent: any) => ({ __typename: "Listing", id: parent.listingId || parent.listing_id }),
+    guest: (parent: any) => ({ __typename: "Guest", id: parent.guestId || parent.guest_id }),
+    // ✅ Handle potential snake_case from DB or missing fields
+    checkInDate: (parent: any) => parent.checkInDate || parent.check_in_date || parent.checkinDate,
+    checkOutDate: (parent: any) => parent.checkOutDate || parent.check_out_date || parent.checkoutDate,
+    reservedDate: (parent: any) => parent.reservedDate || parent.reserved_date || parent.createdAt,
+    bookingNumber: (parent: any) => parent.bookingNumber || parent.booking_number || parent.id,
+    totalPrice: (parent: any) => parent.totalPrice || parent.total_price || parent.totalCost || 0,
     __resolveReference: async (reference: { id: string }) => {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(reference.id);
+    },
+  },
+
+  Guest: {
+    bookings: async (guest: { id: string }) => {
+      // ❌ BUG FIX: GetBookingUseCase fetches a SINGLE booking by ID.
+      // Passing guest.id here will return null or the wrong data.
+      // TODO: Implement GetBookingsForGuestUseCase. 
+      // For now, return an empty array to avoid the "Cannot return null" error.
+      return []; 
     },
   },
 

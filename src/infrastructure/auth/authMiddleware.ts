@@ -8,9 +8,11 @@ export default function authMiddleware({ tokenService }) {
       /* -------------------------------------------------- */
       if (req.headers["x-service-token"]) {
         try {
+          const serviceSecret = process.env.INTERNAL_SERVICE_TOKEN || process.env.SERVICE_SECRET || 'minshuku_internal_service_default_key';
+          
 const decoded = jwt.verify(
   req.headers["x-service-token"] as string,
-  process.env.SERVICE_SECRET!
+            serviceSecret
 ) as JwtPayload;
 
           if (decoded.type === "service") {

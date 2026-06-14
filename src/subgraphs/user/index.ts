@@ -1,6 +1,5 @@
 //src/subgraphs/user/index.ts
 import "reflect-metadata";
-import "dotenv/config";
 import express from "express";
 import http from "http";
 import cors from "cors";
@@ -9,6 +8,14 @@ import { expressMiddleware } from "@as-integrations/express4";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { gql } from "graphql-tag";
 import { readFileSync } from "fs";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// ✅ Define __dirname for ES module scope and load root .env
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 import { connectMongo } from "../../shared/db/mongo";
 import { registerUserDependencies } from "./registerUserDependencies";
@@ -34,11 +41,9 @@ const userContainer = registerUserDependencies(container);
 const app = express();
 const httpServer = http.createServer(app);
 
+const schemaPath = path.resolve(__dirname, "user.schema.graphql");
 const typeDefs = gql(
-  readFileSync(
-    "./src/subgraphs/user/user.schema.graphql",
-    "utf-8"
-  )
+  readFileSync(schemaPath, "utf-8")
 );
 
 const server = new ApolloServer({
