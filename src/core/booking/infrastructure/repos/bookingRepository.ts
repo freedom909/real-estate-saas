@@ -26,9 +26,10 @@ export class BookingRepository implements IBookingRepository {
       id: data.id,
       listingId: data.listingId,
       guestId: data.guestId,
+      tenantId: data.tenantId,
       checkInDate: data.dateRange.checkInDate,
       checkOutDate: data.dateRange.checkOutDate,
-      totalCost: data.totalCost,
+      price: data.price,
       status: data.status,
       createdAt: data.createdAt,
       updatedAt: new Date(),
@@ -74,7 +75,7 @@ export class BookingRepository implements IBookingRepository {
         new Date(model.checkInDate),
         new Date(model.checkOutDate)
       ),
-      totalCost: model.totalCost,
+      price: model.price,
       status: model.status,
       createdAt: model.createdAt,
     });

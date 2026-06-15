@@ -9,9 +9,10 @@ export interface BookingAttributes {
   id: string;
   listingId: string;
   guestId: string;
+  tenantId: string;
   checkInDate: Date;
   checkOutDate: Date;
-  totalCost: number;
+  price: number;
   status: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -20,10 +21,8 @@ export interface BookingAttributes {
 
 export enum BookingStatus {
   Created = "CREATED",
-
+  Pending = "PENDING",
   Confirmed = "CONFIRMED",
-  Upcoming = "UPCOMING",
-  Past = "PAST",
   Canceled = "CANCELED",
   Completed = "COMPLETED",
   Failed = "FAILED",
@@ -42,9 +41,10 @@ export class BookingModel
   public id!: string;
   public listingId!: string;
   public guestId!: string;
+  public tenantId!: string;
   public checkInDate!: Date;
   public checkOutDate!: Date;
-  public totalCost!: number;
+  public price!: number;
   public status!: BookingStatus ;
 
   public readonly createdAt!: Date;
@@ -60,9 +60,10 @@ export const initBookingModel = (sequelize: Sequelize) => {
       },
       listingId: DataTypes.STRING,
       guestId: DataTypes.STRING,
+      tenantId: DataTypes.STRING,
       checkInDate: DataTypes.DATE,
       checkOutDate: DataTypes.DATE,
-      totalCost: DataTypes.FLOAT,
+      price: DataTypes.FLOAT,
       status: DataTypes.STRING,
     },
     {

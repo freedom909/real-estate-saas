@@ -10,7 +10,7 @@ class OrderModel extends Model {
   public listingId!: string;
   public checkInDate!: string;
   public checkOutDate!: string;
-  public totalPrice!: number;
+  public price!: number;
   public status!: string;
   public paymentStatus!: string;
   public paymentIntentId?: string;
@@ -26,7 +26,7 @@ OrderModel.init(
     listingId: { type: DataTypes.STRING, allowNull: false },
     checkInDate: { type: DataTypes.DATEONLY, allowNull: false },
     checkOutDate: { type: DataTypes.DATEONLY, allowNull: false },
-    totalPrice: { type: DataTypes.FLOAT, allowNull: false },
+    price: { type: DataTypes.FLOAT, allowNull: false },
     status: { type: DataTypes.STRING, defaultValue: 'PENDING' },
     paymentStatus: { type: DataTypes.STRING, defaultValue: 'PENDING' },
     paymentIntentId: { type: DataTypes.STRING },

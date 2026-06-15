@@ -1,7 +1,7 @@
 export interface BookingExternalDTO {
   id: string;
   guestId: string;
-  totalPrice: number;
+  price: number;
   status: string;
   metadata: {
     ipAddress?: string;

@@ -16,7 +16,7 @@ type Order @key(fields: "id") {
   listing: Listing! @shareable
   checkInDate: DateTime! @shareable
   checkOutDate: DateTime! @shareable
-  totalPrice: Float! @shareable
+  price: Float! @shareable
   status: OrderStatus! @shareable
   createdAt: DateTime! @shareable
   updatedAt: DateTime! @shareable
@@ -90,7 +90,7 @@ input CreateOrderInput {
   guestId: ID!
   checkInDate: DateTime!
   checkOutDate: DateTime!
-  totalPrice: Float!
+  price: Float!
 }
 
 input UpdateOrderStatusInput {

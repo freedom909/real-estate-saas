@@ -18,7 +18,7 @@ export class CreateOrderUseCase {
       listingId: data.listingId,
       checkInDate: new Date(data.checkInDate),
       checkOutDate: new Date(data.checkOutDate),
-      totalPrice: data.totalPrice,
+      price: data.price,
       orderNumber: data.orderNumber,
       paymentIntentId: data.paymentIntentId,
       status: 'PENDING',

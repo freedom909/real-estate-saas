@@ -65,7 +65,7 @@ export class BookingAgent implements IDomainAgent {
           guestId: context.identity.user.id,
           checkInDate: checkIn,
           checkOutDate: checkOut,
-          totalCost: 0 // To be calculated by the use case or domain
+          : 0 // To be calculated by the use case or domain
         });
 
       default:

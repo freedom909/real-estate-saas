@@ -36,7 +36,7 @@ export class SequelizeOrderRepository implements IOrderRepository {
       listingId: model.listingId,
       checkInDate: new Date(model.checkInDate),
       checkOutDate: new Date(model.checkOutDate),
-      totalPrice: model.totalPrice,
+      price: model.price,
       status: model.status as any,
       paymentStatus: model.paymentStatus as any,
       paymentIntentId: model.paymentIntentId,

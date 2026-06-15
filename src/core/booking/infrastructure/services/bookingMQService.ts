@@ -8,7 +8,7 @@ export interface BookingData {
   guestId: string;
   checkInDate: string;
   checkOutDate: string;
-  totalCost: number;
+  : number;
   status: string;
 }
 

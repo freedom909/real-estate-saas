@@ -1,6 +1,7 @@
+import { BookingStatus } from "../../infrastructure/models/booking.model";
 import { DateRange } from "../value-objects/date-range.vo";
 
-export type BookingStatus = | "PENDING"| "UPCOMING" | "CONFIRMED" | "CANCELLED";
+
 
 export interface BookingProps {
   id: string;
@@ -8,7 +9,7 @@ export interface BookingProps {
   guestId: string;
   dateRange: DateRange;
   tenantId: string;
-  totalCost: number;
+  price: number;
   status: BookingStatus;
   createdAt: Date;  
 }
@@ -23,7 +24,8 @@ export class Booking {
   ): Booking {
     return new Booking({
       ...props,
-      status: "UPCOMING",
+     status: BookingStatus.Pending,
+      
       createdAt: new Date(),
     });
   }
@@ -33,7 +35,7 @@ export class Booking {
   }
 
   cancel() {
-    if (this.props.status !== "UPCOMING") {
+    if (this.props.status !== "PENDING") {
       throw new Error("Only UPCOMING bookings can be cancelled");
     }
 
@@ -41,15 +43,15 @@ export class Booking {
       throw new Error("Cannot cancel after check-in");
     }
 
-    this.props.status = "CANCELLED";
+    this.props.status = BookingStatus.Canceled;
   }
 
   confirm() {
-    if (this.props.status !== "PENDING" && this.props.status !== "UPCOMING") {
-      throw new Error("Only PENDING or UPCOMING bookings can be confirmed");
+    if (this.props.status !== "PENDING" ) {
+      throw new Error("Only PENDING  bookings can be confirmed");
     }
 
-    this.props.status = "CONFIRMED";
+    this.props.status = BookingStatus.Confirmed;
   }
 
   toJSON() {
@@ -81,8 +83,8 @@ export class Booking {
     return this.props.status;
   }
 
-  get totalCost() {
-    return this.props.totalCost;
+  get price() {
+    return this.props.price;
   }
 
   get dateRange() {

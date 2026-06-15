@@ -12,7 +12,7 @@ Order.init(
     listingId: { type: DataTypes.STRING, allowNull: false },
     checkInDate: { type: DataTypes.DATEONLY, allowNull: false },
     checkOutDate: { type: DataTypes.DATEONLY, allowNull: false },
-    totalPrice: { type: DataTypes.FLOAT, allowNull: false },
+    price: { type: DataTypes.FLOAT, allowNull: false },
     status: { 
       type: DataTypes.ENUM('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED', 'EXPIRED'), 
       defaultValue: 'PENDING',

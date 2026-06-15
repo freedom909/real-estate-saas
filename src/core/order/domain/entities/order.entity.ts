@@ -10,7 +10,7 @@ export interface OrderProps {
   listingId: string;
   checkInDate: Date;
   checkOutDate: Date;
-  totalPrice: number;
+  price: number;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   paymentIntentId?: string;

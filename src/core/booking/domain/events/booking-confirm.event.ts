@@ -13,7 +13,7 @@ export class BookingConfirmedEvent extends DomainEvent {
     public readonly guestId: string,
     public readonly tenantId: string,
     public readonly listingId: string,
-    public readonly totalPrice: number
+    public readonly price: number
   ) {
     super();
   }

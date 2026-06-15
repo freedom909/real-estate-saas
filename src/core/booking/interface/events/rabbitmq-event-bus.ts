@@ -1,17 +1,20 @@
 //src/subgraphs/booking/interface/events/rabbitmq-event-bus.ts
 import { injectable } from "tsyringe";
+import * as amqp from "amqplib";
 
-import amqp, { Connection, Channel } from "amqplib";
 
 @injectable()
 export class RabbitMQEventBus {
-  private connection!: Connection;
-  private channel!: Channel;
+  
+private connection!: amqp.ChannelModel;
+ private channel!: amqp.Channel;
   private readonly QUEUE = "booking_queue";
 
   async init() {
     try {
-      this.connection = await amqp.connect("amqp://127.0.0.1:5672");
+     this.connection = await amqp.connect(
+      process.env.RABBITMQ_URL!
+     );//
 
       this.channel = await this.connection.createChannel();
 

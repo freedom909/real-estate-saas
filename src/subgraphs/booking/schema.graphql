@@ -87,7 +87,7 @@ type Booking @key(fields: "id") {
   review: Review @shareable
   checkInDate: DateTime! @shareable  
   checkOutDate: DateTime! @shareable  
-  totalPrice: Float! @shareable  
+  price: Float! @shareable  
   criteriaTime: Int! @shareable  
   status: BookingStatus! @shareable 
   cancelledAt: DateTime @shareable 

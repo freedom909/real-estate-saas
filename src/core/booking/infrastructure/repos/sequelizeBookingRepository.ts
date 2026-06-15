@@ -24,9 +24,10 @@ export class SequelizeBookingRepository implements IBookingRepository {
       id: data.id,
       listingId: data.listingId,
       guestId: data.guestId,
-      checkInDate: data.checkInDate,
-      checkOutDate: data.checkOutDate,
-      totalCost: data.totalCost,
+      tenantId: data.tenantId,
+      checkInDate: data.dateRange.checkInDate,
+      checkOutDate: data.dateRange.checkOutDate,
+      price: data.price,  
       status: data.status,
       createdAt: data.createdAt,
       updatedAt: new Date(),
@@ -61,7 +62,8 @@ export class SequelizeBookingRepository implements IBookingRepository {
         new Date(model.checkInDate),
         new Date(model.checkOutDate)
       ),
-      totalCost: model.totalCost,
+      tenantId: model.tenantId,
+      price: model.price,
       status: model.status,
       createdAt: model.createdAt,
     });

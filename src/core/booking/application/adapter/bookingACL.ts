@@ -15,7 +15,7 @@ export class BookingACL {
     return {
       bookingId: rawData.id,
       userId: rawData.guestId,
-      amount: rawData.totalPrice,
+      amount: rawData.price,
       status: rawData.status,
       ipAddress: rawData.metadata.ipAddress,
       userAgent: rawData.metadata.userAgent,

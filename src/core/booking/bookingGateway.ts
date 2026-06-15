@@ -23,7 +23,7 @@ export class BookingGateway extends BaseGateway {
       booking(id: $id) {
         id
         guestId
-        totalPrice
+        price
         status
         metadata {
           ipAddress

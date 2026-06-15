@@ -32,7 +32,7 @@ export class CreateBookingUseCase {
         new Date(input.checkInDate),
         new Date(input.checkOutDate)
       ),
-      totalCost: input.totalCost,
+      price: input.price,
        
       id: uuidv4(),
     });
@@ -40,12 +40,14 @@ export class CreateBookingUseCase {
     await this.repo.save(booking);
 
     // ✅ 发布领域事件
-    await this.eventBus.publish(new BookingCreatedEvent(
+    await this.eventBus.publish(new BookingCreatedEvent(//it lossed some fields
       booking.id,
       booking.guestId,
       input.tenantId,
       booking.listingId,
-      booking.totalCost
+      booking.price,
+      booking.dateRange.checkInDate,
+      booking.dateRange.checkOutDate
     ));
 
     return booking.toJSON();

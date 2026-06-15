@@ -70,11 +70,11 @@ export const resolvers = {
     listing: (parent: any) => ({ __typename: "Listing", id: parent.listingId || parent.listing_id }),
     guest: (parent: any) => ({ __typename: "Guest", id: parent.guestId || parent.guest_id }),
     // ✅ Handle potential snake_case from DB or missing fields
-    checkInDate: (parent: any) => parent.checkInDate || parent.check_in_date || parent.checkinDate,
-    checkOutDate: (parent: any) => parent.checkOutDate || parent.check_out_date || parent.checkoutDate,
+    checkInDate: (parent: any) => parent.checkInDate || parent.dateRange?.checkInDate || parent.check_in_date,
+    checkOutDate: (parent: any) => parent.checkOutDate || parent.dateRange?.checkOutDate || parent.check_out_date,
     reservedDate: (parent: any) => parent.reservedDate || parent.reserved_date || parent.createdAt,
     bookingNumber: (parent: any) => parent.bookingNumber || parent.booking_number || parent.id,
-    totalPrice: (parent: any) => parent.totalPrice || parent.total_price || parent.totalCost || 0,
+    price: (parent: any) => parent.price || parent.total_price || 0,
     __resolveReference: async (reference: { id: string }) => {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(reference.id);
     },
