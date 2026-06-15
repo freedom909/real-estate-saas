@@ -74,11 +74,13 @@ ListingModel.init(
     },
 
     createdAt: {
-      type: DataTypes.DATE,
+      type: DataTypes.NOW,
+      defaultValue: DataTypes.NOW
     },
 
     updatedAt: {
-      type: DataTypes.DATE,
+      type: DataTypes.NOW,
+      defaultValue: DataTypes.NOW
     },
   },
   {

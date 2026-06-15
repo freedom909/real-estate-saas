@@ -14,7 +14,7 @@ import { BookingConfirmedEvent } from "../../domain/events/booking-confirm.event
 @injectable()
 export class ConfirmBookingUseCase {
   constructor(
-    @inject(TOKENS_BOOKING.repository.bookingRepository)
+    @inject(TOKENS_BOOKING.repository.bookingRepository)// is this one OK?
     private bookingRepository: IBookingRepository,
 
     @inject(TOKENS_EVENT_BUS.eventBus)
@@ -44,7 +44,8 @@ async execute(id: string) {
         booking.listingId,
         booking.price,
         booking.dateRange.checkInDate,
-        booking.dateRange.checkOutDate
+        booking.dateRange.checkOutDate,
+        new Date()
       )
     );
 

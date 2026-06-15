@@ -63,6 +63,8 @@ const processBookingEvent = async (msg: amqp.ConsumeMessage | null) => {
         await handleBookingCancelled(event);
         break;
 
+        
+
       default:
         console.warn("⚠️ Unknown event:", eventType);
     }

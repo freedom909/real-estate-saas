@@ -4,7 +4,6 @@ import { container } from "tsyringe";
 import { TOKENS_BOOKING } from "../tokens/booking.tokens";
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { SequelizeBookingRepository } from "@/core/booking/infrastructure/repos/sequelizeBookingRepository";
-import { BookingRepository } from "@/core/booking/infrastructure/repos/bookingRepository";
 
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";

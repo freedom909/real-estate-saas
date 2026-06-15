@@ -1,6 +1,7 @@
 import { BookingStatus } from "../value-objects/booking-status"; // Corrected import to use domain BookingStatus
 import { DateRange } from "../value-objects/date-range.vo";
 import { BookingTransitionService } from "../service/booking-transition.service";
+import { BookingLifecycleStatus } from "../value-objects/booking-lifecycle.status";
 
 
 export interface BookingProps {
@@ -14,6 +15,7 @@ export interface BookingProps {
   createdAt: Date;  
   updatedAt?: Date;
   cancelReason?: string;
+  lifecycleStatus: BookingLifecycleStatus;
 }
 
 export class Booking {
@@ -26,7 +28,7 @@ export class Booking {
   ): Booking {
     return new Booking({
       ...props,
-     status: BookingStatus.PENDING, // Use PENDING from domain enum
+     status: BookingStatus.PENDING, 
       
       createdAt: new Date(),
     });

@@ -5,6 +5,8 @@ import { IBookingRepository } from "../../domain/repositories/i-booking.reposito
 import { Booking } from "../../domain/entities/booking.entity";
 import { BookingModel } from "../models/booking.model";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
+import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
+import { BookingStatus } from "../../domain/value-objects/booking-status";
 
 @injectable()
 export class SequelizeBookingRepository implements IBookingRepository {
@@ -68,6 +70,8 @@ export class SequelizeBookingRepository implements IBookingRepository {
       status: model.status as BookingStatus,
       cancelReason: model.cancelReason,
       createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+      lifecycleStatus: model.bookingLifecycleStatus as BookingLifecycleStatus,
     });
   }
 }

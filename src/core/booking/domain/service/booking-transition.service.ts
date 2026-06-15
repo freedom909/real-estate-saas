@@ -10,6 +10,7 @@ const BOOKING_STATUS_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
     [BookingStatus.CONFIRMED]: [
         BookingStatus.COMPLETED,
         BookingStatus.CANCELLED,
+        BookingStatus.CONFIRMED, // Allow re-confirming an already confirmed booking
     ],
 
     [BookingStatus.CANCELLED]: [],
