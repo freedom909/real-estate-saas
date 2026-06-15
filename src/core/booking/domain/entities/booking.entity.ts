@@ -12,6 +12,8 @@ export interface BookingProps {
   price: number;
   status: BookingStatus;
   createdAt: Date;  
+  updatedAt?: Date;
+  cancelReason?: string;
 }
 
 export class Booking {
@@ -34,17 +36,30 @@ export class Booking {
     return new Booking(props);
   }
 
-  cancel() {
-    if (this.props.status !== "PENDING") {
-      throw new Error("Only UPCOMING bookings can be cancelled");
-    }
+cancel(reason: string): void {
 
-    if (this.props.dateRange.checkInDate < new Date()) {
-      throw new Error("Cannot cancel after check-in");
-    }
+BookingTransitionService.ensureTransition(
+this.props.status,
+BookingStatus.CANCELLED
+);
 
-    this.props.status = BookingStatus.CANCELLED; // Use CANCELLED from domain enum
-  }
+if (
+this.props.dateRange.checkInDate
+< new Date()
+) {
+throw new Error(
+"Cannot cancel after check-in"
+);
+}
+
+this.props.status =
+BookingStatus.CANCELLED;
+
+this.props.updatedAt =new Date();
+
+this.props.cancelReason =reason;
+}
+
 
 confirm(): void {
 

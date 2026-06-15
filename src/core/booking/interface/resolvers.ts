@@ -15,17 +15,15 @@ export const resolvers = {
 
   Mutation: {
     createBooking: async (_: any, { input }: any, { user }: any) => {
-      const eventBus = container.resolve<RabbitMQEventBus>(TOKENS_BOOKING.eventBus.eventBus);
-      await eventBus.init();
       return container
-        .resolve(CreateBookingUseCase)//
+        .resolve(CreateBookingUseCase)
         .execute({ ...input, guestId: user.id });
     },
 
-    cancelBooking: async (_: any, { id }: any, { user }: any) => {
+    cancelBooking: async (_: any, { id, reason }: any) => {
       return container
         .resolve(CancelBookingUseCase)
-        .execute(id, user.id);
+        .execute(id, reason || "No reason provided");
     },
   },
 };

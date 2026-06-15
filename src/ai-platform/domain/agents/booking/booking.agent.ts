@@ -41,8 +41,10 @@ export class BookingAgent implements IDomainAgent {
 
         if (!bookingId) throw new Error("Booking ID required for cancellation");
 
+        // Extract reason from entities if available, otherwise use a default
+        const reason = semantic.entities.find(e => (e.type as string) === "reason")?.value || "Cancelled via AI Assistant";
         return this.cancelBookingUseCase
-          .execute(bookingId, context.identity.user.id);
+          .execute(bookingId, reason);
 
       case "CREATE_BOOKING":
         let listingId = semantic.entities.find(e => e.type === EntityType.LISTING_ID)?.value;
@@ -55,9 +57,9 @@ export class BookingAgent implements IDomainAgent {
 
         // Robust lookup for check-in and check-out entities
         const checkIn = semantic.entities.find(e => 
-          ["check_in", "checkIn", "CHECK_IN", "check_in_date"].includes(e.type))?.value;
+          ["check_in", "checkIn", "CHECK_IN", "check_in_date"].includes(e.type as string))?.value;
         const checkOut = semantic.entities.find(e => 
-          ["check_out", "checkOut", "CHECK_OUT", "check_out_date"].includes(e.type))?.value;
+          ["check_out", "checkOut", "CHECK_OUT", "check_out_date"].includes(e.type as string))?.value;
 
         if (!checkIn) throw new Error("Check-in date required for booking creation.");
         if (!checkOut) throw new Error("Check-out date required for booking creation.");
@@ -72,8 +74,8 @@ export class BookingAgent implements IDomainAgent {
           guestId: context.identity.user.id,
           checkInDate: checkIn,
           checkOutDate: checkOut,
-          price: priceEntity ? Number(priceEntity.value) : undefined,
-          tenantId: (context.identity.user as any)?.tenantId,
+          price: priceEntity ? Number(priceEntity.value) : 0,
+          tenantId: (context.identity.user as any)?.tenantId || "tenant-dev",
         });
 
       default:

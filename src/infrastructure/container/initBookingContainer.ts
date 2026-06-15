@@ -16,7 +16,7 @@ export async function initializeBookingContainer() {
 
   initBookingModel(sequelize);
 
-  await sequelize.sync();
+  await sequelize.sync({ alter: true });
 
   // ✅ register infra
   container.register("Sequelize", { useValue: sequelize });

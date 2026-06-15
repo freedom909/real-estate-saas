@@ -32,6 +32,7 @@ export class BookingRepository implements IBookingRepository {
       checkOutDate: data.dateRange.checkOutDate,
       price: data.price,
       status: data.status,
+      cancelReason: data.cancelReason,
       createdAt: data.createdAt,
       updatedAt: new Date(),
     });
@@ -77,7 +78,8 @@ export class BookingRepository implements IBookingRepository {
         new Date(model.checkOutDate)
       ),
       price: model.price,
-      status: model.status,
+      status: model.status as BookingStatus,
+      cancelReason: model.cancelReason,
       createdAt: model.createdAt,
     });
   }

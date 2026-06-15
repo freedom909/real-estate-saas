@@ -28,10 +28,8 @@ extend type Host @key(fields: "id") {
 }
 
 extend type Guest @key(fields: "id") {
-  id: ID! @external
-  
+  id: ID! @external 
   bookings: [Booking!]! @shareable
- 
 }
 
 extend type Listing @key(fields: "id") {
@@ -51,7 +49,7 @@ type CancelBookingResponse implements MutationResponse {
 
 type Mutation {
   createBooking(input: CreateBookingInput!): CreateBookingResponse! @shareable
-  cancelBooking(id: ID!): CancelBookingResponse @shareable
+  cancelBooking(id: ID!, reason: String): CancelBookingResponse @shareable
   confirmBooking(id: ID!): Booking! @shareable
   analyzeBookingFraud(bookingId: ID!): FraudAnalysisResponse!
 }

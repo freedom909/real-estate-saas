@@ -18,6 +18,7 @@ export interface BookingAttributes {
   status: string;
   createdAt?: Date;
   updatedAt?: Date;
+  cancelReason?: string;
 }
 
 type BookingCreationAttributes = Optional<
@@ -36,7 +37,8 @@ export class BookingModel
   public checkInDate!: Date;
   public checkOutDate!: Date;
   public price!: number;
-  public status!: BookingStatus ;
+  public status!: string;
+  public cancelReason?: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -56,6 +58,7 @@ export const initBookingModel = (sequelize: Sequelize) => {
       checkOutDate: DataTypes.DATE,
       price: DataTypes.FLOAT,
       status: DataTypes.STRING,
+      cancelReason: DataTypes.STRING,
     },
     {
       sequelize,

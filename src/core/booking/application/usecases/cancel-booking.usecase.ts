@@ -2,25 +2,56 @@ import { injectable, inject } from "tsyringe";
 
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { IBookingRepository } from "../../domain/repositories/i-booking.repository";
+import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
+import { IEventBus } from "@/shared/eventbus/IEventBus";
+import { BookingCancelledEvent } from "../../domain/events/booking-cancelled.event";
+
 
 
 @injectable()
 export class CancelBookingUseCase {
+
   constructor(
-    @inject(TOKENS_BOOKING.repository.bookingRepository)
-    private repo: IBookingRepository
+    @inject(
+      TOKENS_BOOKING.repository.bookingRepository
+    )
+    private bookingRepository:
+      IBookingRepository,
+
+    @inject(TOKENS_EVENT_BUS.eventBus)
+    private eventBus: IEventBus,
   ) {}
 
-  async execute(id: string, userId: string) {
-    const booking = await this.repo.findById(id);
+  async execute(
+    bookingId: string,
+    reason: string
+  ) {
+    const booking =
+      await this.bookingRepository
+        .findById(bookingId);
 
-    if (!booking) throw new Error("Booking not found");
-    if (booking.guestId !== userId) throw new Error("Unauthorized");
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
 
-    booking.cancel();
+    booking.cancel(reason);
 
-    await this.repo.save(booking);
+    await this.bookingRepository
+      .save(booking);
 
-    return { success: true };
+    await this.eventBus.publish(new BookingCancelledEvent(
+      booking.id,
+      booking.guestId,
+      booking.tenantId,
+      booking.listingId,
+      booking.price,
+      booking.dateRange.checkInDate,
+      booking.dateRange.checkOutDate,
+      reason,
+    ));
+
+return booking;
+
   }
 }
+
