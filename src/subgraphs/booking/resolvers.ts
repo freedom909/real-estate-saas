@@ -24,9 +24,15 @@ export const resolvers = {
         throw new Error("Unauthenticated: Please log in to create a booking.");
       }
 
+      // Fallback to input.tenantId if context user doesn't have it
+      const tenantId = user?.tenantId || input.tenantId || "tenant-dev"; 
+      if (!tenantId) {
+        throw new Error("Tenant ID is missing from user context or input.");
+      }
+      const price = input.price !== undefined ? Number(input.price) : 0; // Default price to 0 if not provided
       const booking = await container
         .resolve<CreateBookingUseCase>(TOKENS_BOOKING.usecase.createBookingUseCase)
-        .execute({ ...input, guestId: userId });
+        .execute({ ...input, guestId: userId, tenantId, price });
 
       return {
         code: 200,

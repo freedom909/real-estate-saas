@@ -24,15 +24,27 @@ export class CreateBookingUseCase {
   ) {}
 
   async execute(input: any) {
+    // Validate input to ensure all required fields are present
+    const required = ['listingId', 'guestId', 'tenantId', 'checkInDate', 'checkOutDate'];
+    const missing = required.filter(field => !input[field]);
+    if (input.price === undefined) missing.push('price');
+
+    if (missing.length > 0) {
+      console.error("Validation failed for CreateBookingUseCase. Input received:", JSON.stringify(input, null, 2));
+      throw new Error(`Missing required booking information: ${missing.join(', ')}`);
+    }
+
+    const price = Number(input.price); // Ensure price is a number
+
     const booking = Booking.create({
       listingId: input.listingId,
       guestId: input.guestId,
-      tenantId: input.tenantId,
+      tenantId: input.tenantId ?? "tenant-dev",
       dateRange: new DateRange(
         new Date(input.checkInDate),
         new Date(input.checkOutDate)
       ),
-      price: input.price,
+      price: price,
        
       id: uuidv4(),
     });
@@ -40,10 +52,10 @@ export class CreateBookingUseCase {
     await this.repo.save(booking);
 
     // ✅ 发布领域事件
-    await this.eventBus.publish(new BookingCreatedEvent(//it lossed some fields
+    await this.eventBus.publish(new BookingCreatedEvent(
       booking.id,
       booking.guestId,
-      input.tenantId,
+      booking.tenantId, // Use the tenantId from the created booking entity
       booking.listingId,
       booking.price,
       booking.dateRange.checkInDate,

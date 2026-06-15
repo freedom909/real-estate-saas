@@ -45,7 +45,9 @@ async execute(id: string) {
         booking.guestId,
         booking.tenantId,      
         booking.listingId,
-        booking.price
+        booking.price,
+        booking.dateRange.checkInDate,
+        booking.dateRange.checkOutDate
       )
     );
 

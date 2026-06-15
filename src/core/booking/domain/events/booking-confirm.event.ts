@@ -13,7 +13,9 @@ export class BookingConfirmedEvent extends DomainEvent {
     public readonly guestId: string,
     public readonly tenantId: string,
     public readonly listingId: string,
-    public readonly price: number
+    public readonly price: number,
+    public readonly checkInDate: Date,
+    public readonly checkOutDate: Date
   ) {
     super();
   }

@@ -53,11 +53,18 @@ export class BookingAgent implements IDomainAgent {
 
         if (!listingId) throw new Error("Listing ID required for booking creation.");
 
-        const checkIn = semantic.entities.find(e => e.type === "check_in")?.value;
-        const checkOut = semantic.entities.find(e => e.type === "check_out")?.value;
+        // Robust lookup for check-in and check-out entities
+        const checkIn = semantic.entities.find(e => 
+          ["check_in", "checkIn", "CHECK_IN", "check_in_date"].includes(e.type))?.value;
+        const checkOut = semantic.entities.find(e => 
+          ["check_out", "checkOut", "CHECK_OUT", "check_out_date"].includes(e.type))?.value;
 
         if (!checkIn) throw new Error("Check-in date required for booking creation.");
         if (!checkOut) throw new Error("Check-out date required for booking creation.");
+
+        const priceEntity = semantic.entities.find(e => 
+          ["PRICE", "price"].includes(e.type as string)
+        );
 
         return this.createBookingUseCase.execute({
           // Ensure listingId is not undefined here
@@ -65,7 +72,8 @@ export class BookingAgent implements IDomainAgent {
           guestId: context.identity.user.id,
           checkInDate: checkIn,
           checkOutDate: checkOut,
-          : 0 // To be calculated by the use case or domain
+          price: priceEntity ? Number(priceEntity.value) : undefined,
+          tenantId: (context.identity.user as any)?.tenantId,
         });
 
       default:
