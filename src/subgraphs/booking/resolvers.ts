@@ -26,13 +26,21 @@ export const resolvers = {
 
       // Fallback to input.tenantId if context user doesn't have it
       const tenantId = user?.tenantId || input.tenantId || "tenant-dev"; 
-      if (!tenantId) {
-        throw new Error("Tenant ID is missing from user context or input.");
-      }
       const price = input.price !== undefined ? Number(input.price) : 0; // Default price to 0 if not provided
       const booking = await container
         .resolve<CreateBookingUseCase>(TOKENS_BOOKING.usecase.createBookingUseCase)
-        .execute({ ...input, guestId: userId, tenantId, price });
+        .execute({
+          listingId: input.listingId, // Explicitly pass required fields
+          guestId: userId,
+          checkInDate: input.checkInDate,
+          checkOutDate: input.checkOutDate,
+          tenantId: tenantId,
+          price: price,
+          // Other optional fields from input can be spread if needed, but ensure required are explicit
+          // ...input // Be careful with spreading if it might overwrite explicit values
+        });
+
+      console.log("Resolver passing to CreateBookingUseCase:", JSON.stringify({ listingId: input.listingId, guestId: userId, checkInDate: input.checkInDate, checkOutDate: input.checkOutDate, tenantId, price }, null, 2));
 
       return {
         code: 200,

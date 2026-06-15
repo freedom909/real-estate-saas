@@ -2,10 +2,11 @@
 
 import { injectable } from "tsyringe";
 
-import { BookingModel, BookingStatus } from "../models/booking.model";
+import { BookingModel } from "../models/booking.model";
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
+import { BookingStatus } from "../../domain/value-objects/booking-status";
 
 
 @injectable()
@@ -39,7 +40,7 @@ export class BookingRepository implements IBookingRepository {
 
  async cancel(bookingId: string): Promise<void> {
     await BookingModel.update({
-      status: BookingStatus.Canceled,
+      status: BookingStatus.CANCELLED,
       updatedAt: new Date(),
     }, {
       where: { id: bookingId },
@@ -85,7 +86,7 @@ export class BookingRepository implements IBookingRepository {
     const data = booking.toJSON();
 
     await BookingModel.update({
-      status: BookingStatus.Confirmed,
+      status: BookingStatus.CONFIRMED,
       updatedAt: new Date(),
     }, {
       where: { id: data.id },

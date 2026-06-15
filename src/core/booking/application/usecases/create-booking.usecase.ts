@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import TOKENS from "@/modules/tokens/mq.tokens";
 
-import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 
 import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { IEventBus } from "@/shared/eventbus/IEventBus";
@@ -14,11 +14,10 @@ import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
 import { BookingCreatedEvent } from "@/core/booking/domain/events/booking-created.event";
 
-
 @injectable()
 export class CreateBookingUseCase {
   constructor(
-    @inject(TOKENS_AI.repos.bookingRepository) private repo: IBookingRepository,
+    @inject(TOKENS_BOOKING.repository.bookingRepository) private repo: IBookingRepository,
     
     @inject(TOKENS_EVENT_BUS.eventBus) private eventBus: IEventBus
   ) {}
@@ -34,7 +33,7 @@ export class CreateBookingUseCase {
       throw new Error(`Missing required booking information: ${missing.join(', ')}`);
     }
 
-    const price = Number(input.price); // Ensure price is a number
+    const price = input.price !== undefined && input.price !== null ? Number(input.price) : 0; // Ensure price is a number, default to 0
 
     const booking = Booking.create({
       listingId: input.listingId,

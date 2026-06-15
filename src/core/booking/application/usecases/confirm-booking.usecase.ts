@@ -8,7 +8,8 @@ import { IBookingRepository } from "../../domain/repositories/i-booking.reposito
 import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { IEventBus } from "@/shared/eventbus/IEventBus";
 import { BookingConfirmedEvent } from "../../domain/events/booking-confirm.event";
-import { BookingStatus } from "../../infrastructure/models/booking.model";
+
+
 
 @injectable()
 export class ConfirmBookingUseCase {
@@ -28,11 +29,7 @@ async execute(id: string) {
     throw new Error("Booking not found");
   }
 
-  if (booking.status !== BookingStatus.Pending) {
-    throw new Error(
-      "Only pending bookings can be confirmed"
-    );
-  }
+// 🔥 DOMAIN STATE TRANSITION booking.confirm();
     // Use domain logic for state transition
     booking.confirm();
 

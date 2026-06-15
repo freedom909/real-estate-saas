@@ -5,33 +5,36 @@ import { TOKENS_BOOKING } from "../tokens/booking.tokens";
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { SequelizeBookingRepository } from "@/core/booking/infrastructure/repos/sequelizeBookingRepository";
 import { BookingRepository } from "@/core/booking/infrastructure/repos/bookingRepository";
-import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
+
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
+import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
+import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booking.usecase";
 import { BookingGateway } from "@/core/booking/bookingGateway";
+import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
+
 
 export const BookingRegister = () => {
-
+  // Repositories
   container.register<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository, {
-    useClass: BookingRepository,
+    useClass: SequelizeBookingRepository,
   });
 
-container.register(TOKENS_BOOKING.usecase.confirmBookingUseCase, {
-  useClass: ConfirmBookingUseCase,
-});
-container.register(TOKENS_BOOKING.usecase.cancelBookingUseCase, {
-  useClass: CancelBookingUseCase,
-});
+  // Use Cases
+  container.register(TOKENS_BOOKING.usecase.confirmBookingUseCase, {
+    useClass: ConfirmBookingUseCase,
+  });
+  container.register(TOKENS_BOOKING.usecase.cancelBookingUseCase, {
+    useClass: CancelBookingUseCase,
+  });
+  container.register(TOKENS_BOOKING.usecase.createBookingUseCase, {
+    useClass: CreateBookingUseCase,
+  });
+  container.register(TOKENS_BOOKING.usecase.getBookingUseCase, {
+    useClass: GetBookingUseCase,
+  });
 
-container.register(TOKENS_BOOKING.gateway.bookingGateway, {
-  useClass: BookingGateway,
-});
-
-container.register(TOKENS_BOOKING.repository.bookingRepository, {
-  useClass: BookingRepository,
-});
-
-container.register<IBookingRepository>(
-  TOKENS_BOOKING.repository.bookingRepository,
-  { useClass: SequelizeBookingRepository }
-);
+  // Gateways
+  container.register(TOKENS_BOOKING.gateway.bookingGateway, {
+    useClass: BookingGateway,
+  });
 }

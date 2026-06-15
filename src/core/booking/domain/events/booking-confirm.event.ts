@@ -1,6 +1,6 @@
 // FILE: domain/events/booking-confirm.event.ts 
 
-import { BookingStatus } from "../../infrastructure/models/booking.model";
+
 import { DomainEvent } from "@/shared/eventbus/domain.event";
 
 export class BookingConfirmedEvent extends DomainEvent {
@@ -15,7 +15,8 @@ export class BookingConfirmedEvent extends DomainEvent {
     public readonly listingId: string,
     public readonly price: number,
     public readonly checkInDate: Date,
-    public readonly checkOutDate: Date
+    public readonly checkOutDate: Date,
+    public readonly occurredOn: Date = new Date()
   ) {
     super();
   }

@@ -7,6 +7,7 @@ export interface ISessionPort {
     deviceId?: string | null;
     ip?: string | null;
     userAgent?: string | null;
+    email?: string | null; // Add email to the session creation input
   }): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -24,6 +25,7 @@ export interface ISessionPort {
     deviceId?: string | null;
     ip?: string | null;
     userAgent?: string | null;
+    email?: string | null; // Add email to the session creation input
   }): Promise<{
     accessToken: string;
     refreshToken: string;

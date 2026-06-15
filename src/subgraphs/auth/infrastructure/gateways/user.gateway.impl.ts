@@ -25,4 +25,12 @@ export class UserGateway implements IUserGateway {
   async createFromOAuth(profile: OAuthProfile) {
     return this.client.createUserFromOAuth(profile);
   }
+
+  async findEmailById(userId: string) {
+    const user = await this.client.findById(userId);
+    if (user) {
+      return user.email;
+    }
+    return "test@example.com";
+  }
 }

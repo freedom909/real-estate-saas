@@ -1,6 +1,6 @@
-import { BookingStatus } from "../../infrastructure/models/booking.model";
+import { BookingStatus } from "../value-objects/booking-status"; // Corrected import to use domain BookingStatus
 import { DateRange } from "../value-objects/date-range.vo";
-
+import { BookingTransitionService } from "../service/booking-transition.service";
 
 
 export interface BookingProps {
@@ -24,7 +24,7 @@ export class Booking {
   ): Booking {
     return new Booking({
       ...props,
-     status: BookingStatus.Pending,
+     status: BookingStatus.PENDING, // Use PENDING from domain enum
       
       createdAt: new Date(),
     });
@@ -43,16 +43,19 @@ export class Booking {
       throw new Error("Cannot cancel after check-in");
     }
 
-    this.props.status = BookingStatus.Canceled;
+    this.props.status = BookingStatus.CANCELLED; // Use CANCELLED from domain enum
   }
 
-  confirm() {
-    if (this.props.status !== "PENDING" ) {
-      throw new Error("Only PENDING  bookings can be confirmed");
-    }
+confirm(): void {
 
-    this.props.status = BookingStatus.Confirmed;
-  }
+BookingTransitionService.ensureTransition(
+this.props.status,
+BookingStatus.CONFIRMED // Use CONFIRMED from domain enum
+);
+
+this.props.status =
+BookingStatus.CONFIRMED; // Use CONFIRMED from domain enum
+}
 
   toJSON() {
     return {

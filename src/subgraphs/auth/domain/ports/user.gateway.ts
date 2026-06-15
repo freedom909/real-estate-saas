@@ -7,4 +7,5 @@ export interface IUserGateway {
   findById(userId: string): Promise<UserDTO | null>;// how to define the 'UseDTO'
   findByEmail(email: string): Promise<UserDTO | null>;
   createFromOAuth(profile: OAuthProfile): Promise<UserDTO>;
+  findEmailById(userId: string): Promise<string>
 }

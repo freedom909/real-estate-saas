@@ -1,9 +1,11 @@
+// FILE: src/subgraphs/booking/infrastructure/models/booking.model.ts
 import {
   Model,
   DataTypes,
   Sequelize,
   Optional,
 } from "sequelize";
+import { BookingStatus } from "../gateways/bookingGateway";
 
 export interface BookingAttributes {
   id: string;
@@ -17,17 +19,6 @@ export interface BookingAttributes {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
-
-export enum BookingStatus {
-  Created = "CREATED",
-  Pending = "PENDING",
-  Confirmed = "CONFIRMED",
-  Canceled = "CANCELED",
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-}
-
 
 type BookingCreationAttributes = Optional<
   BookingAttributes,

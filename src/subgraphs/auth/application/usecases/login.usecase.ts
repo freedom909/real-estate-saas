@@ -60,7 +60,7 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
 
     // 4️⃣ 尝试 email merge（高级策略）
     if (profile.email) {
-      const existingUser = await this.userGateway.findByEmail(profile.email);
+      const existingUser = await this.userGateway.findEmailById(profile.email);
 
       if (existingUser) {
         user = existingUser;
@@ -125,7 +125,8 @@ const userDTO =
     userId: user.id,
     deviceId,
     ip,
-    userAgent
+    userAgent,
+    email: user.email, // Pass the user's email to be included in the session token
   });
   console.log("dto:",userDTO)
 
