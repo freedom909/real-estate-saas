@@ -13,7 +13,8 @@ import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
 import { BookingCreatedEvent } from "@/core/booking/domain/events/booking-created.event";
-import { datetime } from "zod/v4/core/regexes.cjs";
+import { BookingStatus } from "../../domain/value-objects/booking-status";
+import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 
 @injectable()
 export class CreateBookingUseCase {
@@ -46,6 +47,10 @@ export class CreateBookingUseCase {
       ),
       price: price,
       id: uuidv4(),
+      // status and createdAt are set internally by Booking.create
+      
+      lifecycleStatus: BookingLifecycleStatus.UPCOMING,
+      cancelReason: null
       
     });
 

@@ -16,6 +16,7 @@ export interface BookingProps {
   confirmedAt?: Date;
   updatedAt?: Date;
   cancelReason?: string;
+  completedAt?: Date;
   lifecycleStatus: BookingLifecycleStatus;
 }
 
@@ -64,13 +65,27 @@ this.props.updatedAt =new Date();
 this.props.cancelReason =reason;
 }
 
+complete(): void {
+BookingTransitionService.ensureTransition(this.props.status,BookingStatus.COMPLETED);
+
+// 🔥 Safety Rule
+if (
+this.props.status !==BookingStatus.CONFIRMED
+) {
+throw new Error("Only confirmed bookings can be completed");
+}
+
+this.props.status = BookingStatus.COMPLETED;
+
+this.props.completedAt =new Date();
+
+this.props.updatedAt = new Date();
+}
+
 
 confirm(): void {
 
-BookingTransitionService.ensureTransition(
-this.props.status,
-BookingStatus.CONFIRMED // Use CONFIRMED from domain enum
-);
+BookingTransitionService.ensureTransition(this.props.status,BookingStatus.CONFIRMED)
 
 this.props.status =
 BookingStatus.CONFIRMED; // Use CONFIRMED from domain enum
@@ -129,4 +144,9 @@ this.props.updatedAt =new Date();
   get updatedAt() {
     return this.props.updatedAt;
   }
+
+  get completedAt() {
+return this.props.completedAt;
+}
+
 }

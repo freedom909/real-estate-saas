@@ -49,6 +49,7 @@ type Mutation {
   createBooking(input: CreateBookingInput!): CreateBookingResponse! @shareable
   cancelBooking(id: ID!, reason: String): CancelBookingResponse @shareable
   confirmBooking(id: ID!): Booking! @shareable
+  completeBooking(id: ID!): Booking! @shareable
   analyzeBookingFraud(bookingId: ID!): FraudAnalysisResponse!
 }
 

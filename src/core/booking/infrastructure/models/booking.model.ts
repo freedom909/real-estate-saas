@@ -21,6 +21,7 @@ export interface BookingAttributes {
   updatedAt?: Date;
   confirmedAt?: Date;
   cancelReason?: string;
+  completedAt?: Date;
   bookingLifecycleStatus?: string;
 }
 
@@ -43,9 +44,11 @@ export class BookingModel
   public status!: BookingStatus; // Changed from string to BookingStatus enum
   public cancelReason?: string;
   public confirmedAt?: Date;
+  public completedAt?: Date;
   public bookingLifecycleStatus!: BookingLifecycleStatus;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
 }
 
 export const initBookingModel = (sequelize: Sequelize) => {

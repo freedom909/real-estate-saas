@@ -1,4 +1,4 @@
-//
+//src/
 import { BookingStatus } from "../value-objects/booking-status";
 
 const BOOKING_STATUS_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {

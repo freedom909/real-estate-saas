@@ -36,19 +36,13 @@ export class BookingRepository implements IBookingRepository {
       cancelReason: data.cancelReason,
       createdAt: data.createdAt,
       confirmedAt: data.confirmedAt,
+      completedAt: data.completedAt,
       updatedAt: new Date(),
     });
   }
 
 
- async cancel(bookingId: string): Promise<void> {
-    await BookingModel.update({
-      status: BookingStatus.CANCELLED,
-      updatedAt: new Date(),
-    }, {
-      where: { id: bookingId },
-    });
-  }
+
 
   async findByGuestId(guestId: string): Promise<Booking[]> {
     const models = await BookingModel.findAll({
@@ -85,19 +79,9 @@ export class BookingRepository implements IBookingRepository {
       createdAt: model.createdAt,
       confirmedAt: model.confirmedAt,
       updatedAt: model.updatedAt,
+      completedAt: model.completedAt,
       lifecycleStatus: model.bookingLifecycleStatus as BookingLifecycleStatus,
     });
   }
 
-  async confirm(booking: Booking): Promise<void> {
-    const data = booking.toJSON();
-
-    await BookingModel.update({
-      status: BookingStatus.CONFIRMED,
-      confirmedAt: data.confirmedAt || new Date(),
-      updatedAt: data.updatedAt || new Date(),
-    }, {
-      where: { id: data.id },
-    });
-  }
 }

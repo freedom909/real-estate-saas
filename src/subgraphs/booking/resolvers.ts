@@ -1,4 +1,5 @@
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
+import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
 import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booking.usecase";
@@ -71,6 +72,11 @@ export const resolvers = {
       return container
         .resolve<ConfirmBookingUseCase>(TOKENS_BOOKING.usecase.confirmBookingUseCase)
         .execute(id);
+    },
+
+    completeBooking: async (_: any, { id }: any) => {
+      return container.resolve<CompleteBookingUseCase>(TOKENS_BOOKING.usecase.completeBookingUseCase).execute(id);
+     
     },
   },
 
