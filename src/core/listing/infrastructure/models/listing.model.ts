@@ -74,19 +74,21 @@ ListingModel.init(
     },
 
     createdAt: {
-      type: DataTypes.NOW,
-      defaultValue: DataTypes.NOW
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
-
     updatedAt: {
-      type: DataTypes.NOW,
-      defaultValue: DataTypes.NOW
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
+    // Sequelize will manage createdAt and updatedAt automatically when timestamps is true
   },
   {
     sequelize,
     tableName: "listings",
-    timestamps: false,
+    timestamps: true, // Enable timestamps to automatically manage createdAt and updatedAt
   }
 )
 

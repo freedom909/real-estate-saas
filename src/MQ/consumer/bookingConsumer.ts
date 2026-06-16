@@ -63,7 +63,24 @@ const processBookingEvent = async (msg: amqp.ConsumeMessage | null) => {
         await handleBookingCancelled(event);
         break;
 
-        
+      case "BOOKING_CONFIRMED":
+
+        console.log("✅ Booking confirmed");
+
+        await handleBookingConfirmed(event);
+
+        // await sendEmailNotification.sendEmail({
+        //   to: event.guestId,
+        //   subject: "Booking Confirmed",
+        //   template: "booking_confirmed",
+        //   data: event,
+        // });
+
+        console.log(
+          "✅ Booking confirmed handled"
+        );
+
+        break;  
 
       default:
         console.warn("⚠️ Unknown event:", eventType);

@@ -13,6 +13,7 @@ import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
 import { BookingCreatedEvent } from "@/core/booking/domain/events/booking-created.event";
+import { datetime } from "zod/v4/core/regexes.cjs";
 
 @injectable()
 export class CreateBookingUseCase {
@@ -33,7 +34,7 @@ export class CreateBookingUseCase {
       throw new Error(`Missing required booking information: ${missing.join(', ')}`);
     }
 
-    const price = input.price !== undefined && input.price !== null ? Number(input.price) : 0; // Ensure price is a number, default to 0
+    const price = input.price !== undefined && input.price !== null ? Number(input.price) : 0; 
 
     const booking = Booking.create({
       listingId: input.listingId,
@@ -44,8 +45,8 @@ export class CreateBookingUseCase {
         new Date(input.checkOutDate)
       ),
       price: price,
-       
       id: uuidv4(),
+      
     });
 
     await this.repo.save(booking);

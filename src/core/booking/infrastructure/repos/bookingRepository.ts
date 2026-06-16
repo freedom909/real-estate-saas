@@ -7,6 +7,7 @@ import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
 import { BookingStatus } from "../../domain/value-objects/booking-status";
+import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 
 
 @injectable()
@@ -34,6 +35,7 @@ export class BookingRepository implements IBookingRepository {
       status: data.status,
       cancelReason: data.cancelReason,
       createdAt: data.createdAt,
+      confirmedAt: data.confirmedAt,
       updatedAt: new Date(),
     });
   }
@@ -78,9 +80,12 @@ export class BookingRepository implements IBookingRepository {
         new Date(model.checkOutDate)
       ),
       price: model.price,
-      status: model.status as BookingStatus,
+      status: model.status as BookingStatus, // Explicitly cast to BookingStatus
       cancelReason: model.cancelReason,
       createdAt: model.createdAt,
+      confirmedAt: model.confirmedAt,
+      updatedAt: model.updatedAt,
+      lifecycleStatus: model.bookingLifecycleStatus as BookingLifecycleStatus,
     });
   }
 
@@ -89,7 +94,8 @@ export class BookingRepository implements IBookingRepository {
 
     await BookingModel.update({
       status: BookingStatus.CONFIRMED,
-      updatedAt: new Date(),
+      confirmedAt: data.confirmedAt || new Date(),
+      updatedAt: data.updatedAt || new Date(),
     }, {
       where: { id: data.id },
     });

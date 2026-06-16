@@ -5,7 +5,8 @@ import {
   Sequelize,
   Optional,
 } from "sequelize";
-import { BookingStatus } from "../gateways/bookingGateway";
+import { BookingStatus } from "../../domain/value-objects/booking-status"; // Corrected import path
+import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 
 export interface BookingAttributes {
   id: string;
@@ -18,7 +19,9 @@ export interface BookingAttributes {
   status: string;
   createdAt?: Date;
   updatedAt?: Date;
+  confirmedAt?: Date;
   cancelReason?: string;
+  bookingLifecycleStatus?: string;
 }
 
 type BookingCreationAttributes = Optional<
@@ -37,9 +40,10 @@ export class BookingModel
   public checkInDate!: Date;
   public checkOutDate!: Date;
   public price!: number;
-  public status!: string;
+  public status!: BookingStatus; // Changed from string to BookingStatus enum
   public cancelReason?: string;
-
+  public confirmedAt?: Date;
+  public bookingLifecycleStatus!: BookingLifecycleStatus;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -59,6 +63,8 @@ export const initBookingModel = (sequelize: Sequelize) => {
       price: DataTypes.FLOAT,
       status: DataTypes.STRING,
       cancelReason: DataTypes.STRING,
+      confirmedAt: DataTypes.DATE,
+      bookingLifecycleStatus: DataTypes.STRING,
     },
     {
       sequelize,

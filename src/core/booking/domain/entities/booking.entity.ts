@@ -13,6 +13,7 @@ export interface BookingProps {
   price: number;
   status: BookingStatus;
   createdAt: Date;  
+  confirmedAt?: Date;
   updatedAt?: Date;
   cancelReason?: string;
   lifecycleStatus: BookingLifecycleStatus;
@@ -31,6 +32,7 @@ export class Booking {
      status: BookingStatus.PENDING, 
       
       createdAt: new Date(),
+      lifecycleStatus: BookingLifecycleStatus.UPCOMING,
     });
   }
 
@@ -72,6 +74,11 @@ BookingStatus.CONFIRMED // Use CONFIRMED from domain enum
 
 this.props.status =
 BookingStatus.CONFIRMED; // Use CONFIRMED from domain enum
+
+this.props.confirmedAt = new Date();
+
+this.props.updatedAt =new Date();
+
 }
 
   toJSON() {
@@ -113,5 +120,13 @@ BookingStatus.CONFIRMED; // Use CONFIRMED from domain enum
 
   get createdAt() {
     return this.props.createdAt;
+  }
+
+  get confirmedAt() {
+    return this.props.confirmedAt;
+  }
+
+  get updatedAt() {
+    return this.props.updatedAt;
   }
 }

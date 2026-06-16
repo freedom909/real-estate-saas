@@ -44,6 +44,7 @@ const startApolloServer = async () => {
     console.info("Connecting to MySQL...");
 
 await sequelize.authenticate();
+await sequelize.sync({ alter: true }); // Ensure ListingModel schema is updated
 
 console.info("MySQL connected");
 

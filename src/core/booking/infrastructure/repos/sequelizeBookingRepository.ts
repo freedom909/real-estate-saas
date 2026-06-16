@@ -34,6 +34,7 @@ export class SequelizeBookingRepository implements IBookingRepository {
       cancelReason: data.cancelReason,
       createdAt: data.createdAt,
       updatedAt: new Date(),
+      confirmedAt: data.confirmedAt,
     });
   }
 
@@ -67,11 +68,12 @@ export class SequelizeBookingRepository implements IBookingRepository {
       ),
       tenantId: model.tenantId,
       price: model.price,
-      status: model.status as BookingStatus,
+      status: model.status as BookingStatus, // Explicitly cast to BookingStatus
       cancelReason: model.cancelReason,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       lifecycleStatus: model.bookingLifecycleStatus as BookingLifecycleStatus,
+      confirmedAt: model.confirmedAt,
     });
   }
 }

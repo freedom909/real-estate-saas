@@ -37,8 +37,8 @@ type Listing @key(fields: "id") {
 
   isFeatured: Boolean!
 
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime
 }
 
 # -----------------------------------
