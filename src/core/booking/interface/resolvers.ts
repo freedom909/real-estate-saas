@@ -2,8 +2,6 @@ import { container } from "tsyringe";
 import { CreateBookingUseCase } from "../application/usecases/create-booking.usecase";
 import { CancelBookingUseCase } from "../application/usecases/cancel-booking.usecase";
 import { GetBookingUseCase } from "../application/usecases/get-booking.usecase";
-import { RabbitMQEventBus } from "./events/rabbitmq-event-bus";
-import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 
 
 export const resolvers = {

@@ -3,8 +3,6 @@ import { injectable, inject } from "tsyringe";
 
 import { v4 as uuidv4 } from "uuid";
 
-import TOKENS from "@/modules/tokens/mq.tokens";
-
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 
 import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
@@ -13,8 +11,9 @@ import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
 import { BookingCreatedEvent } from "@/core/booking/domain/events/booking-created.event";
-import { BookingStatus } from "../../domain/value-objects/booking-status";
+
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
+import { BookingPricingService } from "../../domain/service/booking-pricing.service";
 
 @injectable()
 export class CreateBookingUseCase {
@@ -26,33 +25,47 @@ export class CreateBookingUseCase {
 
   async execute(input: any) {
     // Validate input to ensure all required fields are present
-    const required = ['listingId', 'guestId', 'tenantId', 'checkInDate', 'checkOutDate'];
-    const missing = required.filter(field => !input[field]);
-    if (input.price === undefined) missing.push('price');
+    
+const required = [
+  "listingId",
+  "guestId",
+  "checkInDate",
+  "checkOutDate"
+];
 
-    if (missing.length > 0) {
-      console.error("Validation failed for CreateBookingUseCase. Input received:", JSON.stringify(input, null, 2));
-      throw new Error(`Missing required booking information: ${missing.join(', ')}`);
-    }
+const missing =
+  required.filter(field => !input[field]);
 
-    const price = input.price !== undefined && input.price !== null ? Number(input.price) : 0; 
+if (missing.length > 0) {
+  throw new Error(
+    `Missing required booking information: ${missing.join(", ")}`
+  );
+}
 
-    const booking = Booking.create({
-      listingId: input.listingId,
-      guestId: input.guestId,
-      tenantId: input.tenantId ?? "tenant-dev",
-      dateRange: new DateRange(
+const price =
+  input.price != null
+    ? Number(input.price)
+    : BookingPricingService.calculatePrice(
+        120,
         new Date(input.checkInDate),
         new Date(input.checkOutDate)
-      ),
-      price: price,
-      id: uuidv4(),
-      // status and createdAt are set internally by Booking.create
-      
-      lifecycleStatus: BookingLifecycleStatus.UPCOMING,
-      cancelReason: null
-      
-    });
+      );
+
+const booking =
+  Booking.create({
+    id: uuidv4(),
+    listingId: input.listingId,
+    guestId: input.guestId,
+    tenantId: input.tenantId ?? "tenant-dev",
+    dateRange: new DateRange(
+      new Date(input.checkInDate),
+      new Date(input.checkOutDate)
+    ),
+    price,
+    lifecycleStatus:
+      BookingLifecycleStatus.UPCOMING,
+    cancelReason: null
+  });
 
     await this.repo.save(booking);
 

@@ -14,10 +14,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import { reviewResolvers as resolvers} from "./review.resolver";
-
-
 import { initMongoContainer } from "@/infrastructure/container/initMongoContainer";
-
 
 import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
@@ -25,11 +22,11 @@ import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import TOKENS from "@/modules/tokens/mq.tokens";
 import registerMQEventBus from "@/modules/container/mq.register";
 import { registerReviewDependencies } from "@/modules/container/review.register";
-import { RabbitMQEventBus } from "../booking/interface/events/rabbitmq-event-bus";
+import { ReviewMQEventBus } from "../review/interface/events/review-event-bus";
 
 dotenv.config();
 registerMQEventBus();
-const eventBus = container.resolve<RabbitMQEventBus>(TOKENS.eventBus);
+const eventBus = container.resolve<ReviewMQEventBus>(TOKENS.eventBus);
 await eventBus.init();
 
 const typeDefs = gql(

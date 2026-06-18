@@ -4,11 +4,11 @@ import * as amqp from "amqplib";
 
 
 @injectable()
-export class RabbitMQEventBus {
+export class PaymentMQEventBus {
   
 private connection!: amqp.ChannelModel;
  private channel!: amqp.Channel;
-  private readonly QUEUE = "booking_queue";
+  private readonly QUEUE = "payment_queue";
 
   async init() {
     try {
@@ -36,7 +36,7 @@ private connection!: amqp.ChannelModel;
     }
 
     this.channel.sendToQueue(
-      "booking_queue",
+      "payment_queue",
       Buffer.from(JSON.stringify(event)),
       { persistent: true }
     );
