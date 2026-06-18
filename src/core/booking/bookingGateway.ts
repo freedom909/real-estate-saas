@@ -38,6 +38,10 @@ export class BookingGateway extends BaseGateway {
   `;
 
   async fetchBookingData(bookingId: string, retries = 3): Promise<BookingExternalDTO> {
+    console.log(
+  "BOOKING REQUEST",
+  bookingId
+);
     try {
       const data = await this.client.request<{ booking: BookingExternalDTO }>(
         this.GET_BOOKING_QUERY,

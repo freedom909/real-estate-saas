@@ -46,7 +46,7 @@ async function start() {
   const server = new ApolloServer({
     gateway
   })
-  console.log("server:", server)
+ 
   await server.start()
   const app = express()
 

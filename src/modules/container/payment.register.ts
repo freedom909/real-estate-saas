@@ -5,6 +5,7 @@ import { RefundPaymentUseCase } from "@/core/payment/application/usecase/refund-
 import { CancelPaymentUseCase } from "@/core/payment/application/usecase/cancel-payment.usecase";
 import { ProcessPaymentUseCase } from "@/core/payment/application/usecase/process-payment.usecase";
 import { CreatePaymentUseCase } from "@/core/payment/application/usecase/create-payment.usecase";
+import { ConfirmPaymentUseCase } from "@/core/payment/application/usecase/confirm-payment.usecase";
 
 //
 export const PaymentRegister = () => {
@@ -43,5 +44,13 @@ export const PaymentRegister = () => {
       useClass: CancelPaymentUseCase,
     }
   );
+
+  container.register(
+    TOKENS_PAYMENT.usecase.confirmPaymentUseCase,
+    {
+      useClass: ConfirmPaymentUseCase,
+    }
+  );
+
 
 };

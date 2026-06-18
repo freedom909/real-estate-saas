@@ -23,13 +23,12 @@ export interface PaymentAttributes {
 
     tenantId: string;
 
+    checkInDate: Date;
+    checkOutDate: Date;
+
     amount: number;
 
     status: PaymentStatus;
-
-    paymentIntentId?: string | null;
-
-    refundAmount?: number | null;
 
     cancelReason?: string | null;
 
@@ -47,14 +46,14 @@ export interface PaymentAttributes {
 export interface PaymentCreationAttributes
     extends Optional<
         PaymentAttributes,
-        | "paymentIntentId"
-        | "refundAmount"
         | "cancelReason"
         | "processedAt"
         | "completedAt"
         | "refundedAt"
         | "createdAt"
-        | "updatedAt"
+        | "updatedAt" // These are handled by timestamps: true and underscored: true
+        | "checkInDate"
+        | "checkOutDate"
     > { }
 
 export class PaymentModel
@@ -71,13 +70,12 @@ export class PaymentModel
 
     public tenantId!: string;
 
+    public checkInDate!: Date;
+    public checkOutDate!: Date;
+
     public amount!: number;
 
     public status!: PaymentStatus;
-
-    public paymentIntentId!: string | null;
-
-    public refundAmount!: number | null;
 
     public cancelReason!: string | null;
 
@@ -104,16 +102,31 @@ PaymentModel.init(
         bookingId: {
             type: DataTypes.UUID,
             allowNull: false,
+            field: 'booking_id', // Explicitly map to snake_case
         },
 
         guestId: {
             type: DataTypes.STRING,
             allowNull: false,
+            field: 'guest_id', // Explicitly map to snake_case
         },
 
         tenantId: {
             type: DataTypes.STRING,
             allowNull: false,
+            field: 'tenant_id', // Explicitly map to snake_case
+        },
+
+        checkInDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            field: 'check_in_date',
+        },
+
+        checkOutDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            field: 'check_out_date',
         },
 
         amount: {
@@ -125,12 +138,13 @@ PaymentModel.init(
         createdAt: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
+            defaultValue: DataTypes.NOW, // Sequelize will map this to 'created_at' due to underscored: true
         },
 
         updatedAt: {
             type: DataTypes.DATE,
             allowNull: false,
+            // Sequelize will map this to 'updated_at' due to underscored: true
         },
         status: {
             type: DataTypes.ENUM(
@@ -145,34 +159,28 @@ PaymentModel.init(
             defaultValue: "PENDING",
         },
 
-        paymentIntentId: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-
-        refundAmount: {
-            type: DataTypes.FLOAT,
-            allowNull: true,
-        },
-
         cancelReason: {
             type: DataTypes.STRING,
             allowNull: true,
+            field: 'cancel_reason', // Explicitly map to snake_case
         },
 
         processedAt: {
             type: DataTypes.DATE,
             allowNull: true,
+            field: 'processed_at', // Explicitly map to snake_case
         },
 
         completedAt: {
             type: DataTypes.DATE,
             allowNull: true,
+            field: 'completed_at', // Explicitly map to snake_case
         },
 
         refundedAt: {
             type: DataTypes.DATE,
             allowNull: true,
+            field: 'refunded_at', // Explicitly map to snake_case
         },
     },
 
@@ -180,8 +188,8 @@ PaymentModel.init(
         sequelize,
 
         tableName: "payments",
-
         timestamps: true,
+        underscored: true, // This will automatically map camelCase attributes to snake_case columns
     }
 );
 

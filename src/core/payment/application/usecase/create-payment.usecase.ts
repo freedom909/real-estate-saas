@@ -25,7 +25,10 @@ export class CreatePaymentUseCase {
     tenantId: string;
     amount: number;
   }): Promise<Payment> {
-
+console.log(
+  "PROCESS PAYMENT INPUT",
+  input
+);
     const booking =
       await this.bookingRepository.findById(
         input.bookingId

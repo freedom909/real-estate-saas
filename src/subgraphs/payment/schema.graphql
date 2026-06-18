@@ -74,7 +74,14 @@ type RefundResponse implements Response {
 input ProcessPaymentInput {
   bookingId: ID!
   paymentIntentId: String!
- 
+  amount: Float!
+}
+
+input CreatePaymentInput {
+  bookingId: ID!
+  amount: Float!
+    guestId: ID!
+  tenantId: ID!
 }
 
 input RefundInput {
@@ -96,7 +103,11 @@ type Query {
 # MUTATIONS
 # --------------------------
 type Mutation {
-  processPayment(input: ProcessPaymentInput!): ProcessPaymentResponse! @shareable
+  processPayment(paymentId: ID!): ProcessPaymentResponse! @shareable
   processRefund(input: RefundInput!): RefundResponse! @shareable
   confirmPayment(paymentId: ID!): ProcessPaymentResponse! @shareable
+  createPayment(input: CreatePaymentInput!): Payment! @shareable
+  cancelPayment( paymentId: ID! reason: String): Payment! @shareable
 }
+
+

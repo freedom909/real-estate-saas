@@ -3,7 +3,6 @@
 export const TOKENS_PAYMENT = {
     repos: {
         paymentRepository: Symbol.for("PaymentRepository")
-
     },
 
     usecase: {
@@ -18,5 +17,8 @@ export const TOKENS_PAYMENT = {
 
         cancelPaymentUseCase:
             Symbol.for("CancelPaymentUseCase"),
+        confirmPaymentUseCase:
+            Symbol.for("ConfirmPaymentUseCase"),
+    
     },
 }
