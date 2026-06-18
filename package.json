@@ -21,6 +21,7 @@
     "dev:booking": "tsx watch src/subgraphs/booking/index.ts",
     "dev:payment": "tsx watch src/subgraphs/payment/index.ts",
     "dev:ai": "tsx watch src/ai-platform/index.ts"
+
   },
   "keywords": [],
   "author": "",

@@ -13,7 +13,6 @@ type Query {
   guestBookings: [Booking!]! @shareable
   booking(id: ID!): Booking @shareable
   bookingsForGuest(userId: ID!): [Booking!] @shareable
-  bookingsByOrder(orderId: ID!): [Booking!]! @shareable
 }
 
 extend type User @key(fields: "id") {
@@ -28,14 +27,6 @@ extend type Host @key(fields: "id") {
 extend type Guest @key(fields: "id") {
   id: ID! @external 
   bookings: [Booking!]! @shareable
-}
-
-extend type Listing @key(fields: "id") {
-  id: ID! @external
-}
-
-type Order @key(fields: "id") {
-  id: ID! @shareable
 }
 
 type CancelBookingResponse implements MutationResponse {
@@ -66,30 +57,45 @@ type CreateBookingResponse {
 }
 
 enum BookingStatus {
-  CURRENT
-  COMPLETED
+PENDING
+CONFIRMED
+CANCELLED
+COMPLETED
+}
+
+enum BookingLifecycleStatus {
   UPCOMING
+  CURRENT
   PAST
-  CANCELLED
-  CONFIRMED
 }
 
 type Booking @key(fields: "id") {
   id: ID!
-  bookingNumber: String! @shareable 
-  isFeatured: Boolean! @shareable 
-  reservedDate: DateTime! @shareable 
-  listing: Listing! @shareable  
-  guest: Guest! @shareable  
-  review: Review @shareable
-  checkInDate: DateTime! @shareable  
-  checkOutDate: DateTime! @shareable  
-  price: Float! @shareable  
-  criteriaTime: Int! @shareable  
-  status: BookingStatus! @shareable 
-  cancelledAt: DateTime @shareable 
-  confirmedAt: DateTime @shareable 
+
+  listing: Listing!
+  guest: Guest!
+
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+
+  price: Float!
+
+  status: BookingStatus!
+  lifecycleStatus: BookingLifecycleStatus!
+
+  createdAt: DateTime!
+  updatedAt: DateTime
+
+  confirmedAt: DateTime
+  cancelledAt: DateTime
+  completedAt: DateTime
 }
+
+extend type Listing @key(fields: "id") {
+  id: ID! @external
+  bookings: [Booking!]! @shareable
+}
+
 
 type ReservedDate @shareable {
   checkInDate: DateTime!
@@ -108,9 +114,6 @@ interface MutationResponse {
 
 input CreateBookingInput {
   listingId: ID!
-  bookingNumber: String!
-  isFeatured: Boolean!
-  reservedDate: DateTime!
   checkInDate: DateTime!
   checkOutDate: DateTime!
   guestId: ID!

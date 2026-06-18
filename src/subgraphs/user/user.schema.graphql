@@ -68,7 +68,7 @@ type Guest @key(fields: "id") {
 }
 
 extend type Booking @key(fields: "id") {
-  id: ID!
+  id: ID! @external
 }
 
 """

@@ -1,10 +1,11 @@
-老师，payment是从0开始，你帮我检查一下
-
-extend schema
+schema
   @link(
-    url: "https://specs.apollo.dev/federation/v2.8"
+    url: "https://specs.apollo.dev/federation/v2.11"
     import: ["@key", "@shareable", "@external", "@requires", "@provides", "@override", "@inaccessible"]
-  )
+  ){
+  query: Query
+  mutation: Mutation
+}
 
 scalar DateTime
 
@@ -60,12 +61,6 @@ type ProcessPaymentResponse implements Response {
   payment: Payment @shareable
 }
 
-type AddFundsResponse implements Response {
-  code: Int! @shareable
-  success: Boolean! @shareable
-  message: String! @shareable
-}
-
 type RefundResponse implements Response {
   code: Int! @shareable
   success: Boolean! @shareable
@@ -77,14 +72,9 @@ type RefundResponse implements Response {
 # INPUT TYPES
 # --------------------------
 input ProcessPaymentInput {
-  orderId: ID!
+  bookingId: ID!
   paymentIntentId: String!
  
-}
-
-input AddFundsInput {
-  userId: ID!
-  amount: Float!
 }
 
 input RefundInput {
@@ -107,7 +97,6 @@ type Query {
 # --------------------------
 type Mutation {
   processPayment(input: ProcessPaymentInput!): ProcessPaymentResponse! @shareable
-  addFunds(input: AddFundsInput!): AddFundsResponse! @shareable
   processRefund(input: RefundInput!): RefundResponse! @shareable
   confirmPayment(paymentId: ID!): ProcessPaymentResponse! @shareable
 }

@@ -129,8 +129,8 @@ app.use(
   }) as unknown as RequestHandler
 );
     // ✅ 启动 HTTP
-    httpServer.listen({ port: 4030 }, async () => {
-      console.log("🚀 Server ready at http://localhost:4030/graphql");
+    httpServer.listen({ port: 4050 }, async () => {
+      console.log("🚀 Server ready at http://localhost:4050/graphql");
 
       // ✅ MQ consumer
       try {
