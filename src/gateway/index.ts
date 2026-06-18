@@ -3,64 +3,64 @@ import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
 import { ApolloGateway, RemoteGraphQLDataSource, IntrospectAndCompose } from "@apollo/gateway"
 
-async function start(){
-console.log("start gateway")
-const gateway = new ApolloGateway({
-  supergraphSdl: new IntrospectAndCompose({
-    subgraphs: [
-      { name: "auth", url: "http://localhost:4010/graphql" },
-      { name: "user", url: "http://localhost:4020/graphql" },
-       {name:"booking",url:"http://localhost:4030/graphql"},
-       {name:"payment",url:"http://localhost:4050/graphql"},
-       {name:"audit",url:"http://localhost:4070/graphql"},
-      {name:"location",url:"http://localhost:4080/graphql"},
-      {name:"amenity",url:"http://localhost:4090/graphql"},
-      {name:"listing",url:"http://localhost:4101/graphql"},
-    //   //{name:"billing",url:"http://localhost:4060/graphql"},
-     
-     {name:"ai",url:"http://localhost:4200/graphql"},
-     
-    //  // {name:"review",url:"http://localhost:4040/graphql"},
-  
-    
-    ]
-  }),
-   buildService({ url }) {
-    return new RemoteGraphQLDataSource({
-      url,
+async function start() {
+  console.log("start gateway")
+  const gateway = new ApolloGateway({
+    supergraphSdl: new IntrospectAndCompose({
+      subgraphs: [
+        { name: "auth", url: "http://localhost:4010/graphql" },
+        { name: "user", url: "http://localhost:4020/graphql" },
+        { name: "booking", url: "http://localhost:4030/graphql" },
+        { name: "payment", url: "http://localhost:4050/graphql" },
+        { name: "audit", url: "http://localhost:4070/graphql" },
+        { name: "location", url: "http://localhost:4080/graphql" },
+        { name: "amenity", url: "http://localhost:4090/graphql" },
+        { name: "listing", url: "http://localhost:4101/graphql" },
+        //   //{name:"billing",url:"http://localhost:4060/graphql"},
 
-      willSendRequest({ request, context }) {
+        { name: "ai", url: "http://localhost:4200/graphql" },
 
-        if (context.token) {
-          request.http?.headers.set(
-            "authorization",
-            context.token
-          );
-        }
-      },
-    });
-  },
-});
+        //  // {name:"review",url:"http://localhost:4040/graphql"},
 
-console.log("gateway:",gateway)
+
+      ]
+    }),
+    buildService({ url }) {
+      return new RemoteGraphQLDataSource({
+        url,
+
+        willSendRequest({ request, context }) {
+
+          if (context.token) {
+            request.http?.headers.set(
+              "authorization",
+              context.token
+            );
+          }
+        },
+      });
+    },
+  });
+
+  console.log("gateway:", gateway)
   const server = new ApolloServer({
     gateway
   })
-console.log("server:",server)
+  console.log("server:", server)
   await server.start()
   const app = express()
 
-  app.use("/graphql",express.json(),
-  expressMiddleware(server, {
-    context: async ({ req }) => {
+  app.use("/graphql", express.json(),
+    expressMiddleware(server, {
+      context: async ({ req }) => {
 
-      return {
-        token: req.headers.authorization,
-      };
-    },
-  }))
+        return {
+          token: req.headers.authorization,
+        };
+      },
+    }))
 
-  app.listen(4000,()=>{
+  app.listen(4000, () => {
     console.log("🚀 Gateway running at http://localhost:4000/graphql")
   })
 }

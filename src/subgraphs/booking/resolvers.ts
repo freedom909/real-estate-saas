@@ -1,8 +1,10 @@
+console.log("BOOKING RESOLVER LOADED");
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
 import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
 import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booking.usecase";
+import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { container } from "tsyringe";
 
@@ -13,12 +15,14 @@ export const resolvers = {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(id);
     },
     bookingsForGuest: async (_: any, { userId }: any) => {
-      // Return bookings filtered by guestId
-      // Replace with actual UseCase if available
-      return [];
+      const repo =
+        container.resolve<IBookingRepository>(
+          TOKENS_BOOKING.repository.bookingRepository
+        );
+
+      return repo.findByGuestId(userId);
     },
   },
-
   Mutation: {
     createBooking: async (_: any, { input }: any, { user }: any) => {
       const userId = user?.id || user?.userId;
@@ -76,36 +80,44 @@ export const resolvers = {
 
     completeBooking: async (_: any, { id }: any) => {
       return container.resolve<CompleteBookingUseCase>(TOKENS_BOOKING.usecase.completeBookingUseCase).execute(id);
-     
+
     },
   },
 
   Booking: {
     listing: (parent: any) => ({ __typename: "Listing", id: parent.listingId || parent.listing_id }),
-    guest: (parent: any) => ({ __typename: "Guest", id: parent.guestId || parent.guest_id }),
+
+    guest: (parent) => ({
+      __typename: "User",
+      id: parent.guestId
+    }),
+
     // ✅ Handle potential snake_case from DB or missing fields
     checkInDate: (parent: any) => parent.checkInDate || parent.dateRange?.checkInDate || parent.check_in_date,
     checkOutDate: (parent: any) => parent.checkOutDate || parent.dateRange?.checkOutDate || parent.check_out_date,
-    reservedDate: (parent: any) => parent.reservedDate || parent.reserved_date || parent.createdAt,
-    bookingNumber: (parent: any) => parent.bookingNumber || parent.booking_number || parent.id,
     price: (parent: any) => parent.price || parent.total_price || 0,
     __resolveReference: async (reference: { id: string }) => {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(reference.id);
     },
   },
 
+  User: {
+    bookings: async (user: { id: string }) => {
 
-  Guest: {
-    bookings: async (guest: { id: string }) => {
-      // ❌ BUG FIX: GetBookingUseCase fetches a SINGLE booking by ID.
-      // Passing guest.id here will return null or the wrong data.
-      // TODO: Implement GetBookingsForGuestUseCase. 
-      // For now, return an empty array to avoid the "Cannot return null" error.
-      return [];
+      const repo =
+        container.resolve<IBookingRepository>(
+          TOKENS_BOOKING.repository.bookingRepository
+        );
+
+      return repo.findByGuestId(
+        user.id
+      );
     },
   },
+
 
   // Note: The 'Review' field on the 'Booking' type should be handled 
   // by the Review Subgraph using the @key directive, 
   // not by a resolver inside the Booking Subgraph.
+
 };

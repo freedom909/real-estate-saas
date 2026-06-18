@@ -17,6 +17,7 @@ type Query {
 
 extend type User @key(fields: "id") {
   id: ID! @external
+  bookings: [Booking!]! @shareable
 }
 
 extend type Host @key(fields: "id") {
@@ -24,10 +25,7 @@ extend type Host @key(fields: "id") {
   listings: [Listing!]! @shareable
 }
 
-extend type Guest @key(fields: "id") {
-  id: ID! @external 
-  bookings: [Booking!]! @shareable
-}
+
 
 type CancelBookingResponse implements MutationResponse {
   code: Int! @shareable
@@ -73,7 +71,7 @@ type Booking @key(fields: "id") {
   id: ID!
 
   listing: Listing!
-  guest: Guest!
+  guest: User!
 
   checkInDate: DateTime!
   checkOutDate: DateTime!
