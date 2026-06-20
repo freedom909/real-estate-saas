@@ -1,4 +1,4 @@
-import { TOKENS } from "@/shared/infra/tokens";
+
 
 import { container } from "tsyringe";
 import { SemanticExtractor } from "@/ai-platform/domain/semantic/extractors/semantic.extractor";
@@ -6,7 +6,7 @@ import { SemanticExtractor } from "@/ai-platform/domain/semantic/extractors/sema
 
 import { GeneralAgent } from "@/ai-platform/domain/agents/general.agent";
 import { RuleExtractor } from "@/ai-platform/domain/semantic/extractors/rule.extractor";
-import LLMExtractor from "@/ai-platform/domain/semantic/extractors/llm.extractor";
+import LLMExtractor from "@/ai-platform/domain/semantic/extractors/listing/llm.extractor";
 
 import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
 
@@ -40,7 +40,7 @@ export default function AIPlatformDependencies() {
   );
 
   container.register(
-   TOKENS_EXTRACTOR.llmExtractor,
+    TOKENS_EXTRACTOR.llmExtractor,
     {
       useClass:
         LLMExtractor
@@ -64,7 +64,7 @@ export default function AIPlatformDependencies() {
     }
   );
 
-  container.register(TOKENS_ORCHESTRATOR.aiPlatformOrchestrator,  
+  container.register(TOKENS_ORCHESTRATOR.aiPlatformOrchestrator,
     {
       useClass:
         AIPlatformOrchestrator
@@ -75,7 +75,7 @@ export default function AIPlatformDependencies() {
 
   // Register Agents and Facet Resolvers
   registerAgents();
- 
+
   registerOpenAIAdapter();
 
   registerListingDependencies();
@@ -86,12 +86,12 @@ export default function AIPlatformDependencies() {
   container.register(TOKENS_AI.usecase.chatUseCase,
     {
       useClass:
-        ChatUseCase 
+        ChatUseCase
     }
   );
 
   container.register(
-   TOKENS_AGENT.generalAgent,
+    TOKENS_AGENT.generalAgent,
     {
       useClass:
         GeneralAgent
@@ -101,13 +101,13 @@ export default function AIPlatformDependencies() {
   container.register(
     TOKENS_AGENT.listingAgent,
     {
-      useClass:ListingAgent
+      useClass: ListingAgent
     }
   );
   container.register(
     TOKENS_AGENT_FACTORY.agentFactory,
     {
-      useClass:AgentFactory
+      useClass: AgentFactory
     }
   );
 

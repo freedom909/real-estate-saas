@@ -6,7 +6,7 @@ import { ISemanticExtractor }
   from "../types/i-semantic.extractor";
 import { SemanticContext } from "../semantic-context";
 import { RuleExtractor } from "./rule.extractor";
-import LLMExtractor from "./llm.extractor";
+import LLMExtractor from "./listing/llm.extractor";
 
 
 

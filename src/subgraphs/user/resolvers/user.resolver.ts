@@ -24,6 +24,33 @@ interface UserReference {
 
 const resolvers = {
 
+Guest: {
+  __resolveReference: async (
+    ref: UserReference,
+    { container }: ResolverContext
+  ) => {
+
+    console.log(
+      "🔥 Guest __resolveReference",
+      ref
+    );
+
+    const userService =
+      container.resolve<UserService>(
+        TOKENS_USER.services.userService
+      );
+
+    const guest =
+      await userService.findById(ref.id);
+
+    console.log(
+      "🔥 Guest Found",
+      guest
+    );
+
+    return guest;
+  },
+},
   User: {
     id: (parent: any) => parent.id || parent._id?.toString(),
     __resolveReference: async (ref: UserReference, { container }: ResolverContext) => {
@@ -88,7 +115,7 @@ const resolvers = {
     updateLastLogin: async (_: unknown, { userId }: { userId: string }) => {
 
       const user = await UserModel.findByIdAndUpdate(
-        userId,
+        userId,//型 'string' の引数を型 'Query<any, any, {}, unknown, "find", Record<string, never>>' のパラメーターに割り当てることはできません。
         { lastLoginAt: new Date() },
         { new: true }
       )

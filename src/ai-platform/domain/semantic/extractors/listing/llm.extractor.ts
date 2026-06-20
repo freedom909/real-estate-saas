@@ -7,7 +7,7 @@ import {
   EntityType,
   AgentAction,
 
-} from "../semantic-context";
+} from "../../semantic-context";
 
 
 
@@ -15,7 +15,7 @@ import { OpenAIAdapter }
   from "@/ai-platform/infrastructure/adapters/openai.adapter";
 
 import { AIDomain }
-  from "../types/ai.domain";
+  from "../../types/ai.domain";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ListingOptimizationResult } from "@/core/listing/application/dto/listingOptimization.result";
 import { SemanticSchema } from "@/ai-platform/schemas/semantic.schema";

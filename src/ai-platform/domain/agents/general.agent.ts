@@ -8,9 +8,6 @@ import { SemanticSchema } from "@/ai-platform/schemas/semantic.schema";
 import { AIContext } from "@/ai-platform/context/types/context/ai.context";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
-
-
-
 @injectable()
 export class GeneralAgent {
 

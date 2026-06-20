@@ -19,7 +19,7 @@ export class ListingAgent implements IDomainAgent {
   constructor(
     @inject(delay(() => GenerateListingAIOptimizationUseCase))
     private readonly optimizationUseCase: GenerateListingAIOptimizationUseCase,
-  ) { }
+  ) {}
 
   async execute(
     semantic: SemanticContext,

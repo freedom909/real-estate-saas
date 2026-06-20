@@ -5,7 +5,7 @@ import { AIDomain } from "../../semantic/types/ai.domain";
 import { UserContext } from "../../semantic/types/userContext";
 
 import { RuleEngine } from "../../semantic/extractors/rule.engine";
-import LLMExtractor from "../../semantic/extractors/llm.extractor";
+import LLMExtractor from "../../semantic/extractors/listing/llm.extractor";
 import { ConfidenceGuard } from "../../semantic/extractors/confidence.guard";
 
 import { ListingAgent } from "../../agents/listing/listing.agent";

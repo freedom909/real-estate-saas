@@ -22,7 +22,7 @@ import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import TOKENS from "@/modules/tokens/mq.tokens";
 import registerMQEventBus from "@/modules/container/mq.register";
 import { registerReviewDependencies } from "@/modules/container/review.register";
-import { ReviewMQEventBus } from "../review/interface/events/review-event-bus";
+
 
 dotenv.config();
 registerMQEventBus();

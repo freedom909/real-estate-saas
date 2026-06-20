@@ -8,8 +8,6 @@ import { AIContext } from "@/ai-platform/context/types/context/ai.context";
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
 
-
-
 @injectable()
 export class BookingAgent implements IDomainAgent {
 

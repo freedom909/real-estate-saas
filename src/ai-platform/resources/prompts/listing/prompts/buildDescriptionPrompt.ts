@@ -1,6 +1,8 @@
 // FILE: src/subgraphs/listing/application/prompts/buildDescriptionPrompt.ts
 
-import { Listing } from "../../domain/entities/listing";
+import { Listing } from "@/core/listing/domain/entities/listing";
+
+
 
 export const buildDescriptionPrompt = (listing: Listing): string => `
 You are an expert Airbnb copywriter.
