@@ -11,6 +11,8 @@ export class WorkflowGraph {
   private nodes: Map<string, WorkflowNode> = new Map();
 
   build(steps: WorkflowStep[]): WorkflowNode[] {
+    this.nodes.clear();
+    
     // Create all nodes first
     steps.forEach(step => {
       this.nodes.set(step.action, {

@@ -21,7 +21,7 @@ export class CreateRefundCapability {
     private refundPaymentUseCase: RefundPaymentUseCase
   ) {}
 
-  async execute(paymentId: string, reason: string) {
-    return this.refundPaymentUseCase.execute(paymentId, reason);
+  async execute(paymentId: string) {
+    return this.refundPaymentUseCase.execute(paymentId);
   }
 }
