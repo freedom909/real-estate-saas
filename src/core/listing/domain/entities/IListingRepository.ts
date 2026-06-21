@@ -1,10 +1,22 @@
 // IListingRepository.ts
 import { Listing } from "./listing";
 
+export interface SearchListingsQuery {
+  location?: string;
+  checkIn?: string;
+  checkOut?: string;
+  guestCount?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  limit?: number;
+  offset?: number;
+}
+
 export interface IListingRepository {
   create(listing: Listing): Promise<Listing>;
   findById(id: string): Promise<Listing | null>;
   findByHostId(hostId: string): Promise<Listing[]>;
+  search(query: SearchListingsQuery): Promise<Listing[]>;
   update(id: string, listing: Listing): Promise<boolean>;
   delete(id: string): Promise<boolean>;
   save(listing: Listing): Promise<Listing>;

@@ -50,7 +50,10 @@ export enum ArtifactType {
   BOOKING = "BOOKING",
   REVIEW = "REVIEW",
   PRICE = "PRICE",
-  TIPS = "TIPS"
+  TIPS = "TIPS",
+  LISTING_SEARCH_RESULT = "LISTING_SEARCH_RESULT",
+  AVAILABILITY_CHECK = "AVAILABILITY_CHECK",
+  LISTING = "LISTING",
 }
 
 export interface AIAction {

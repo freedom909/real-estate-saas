@@ -3,7 +3,7 @@ import { injectable, inject } from 'tsyringe';
 
 import { ListingMapper } from '../mappers/listing.mapper';
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
-import { IListingRepository } from '../../domain/entities/IListingRepository';
+import { IListingRepository, SearchListingsQuery } from '../../domain/entities/IListingRepository';
 import { Sequelize } from 'sequelize';
 import ListingModel from '../models/listing.model';
 import ListingCategories from '../models/listingCategories.model';
@@ -28,13 +28,9 @@ export class ListingRepository implements IListingRepository {
   ) {}
 
   async create(listing: Listing): Promise<Listing> {
- const persistence =
-    ListingMapper.toPersistence(listing);
-
-  const created =
-    await this.model.create(persistence);
-
-  return ListingMapper.toDomain(created);
+    const persistence = ListingMapper.toPersistence(listing);
+    const created = await this.model.create(persistence);
+    return ListingMapper.toDomain(created);
   }
 
   async update(id: string, listing: Listing): Promise<boolean> {
@@ -48,103 +44,105 @@ export class ListingRepository implements IListingRepository {
     return deletedCount > 0;
   }
 
-async findById(
-  id: string
-): Promise<Listing | null> {
+  async findById(id: string): Promise<Listing | null> {
+    const listing = await this.model.findByPk(id);
 
-  console.log(
-    "REPO STEP 1"
-  );
+    if (!listing) {
+      return null;
+    }
 
-  const listing =
-    await this.model.findByPk(id);
-
-  console.log(
-    "REPO STEP 2 listing",
-    listing?.toJSON()
-  );
-
-  if (!listing) {
-    return null;
-  }
-
-  console.log(
-    "REPO STEP 3 categories"
-  );
-
-  const categoryRows =
-    await this.listingCategoryModel.findAll({
-      where: {
-        listingId: id
-      }
+    const categoryRows = await this.listingCategoryModel.findAll({
+      where: { listingId: id }
     });
 
-  console.log(
-    "REPO STEP 4 categoryRows",
-    categoryRows
-  );
+    const categories = categoryRows.map((c: any) => c.categoryId);
 
-  const categories =
-    categoryRows.map(
-      (c: any) =>
-        c.categoryId
-    );
-
-  console.log(
-    "REPO STEP 5 amenities"
-  );
-
-  const amenityRows =
-    await this.listingAmenityModel.findAll({
-      where: {
-        listingId: id
-      }
+    const amenityRows = await this.listingAmenityModel.findAll({
+      where: { listingId: id }
     });
 
-  console.log(
-    "REPO STEP 6 amenityRows",
-    amenityRows
-  );
+    const amenityIds = amenityRows.map((a: any) => a.amenityId);
 
-  const amenityIds =
-    amenityRows.map(
-      (a: any) =>
-        a.amenityId
-    );
-
-  console.log(
-    "REPO STEP 7 mapper"
-  );
-
-  const domain =
-    ListingMapper.toDomain({
+    const domain = ListingMapper.toDomain({
       ...listing.toJSON(),
       categories,
       amenityIds,
     });
 
-  console.log(
-    "REPO STEP 8 success"
-  );
-
-  return domain;
-}
+    return domain;
+  }
 
   async findByHostId(hostId: string): Promise<Listing[]> {
-    // Assuming hostId maps to hostId in the MySQL schema
     const records = await this.model.findAll({ where: { hostId: hostId } });
     return records.map(record => ListingMapper.toDomain(record));
   }
 
-async findByIds(ids: string[]): Promise<Category[]> {
-  return CategoryModel.findAll({
-    where: {
-      id: {
-        [Op.in]: ids,
+  async search(query: SearchListingsQuery): Promise<Listing[]> {
+    const where: any = {};
+
+    // Filter by location (address contains keyword)
+    if (query.location) {
+      where.address = { [Op.like]: `%${query.location}%` };
+    }
+
+    // Filter by guest count
+    if (query.guestCount) {
+      where.numOfGuests = { [Op.gte]: query.guestCount };
+    }
+
+    // Filter by price range
+    if (query.minPrice !== undefined || query.maxPrice !== undefined) {
+      where.price = {};
+      if (query.minPrice !== undefined) {
+        where.price[Op.gte] = query.minPrice;
+      }
+      if (query.maxPrice !== undefined) {
+        where.price[Op.lte] = query.maxPrice;
+      }
+    }
+
+    const limit = query.limit ?? 20;
+    const offset = query.offset ?? 0;
+
+    const records = await this.model.findAll({
+      where,
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]],
+    });
+
+    // Batch-load categories for all returned listing IDs
+    // (listing_categories is a join table, not a column on listings)
+    const listingIds = records.map((r: any) => r.id);
+    const categoryRows = listingIds.length > 0
+      ? await this.listingCategoryModel.findAll({ where: { listingId: listingIds } })
+      : [];
+    const categoryMap = new Map<string, string[]>();
+    for (const row of categoryRows as any[]) {
+      const list = categoryMap.get(row.listingId) || [];
+      list.push(row.categoryId);
+      categoryMap.set(row.listingId, list);
+    }
+
+    return records.map(record => {
+      const json = record.toJSON();
+      return ListingMapper.toDomain({
+        ...json,
+        categories: categoryMap.get(json.id) ?? [],
+        amenityIds: json.amenityIds ?? [],
+      });
+    });
+  }
+
+  async findByIds(ids: string[]): Promise<Category[]> {
+    return CategoryModel.findAll({
+      where: {
+        id: {
+          [Op.in]: ids,
+        },
       },
-    },
-  });
-}
+    });
+  }
 
   async save(listing: Listing): Promise<Listing> {
     const raw = ListingMapper.toPersistence(listing);
@@ -155,7 +153,6 @@ async findByIds(ids: string[]): Promise<Category[]> {
       await this.model.upsert(raw as any, { transaction });
 
       // 2. Handle categories join table
-      // Extract IDs from the domain entity
       const categoryIds = listing.categories || [];
       
       await this.listingCategoryModel.destroy({
@@ -198,4 +195,5 @@ async findByIds(ids: string[]): Promise<Category[]> {
       await transaction.rollback();
       throw error;
     }
-}}
+  }
+}

@@ -7,6 +7,7 @@ import { ISemanticExtractor } from "../semantic/types/i-semantic.extractor";
 import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 import { AgentResult } from "@/ai-platform/context/types/context/agent.result";
 import { TOKENS_EXTRACTOR } from "@/ai-platform/container/semantic/extractor";
+import { AIDomain } from "../semantic/types/ai.domain";
 
 @injectable()
 export class AIPlatformOrchestrator {
@@ -34,10 +35,26 @@ export class AIPlatformOrchestrator {
         semantic
       );
 
-    const result = await agent.execute(semantic,request.context) as AgentResult;
+    const raw = await agent.execute(semantic, request.context);
     console.log("AGENT RESULT++",
-      Object.keys(result)
+      Object.keys(raw)
     );
+
+    // Normalize: ensure every agent result conforms to AgentResult shape.
+    // Agents may return partial objects (e.g. { reply } or use-case results
+    // without `artifacts`). GraphQL schema requires `artifacts: [Artifact!]!`.
+    const result: AgentResult = {
+      success: raw?.success ?? true,
+      domain: raw?.domain ?? (semantic.domain as AIDomain) ?? AIDomain.GENERAL,
+      primaryAction: raw?.primaryAction ?? {
+        name: semantic.action?.type ?? "UNKNOWN",
+        confidence: semantic.confidence ?? 0,
+      },
+      summary: raw?.summary ?? raw?.reply ?? raw?.message ?? "",
+      artifacts: Array.isArray(raw?.artifacts) ? raw.artifacts : [],
+      metadata: raw?.metadata,
+    };
+
     return result;
   }
 }

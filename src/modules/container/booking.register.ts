@@ -11,6 +11,7 @@ import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booki
 import { BookingGateway } from "@/core/booking/bookingGateway";
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
 import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
+import { GetBookingsForGuestUseCase } from "@/core/booking/application/usecases/getBookingsForGuest.useCase";
 
 
 export const BookingRegister = () => {
@@ -32,10 +33,12 @@ export const BookingRegister = () => {
   container.register(TOKENS_BOOKING.usecase.getBookingUseCase, {
     useClass: GetBookingUseCase,
   });
-container.register(TOKENS_BOOKING.usecase.completeBookingUseCase, {
+  container.register(TOKENS_BOOKING.usecase.completeBookingUseCase, {
     useClass: CompleteBookingUseCase,
   });
-
+  container.register(TOKENS_BOOKING.usecase.getBookingsForGuestUseCase, {
+    useClass: GetBookingsForGuestUseCase,
+  });
 
   // Gateways
   container.register(TOKENS_BOOKING.gateway.bookingGateway, {

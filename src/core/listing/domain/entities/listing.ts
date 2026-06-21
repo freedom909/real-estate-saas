@@ -117,8 +117,6 @@ get description(): string {
   private validate(props: ListingProps) {
     if (!props.hostId) throw new Error("hostId required");
     if (!props.locationId) throw new Error("locationId required");
-    if (!props.categories || props.categories.length === 0) {
-      throw new Error("categories required");
-    }
+    // categories may be empty when loaded from DB (join table may have no rows)
   }
 }

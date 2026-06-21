@@ -33,6 +33,7 @@ export const TOKENS_LISTING = {
     applyDescriptionSuggestionUseCase: Symbol.for('ApplyDescriptionSuggestionUseCase'),
     createListingUseCase: Symbol.for('CreateListingUseCase'),
     getListingUseCase: Symbol.for('GetListingUseCase'),
+    searchListingUseCase: Symbol.for('SearchListingUseCase'),
     updateListingUseCase: Symbol.for('UpdateListingUseCase'),
     deleteListingUseCase: Symbol.for('DeleteListingUseCase'),
   },
@@ -53,5 +54,3 @@ export const TOKENS_LISTING = {
   },
   openAIAdapter: Symbol.for("OpenAIAdapter"),
 } as const;
-
-
