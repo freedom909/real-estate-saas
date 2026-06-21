@@ -13,11 +13,17 @@
 
 import { EpisodeRecord } from "./episodic/episode-record";
 import { StateEncoderV2, StateVector } from "../reasoning/state-encoder";
+import { ExperiencePrior } from "../learning/action-score";
 
 export interface EpisodeVector {
   episode: EpisodeRecord;
   vector: StateVector;
   timestamp: number;
+}
+
+export interface RetrievedEpisode {
+  episode: EpisodeRecord;
+  similarity: number;
 }
 
 export class EpisodeVectorDB {
@@ -43,16 +49,13 @@ export class EpisodeVectorDB {
     currentContext: any,
     topK: number = 5,
     filter?: { goalEntity?: string; successOnly?: boolean }
-  ): EpisodeRecord[] {
+  ): RetrievedEpisode[] {
     if (this.episodes.length === 0) return [];
 
     const currentVector = this.stateEncoder.encode(currentContext);
 
     // 计算相似度
-    const scored: Array<{
-      episode: EpisodeRecord;
-      similarity: number;
-    }> = [];
+    const scored: RetrievedEpisode[] = [];
 
     for (const epVec of this.episodes) {
       // 应用过滤
@@ -88,7 +91,7 @@ export class EpisodeVectorDB {
     scored.sort((a, b) => b.similarity - a.similarity);
 
     // 取 Top K
-    const topEpisodes = scored.slice(0, topK).map(s => s.episode);
+    const topEpisodes = scored.slice(0, topK);
 
     if (topEpisodes.length > 0) {
       console.log(`    [VectorDB] Retrieved ${topEpisodes.length} episodes (top sim=${scored[0].similarity.toFixed(3)})`);
@@ -100,46 +103,50 @@ export class EpisodeVectorDB {
   /**
    * 从相似 Episode 中学习经验
    */
-  getExperienceStats(
-    similarEpisodes: EpisodeRecord[]
-  ): Map<
-    string,
-    {
-      attempts: number;
-      successes: number;
-      avgReward: number;
-    }
-  > {
+  getExperiencePriors(
+    similarEpisodes: RetrievedEpisode[]
+  ): Map<string, ExperiencePrior> {
     const stats = new Map();
 
-    for (const ep of similarEpisodes) {
-      const action = ep.action.name;
+    for (const retrieved of similarEpisodes) {
+      const action = retrieved.episode.action.name;
 
       if (!stats.has(action)) {
         stats.set(action, {
           attempts: 0,
           successes: 0,
           avgReward: 0,
-          totalReward: 0
+          weightedRewardSum: 0,
+          similaritySum: 0,
         });
       }
 
       const entry = stats.get(action)!;
       entry.attempts++;
-      entry.totalReward += ep.outcome.reward;
+      entry.weightedRewardSum += retrieved.similarity * retrieved.episode.outcome.reward;
+      entry.similaritySum += retrieved.similarity;
 
-      if (ep.outcome.success) {
+      if (retrieved.episode.outcome.success) {
         entry.successes++;
       }
     }
 
-    // 计算平均
-    for (const [action, entry] of stats) {
-      entry.avgReward = entry.totalReward / entry.attempts;
-      delete entry.totalReward;
+    const priors = new Map<string, ExperiencePrior>();
+
+    for (const [actionKey, entry] of stats) {
+      const avgReward = entry.similaritySum > 0
+        ? entry.weightedRewardSum / entry.similaritySum
+        : 0;
+      priors.set(actionKey, {
+        actionKey,
+        attempts: entry.attempts,
+        successRate: entry.attempts > 0 ? entry.successes / entry.attempts : 0,
+        avgReward,
+        confidence: Math.min(1, entry.attempts / 20),
+      });
     }
 
-    return stats;
+    return priors;
   }
 
   getAll(): EpisodeRecord[] {
