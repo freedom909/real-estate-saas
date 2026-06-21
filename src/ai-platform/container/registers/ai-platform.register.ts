@@ -23,6 +23,7 @@ import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/ag
 import registerListingDependencies from "@/modules/container/listing.register";
 import { registerAIContainer } from "@/modules/container/ai.register";
 import { registerEventBus } from "@/modules/container/event.bus.register";
+import { BookingRegister } from "@/modules/container/booking.register";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ChatUseCase } from "@/ai-platform/application/usecases/chatUseCase";
 import { TOKENS_EXTRACTOR } from "../semantic/extractor";
@@ -81,6 +82,16 @@ export default function AIPlatformDependencies() {
   registerListingDependencies();
 
   registerAIContainer();
+
+  // ⭐ Register booking domain dependencies (repos, use cases, etc.)
+  // Without this, BookingAgent's transitive deps (IBookingRepository, EventBus)
+  // are unregistered → tsyringe throws "Cannot read properties of undefined (reading 'constructor')"
+  try {
+    BookingRegister();
+    console.log("✅ BookingRegister() completed successfully");
+  } catch (err) {
+    console.error("❌ BookingRegister() FAILED:", err);
+  }
 
   // usecase
   container.register(TOKENS_AI.usecase.chatUseCase,

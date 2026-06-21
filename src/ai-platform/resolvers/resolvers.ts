@@ -8,7 +8,18 @@ export const resolvers = {
   Mutation: {
     chat: async (_, { input }, context) => {
       const request = AIRequestFactory.fromGraphQL(input, context);
-      const result = await container.resolve<ChatUseCase>(TOKENS_AI.usecase.chatUseCase).execute(request)
+      console.log("📥 Chat request received, message:", request.message);
+
+      let chatUseCase: ChatUseCase;
+      try {
+        chatUseCase = container.resolve<ChatUseCase>(TOKENS_AI.usecase.chatUseCase);
+        console.log("✅ ChatUseCase resolved");
+      } catch (err) {
+        console.error("❌ Failed to resolve ChatUseCase:", err);
+        throw err;
+      }
+
+      const result = await chatUseCase.execute(request)
       console.log(
         "FINAL RESULT",
         JSON.stringify(result, null, 2)

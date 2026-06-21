@@ -19,6 +19,9 @@ import {resolvers} from "./resolvers/resolvers"
 import AIPlatformDependencies from "./container/registers/ai-platform.register"
 import registerAuditDependencies from "@/modules/container/audit.register"
 import { cacheContainer } from "@/modules/container/cache.register"
+import getUserFromToken from "@/infrastructure/auth/getUserFromToken"
+import { sequelize, connectMySQL } from "@/infrastructure/config/seq"
+import { initBookingModel } from "@/core/booking/infrastructure/models/booking.model"
 
 // ⭐ 注册 DI
 registerAuditDependencies(container)
@@ -27,6 +30,11 @@ cacheContainer()
 console.log("Cache container loaded")
 AIPlatformDependencies()
 console.log("AI Platform container loaded")
+
+// ⭐ MySQL — initialize BookingModel so SequelizeBookingRepository works
+await connectMySQL()
+initBookingModel(sequelize)
+console.log("✅ MySQL connected & BookingModel initialized")
 
 // ⭐ Mongo
 await mongoose.connect(
@@ -62,12 +70,15 @@ app.use(
   express.json(),
   cookieParser(),
   expressMiddleware(server, {
-    context: async ({ req, res }) => ({
-      req,
-      res,
-      container,
-      user: (req as any).user ?? null
-    })
+    context: async ({ req, res }) => {
+      const user = await getUserFromToken(req)
+      return {
+        req,
+        res,
+        container,
+        user: user ?? null
+      }
+    }
   })
 )
 

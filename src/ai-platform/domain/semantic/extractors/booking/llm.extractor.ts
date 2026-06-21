@@ -58,7 +58,8 @@ Rules:
 - ALWAYS return SEARCH_LISTING for "show me rooms in [location]", "find a room in [location]", "rooms near [location]"
 - ALWAYS return CHECK_AVAILABILITY for "is there availability", "is it available", "check availability"
 - Extract LOCATION entity when user mentions a place (e.g. "Kyoto", "Osaka", "Tokyo")
-- Extract DATE_RANGE entity when user mentions dates (e.g. "next week", "tomorrow", "June 20-25")
+- Extract DATE_RANGE entity when user mentions dates for search (e.g. "next week", "tomorrow", "June 20-25")
+- For CREATE_BOOKING: extract check_in and check_out as separate entities (e.g. "next week" → check_in="next week", check_out="next week + 7 days")
 - Extract GUEST_COUNT entity when user mentions number of guests
 - Extract LISTING_ID entity when user references a specific listing
 - Extract BOOKING_ID entity when user references a specific booking

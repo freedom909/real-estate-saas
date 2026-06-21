@@ -35,7 +35,15 @@ export class AIPlatformOrchestrator {
         semantic
       );
 
-    const raw = await agent.execute(semantic, request.context);
+    console.log("🔍 Agent resolved:", agent?.constructor?.name ?? "NULL/UNDEFINED");
+
+    let raw;
+    try {
+      raw = await agent.execute(semantic, request.context);
+    } catch (err) {
+      console.error("❌ Agent.execute() FAILED:", err);
+      throw err;
+    }
     console.log("AGENT RESULT++",
       Object.keys(raw)
     );

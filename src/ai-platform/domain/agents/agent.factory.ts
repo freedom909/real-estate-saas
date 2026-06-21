@@ -15,8 +15,8 @@ export class AgentFactory {
   constructor(
     @inject(TOKENS_AGENT.listingAgent)
     private listingAgent: ListingAgent,
-    // @inject(TOKENS_AGENT.bookingAgent)
-    // private bookingAgent: BookingAgent,
+    @inject(TOKENS_AGENT.bookingAgent)
+    private bookingAgent: BookingAgent,
     // @inject(TOKENS_AGENT.paymentAgent)
     // private paymentAgent: PaymentAgent,
      @inject(TOKENS_AGENT.generalAgent)
@@ -25,15 +25,13 @@ export class AgentFactory {
   ) {}
 
   resolve(agentName: string): IDomainAgent {
+    console.log(`🔍 AgentFactory.resolve("${agentName}")`);
     switch (agentName) {
       case "ListingAgent":
         return this.listingAgent;
-      //case "BookingAgent":
-    //     return this.bookingAgent;
-    //   case "PaymentAgent":
-    //     return this.paymentAgent;
-    //   case "SecurityAgent":
-    //     return this.securityAgent;
+      case "BookingAgent":
+        console.log("  → returning BookingAgent instance:", !!this.bookingAgent);
+        return this.bookingAgent;
       case "GeneralAgent":
         return this.generalAgent;
       default:

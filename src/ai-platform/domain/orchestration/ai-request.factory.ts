@@ -10,11 +10,19 @@ export class AIRequestFactory {
     context: any
   ): AIRequest {
 
+    // Map getUserFromToken result { userId, email, role } → IdentityContext.user { id, email, role }
+    const rawUser = context.user;
+    const user = rawUser ? {
+      id: rawUser.userId || rawUser.id,
+      email: rawUser.email,
+      role: rawUser.role,
+    } : undefined;
+
     return {
       message: input.message,
       context: {
         identity: {
-          user: context.user,
+          user,
           tenant: context.tenant,
         },
 

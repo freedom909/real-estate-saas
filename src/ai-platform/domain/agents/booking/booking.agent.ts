@@ -38,7 +38,7 @@ export class BookingAgent implements IDomainAgent {
 
     @inject(delay(() => SearchListingUseCase))
     private searchListingUseCase: SearchListingUseCase,
-  ) {}
+  ) { }
 
   async execute(
     semantic: SemanticContext,
@@ -82,18 +82,54 @@ export class BookingAgent implements IDomainAgent {
         const checkIn = this.extractEntity(semantic, ["check_in", "checkIn", "CHECK_IN", "check_in_date"]);
         const checkOut = this.extractEntity(semantic, ["check_out", "checkOut", "CHECK_OUT", "check_out_date"]);
 
-        if (!checkIn) throw new Error("Check-in date required for booking creation.");
-        if (!checkOut) throw new Error("Check-out date required for booking creation.");
+        // Fallback: if no check_in/check_out but DATE_RANGE exists, use it for both
+        // (the LLM may return DATE_RANGE instead of separate check_in/check_out)
+        let resolvedCheckIn =
+          checkIn;
+
+        let resolvedCheckOut =
+          checkOut;
+
+        const dateRange =
+          this.extractEntity(
+            semantic,
+            ["DATE_RANGE", "date_range"]
+          );
+
+        if (
+          (!resolvedCheckIn || !resolvedCheckOut)
+          && dateRange
+        ) {
+
+          const resolved =
+            this.resolveDateRange(
+              dateRange
+            );
+
+          resolvedCheckIn =
+            resolved.checkInDate.toISOString();
+
+          resolvedCheckOut =
+            resolved.checkOutDate.toISOString();
+        }
+
+        if (!resolvedCheckIn) throw new Error("Check-in date required for booking creation.");
+        if (!resolvedCheckOut) throw new Error("Check-out date required for booking creation.");
 
         const priceEntity = semantic.entities.find(e =>
           ["PRICE", "price"].includes(e.type as string)
         );
 
+        // Auth check
+        if (!context.identity.user) {
+          throw new Error("Authentication required: no user in context. Please log in and try again.");
+        }
+
         const booking = await this.createBookingUseCase.execute({
           listingId: resolvedListingId,
           guestId: context.identity.user.id,
-          checkInDate: checkIn,
-          checkOutDate: checkOut,
+          checkInDate: resolvedCheckIn,
+          checkOutDate: resolvedCheckOut,
           price: priceEntity ? Number(priceEntity.value) : 0,
           tenantId: (context.identity.user as any)?.tenantId || "tenant-dev",
         });
@@ -272,5 +308,51 @@ export class BookingAgent implements IDomainAgent {
         content: item,
       })),
     };
+  }
+
+  private resolveDateRange(
+    dateRange: string
+  ): {
+    checkInDate: Date;
+    checkOutDate: Date;
+  } {
+
+    const lower =
+      dateRange.toLowerCase().trim();
+
+    if (lower === "next week") {
+
+      const today = new Date();
+
+      const day =
+        today.getDay(); // 0=Sun
+
+      const daysUntilNextMonday =
+        day === 0 ? 1 : 8 - day;
+
+      const checkInDate =
+        new Date(today);
+
+      checkInDate.setDate(
+        today.getDate() +
+        daysUntilNextMonday
+      );
+
+      const checkOutDate =
+        new Date(checkInDate);
+
+      checkOutDate.setDate(
+        checkInDate.getDate() + 7
+      );
+
+      return {
+        checkInDate,
+        checkOutDate
+      };
+    }
+
+    throw new Error(
+      `Unsupported date range: ${dateRange}`
+    );
   }
 }

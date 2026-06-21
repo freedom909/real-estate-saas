@@ -1,4 +1,6 @@
 // application/usecases/create-booking.usecase.ts
+
+
 import { injectable, inject } from "tsyringe";
 
 import { v4 as uuidv4 } from "uuid";
@@ -18,8 +20,7 @@ import { BookingPricingService } from "../../domain/service/booking-pricing.serv
 @injectable()
 export class CreateBookingUseCase {
   constructor(
-    @inject(TOKENS_BOOKING.repository.bookingRepository) private repo: IBookingRepository,
-    
+    @inject(TOKENS_BOOKING.repository.bookingRepository) private repo: IBookingRepository, 
     @inject(TOKENS_EVENT_BUS.eventBus) private eventBus: IEventBus
   ) {}
 
@@ -50,7 +51,29 @@ const price =
         new Date(input.checkInDate),
         new Date(input.checkOutDate)
       );
+const checkIn =
+  new Date(input.checkInDate);
 
+const checkOut =
+  new Date(input.checkOutDate);
+
+if (isNaN(checkIn.getTime())) {
+  throw new Error(
+    "Invalid checkInDate"
+  );
+}
+
+if (isNaN(checkOut.getTime())) {
+  throw new Error(
+    "Invalid checkOutDate"
+  );
+}
+
+if (checkIn.getTime() >= checkOut.getTime()) {
+  throw new Error(
+    "checkInDate must be before checkOutDate"
+  );
+}
 const booking =
   Booking.create({
     id: uuidv4(),
