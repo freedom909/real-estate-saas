@@ -9,15 +9,32 @@ export class IntentGateway {
   public match(
     message: string
   ): IntentDecision | null {
-
+    const bookingIdRegex =
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
     const lower =
       message.toLowerCase();
+    const bookingId =
+      message.match(bookingIdRegex)?.[0];
+    if (
+      lower.includes("confirm booking") &&
+      bookingId
+    ) {
+      return {
+        matched: true,
+        primaryAction: "confirm_booking",
+        domain: AIDomain.BOOKING,
+        confidence: 0.99,
+        reason: "rule: confirm booking",
+
+      };
+    }
+
 
     if (lower.includes("show my bookings")) {
       return {
         matched: true,
         domain: AIDomain.BOOKING,
-        action: "get_my_bookings",
+        primaryAction: "get_my_bookings",
         confidence: 0.99,
         reason: "keyword"
       };
@@ -27,7 +44,7 @@ export class IntentGateway {
       return {
         matched: true,
         domain: AIDomain.BOOKING,
-        action: "cancel_booking",
+        primaryAction: "cancel_booking",
         confidence: 0.99,
         reason: "keyword"
       };

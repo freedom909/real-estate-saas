@@ -1,12 +1,12 @@
-// infrastructure/ai/geminiClient.ts
+// infrastructure/ai/OpenaiClient.ts
 import axios from "axios";
 
-class GeminiClient {
-  private apiKey = process.env.GEMINI_API_KEY;
+class OpenaiClient {
+  private apiKey = process.env.OPENAI_API_KEY;
 
-  async analyze(prompt: string, model: string = "gemini-pro"): Promise<any> {
+  async analyze(prompt: string, model: string = "openai-3.5-turbo"): Promise<any> {
     if (!this.apiKey) {
-      throw new Error("GEMINI_API_KEY is not set in environment variables.");
+      throw new Error("OPENAI_API_KEY is not set in environment variables.");
     }
 
     const response = await axios.post(
@@ -20,4 +20,4 @@ class GeminiClient {
   }
 }
 
-export default GeminiClient;
+export default OpenaiClient;

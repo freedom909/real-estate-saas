@@ -7,8 +7,7 @@ import { ISemanticExtractor }
 import { SemanticContext } from "../semantic-context";
 import { RuleExtractor } from "./rule.extractor";
 import LLMExtractor from "./listing/llm.extractor";
-
-
+import {MessageRuleExtractor} from "./message-rule.extractor";
 
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 import { SystemLogService } from "@/modules/audit/application/write/services/system-log.service";
@@ -26,30 +25,52 @@ export class SemanticExtractor implements ISemanticExtractor {
     @inject(TOKENS_EXTRACTOR.llmExtractor)
     private llmExtractor: LLMExtractor,
 
+
+    @inject(TOKENS_EXTRACTOR.messageRuleExtractor)
+    private messageRuleExtractor: MessageRuleExtractor,
+
     @inject(TOKENS_AUDIT.services.systemLogService)
     private logger: SystemLogService,
   ) { }
 
-  async extract(request: AIRequest): Promise<SemanticContext> {
-    // 1. RULE FIRST (hard override)
-    const ruleResult = await this.ruleExtractor.extract(request);
+async extract(
+  request: AIRequest
+): Promise<SemanticContext> {
 
-    this.logger.debug({
-      level: "DEBUG",
-      type:"SYSTEM",
-      
-      service: "AIPlatform",
-      module: "SemanticExtractor",
-      message: `Extracting semantic context for message: ${request.message.substring(0, 50)}...`,
-      correlationId: request.context.trace?.correlationId,
-      data: { isRuleMatched: ruleResult.isRuleMatched }
-    });
+  // Episode Rule
+  const ruleResult =
+    await this.ruleExtractor.extract(
+      request
+    );
 
-    if (ruleResult.isRuleMatched) {
-      return ruleResult;
-    }
+  if (ruleResult?.isRuleMatched) {
 
-    // 2. LLM fallback
-    return await this.llmExtractor.extract(request.message);
+    console.log(
+      "✅ EPISODE RULE MATCHED"
+    );
+
+    return ruleResult.semanticContext;
   }
+
+  // Message Rule
+  const messageRuleResult =
+    this.messageRuleExtractor.extract(
+      request.message
+    );
+
+  if (messageRuleResult) {
+
+    console.log(
+      "✅ MESSAGE RULE MATCHED",
+      messageRuleResult.action.type
+    );
+
+    return messageRuleResult;
+  }
+
+  // LLM Fallback
+  return await this.llmExtractor.extract(
+    request.message
+  );
+}
 }

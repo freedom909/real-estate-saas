@@ -1,20 +1,20 @@
-// src/security/service/geminiSecurity.service.ts
+// src/security/service/OpenaiSecurity.service.ts
 
 import { inject, injectable } from "tsyringe";
 
 import { SecurityEvent } from "../types";
-import GeminiClient from "./geminiClient";
+import OpenaiClient from "./openaiClient";
 import { SecurityAssessment } from "@/core/user/domain/entities/types";
 
 
 
 @injectable()
-export class GeminiSecurityService {
+export class OpenaiSecurityService {
   constructor(
-    private client: GeminiClient
+    private client: OpenaiClient
   ) { }
-  private apiKey = process.env.GEMINI_API_KEY!;
-  private model = "gemini-2.0-flash";
+  private apiKey = process.env.OPENAI_API_KEY!;
+  private model = "openai-3.5-turbo";
 
   async analyze(event: SecurityEvent): Promise<SecurityAssessment> {
     const prompt = this.buildPrompt(event);

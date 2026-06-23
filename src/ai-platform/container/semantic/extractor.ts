@@ -7,6 +7,7 @@ export const TOKENS_EXTRACTOR = {
     semanticExtractor:Symbol.for("semanticExtractor"),
     ruleExtractor:Symbol.for("ruleExtractor"),
     llmExtractor:Symbol.for("llmExtractor"),
-    ruleUseCase:Symbol.for("ruleUseCase")
+    ruleUseCase:Symbol.for("ruleUseCase"),
+    messageRuleExtractor:Symbol.for("messageRuleExtractor")
     
     } as const;

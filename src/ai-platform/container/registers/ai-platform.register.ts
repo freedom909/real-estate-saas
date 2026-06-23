@@ -27,6 +27,7 @@ import { BookingRegister } from "@/modules/container/booking.register";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ChatUseCase } from "@/ai-platform/application/usecases/chatUseCase";
 import { TOKENS_EXTRACTOR } from "../semantic/extractor";
+import { MessageRuleExtractor } from "@/ai-platform/domain/semantic/extractors/message-rule.extractor";
 
 
 export default function AIPlatformDependencies() {
@@ -37,6 +38,14 @@ export default function AIPlatformDependencies() {
     {
       useClass:
         RuleExtractor
+    }
+  );
+
+  container.register(
+    TOKENS_EXTRACTOR.messageRuleExtractor,
+    {
+      useClass:
+        MessageRuleExtractor
     }
   );
 

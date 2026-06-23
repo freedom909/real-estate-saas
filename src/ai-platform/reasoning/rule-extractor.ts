@@ -13,6 +13,8 @@
  * IF channel=airbnb AND hours<72 THEN coupon (95% confidence)
  */
 
+import { AgentAction, EntityType, SemanticContext } from "../domain/semantic/semantic-context";
+import { AIDomain } from "../domain/semantic/types/ai.domain";
 import { EpisodeRecord } from "../memory/episodic/episode-record";
 import { SemanticRule, RuleCondition } from "./semantic-rule";
 
@@ -30,7 +32,7 @@ export class RuleExtractor {
    */
   extractRules(episodes: EpisodeRecord[]): SemanticRule[] {
     const rules: SemanticRule[] = [];
-
+    
     // 按动作分组
     const episodesByAction = new Map<string, EpisodeRecord[]>();
     for (const episode of episodes) {
@@ -61,6 +63,7 @@ export class RuleExtractor {
 
     return rules;
   }
+
 
   /**
    * 找到成功样本的共同条件
@@ -159,4 +162,6 @@ export class RuleExtractor {
       lastUsedAt: Date.now()
     };
   }
+
+
 }

@@ -114,8 +114,50 @@ User: "show my bookings"
         }
 
         // 2. FORCE NORMALIZATION
-        parsed = this.normalizeResponse(parsed, message);
 
+        parsed =
+            this.normalizeResponse(
+                parsed,
+                message
+            );
+
+        // Message-level override
+        parsed.primaryAction =
+            this.resolveActionFromMessage(
+                message,
+                parsed.primaryAction
+            );
+
+        // Entity-level override
+        parsed.primaryAction =
+            this.resolveActionFromEntities(
+                parsed.primaryAction,
+                parsed.entities ?? []
+            );
+
+        parsed.actions = [
+            parsed.primaryAction
+        ];
+
+        console.log(
+            "AFTER NORMALIZE >>>",
+            parsed
+        );
+        parsed.primaryAction =
+            this.resolveActionFromMessage(
+                message,
+                parsed.primaryAction
+            );
+
+        parsed.primaryAction =
+            this.resolveActionFromEntities(
+                parsed.primaryAction,
+                parsed.entities
+            );
+
+        parsed.actions = [
+            parsed.primaryAction
+        ];
         // 3. DEBUG
         console.log("AFTER NORMALIZE >>>", parsed);
 
@@ -152,80 +194,81 @@ User: "show my bookings"
         );
     }
 
-    // ======================================
-    // Normalize Layer (core stability layer)
-    // ======================================
-    private normalizeResponse(parsed: any, message?: string) {
-        const lower =
-            message.toLowerCase();
-
-        if (
-            lower.includes("show my bookings") ||
-            lower.includes("my bookings") ||
-            lower.includes("list my bookings")
-        ) {
-            console.log(
-                "🔄 OVERRIDE: GENERAL → GET_MY_BOOKINGS"
-            );
-
-            return {
-                matched: true,
-                intent: "GET_MY_BOOKINGS",
-                action: "get_my_bookings",
-                domain: AIDomain.BOOKING,
-                confidence: 0.99,
-                reason: "keyword: my bookings"
-            };
-        }
-
+    private normalizeResponse(
+        parsed: any,
+        message: string
+    ) {
 
         const action =
             parsed.primaryAction ||
             parsed.action ||
             "GENERAL";
 
-        // 1. action mapping — keep GENERAL as GENERAL for search fallback
-        //    (the router will handle it)
-        parsed.primaryAction = action;
-        parsed.actions = [action];
+        parsed.primaryAction =
+            action;
 
-        // 2. entities normalize (CRITICAL FIX)
+        parsed.actions = [
+            action
+        ];
+
+        // entities normalization
         if (!Array.isArray(parsed.entities)) {
-            parsed.entities = Object.entries(
-                parsed.entities || {}
-            ).map(([key, value]) => ({
-                type: key.toUpperCase(),
-                value: String(value),
-            }));
+
+            parsed.entities =
+                Object.entries(
+                    parsed.entities || {}
+                ).map(
+                    ([key, value]) => ({
+                        type:
+                            key.toUpperCase(),
+                        value:
+                            String(value)
+                    })
+                );
         }
 
-        // 3. safety defaults
         if (!parsed.actions) {
             parsed.actions = [];
         }
 
         if (!parsed.primaryAction) {
-            parsed.primaryAction = "SEARCH_LISTING";
+            parsed.primaryAction =
+                "SEARCH_LISTING";
         }
 
         if (!parsed.domain) {
-            parsed.domain = "BOOKING";
+            parsed.domain =
+                "BOOKING";
         }
 
-        // ============================================
-        // 4. ENTITY-BASED ACTION OVERRIDE (critical)
-        // ============================================
-        // The LLM may misclassify intent based on wording.
-        // "book a room in Kyoto" → LLM says CREATE_BOOKING
-        // But without a listingId, the user is actually SEARCHING.
-        // This rule enforces correct action based on entity presence.
-        parsed.primaryAction = this.resolveActionFromEntities(
-            parsed.primaryAction,
-            parsed.entities
-        );
-        parsed.actions = [parsed.primaryAction];
-
         return parsed;
+    }
+
+    private resolveActionFromMessage(
+        message: string,
+        action: string
+    ): string {
+
+        console.log(
+            "BEFORE OVERRIDE",
+            action
+        );
+
+        const lower =
+            message.toLowerCase();
+
+        if (
+            lower.includes("confirm booking")
+        ) {
+
+            console.log(
+                "MATCH CONFIRM_BOOKING"
+            );
+
+            return "CONFIRM_BOOKING";
+        }
+
+        return action;
     }
 
     // ======================================
@@ -235,9 +278,9 @@ User: "show my bookings"
     // Pattern: if (entities match X) → force action Y.
     private resolveActionFromEntities(
         llmAction: string,
-        entities: { type: string; value: string }[]
+        entities: { type: string; value: string }[],
+        message?: string
     ): string {
-
         const has = (type: string) =>
             entities.some(e => e.type.toUpperCase() === type.toUpperCase());
 
@@ -256,9 +299,13 @@ User: "show my bookings"
 
         // ── Rule 2: CANCEL/CONFIRM/COMPLETE/MODIFY requires bookingId ──
         if (["CANCEL_BOOKING", "CONFIRM_BOOKING", "COMPLETE_BOOKING", "MODIFY_BOOKING"].includes(llmAction) && !bookingId) {
+            console.warn(
+                `Missing bookingId for ${llmAction}`
+            );
             console.log(`🔄 OVERRIDE: ${llmAction} → GET_MY_BOOKINGS (no bookingId)`);
-            return "GET_MY_BOOKINGS";
+            return llmAction;
         }
+
 
         // ── Rule 3: location + dateRange without listingId → SEARCH_LISTING ──
         if (location && dateRange && !listingId && !bookingId) {

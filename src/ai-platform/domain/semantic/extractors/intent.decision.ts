@@ -5,7 +5,7 @@ import { AIDomain } from "../types/ai.domain";
 export interface IntentDecision {
   matched: boolean;
   domain: AIDomain;
-  action: string;
+  primaryAction: string;
   confidence: number;
   reason: string;
 }

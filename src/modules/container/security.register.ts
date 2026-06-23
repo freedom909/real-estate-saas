@@ -8,7 +8,7 @@ import { AuditRepo } from "../../security/infrastructure/audit.repo";
 import { MockAIService } from "../../security/infrastructure/ai.service";
 import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevice.repo";
 import { GeminiRiskEngine } from "@/security/infrastructure/ai/gemini.risk.engine";
-import GeminiClient from "@/security/infrastructure/geminiClient";
+import GeminiClient from "@/security/infrastructure/openaiClient";
 
 
 function registerSecurityDependencies() {
