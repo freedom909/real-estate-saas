@@ -48,6 +48,7 @@ export interface EvaluationLink extends Link {
   type: NodeType.EVALUATION;
   predicate: PredicateNode;
   arguments: Atom[];
+  argumentsList: string[];
 }
 
 export interface InheritanceLink extends Link {
@@ -179,7 +180,7 @@ export class CognitiveGraph {
       arguments: argumentsList,
       outgoing: argumentsList.map(a => a.id),
       predicate,
-      argumentsList
+      argumentsList: argumentsList.map(a => a.id)
     };
 
     this.atoms.set(id, evaluation);
@@ -190,7 +191,7 @@ export class CognitiveGraph {
   }
 
   private addToIndex(key: string | NodeType, atomId: string): void {
-    const keyStr = typeof key === "string" ? key : key.toString();
+    const keyStr = String(key);
     if (!this.index.has(keyStr)) {
       this.index.set(keyStr, new Set());
     }

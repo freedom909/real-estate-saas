@@ -8,7 +8,7 @@ export class SecurityLogRepository {
 
   constructor(
     @inject(
-      TOKENS_AUDIT.models.securityLog
+      TOKENS_AUDIT.models.systemLogModel //??
     )
     private readonly model:
       typeof SecurityLogModel

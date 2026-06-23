@@ -114,7 +114,7 @@ User: "show my bookings"
         }
 
         // 2. FORCE NORMALIZATION
-        parsed = this.normalizeResponse(parsed);
+        parsed = this.normalizeResponse(parsed, message);
 
         // 3. DEBUG
         console.log("AFTER NORMALIZE >>>", parsed);
@@ -155,7 +155,29 @@ User: "show my bookings"
     // ======================================
     // Normalize Layer (core stability layer)
     // ======================================
-    private normalizeResponse(parsed: any) {
+    private normalizeResponse(parsed: any, message?: string) {
+        const lower =
+            message.toLowerCase();
+
+        if (
+            lower.includes("show my bookings") ||
+            lower.includes("my bookings") ||
+            lower.includes("list my bookings")
+        ) {
+            console.log(
+                "🔄 OVERRIDE: GENERAL → GET_MY_BOOKINGS"
+            );
+
+            return {
+                matched: true,
+                intent: "GET_MY_BOOKINGS",
+                action: "get_my_bookings",
+                domain: AIDomain.BOOKING,
+                confidence: 0.99,
+                reason: "keyword: my bookings"
+            };
+        }
+
 
         const action =
             parsed.primaryAction ||

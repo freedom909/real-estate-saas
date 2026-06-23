@@ -4,7 +4,8 @@ import { inject, injectable } from "tsyringe";
 
 import { SecurityEvent } from "../types";
 import GeminiClient from "./geminiClient";
-import { SecurityAssessment } from "@/domain/user/types/types";
+import { SecurityAssessment } from "@/core/user/domain/entities/types";
+
 
 
 @injectable()

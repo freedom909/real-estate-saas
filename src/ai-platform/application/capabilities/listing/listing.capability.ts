@@ -1,7 +1,7 @@
 import { delay, inject, injectable } from "tsyringe";
-import { CreateListingUseCase } from "@/core/listing/application/usecase/createListing.usecase";
-import { PublishListingUseCase } from "@/core/listing/application/usecase/publishListing.usecase";
+
 import { GenerateListingAIOptimizationUseCase } from "@/ai-platform/application/usecases/listing/generateListingAIOptimization.usecase";
+import CreateListingUseCase from "@/core/listing/application/usecase/createListingUseCase";
 
 @injectable()
 export class CreateListingCapability {

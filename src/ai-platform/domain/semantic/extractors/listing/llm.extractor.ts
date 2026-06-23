@@ -57,6 +57,7 @@ Available primaryAction:
 - GET_LISTING (user wants to view a specific listing)
 - CREATE_BOOKING
 - CANCEL_BOOKING
+- GET_MY_BOOKINGS (user wants to see their bookings)
 - GENERAL
 
 Rules:
@@ -91,13 +92,19 @@ User: "is listing 123 available tomorrow"
 User: "optimize the title of listing 456"
 => {"domain":"LISTING","primaryAction":"OPTIMIZE_TITLE","confidence":0.95,"entities":[{"type":"LISTING_ID","value":"456"}]}
 
+User: "show my bookings"
+=> {"domain":"BOOKING","primaryAction":"GET_MY_BOOKINGS","confidence":0.95,"entities":[]}
+
+User: "list my bookings"
+=> {"domain":"BOOKING","primaryAction":"GET_MY_BOOKINGS","confidence":0.95,"entities":[]}
+
 User input:
 ${message}
 `;
 
     const response = await this.ai.generateText({
       prompt
-    })  as unknown as ListingOptimizationResult;
+    }) as unknown as ListingOptimizationResult;
 
     console.log("RAW AI", response);
     const raw = typeof response === 'string' ? response : JSON.stringify(response);
@@ -107,26 +114,26 @@ ${message}
       .replace(/```/g, "")
       .trim();
     console.log(
-  "CLEANED AI >>>",
-  cleaned
-);
+      "CLEANED AI >>>",
+      cleaned
+    );
 
- let parsed;
+    let parsed;
 
-try {
+    try {
 
-  parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(cleaned);
 
-} catch (error) {
+    } catch (error) {
 
-  console.error(
-    "JSON PARSE ERROR"
-  );
+      console.error(
+        "JSON PARSE ERROR"
+      );
 
-  console.error(cleaned);
+      console.error(cleaned);
 
-  throw error;
-}
+      throw error;
+    }
 
     console.log(
       "PARSED",
@@ -153,11 +160,19 @@ try {
       validated.entities
     );
 
+    // Fix domain when action implies a different domain
+    // (e.g. LLM returns GENERAL but action resolves to GET_MY_BOOKINGS → BOOKING)
+    const resolvedDomain = this.resolveDomainFromAction(
+      resolvedAction,
+      validated.domain as AIDomain
+    );
+
     const action = {
       type: resolvedAction as AgentAction,
       confidence: validated.confidence,
     };
     console.log("ACTION (resolved)", action);
+    console.log("DOMAIN (resolved)", resolvedDomain);
 
     // Schema already normalizes entity types to UPPERCASE via SemanticSchema.
     // Do NOT .toLowerCase() here — BookingAgent compares against EntityType enum values
@@ -178,7 +193,7 @@ try {
       entities,
       action,
       validated.confidence,
-      validated.domain as AIDomain,
+      resolvedDomain,
       false
     );
   }
@@ -234,7 +249,41 @@ try {
       console.log("🔄 OVERRIDE: CHECK_AVAILABILITY → SEARCH_LISTING (no listingId)");
       return "SEARCH_LISTING";
     }
-
+    if (llmAction === "GENERAL") {
+      return "GET_MY_BOOKINGS";
+    }
     return llmAction;
+  }
+
+  // ======================================
+  // Domain Resolution from Action
+  // ======================================
+  // When the LLM misclassifies domain (e.g. returns GENERAL for a booking intent),
+  // correct the domain based on the resolved action.
+  private resolveDomainFromAction(
+    action: string,
+    originalDomain: AIDomain
+  ): AIDomain {
+
+    const bookingActions = [
+      "CREATE_BOOKING", "CANCEL_BOOKING", "CONFIRM_BOOKING",
+      "COMPLETE_BOOKING", "MODIFY_BOOKING", "GET_BOOKING",
+      "GET_MY_BOOKINGS", "CHECK_AVAILABILITY",
+    ];
+
+    if (bookingActions.includes(action)) {
+      return AIDomain.BOOKING;
+    }
+
+    const listingActions = [
+      "OPTIMIZE_TITLE", "OPTIMIZE_DESCRIPTION", "SEO_ANALYSIS",
+      "SEARCH_LISTING", "GET_LISTING",
+    ];
+
+    if (listingActions.includes(action)) {
+      return AIDomain.LISTING;
+    }
+
+    return originalDomain;
   }
 }

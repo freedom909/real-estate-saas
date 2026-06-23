@@ -168,6 +168,11 @@ export class BookingAgent implements IDomainAgent {
       }
 
       case AgentAction.GET_MY_BOOKINGS: {
+        if (!context.identity.user) {
+          throw new Error(
+            "Authentication required."
+          );
+        }
         const guestId = context.identity.user.id;
         const bookings = await this.getBookingsForGuestUseCase.execute(guestId);
         return this.wrapResult(semantic, `Found ${bookings.length} booking(s) for you.`, bookings);

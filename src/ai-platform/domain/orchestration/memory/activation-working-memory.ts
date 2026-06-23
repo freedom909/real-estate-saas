@@ -167,7 +167,7 @@ export class ActivationWorkingMemory {
     return {
       totalChunks: chunks.length,
       topActivated,
-      averageActivation
+      averageActivation: avgActivation
     };
   }
 }

@@ -1,4 +1,5 @@
-import { Listing } from "../../domain/entities/listing";
+import { Listing } from "@/core/listing/domain/entities/listing";
+
 
 export const buildTitlePrompt = (listing: Listing): string => `
 

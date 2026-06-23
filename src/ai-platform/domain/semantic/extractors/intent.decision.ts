@@ -2,20 +2,15 @@
 
 import { AIDomain } from "../types/ai.domain";
 
-
-
-export type IntentDecision = {
-
+export interface IntentDecision {
   matched: boolean;
-
-  intents: Intent[];
-
+  domain: AIDomain;
+  action: string;
   confidence: number;
-
-};
+  reason: string;
+}
 
 export type Intent = {
-
   intent: string;
 
   domain: AIDomain;

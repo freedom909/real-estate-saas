@@ -250,7 +250,7 @@ export class ACTRWorkingMemory {
     return {
       totalChunks: chunks.length,
       topActivated,
-      averageActivation
+      averageActivation: avgActivation
     };
   }
 }

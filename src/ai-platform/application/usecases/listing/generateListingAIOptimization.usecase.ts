@@ -1,25 +1,19 @@
 //src/ai-platfrom/application/usecases/generateListingAIOptimization.usecase.ts
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { inject, injectable } from "tsyringe";
-
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-
 import { AIDomain } from "@/ai-platform/domain/semantic/types/ai.domain";
 
-
-import { v4 as uuidv4 } from "uuid";
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
 import { ILLMProvider } from "@/ai-platform/domain/interface/ILLMProvider";
 import { IListingAISuggestionRepository } from "@/core/listing/domain/entities/IListingAISuggestionRepository";
 import { listingOptimizationPrompt } from "@/ai-platform/resources/prompts/listing/prompts/listing.optimization.prompt";
 import { ListingAISuggestion } from "@/core/listing/domain/entities/listingAI.suggestion";
-import { TOKENS } from "@/shared/infra/tokens";
+
 import { TOKENS_CACHE } from "@/modules/tokens/cache.token";
 import RedisService from "@/infrastructure/redis/redisService";
 import { AIResponsePayload, ArtifactFactory } from "./artifact.factory";
 import { BaseArtifactDTO } from "./base-artifact.dto";
-
-
 
 @injectable()
 export class GenerateListingAIOptimizationUseCase {
