@@ -1,59 +1,75 @@
-// ReferenceResolver.ts
-// Resolves references to the entities in the user's message
-// e.g. "book the first one" → "book the listing listingId"
-// e.g. "confirm the booking bookingId" → "confirm the booking bookingId"
 // reference/reference-resolver.ts
 
-import { injectable } from "tsyringe";
-import { SemanticContext } from "../domain/orchestration";
-import { RuntimeContext } from "../domain/semantic/types/runtimeContext";
-import { EntityType } from "../domain/semantic/semantic-context";
+import { inject, injectable, delay } from "tsyringe";
 
-
+import { AIContext } from "@/ai-platform/context/types/context/ai.context";
+import { SemanticContext } from "../domain/semantic/semantic-context";
+import { EntityType } from "../domain/semantic/types/entity.type";
+import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
 
 @injectable()
 export class ReferenceResolver {
 
+  constructor(
+    @inject(delay(() => SearchListingUseCase))
+    private searchListingUseCase: SearchListingUseCase,
+  ) {}
+
   async resolve(
     semantic: SemanticContext,
-    runtime: RuntimeContext
+    context: AIContext
   ): Promise<SemanticContext> {
 
-    const ordinal =
-      semantic.entities.find(
-        e => e.type === EntityType.ORDINAL
-      );
+    const ordinalEntity = semantic.entities.find(
+      e => e.type === EntityType.ORDINAL
+    );
 
-    if (!ordinal) {
+    if (!ordinalEntity) {
       return semantic;
+    }
+
+    // If no search results yet, auto-search first
+    if (!context.resources.searchResults || context.resources.searchResults.length === 0) {
+      console.log("🔗 ReferenceResolver: No search results — auto-searching before ordinal resolution");
+      try {
+        const searchResult = await this.searchListingUseCase.execute({});
+        context.resources.searchResults = searchResult.listings;
+        console.log(`🔗 ReferenceResolver: Auto-search returned ${searchResult.total} listings`);
+      } catch (err) {
+        console.error("🔗 ReferenceResolver: Auto-search failed:", err);
+        return semantic;
+      }
     }
 
     await this.resolveListingOrdinal(
       semantic,
-      runtime,
-      ordinal.value
+      context,
+      ordinalEntity.value
     );
 
     return semantic;
   }
 
+  /**
+   * Resolve:
+   * "first / second / third" → listingId
+   */
   private async resolveListingOrdinal(
     semantic: SemanticContext,
-    runtime: RuntimeContext,
+    context: AIContext,
     ordinal: string
-  ) {
+  ): Promise<void> {
 
     const listings =
-      runtime.lastListings;
+      context.resources.searchResults;
 
-    if (!listings?.length) {
+    if (!listings || listings.length === 0) {
       return;
     }
 
-    let target;
+    let target = null;
 
     switch (ordinal) {
-
       case "first":
         target = listings[0];
         break;
@@ -65,11 +81,12 @@ export class ReferenceResolver {
       case "third":
         target = listings[2];
         break;
+
+      default:
+        return;
     }
 
-    if (!target) {
-      return;
-    }
+    if (!target) return;
 
     semantic.entities.push({
       type: EntityType.LISTING_ID,

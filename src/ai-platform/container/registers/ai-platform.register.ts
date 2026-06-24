@@ -28,6 +28,8 @@ import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ChatUseCase } from "@/ai-platform/application/usecases/chatUseCase";
 import { TOKENS_EXTRACTOR } from "../semantic/extractor";
 import { MessageRuleExtractor } from "@/ai-platform/domain/semantic/extractors/message-rule.extractor";
+import "@/ai-platform/container/reference/reference.register";
+import { registerMemory } from "../memory/memory.register";
 
 
 export default function AIPlatformDependencies() {
@@ -91,6 +93,8 @@ export default function AIPlatformDependencies() {
   registerListingDependencies();
 
   registerAIContainer();
+
+  registerMemory();
 
   // ⭐ Register booking domain dependencies (repos, use cases, etc.)
   // Without this, BookingAgent's transitive deps (IBookingRepository, EventBus)

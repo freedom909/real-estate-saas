@@ -10,6 +10,8 @@ import { TOKENS_EXTRACTOR } from "@/ai-platform/container/semantic/extractor";
 import { AIDomain } from "../semantic/types/ai.domain";
 import { ReferenceResolver } from "@/ai-platform/reference/referenceResolver";
 import { TOKENS_REFERENCE } from "@/ai-platform/container/reference/reference.token";
+import { BookingStateUpdater } from "@/ai-platform/memory/booking-state.updater";
+import { TOKENS_MEMORY } from "@/ai-platform/container/memory/memory.token";
 
 @injectable()
 export class AIPlatformOrchestrator {
@@ -25,54 +27,66 @@ export class AIPlatformOrchestrator {
     @inject(TOKENS_REFERENCE.resolver)
     private referenceResolver: ReferenceResolver,
 
-
+    @inject(TOKENS_MEMORY.bookingStateUpdater)
+    private bookingStateUpdater: BookingStateUpdater,
   ) {}
-  async handle(
-    request: AIRequest
-  ): Promise<AgentResult> {
+async handle(request: AIRequest): Promise<AgentResult> {
 
-    const semantic =
-      await this.semanticExtractor.extract(
-        request
-      );
-console.log(
-  "SEMANTIC >>>",
-  JSON.stringify(semantic, null, 2)
-);
+  const semantic =
+    await this.semanticExtractor.extract(request);
 
-    const agent =
-      this.routingService.route(
-        semantic
-      );
+  console.log("SEMANTIC >>>", semantic);
 
-    console.log("🔍 Agent resolved:", agent?.constructor?.name ?? "NULL/UNDEFINED");
-
-    let raw;
-    try {
-      raw = await agent.execute(semantic, request.context);
-    } catch (err) {
-      console.error("❌ Agent.execute() FAILED:", err);
-      throw err;
-    }
-    console.log("AGENT RESULT++",
-      Object.keys(raw)
+  const resolvedSemantic =
+    await this.referenceResolver.resolve(
+      semantic,
+      request.context
     );
 
-    // Normalize: ensure every agent result conforms to AgentResult shape.
-    // Agents may return partial objects (e.g. { reply } or use-case results
-    // without `artifacts`). GraphQL schema requires `artifacts: [Artifact!]!`.
-    const result: AgentResult = {
-      success: raw?.success ?? true,
-      domain: raw?.domain ?? (semantic.domain as AIDomain) ?? AIDomain.GENERAL,
-      primaryAction: raw?.primaryAction ?? {
-        name: semantic.action?.type ?? "UNKNOWN",
-        confidence: semantic.confidence ?? 0,
-      },
-      summary: raw?.summary ?? raw?.reply ?? raw?.message ?? "",
-      artifacts: Array.isArray(raw?.artifacts) ? raw.artifacts : [],
-      metadata: raw?.metadata,
-    };
+  const agent =
+    this.routingService.route(resolvedSemantic);
 
-    return result;
+  console.log(
+    "🔍 Agent resolved:",
+    agent?.constructor?.name ?? "NULL"
+  );
+
+  let raw;
+
+  try {
+    raw =
+      await agent.execute(
+        resolvedSemantic,
+        request.context
+      );
+  } catch (err) {
+    console.error("❌ Agent.execute() FAILED:", err);
+    throw err;
   }
+
+  // 🔥 STEP 1: extract artifact AFTER execution
+  const artifact = raw?.artifacts?.[0];
+
+  // 🔥 STEP 2: update memory AFTER execution
+  if (artifact) {
+    this.bookingStateUpdater.apply(
+      request.context,
+      artifact
+    );
+  }
+
+  const result: AgentResult = {
+    success: raw?.success ?? true,
+    domain: raw?.domain ?? (resolvedSemantic.domain as AIDomain) ?? AIDomain.GENERAL,
+    primaryAction: raw?.primaryAction ?? {
+      name: resolvedSemantic.action?.type ?? "UNKNOWN",
+      confidence: resolvedSemantic.confidence ?? 0,
+    },
+    summary: raw?.summary ?? raw?.reply ?? raw?.message ?? "",
+    artifacts: Array.isArray(raw?.artifacts) ? raw.artifacts : [],
+    metadata: raw?.metadata,
+  };
+
+  return result;
+}
 }

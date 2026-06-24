@@ -48,14 +48,7 @@ export class BookingAgent implements IDomainAgent {
     semantic: SemanticContext,
     context: AIContext
   ) {
-console.log(
-  "CONTEXT RESOURCES",
-  JSON.stringify(
-    context.resources,
-    null,
-    2
-  )
-);
+
     const action = semantic.action?.type;
     const bookingId = this.extractBookingId(semantic, context);
     const listingId = this.extractListingId(semantic, context);
@@ -124,8 +117,31 @@ console.log(
             resolved.checkOutDate.toISOString();
         }
 
-        if (!resolvedCheckIn) throw new Error("Check-in date required for booking creation.");
-        if (!resolvedCheckOut) throw new Error("Check-out date required for booking creation.");
+        if (!resolvedCheckIn || !resolvedCheckOut) {
+          // Return a friendly question instead of crashing
+          const listingTitle = context.resources?.searchResults?.find(
+            (r: any) => r.id === resolvedListingId
+          )?.title || resolvedListingId;
+
+          return {
+            success: true,
+            domain: semantic.domain,
+            primaryAction: {
+              name: semantic.action?.type ?? "CREATE_BOOKING",
+              confidence: semantic.confidence ?? 0,
+            },
+            summary: `Great choice! You want to book "${listingTitle}". When would you like to check in and check out? Please provide dates like "July 5-10" or "check-in July 5, check-out July 10".`,
+            artifacts: [{
+              type: ArtifactType.BOOKING,
+              content: {
+                status: "awaiting_dates",
+                listingId: resolvedListingId,
+                listingTitle,
+                message: "Please provide check-in and check-out dates to complete your booking.",
+              },
+            }],
+          };
+        }
 
         const priceEntity = semantic.entities.find(e =>
           ["PRICE", "price"].includes(e.type as string)
@@ -166,7 +182,18 @@ console.log(
           }
         }
 
-        if (!resolvedBookingId) throw new Error("Booking ID required for cancellation. Please provide a booking ID or say 'cancel my latest booking'.");
+        if (!resolvedBookingId) {
+          return {
+            success: true,
+            domain: semantic.domain,
+            primaryAction: {
+              name: semantic.action?.type ?? "CANCEL_BOOKING",
+              confidence: semantic.confidence ?? 0,
+            },
+            summary: "I'd be happy to cancel a booking for you. Could you provide the booking ID, or say something like 'cancel my latest booking'?",
+            artifacts: [],
+          };
+        }
 
         const reason = semantic.entities.find(e => (e.type as string) === "reason")?.value || "Cancelled via AI Assistant";
         const cancelled = await this.cancelBookingUseCase.execute(resolvedBookingId, reason);
@@ -175,21 +202,54 @@ console.log(
       }
 
       case AgentAction.CONFIRM_BOOKING: {
-        if (!bookingId) throw new Error("Booking ID required for confirmation");
+        if (!bookingId) {
+          return {
+            success: true,
+            domain: semantic.domain,
+            primaryAction: {
+              name: semantic.action?.type ?? "CONFIRM_BOOKING",
+              confidence: semantic.confidence ?? 0,
+            },
+            summary: "Which booking would you like to confirm? Please provide a booking ID.",
+            artifacts: [],
+          };
+        }
 
         const confirmed = await this.confirmBookingUseCase.execute(bookingId);
         return this.wrapResult(semantic, `Booking ${bookingId} has been confirmed.`, [confirmed]);
       }
 
       case AgentAction.COMPLETE_BOOKING: {
-        if (!bookingId) throw new Error("Booking ID required for completion");
+        if (!bookingId) {
+          return {
+            success: true,
+            domain: semantic.domain,
+            primaryAction: {
+              name: semantic.action?.type ?? "COMPLETE_BOOKING",
+              confidence: semantic.confidence ?? 0,
+            },
+            summary: "Which booking would you like to complete? Please provide a booking ID.",
+            artifacts: [],
+          };
+        }
 
         const completed = await this.completeBookingUseCase.execute(bookingId);
         return this.wrapResult(semantic, `Booking ${bookingId} has been completed.`, [completed]);
       }
 
       case AgentAction.GET_BOOKING: {
-        if (!bookingId) throw new Error("Booking ID required to retrieve booking details.");
+        if (!bookingId) {
+          return {
+            success: true,
+            domain: semantic.domain,
+            primaryAction: {
+              name: semantic.action?.type ?? "GET_BOOKING",
+              confidence: semantic.confidence ?? 0,
+            },
+            summary: "Which booking would you like to view? Please provide a booking ID or say 'show my bookings'.",
+            artifacts: [],
+          };
+        }
 
         const booking = await this.getBookingUseCase.execute(bookingId);
         return this.wrapResult(semantic, `Found booking ${bookingId}.`, [booking]);

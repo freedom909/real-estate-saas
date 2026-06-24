@@ -4,6 +4,7 @@ import { CapabilityRegistryEntry } from "../registry/capability-registry.types";
 import { WorldState } from "../state/world-state";
 import { StateStore } from "../state/state.store";
 import { PlanStep } from "../planner/goal.regression.planner";
+import { CapabilityRegistry } from "../registry";
 
 export interface Observation {
   success: boolean;
