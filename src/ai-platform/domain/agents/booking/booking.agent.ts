@@ -13,6 +13,7 @@ import { CompleteBookingUseCase } from "@/core/booking/application/usecases/comp
 import { GetBookingsForGuestUseCase } from "@/core/booking/application/usecases/getBookingsForGuest.useCase";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
 import { ArtifactType } from "@/ai-platform/context/types/context/agent.result";
+import { GetLatestBookingForGuestUseCase } from "@/core/booking/application/usecases/getLatestBookingForGuest.useCase";
 
 @injectable()
 export class BookingAgent implements IDomainAgent {
@@ -38,13 +39,23 @@ export class BookingAgent implements IDomainAgent {
 
     @inject(delay(() => SearchListingUseCase))
     private searchListingUseCase: SearchListingUseCase,
+
+    @inject(delay(() => GetLatestBookingForGuestUseCase))
+    private getLatestBookingForGuestUseCase: GetLatestBookingForGuestUseCase,
   ) { }
 
   async execute(
     semantic: SemanticContext,
     context: AIContext
   ) {
-
+console.log(
+  "CONTEXT RESOURCES",
+  JSON.stringify(
+    context.resources,
+    null,
+    2
+  )
+);
     const action = semantic.action?.type;
     const bookingId = this.extractBookingId(semantic, context);
     const listingId = this.extractListingId(semantic, context);
@@ -65,7 +76,7 @@ export class BookingAgent implements IDomainAgent {
         let resolvedListingId = listingId;
 
         if (!resolvedListingId && context.resources?.searchResults?.length) {
-          const ordinal = this.extractEntity(semantic, ["ORDINAL", "ordinal", "first", "second", "third"]);
+          const ordinal = this.extractEntity(semantic, ["ORDINAL"]);
           const index = this.parseOrdinal(ordinal);
           const match = context.resources.searchResults[index];
 
@@ -138,12 +149,29 @@ export class BookingAgent implements IDomainAgent {
       }
 
       case AgentAction.CANCEL_BOOKING: {
-        if (!bookingId) throw new Error("Booking ID required for cancellation");
+        let resolvedBookingId = bookingId;
+
+        // If no explicit booking ID, check for ordinal like "latest"
+        if (!resolvedBookingId) {
+          const ordinal = this.extractEntity(semantic, ["ORDINAL"]);
+
+          if (ordinal && ordinal.toLowerCase() === "latest") {
+            if (!context.identity.user) {
+              throw new Error("Authentication required to retrieve your latest booking.");
+            }
+            const latestBooking = await this.getLatestBookingForGuestUseCase.execute(
+              context.identity.user.id
+            );
+            resolvedBookingId = latestBooking.id;
+          }
+        }
+
+        if (!resolvedBookingId) throw new Error("Booking ID required for cancellation. Please provide a booking ID or say 'cancel my latest booking'.");
 
         const reason = semantic.entities.find(e => (e.type as string) === "reason")?.value || "Cancelled via AI Assistant";
-        const cancelled = await this.cancelBookingUseCase.execute(bookingId, reason);
+        const cancelled = await this.cancelBookingUseCase.execute(resolvedBookingId, reason);
 
-        return this.wrapResult(semantic, `Booking ${bookingId} has been cancelled.`, [cancelled]);
+        return this.wrapResult(semantic, `Booking ${resolvedBookingId} has been cancelled.`, [cancelled]);
       }
 
       case AgentAction.CONFIRM_BOOKING: {
@@ -227,6 +255,7 @@ export class BookingAgent implements IDomainAgent {
 
     const searchResult = await this.searchListingUseCase.execute({
       location,
+      dateRange,
       guestCount: guestCount ? Number(guestCount) : undefined,
       minPrice,
       maxPrice,
@@ -286,8 +315,8 @@ export class BookingAgent implements IDomainAgent {
     if (!ordinal) return 0; // default to first
 
     const map: Record<string, number> = {
-      first: 0, second: 1, third: 2, fourth: 3, fifth: 4,
-      "1st": 0, "2nd": 1, "3rd": 2, "4th": 3, "5th": 4,
+      first: 0, second: 1, third: 2, fourth: 3, fifth: 4, latest: 5,
+      "1st": 0, "2nd": 1, "3rd": 2, "4th": 3, "5th": 4, "6th": 5,
     };
 
     const lower = ordinal.toLowerCase().trim();

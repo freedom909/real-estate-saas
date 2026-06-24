@@ -3,6 +3,7 @@ import { Listing } from "./listing";
 
 export interface SearchListingsQuery {
   location?: string;
+  dateRange?: string;
   checkIn?: string;
   checkOut?: string;
   guestCount?: number;

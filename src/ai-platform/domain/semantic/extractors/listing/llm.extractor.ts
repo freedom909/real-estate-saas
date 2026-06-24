@@ -16,6 +16,7 @@ import { AIDomain }
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ListingOptimizationResult } from "@/core/listing/application/dto/listingOptimization.result";
 import { SemanticSchema } from "@/ai-platform/schemas/semantic.schema";
+import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 
 @injectable()
 export default class LLMExtractor {
@@ -26,7 +27,8 @@ export default class LLMExtractor {
   ) { }
 
   async extract(
-    message: string
+    message: string,
+    request?: AIRequest
   ): Promise<SemanticContext> {
 
     const prompt = `
@@ -60,6 +62,7 @@ Rules:
 - Extract LOCATION entity when user mentions a place
 - Extract DATE_RANGE entity when user mentions dates
 - Extract GUEST_COUNT entity when user mentions number of guests
+- Extract ORDINAL entity when user says "first", "second", "third", "last", "latest" etc.
 
 Output format:
 
@@ -151,7 +154,8 @@ ${message}
     // But without a listingId, the user is actually SEARCHING.
     const resolvedAction = this.resolveActionFromEntities(
       validated.primaryAction,
-      validated.entities
+      validated.entities,
+      request
     );
 
     // Fix domain when action implies a different domain
@@ -199,7 +203,8 @@ ${message}
   // Overrides LLM classification based on entity presence.
   private resolveActionFromEntities(
     llmAction: string,
-    entities: { type: string; value: string }[]
+    entities: { type: string; value: string }[],
+    request?: AIRequest
   ): string {
 
     const has = (type: string) =>
@@ -210,9 +215,15 @@ ${message}
     const location = has("LOCATION");
     const dateRange = has("DATE_RANGE");
 
-    // Rule 1: CREATE_BOOKING requires listingId
-    if (llmAction === "CREATE_BOOKING" && !listingId) {
-      console.log("🔄 OVERRIDE: CREATE_BOOKING → SEARCH_LISTING (no listingId)");
+    // Rule 1: CREATE_BOOKING requires listingId or ordinal
+    // - If ordinal is present, user is referencing a search result (e.g. "book the first one")
+    //   → keep CREATE_BOOKING, BookingAgent resolves listingId from context.resources.searchResults
+    // - If searchResults exist in context, same logic applies
+    // - Otherwise, no way to identify the listing → redirect to SEARCH_LISTING
+    const ordinal = has("ORDINAL");
+    const hasSearchResults = (request?.context?.resources?.searchResults?.length ?? 0) > 0;
+    if (llmAction === "CREATE_BOOKING" && !listingId && !ordinal && !hasSearchResults) {
+      console.log("🔄 OVERRIDE: CREATE_BOOKING → SEARCH_LISTING (no listingId, no ordinal, no searchResults)");
       return "SEARCH_LISTING";
     }
 

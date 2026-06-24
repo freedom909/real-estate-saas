@@ -25,7 +25,7 @@ export default class LLMExtractor {
     async extract(message: string): Promise<SemanticContext> {
 
         // ======================================
-        // 1. Prompt (strong constraints + explicit action space)
+        // 1. Prompt
         // ======================================
         const prompt = `
 You are a high-precision AI booking intent extractor.
@@ -51,19 +51,25 @@ Available primaryAction:
 
 Rules:
 - primaryAction is REQUIRED
-- actions must always be an array
 - entities must always be an array
 - NEVER return entities as object
 - ALWAYS return SEARCH_LISTING for general booking requests like "help me book a room"
-- ALWAYS return SEARCH_LISTING for "show me rooms in [location]", "find a room in [location]", "rooms near [location]"
-- ALWAYS return CHECK_AVAILABILITY for "is there availability", "is it available", "check availability"
-- Extract LOCATION entity when user mentions a place (e.g. "Kyoto", "Osaka", "Tokyo")
-- Extract DATE_RANGE entity when user mentions dates for search (e.g. "next week", "tomorrow", "June 20-25")
-- For CREATE_BOOKING: extract check_in and check_out as separate entities (e.g. "next week" → check_in="next week", check_out="next week + 7 days")
+- ALWAYS return SEARCH_LISTING for "show me rooms in [location]", "find a room in [location]"
+- ALWAYS return CHECK_AVAILABILITY for "is there availability", "is it available"
+- Extract LOCATION entity when user mentions a place
+- Extract DATE_RANGE entity when user mentions dates
 - Extract GUEST_COUNT entity when user mentions number of guests
 - Extract LISTING_ID entity when user references a specific listing
 - Extract BOOKING_ID entity when user references a specific booking
-- return STRICT JSON ONLY
+- Extract ORDINAL entity when user says "first", "second", "third", "last", "latest"
+
+Output format:
+{
+  "domain":"BOOKING",
+  "primaryAction":"SEARCH_LISTING",
+  "confidence":0.95,
+  "entities":[]
+}
 
 Examples:
 
@@ -104,7 +110,6 @@ User: "show my bookings"
             .replace(/```/g, "")
             .trim();
 
-        // 1. parse
         let parsed: any;
 
         try {
@@ -113,76 +118,43 @@ User: "show my bookings"
             throw new Error("Invalid JSON from LLM");
         }
 
-        // 2. FORCE NORMALIZATION
-
-        parsed =
-            this.normalizeResponse(
-                parsed,
-                message
-            );
+        // ======================================
+        // 3. Normalize & Resolve
+        // ======================================
+        parsed = this.normalizeResponse(parsed, message);
 
         // Message-level override
         parsed.primaryAction =
-            this.resolveActionFromMessage(
-                message,
-                parsed.primaryAction
-            );
+            this.resolveActionFromMessage(message, parsed.primaryAction);
 
         // Entity-level override
         parsed.primaryAction =
-            this.resolveActionFromEntities(
-                parsed.primaryAction,
-                parsed.entities ?? []
-            );
+            this.resolveActionFromEntities(parsed.primaryAction, parsed.entities ?? []);
 
-        parsed.actions = [
-            parsed.primaryAction
-        ];
+        parsed.actions = [parsed.primaryAction];
 
-        console.log(
-            "AFTER NORMALIZE >>>",
-            parsed
-        );
-        parsed.primaryAction =
-            this.resolveActionFromMessage(
-                message,
-                parsed.primaryAction
-            );
-
-        parsed.primaryAction =
-            this.resolveActionFromEntities(
-                parsed.primaryAction,
-                parsed.entities
-            );
-
-        parsed.actions = [
-            parsed.primaryAction
-        ];
-        // 3. DEBUG
         console.log("AFTER NORMALIZE >>>", parsed);
 
-        // 4. validate
-        const validated =
-            SemanticSchema.parse(parsed);
+        // ======================================
+        // 4. Validate via schema
+        // ======================================
+        const validated = SemanticSchema.parse(parsed);
 
         // ======================================
-        // 6. Action
+        // 5. Build action + entities
         // ======================================
         const action = {
             type: validated.primaryAction as AgentAction,
             confidence: validated.confidence,
         };
 
-        // ======================================
-        // 7. Entities normalization
-        // ======================================
         const entities: Entity[] = validated.entities.map((entity) => ({
             type: entity.type as EntityType,
             value: entity.value,
         }));
 
         // ======================================
-        // 8. Build Semantic Context
+        // 6. Build Semantic Context
         // ======================================
         return new SemanticContext(
             message,
@@ -194,37 +166,23 @@ User: "show my bookings"
         );
     }
 
-    private normalizeResponse(
-        parsed: any,
-        message: string
-    ) {
+    // ======================================
+    // Normalize LLM response shape
+    // ======================================
+    private normalizeResponse(parsed: any, message: string) {
 
-        const action =
-            parsed.primaryAction ||
-            parsed.action ||
-            "GENERAL";
+        const action = parsed.primaryAction || parsed.action || "GENERAL";
+        parsed.primaryAction = action;
+        parsed.actions = [action];
 
-        parsed.primaryAction =
-            action;
-
-        parsed.actions = [
-            action
-        ];
-
-        // entities normalization
+        // entities normalization — LLM sometimes returns object instead of array
         if (!Array.isArray(parsed.entities)) {
-
-            parsed.entities =
-                Object.entries(
-                    parsed.entities || {}
-                ).map(
-                    ([key, value]) => ({
-                        type:
-                            key.toUpperCase(),
-                        value:
-                            String(value)
-                    })
-                );
+            parsed.entities = Object.entries(parsed.entities || {}).map(
+                ([key, value]) => ({
+                    type: key.toUpperCase(),
+                    value: String(value)
+                })
+            );
         }
 
         if (!parsed.actions) {
@@ -232,82 +190,64 @@ User: "show my bookings"
         }
 
         if (!parsed.primaryAction) {
-            parsed.primaryAction =
-                "SEARCH_LISTING";
+            parsed.primaryAction = "SEARCH_LISTING";
         }
 
         if (!parsed.domain) {
-            parsed.domain =
-                "BOOKING";
+            parsed.domain = "BOOKING";
         }
 
         return parsed;
     }
 
+    // ======================================
+    // Message-Level Action Override
+    // ======================================
     private resolveActionFromMessage(
         message: string,
         action: string
     ): string {
 
-        console.log(
-            "BEFORE OVERRIDE",
-            action
-        );
+        const lower = message.toLowerCase();
 
-        const lower =
-            message.toLowerCase();
-
-        if (
-            lower.includes("confirm booking")
-        ) {
-
-            console.log(
-                "MATCH CONFIRM_BOOKING"
-            );
-
+        if (lower.includes("confirm booking")) {
             return "CONFIRM_BOOKING";
         }
 
+        // No override — return original action
         return action;
     }
 
     // ======================================
     // Entity-Based Action Resolution
     // ======================================
-    // Deterministic rules that override LLM classification.
-    // Pattern: if (entities match X) → force action Y.
     private resolveActionFromEntities(
         llmAction: string,
-        entities: { type: string; value: string }[],
-        message?: string
+        entities: { type: string; value: string }[]
     ): string {
         const has = (type: string) =>
             entities.some(e => e.type.toUpperCase() === type.toUpperCase());
 
         const listingId = has("LISTING_ID");
+        const ordinal = has("ORDINAL");
         const bookingId = has("BOOKING_ID");
         const location = has("LOCATION");
         const dateRange = has("DATE_RANGE");
 
-        // ── Rule 1: CREATE_BOOKING requires listingId ──
-        // "book a room in Kyoto" → no listingId → SEARCH_LISTING
-        // "book listing A001"    → has listingId → CREATE_BOOKING
-        if (llmAction === "CREATE_BOOKING" && !listingId) {
-            console.log("🔄 OVERRIDE: CREATE_BOOKING → SEARCH_LISTING (no listingId)");
+        // Rule 1: CREATE_BOOKING requires listingId or ordinal
+        if (llmAction === "CREATE_BOOKING" && !listingId && !ordinal) {
+            console.log("🔄 OVERRIDE: CREATE_BOOKING → SEARCH_LISTING (no listingId, no ordinal)");
             return "SEARCH_LISTING";
         }
 
-        // ── Rule 2: CANCEL/CONFIRM/COMPLETE/MODIFY requires bookingId ──
+        // Rule 2: CANCEL/CONFIRM/COMPLETE/MODIFY without bookingId → keep action
+        // (BookingAgent will resolve bookingId from context or ordinal)
         if (["CANCEL_BOOKING", "CONFIRM_BOOKING", "COMPLETE_BOOKING", "MODIFY_BOOKING"].includes(llmAction) && !bookingId) {
-            console.warn(
-                `Missing bookingId for ${llmAction}`
-            );
-            console.log(`🔄 OVERRIDE: ${llmAction} → GET_MY_BOOKINGS (no bookingId)`);
+            console.warn(`⚠️ No bookingId for ${llmAction} — BookingAgent will resolve from context`);
             return llmAction;
         }
 
-
-        // ── Rule 3: location + dateRange without listingId → SEARCH_LISTING ──
+        // Rule 3: location + dateRange without listingId → SEARCH_LISTING
         if (location && dateRange && !listingId && !bookingId) {
             if (llmAction !== "SEARCH_LISTING") {
                 console.log("🔄 OVERRIDE: location+dateRange → SEARCH_LISTING");
@@ -315,7 +255,7 @@ User: "show my bookings"
             }
         }
 
-        // ── Rule 4: location without listingId → SEARCH_LISTING ──
+        // Rule 4: location without listingId → SEARCH_LISTING
         if (location && !listingId && !bookingId) {
             if (llmAction === "CREATE_BOOKING" || llmAction === "CHECK_AVAILABILITY") {
                 console.log("🔄 OVERRIDE: location only → SEARCH_LISTING");
@@ -323,13 +263,12 @@ User: "show my bookings"
             }
         }
 
-        // ── Rule 5: CHECK_AVAILABILITY requires listingId ──
+        // Rule 5: CHECK_AVAILABILITY requires listingId
         if (llmAction === "CHECK_AVAILABILITY" && !listingId) {
             console.log("🔄 OVERRIDE: CHECK_AVAILABILITY → SEARCH_LISTING (no listingId)");
             return "SEARCH_LISTING";
         }
 
-        // No override needed
         return llmAction;
     }
 }

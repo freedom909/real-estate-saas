@@ -2,6 +2,7 @@ import { injectable } from "tsyringe";
 
 import {
     AgentAction,
+    Entity,
     EntityType,
     SemanticContext
 } from "../semantic-context";
@@ -17,38 +18,39 @@ export class MessageRuleExtractor {
 
     private readonly bookingRules = [
         {
-keywords: [
-            "confirm booking",
-            "confirm reservation"
-        ],
+            keywords: [
+                "confirm booking",
+                "confirm reservation",
+                "confirm booking and reservation"
+            ],
             action: AgentAction.CONFIRM_BOOKING
         },
         {
-keywords: [
-            "cancel booking",
-            "cancel reservation"
-        ],
+            keywords: [
+                "cancel booking",
+                "cancel reservation"
+            ],
             action: AgentAction.CANCEL_BOOKING
         },
         {
-keywords: [
-            "complete booking",
-            "complete reservation"
-        ],
+            keywords: [
+                "complete booking",
+                "complete reservation"
+            ],
             action: AgentAction.COMPLETE_BOOKING
         },
         {
-keywords: [
-            "get booking",
-            "get reservation"
-        ],
+            keywords: [
+                "get booking",
+                "get reservation"
+            ],
             action: AgentAction.GET_BOOKING
         },
         {
-keywords: [
-            "show booking",
-            "show reservation"
-        ],
+            keywords: [
+                "show booking",
+                "show reservation"
+            ],
             action: AgentAction.GET_BOOKING
         }
     ];
@@ -72,6 +74,10 @@ keywords: [
         const bookingId =
             message.match(UUID_REGEX)?.[0];
 
+        // Extract ordinal entities from message
+        const ordinalEntities =
+            this.extractOrdinal(message);
+
         // ----------------------------------
         // GET MY BOOKINGS
         // ----------------------------------
@@ -94,7 +100,8 @@ keywords: [
         }
 
         // ----------------------------------
-        // BOOKING ACTIONS
+        // BOOKING ACTIONS (with UUID)
+        // e.g. "cancel booking c3bcab13-..."
         // ----------------------------------
 
         for (const rule of this.bookingRules) {
@@ -111,28 +118,98 @@ keywords: [
                 return this.buildBookingIntent(
                     message,
                     rule.action,
-                    bookingId
+                    [{ type: EntityType.BOOKING_ID, value: bookingId }]
                 );
+            }
+        }
+
+        // ----------------------------------
+        // BOOKING ACTIONS (with ORDINAL, no UUID)
+        // e.g. "cancel my latest booking", "confirm the first one"
+        // ----------------------------------
+
+        if (ordinalEntities.length > 0) {
+            for (const rule of this.bookingRules) {
+                if (rule.keywords.some(keyword => lower.includes(keyword))) {
+                    console.log(
+                        `✅ MATCHED ${rule.action} (ordinal)`
+                    );
+
+                    return this.buildBookingIntent(
+                        message,
+                        rule.action,
+                        ordinalEntities
+                    );
+                }
             }
         }
 
         return null;
     }
 
+    /**
+     * Extract ordinal entities from message text.
+     * "first one" → ORDINAL: "first"
+     * "second" → ORDINAL: "second"
+     * "latest" / "last" → ORDINAL: "latest"
+     */
+    private extractOrdinal(
+        message: string
+    ): Entity[] {
+
+        const lower = message.toLowerCase();
+        const entities: Entity[] = [];
+
+        if (
+            lower.includes("first one") ||
+            lower.includes("first listing") ||
+            lower.includes("1st one")
+        ) {
+            entities.push({
+                type: EntityType.ORDINAL,
+                value: "first"
+            });
+        } else if (
+            lower.includes("second one") ||
+            lower.includes("second listing") ||
+            lower.includes("2nd one")
+        ) {
+            entities.push({
+                type: EntityType.ORDINAL,
+                value: "second"
+            });
+        } else if (
+            lower.includes("third one") ||
+            lower.includes("third listing") ||
+            lower.includes("3rd one")
+        ) {
+            entities.push({
+                type: EntityType.ORDINAL,
+                value: "third"
+            });
+        } else if (
+            lower.includes("latest") ||
+            lower.includes("last one") ||
+            lower.includes("last booking")
+        ) {
+            entities.push({
+                type: EntityType.ORDINAL,
+                value: "latest"
+            });
+        }
+
+        return entities;
+    }
+
     private buildBookingIntent(
         message: string,
         action: AgentAction,
-        bookingId: string
+        entities: Entity[]
     ): SemanticContext {
 
         return new SemanticContext(
             message,
-            [
-                {
-                    type: EntityType.BOOKING_ID,
-                    value: bookingId
-                }
-            ],
+            entities,
             {
                 type: action,
                 confidence: 0.99

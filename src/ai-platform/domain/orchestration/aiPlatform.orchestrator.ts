@@ -8,6 +8,8 @@ import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 import { AgentResult } from "@/ai-platform/context/types/context/agent.result";
 import { TOKENS_EXTRACTOR } from "@/ai-platform/container/semantic/extractor";
 import { AIDomain } from "../semantic/types/ai.domain";
+import { ReferenceResolver } from "@/ai-platform/reference/referenceResolver";
+import { TOKENS_REFERENCE } from "@/ai-platform/container/reference/reference.token";
 
 @injectable()
 export class AIPlatformOrchestrator {
@@ -18,9 +20,13 @@ export class AIPlatformOrchestrator {
     private semanticExtractor: ISemanticExtractor,
 
     @inject(TOKENS_ORCHESTRATOR.agentRouterService)
-    private routingService: AgentRouterService
+    private routingService: AgentRouterService,
+   
+    @inject(TOKENS_REFERENCE.resolver)
+    private referenceResolver: ReferenceResolver,
 
-  ) { }
+
+  ) {}
   async handle(
     request: AIRequest
   ): Promise<AgentResult> {
@@ -33,6 +39,7 @@ console.log(
   "SEMANTIC >>>",
   JSON.stringify(semantic, null, 2)
 );
+
     const agent =
       this.routingService.route(
         semantic

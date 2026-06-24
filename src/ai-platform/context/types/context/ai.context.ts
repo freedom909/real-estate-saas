@@ -51,17 +51,22 @@ export interface RuntimeContext {
 }
 
 export interface ResourceContext {
+
+  // direct selection
   listingId?: string;
   bookingId?: string;
   reviewId?: string;
-  conversationId?: string;
-  messageId?: string;
+
+  // snapshots
   listing?: ListingSnapshot;
   booking?: BookingSnapshot;
   review?: ReviewSnapshot;
 
-  /** Last search results — client stores and passes back for "book the first one" */
+  // 💡 IMPORTANT: unified memory for multi-turn reference resolution
   searchResults?: SearchListingResult[];
+
+  // optional future
+  lastActionResult?: unknown;
 }
 
 export interface SearchListingResult {

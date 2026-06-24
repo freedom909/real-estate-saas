@@ -73,7 +73,8 @@ async extract(
 
   // LLM Fallback
   return await this.llmExtractor.extract(
-    request.message
+    request.message,
+    request
   );
 }
 }

@@ -12,7 +12,13 @@ export class SearchListingUseCase {
   ) {}
 
   async execute(query: SearchListingsQuery) {
+    
     const listings = await this.repo.search(query);
+  console.log(
+    "🔍 SEARCH PARAMS",
+    JSON.stringify(query, null, 2)
+  );
+
 
     return {
       listings: listings.map(l => ({

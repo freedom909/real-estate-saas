@@ -12,9 +12,13 @@ import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifec
 
 @injectable()
 export class BookingRepository implements IBookingRepository {
+  async findByLatestByGuestId(guestId: string): Promise<Booking | null> {
+    if (!guestId) return null;
+    const model = await BookingModel.findOne({
 
-  async findById(id: string): Promise<Booking | null> {
-    const model = await BookingModel.findByPk(id);
+      where: { guestId },
+      order: [["createdAt", "DESC"]],
+    });
 
     if (!model) return null;
 
@@ -41,7 +45,11 @@ export class BookingRepository implements IBookingRepository {
     });
   }
 
-
+  async findById(id: string): Promise<Booking | null> {
+    const model = await BookingModel.findByPk(id);
+    if (!model) return null;
+    return this.toDomain(model);
+  }
 
 
   async findByGuestId(guestId: string): Promise<Booking[]> {
