@@ -6,10 +6,7 @@ import {
   Entity,
   EntityType,
   AgentAction,
-
 } from "../../semantic-context";
-
-
 
 import { OpenAIAdapter }
   from "@/ai-platform/infrastructure/adapters/openai.adapter";
@@ -19,9 +16,6 @@ import { AIDomain }
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ListingOptimizationResult } from "@/core/listing/application/dto/listingOptimization.result";
 import { SemanticSchema } from "@/ai-platform/schemas/semantic.schema";
-
-
-
 
 @injectable()
 export default class LLMExtractor {

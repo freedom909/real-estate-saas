@@ -5,36 +5,55 @@ import {  AgentAction, EntityType, SemanticContext } from "../semantic-context";
 import { AIDomain } from "../types/ai.domain";
 import { AIRequest } from "@/ai-platform/context/types/context/ai.context";
 
+const UUID_REGEX =
+    /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 @injectable()
 export class RuleExtractor {
 
   async extract(
-    request: AIRequest // request seems to have no its use
+    request: AIRequest
   ): Promise<SemanticContext> {
 
     const message = request?.message ?? "";
     console.log("message:", message);
     const lower = message.toLowerCase();
 
+    // ----------------------------------
+    // BOOKING CANCEL
+    // ----------------------------------
     if (lower.includes("cancel")) {
-      const entities = [];
-      // Populate booking_id from context resources if available
-      if (request.context.resources?.bookingId) {
+      let entities: { type: EntityType; value: string }[] = [];
+
+      // Extract booking ID from message text first
+      const cancelBookingId = message.match(UUID_REGEX)?.[0];
+      if (cancelBookingId) {
+        entities.push({ type: EntityType.BOOKING_ID, value: cancelBookingId });
+      }
+
+      // Fallback: populate booking_id from context resources if available
+      if (!cancelBookingId && request.context.resources?.bookingId) {
         entities.push({ type: EntityType.BOOKING_ID, value: request.context.resources.bookingId });
       }
+
       return new SemanticContext(
         message,
         entities,
-        null,
+        {
+          type: AgentAction.CANCEL_BOOKING,
+          confidence: 0.99
+        },
         0.99,
         AIDomain.BOOKING,
         true
       );
     }
 
+    // ----------------------------------
+    // LISTING RULES
+    // ----------------------------------
     let listingIdFromMessage: string | undefined;
-    const entities = [];
+    const entities: { type: EntityType; value: string }[] = [];
 
     const listingMatch =
       message.match(
@@ -87,7 +106,7 @@ export class RuleExtractor {
       );
     }
 
-    // どのルールにも合致しない場合のデフォルトの戻り値
+    // Default: no rule matched
     return new SemanticContext(message, [], null, 0, AIDomain.UNKNOWN, false);
   }
 }

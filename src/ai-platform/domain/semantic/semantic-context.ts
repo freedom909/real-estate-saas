@@ -76,7 +76,8 @@ export enum EntityType {
     "ORDINAL",
 }
 export class SemanticContext {
-  [x: string]: SemanticContext | PromiseLike<SemanticContext>;
+  semanticContext: SemanticContext | PromiseLike<SemanticContext>;
+  
   constructor(
     public readonly rawInput: string, 
     public readonly entities: Entity[],// 実体

@@ -1,4 +1,3 @@
-
 import { injectable } from "tsyringe";
 
 import {
@@ -16,19 +15,59 @@ const UUID_REGEX =
 @injectable()
 export class MessageRuleExtractor {
 
-extract(message: string): SemanticContext | null {
+    private readonly bookingRules = [
+        {
+keywords: [
+            "confirm booking",
+            "confirm reservation"
+        ],
+            action: AgentAction.CONFIRM_BOOKING
+        },
+        {
+keywords: [
+            "cancel booking",
+            "cancel reservation"
+        ],
+            action: AgentAction.CANCEL_BOOKING
+        },
+        {
+keywords: [
+            "complete booking",
+            "complete reservation"
+        ],
+            action: AgentAction.COMPLETE_BOOKING
+        },
+        {
+keywords: [
+            "get booking",
+            "get reservation"
+        ],
+            action: AgentAction.GET_BOOKING
+        },
+        {
+keywords: [
+            "show booking",
+            "show reservation"
+        ],
+            action: AgentAction.GET_BOOKING
+        }
+    ];
 
-    console.log(
-      "🔥 MessageRuleExtractor called"
-    );
+    extract(
+        message: string
+    ): SemanticContext | null {
 
-    console.log(
-      "MESSAGE =",
-      message
-    );
+        console.log(
+            "🔥 MessageRuleExtractor called"
+        );
 
-    const lower =
-      message.toLowerCase();
+        console.log(
+            "MESSAGE =",
+            message
+        );
+
+        const lower =
+            message.toLowerCase();
 
         const bookingId =
             message.match(UUID_REGEX)?.[0];
@@ -50,71 +89,31 @@ extract(message: string): SemanticContext | null {
                 },
                 0.99,
                 AIDomain.BOOKING,
-                false
+                true
             );
         }
 
         // ----------------------------------
-        // GET BOOKING
+        // BOOKING ACTIONS
         // ----------------------------------
 
-        if (
-            (
-                lower.includes("show booking") ||
-                lower.includes("get booking")
-            ) &&
-            bookingId
-        ) {
-            return this.buildBookingIntent(
-                message,
-                AgentAction.GET_BOOKING,
+        for (const rule of this.bookingRules) {
+
+            if (
+                rule.keywords.some(keyword => lower.includes(keyword)) &&
                 bookingId
-            );
-        }
+            ) {
 
-        // ----------------------------------
-        // CONFIRM BOOKING
-        // ----------------------------------
+                console.log(
+                    `✅ MATCHED ${rule.action}`
+                );
 
-        if (
-            lower.includes("confirm booking") &&
-            bookingId
-        ) {
-            return this.buildBookingIntent(
-                message,
-                AgentAction.CONFIRM_BOOKING,
-                bookingId
-            );
-        }
-
-        // ----------------------------------
-        // CANCEL BOOKING
-        // ----------------------------------
-
-        if (
-            lower.includes("cancel booking") &&
-            bookingId
-        ) {
-            return this.buildBookingIntent(
-                message,
-                AgentAction.CANCEL_BOOKING,
-                bookingId
-            );
-        }
-
-        // ----------------------------------
-        // COMPLETE BOOKING
-        // ----------------------------------
-
-        if (
-            lower.includes("complete booking") &&
-            bookingId
-        ) {
-            return this.buildBookingIntent(
-                message,
-                AgentAction.COMPLETE_BOOKING,
-                bookingId
-            );
+                return this.buildBookingIntent(
+                    message,
+                    rule.action,
+                    bookingId
+                );
+            }
         }
 
         return null;
@@ -140,7 +139,7 @@ extract(message: string): SemanticContext | null {
             },
             0.99,
             AIDomain.BOOKING,
-            false
+            true
         );
     }
 }

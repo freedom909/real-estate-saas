@@ -48,8 +48,11 @@ async extract(
     console.log(
       "✅ EPISODE RULE MATCHED"
     );
-
-    return ruleResult.semanticContext;
+  console.log(
+    "EPISODE RESULT >>>",
+    JSON.stringify(ruleResult, null, 2)
+  );
+    return ruleResult
   }
 
   // Message Rule

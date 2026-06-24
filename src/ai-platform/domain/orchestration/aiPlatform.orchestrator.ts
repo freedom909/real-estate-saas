@@ -29,7 +29,10 @@ export class AIPlatformOrchestrator {
       await this.semanticExtractor.extract(
         request
       );
-
+console.log(
+  "SEMANTIC >>>",
+  JSON.stringify(semantic, null, 2)
+);
     const agent =
       this.routingService.route(
         semantic

@@ -1,10 +1,10 @@
 // src/ai-platform/cognition/domain/agents/listing/executors/generate-content.executor.ts
 import { injectable } from "tsyringe";
-import { IExecutor } from "../../planning/types/i-facet.resolver";
+
 
 
 @injectable()
-export class GenerateContentExecutor implements IExecutor {
+export class GenerateContentExecutor  {
   async execute(payload: Record<string, any>): Promise<any> {
     console.log(`Executing GenerateContent for listingId: ${payload.listingId}, targetField: ${payload.targetField}`);
     // Simulate API call or business logic
