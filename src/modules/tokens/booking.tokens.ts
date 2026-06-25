@@ -18,6 +18,7 @@ export const TOKENS_BOOKING = {
   },
   repository: {
     bookingRepository: Symbol.for("BookingRepository"),
+    cancelBookingRepository: Symbol.for("CancelBookingRepository"),
   },
   eventBus: {
     eventBus: Symbol.for("EventBus"),

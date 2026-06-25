@@ -4,7 +4,7 @@ import { container } from 'tsyringe';
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 import { TOKENS_AI } from '@/modules/tokens/ai.tokens';
 
-import { GenerateListingAIOptimizationUseCase } from '@/ai-platform/application/usecases/listing/generateListingAIOptimization.usecase';
+import { GenerateListingAIOptimizationUseCase } from '@/wisdom/agents/listing/generateListingAIOptimization.usecase';
 import ListingModel from '@/core/listing/infrastructure/models/listing.model';
 import { ListingRepository } from '@/core/listing/infrastructure/persistence/listing.repository';
 import CreateListingUseCase from '@/core/listing/application/usecase/createListingUseCase';

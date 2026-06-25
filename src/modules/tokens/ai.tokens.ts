@@ -1,9 +1,10 @@
 //src/modules/tokens/ai.tokens.ts
 export const TOKENS_AI = {
+  OpenAITool: Symbol.for("OpenAITool"),
   
   tool: {
-    rewriteDescriptionTool: Symbol.for("RewriteDescriptionTool"),
     rewriteTitleTool: Symbol.for("RewriteTitleTool"),
+    rewriteDescriptionTool: Symbol.for("RewriteDescriptionTool"),
     analyzeListingTool: Symbol.for("AnalyzeListingTool"),
     listingOptimizationTool: Symbol.for("ListingOptimizationTool"),
     generateSEOKeywordsTool: Symbol.for("GenerateSEOKeywordsTool"),
@@ -63,6 +64,7 @@ export const TOKENS_AI = {
   },
   acl: {
     reviewACL: Symbol.for("ReviewACL"),
+    bookingACL: Symbol.for("BookingACL"),
   },
   OpenAIService: Symbol.for("OpenAIService"),
   OpenAIAdapter: Symbol.for("OpenAIAdapter"),

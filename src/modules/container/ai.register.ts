@@ -3,29 +3,17 @@
 import { container } from "tsyringe";
 import { TOKENS_AI } from "../tokens/ai.tokens";
 
+import { WisdomOrchestrator } from "@/wisdom/orchestration/wisdom-orchestrator";
+import { WISDOM_TOKENS } from "@/wisdom/container/tokens/wisdom.tokens";
 
 
-
-import { AIPlatformOrchestrator } from "@/ai-platform/domain/orchestration/aiPlatform.orchestrator";
-
-import { TOKENS_ORCHESTRATOR } from "@/ai-platform/container/context/orchestrator/orchestrator";
-
-import { GenerateSEOKeywordsTool } from "@/ai-platform/application/capabilities/generateSEOKeywords.tool";
-
-import { AgentRouterService } from "@/ai-platform/domain/orchestration/router/agentRouter.service";
-
-import { OpenAIAdapter } from "@/ai-platform/infrastructure/adapters/openai.adapter";
-
+import { OpenAITool } from "@/wisdom/tools/openai.tool";
 
 import { RunListingAgentUseCase } from "@/core/listing/application/usecase/runListingAgentUseCase";
 import { ReviewACL } from "@/core/booking/domain/entities/contexts/ReviewACL";
 
-import { AnalyzeListingTool } from "@/ai-platform/application/tools/analyzeListing.tool";
-import { CategoryOptimizationTool } from "@/ai-platform/application/tools/categoryOptimizationTool";
-import { RewriteTitleTool } from "@/ai-platform/application/tools/rewriteTitleTool";
-import { RewriteDescriptionTool } from "@/ai-platform/application/tools/rewriteDescriptionTool";
-import { PriceOptimizationTool } from "@/ai-platform/application/tools/priceOptimizationTool";
-import { ListingOptimizationAgent } from "@/ai-platform/application/agents/listingOptimizationAgent";
+
+import { ListingOptimizationAgent } from "@/wisdom/agents/listing/listingOptimization.agent";
 import { RunBookingAgentUseCase } from "@/core/booking/application/usecases/runBookingAgent.usecase";
 import { BookingOptimizationTool } from "@/core/booking/infrastructure/tools/bookingOptimization.tool";
 import { BookingOptimizationAgent } from "@/core/booking/bookingOptimizationAgent";
@@ -39,15 +27,18 @@ import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
 import { BookingRepository } from "@/core/booking/infrastructure/repos/bookingRepository";
 import { CancelBookingRepository } from "@/core/booking/infrastructure/repos/cancelBookingRepository";
+import { AnalyzeListingTool } from "@/wisdom/tools/analyzeListing.tool";
+import { CategoryOptimizationTool } from "@/wisdom/tools/categoryOptimizationTool";
+import { GenerateSEOKeywordsTool } from "@/wisdom/capabilities/generateSEOKeywords.tool";
+import { RewriteTitleTool } from "@/wisdom/tools/rewriteTitleTool";
+import { RewriteDescriptionTool } from "@/wisdom/tools/rewriteDescriptionTool";
+import { PriceOptimizationTool } from "@/wisdom/tools/priceOptimizationTool";
 
 export function registerAIContainer() {
 
-container.register(TOKENS_ORCHESTRATOR.aiPlatformOrchestrator, {
-  useClass: AIPlatformOrchestrator,
-});
-
-container.register(TOKENS_ORCHESTRATOR.agentRouterService, {
-  useClass: AgentRouterService,
+// Wisdom orchestrator replaces old AIPlatformOrchestrator + AgentRouterService
+container.register(WISDOM_TOKENS.orchestrator, {
+  useClass: WisdomOrchestrator,
 });
 
 container.register(TOKENS_AI.tool.analyzeListingTool, {
@@ -82,33 +73,6 @@ container.register(TOKENS_AI.usecase.runListingAgentUseCase, {
   useClass: RunListingAgentUseCase,
 });
 
-container.register(TOKENS_AI.usecase.runBookingAgentUseCase, {
-  useClass: RunBookingAgentUseCase,
-});
-
-container.register(TOKENS_AI.tool.bookingOptimizationTool, {
-  useClass: BookingOptimizationTool,
-});
-
-container.register(TOKENS_AI.agent.bookingOptimizationAgent, {
-  useClass: BookingOptimizationAgent,
-});
-
-container.register(TOKENS_AI.tool.bookingFraudTool, {
-  useClass: BookingFraudTool,
-});
-
-container.register(TOKENS_AI.agent.bookingFraudAgent, {
-  useClass: BookingFraudAgent,
-});
-
-
-container.register(TOKENS_BOOKING.acl.bookingACL, { useClass: BookingACL });
-
-container.register(TOKENS_AI.acl.reviewACL, {
-  useClass: ReviewACL,
-});
-
 container.register(TOKENS_AI.agent.reviewAnalysisAgent, {
   useClass: ReviewAnalysisAgent,
 });
@@ -117,34 +81,48 @@ container.register(TOKENS_AI.usecase.runReviewAgentUseCase, {
   useClass: RunReviewAgentUseCase,
 });
 
-container.register(
-  TOKENS_AI.OpenAIAdapter,
-  {
-    useClass:
-      OpenAIAdapter
-  })
+container.register(TOKENS_AI.agent.bookingOptimizationAgent, {
+  useClass: BookingOptimizationAgent,
+});
 
-  container.register(TOKENS_AI.usecase.cancelBookingUseCase, {
-    useClass: CancelBookingUseCase,
-  })
+container.register(TOKENS_AI.agent.bookingFraudAgent, {
+  useClass: BookingFraudAgent,
+});
 
-  container.register(TOKENS_AI.usecase.createBookingUseCase, {
-    useClass: CreateBookingUseCase,
-  })
+container.register(TOKENS_AI.usecase.runBookingAgentUseCase, {
+  useClass: RunBookingAgentUseCase,
+});
 
-  container.register(TOKENS_AI.repos.bookingRepository, {
-    useClass: BookingRepository,
-  })
+container.register(TOKENS_AI.tool.bookingOptimizationTool, {
+  useClass: BookingOptimizationTool,
+});
 
-  container.register(TOKENS_AI.repos.cancelBookingRepository, {
-    useClass: CancelBookingRepository,
-  })
+container.register(TOKENS_AI.tool.bookingFraudTool, {
+  useClass: BookingFraudTool,
+});
 
-  container.register(TOKENS_AI.usecase.llmProvider, {
-    useClass: OpenAIAdapter,
-  })
+container.register(TOKENS_AI.acl.bookingACL, {
+  useClass: BookingACL,
+});
 
-  container.register(TOKENS_AI.repos.listingAISuggestionRepository, {
-    useClass: ListingOptimizationAgent,
-  })
+container.register(TOKENS_AI.acl.reviewACL, {
+  useClass: ReviewACL,
+});
+
+container.register(TOKENS_BOOKING.usecase.cancelBookingUseCase, {
+  useClass: CancelBookingUseCase,
+});
+
+container.register(TOKENS_BOOKING.usecase.createBookingUseCase, {
+  useClass: CreateBookingUseCase,
+});
+
+container.register(TOKENS_BOOKING.repository.bookingRepository, {
+  useClass: BookingRepository,
+});
+
+container.register(TOKENS_BOOKING.repository.cancelBookingRepository, {
+  useClass: CancelBookingRepository,
+});
+
 }

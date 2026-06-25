@@ -18,7 +18,7 @@ async function start() {
         { name: "listing", url: "http://localhost:4101/graphql" },
         //   //{name:"billing",url:"http://localhost:4060/graphql"},
 
-        { name: "ai", url: "http://localhost:4200/graphql" },
+        { name: "wisdom", url: "http://localhost:4200/graphql" },
 
         //  // {name:"review",url:"http://localhost:4040/graphql"},
 

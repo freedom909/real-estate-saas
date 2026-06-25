@@ -25,12 +25,6 @@ extend type Host @key(fields: "id") {
   listings: [Listing!]! @shareable
 }
 
-enum BookingStatus {
-  PENDING,
-  CONFIRMED,
-  COMPLETED,
-  CANCELLED
-}
 
 type CancelBookingResponse implements MutationResponse {
   code: Int! @shareable

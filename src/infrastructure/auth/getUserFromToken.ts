@@ -105,7 +105,7 @@ async function getUserFromToken(reqOrToken) {
     }
     if (error.name === 'JsonWebTokenError' || error.name === 'NotBeforeError') {
       logger.error('JWT Verification Failed:', error.message);
-      throw new GraphQLError(`Invalid token: ${error.message}`, { extensions: { code: 'INVALID_TOKEN' } });
+      return null;
     }
     throw new GraphQLError('Token verification failed', {
       extensions: { code: 'AUTHENTICATION_ERROR', error: error.message }
