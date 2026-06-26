@@ -26,6 +26,7 @@ export const WISDOM_TOKENS = {
   // Memory
   memory: {
     bookingStateUpdater: Symbol.for("wisdom.bookingStateUpdater"),
+    memoryStore: Symbol.for("wisdom.memoryStore"),
   },
 
   // Orchestration

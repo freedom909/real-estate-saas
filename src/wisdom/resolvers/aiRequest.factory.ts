@@ -21,6 +21,8 @@ export class AIRequestFactory {
   "SESSION ID FROM REQUEST",
   sessionId
 );
+
+
     console.log(
   "MEMORY BEFORE REQUEST",
   sessionMemory
@@ -32,11 +34,17 @@ export class AIRequestFactory {
       email: rawUser.email,
       role: rawUser.role,
     } : undefined;
+
+const userId = user?.id ?? sessionId ?? "anonymous";
+
+const existingMemory = sessionMemory.get(userId) || {};
+
+console.log("MEMORY BEFORE REQUEST", existingMemory);
+sessionMemory.set(userId, existingMemory);
 const memoryKey =
   user?.id ?? "anonymous";
-  const memory =
-  sessionMemory.get(memoryKey) || {};
-
+  const memory =  sessionMemory.get(memoryKey) || {};
+console.log("MEMORY GET CALLED", memory);
   console.log(
   "MEMORY KEY",
   memoryKey

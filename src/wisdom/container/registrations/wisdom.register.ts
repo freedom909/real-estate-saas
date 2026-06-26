@@ -32,6 +32,7 @@ import { WisdomOrchestrator } from "../../orchestration/wisdom-orchestrator";
 
 // Application
 import { ChatUseCase } from "../../application/usecases/chat.use-case";
+import { MemoryStore } from "@/wisdom/memory/memory.store";
 
 export function registerWisdom() {
   // Infrastructure — OpenAI adapter (used by LLMExtractor and as LLM provider)
@@ -60,6 +61,7 @@ export function registerWisdom() {
 
   // Memory
   container.register(WISDOM_TOKENS.memory.bookingStateUpdater, { useClass: BookingStateUpdater });
+  container.register(WISDOM_TOKENS.memory.memoryStore, { useClass: MemoryStore });
 
   // Orchestration
   container.register(WISDOM_TOKENS.orchestrator, { useClass: WisdomOrchestrator });
