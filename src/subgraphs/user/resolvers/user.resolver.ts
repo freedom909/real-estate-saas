@@ -59,6 +59,13 @@ Guest: {
     },
   },
   Query: {
+    me: (_: any, __: any, ctx: any) => {
+      if (!ctx.user) {
+        throw new Error("UNAUTHORIZED");
+      }
+
+      return ctx.user;
+    },
     user: async (_: unknown, { id }: { id: string }) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.findById(id);
@@ -79,7 +86,8 @@ Guest: {
       const token = req.get ? req.get("x-service-token") : req.headers["x-service-token"];
       console.log("Incoming x-service-token:", token);// undefined
 
-      const userService = container.resolve<UserService>(TOKENS_USER.services.userService); // This line was already here
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService); 
+
       verifyInternalRequest(req);
 
       return userService.userByEmail(email);
@@ -112,16 +120,16 @@ Guest: {
       });
       return user;
     },
-    updateLastLogin: async (_: unknown, { userId }: { userId: string }) => {
+    // updateLastLogin: async (_: unknown, { userId }: { userId: string }) => {
 
-      const user = await UserModel.findByIdAndUpdate(
-        userId,//型 'string' の引数を型 'Query<any, any, {}, unknown, "find", Record<string, never>>' のパラメーターに割り当てることはできません。
-        { lastLoginAt: new Date() },
-        { new: true }
-      )
+    //   const user = await UserModel.findByIdAndUpdate(
+    //     userId,// 型 'string' の引数を型 'Query<any, any, {}, unknown, "find", Record<string, never>>' のパラメーターに割り当てることはできません。
+    //     { lastLoginAt: new Date() },
+    //     { new: true }
+    //   )
 
-      return !!user
-    }
+    //   return !!user
+    // }
   },
 
 

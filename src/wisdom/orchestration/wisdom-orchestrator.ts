@@ -9,6 +9,8 @@ import { WisdomRequest } from "../contracts/request";
 import { WisdomResponse } from "../contracts/response";
 import { AIDomain } from "../shared/enums/domain.enum";
 import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
+import { AgentAction, EntityType, SemanticContext } from "../semantic/semantic-context";
+
 
 @injectable()
 export class WisdomOrchestrator {
@@ -24,9 +26,10 @@ export class WisdomOrchestrator {
 
     @inject(WISDOM_TOKENS.memory.bookingStateUpdater)
     private bookingStateUpdater: BookingStateUpdater,
-  ) {}
+  ) { }
 
   async handle(request: WisdomRequest): Promise<WisdomResponse> {
+
     // 1. Extract intent + entities from user message
     const semantic = await this.semanticExtractor.extract(request);
 
@@ -35,7 +38,7 @@ export class WisdomOrchestrator {
       semantic,
       request.context,
     );
-
+    this.normalizeBookingIntent(resolvedSemantic);
     // 3. Route to the correct domain agent
     const agent = this.agentRouter.route(resolvedSemantic);
 
@@ -51,6 +54,7 @@ export class WisdomOrchestrator {
     // 5. Update memory with artifacts
     const artifact = raw?.artifacts?.[0];
     if (artifact) {
+
       this.bookingStateUpdater.apply(request.context, artifact);
     }
 
@@ -69,4 +73,40 @@ export class WisdomOrchestrator {
 
     return response;
   }
+
+private normalizeBookingIntent(
+  semantic: SemanticContext
+): SemanticContext {
+
+  const location =
+    semantic.entities.find(
+      e => e.type === EntityType.LOCATION
+    );
+
+  const listingId =
+    semantic.entities.find(
+      e => e.type === EntityType.LISTING_ID
+    );
+
+  if (
+    semantic.action?.type === AgentAction.CREATE_BOOKING &&
+    location &&
+    !listingId
+  ) {
+
+    return new SemanticContext(
+      semantic.rawInput,
+      semantic.entities,
+      {
+        type: AgentAction.SEARCH_LISTING,
+        confidence: semantic.action.confidence,
+      },
+      semantic.confidence,
+      AIDomain.LISTING,
+      semantic.isRuleMatched,
+    );
+  }
+
+  return semantic;
+}
 }

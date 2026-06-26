@@ -17,6 +17,7 @@ import mongoose from "mongoose"
 import { container } from "tsyringe"
 import { registerTenantDependencies } from "./resolvers/tenant.container.js"
 import { resolvers } from "./resolvers/tenant.resolver.js"
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext.js"
 
 
 // 🔍 启动时验证 env
@@ -55,23 +56,16 @@ await server.start();
 
 app.use(
   "/graphql",
-  cors(),
   express.json(),
+  (req, res, next) => {
+    (req as any).user = getUserFromContext(req);
+    next();
+  },
   expressMiddleware(server, {
-    context: async ({ req }) => {
-        console.log("User received headers:", req.headers);
-      const userHeader = req.headers["x-user"];
-
-      if (userHeader) {
-        console.log("🟢 x-user:", userHeader);
-      }
-
-      return {
-        user: userHeader ? JSON.parse(userHeader as string) : null,
-        container: tenantContainer,
-      };
-    },
-
+    context: async ({ req }) => ({
+      req,
+      user: (req as any).user,
+    }),
   })
 );
 

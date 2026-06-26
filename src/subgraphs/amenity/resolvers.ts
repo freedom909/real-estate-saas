@@ -1,10 +1,10 @@
 import { container } from 'tsyringe';
 
-import { TOKENS_AMENITY } from '@/modules/tokens/amenity.tokens';
+import { GetAmenitiesUseCase } from '@/core/amenity/application/useCase/getAmenitiesUseCase';
+import { GetAmenitiesByIdsUseCase } from '@/core/amenity/application/useCase/getAmenitiesByIdsUseCase';
+import { CreateAmenityUseCase } from '@/core/amenity/application/useCase/createAmenityUseCase';
 
-import { GetAmenitiesByIdsUseCase } from '@/core/amenity/application/useCase/GetAmenitiesByIdsUseCase';
-import { CreateAmenityUseCase } from '@/core/amenity/application/useCase/CreateAmenityUseCase';
-import { GetAmenitiesUseCase } from '@/core/amenity/application/useCase/GetAmenitiesUseCase';
+
 
 
 const resolvers = {

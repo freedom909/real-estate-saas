@@ -9,7 +9,6 @@ import withSecurity from "@/security/infrastructure/withSecurity";
 import { VerifyOtpUseCase } from "./application/usecases/verifyOtp.usecase";
 import { subgraphAuthGuard } from "./guards/subgraphAuthGuard";
 
-
 import Blacklist from "@/security/blacklist/blacklist";
 import { IdentityRepository } from "./infrastructure/repos/identity.repo";
 import { OAuthLoginUseCase } from "./application/usecases/login.usecase";

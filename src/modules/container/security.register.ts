@@ -17,6 +17,10 @@ container.register(TOKENS_SECURITY.aiRiskEngine, {
   useClass: GeminiRiskEngine,
 });
 
+container.registerSingleton(
+    TOKENS_SECURITY.services.geminiClient,
+    GeminiClient
+);
 container.register(TOKENS_SECURITY.riskEngine, {
   useClass: RiskEngine,
 });

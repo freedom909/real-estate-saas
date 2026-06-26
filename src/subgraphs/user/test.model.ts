@@ -1,7 +1,8 @@
 // Test.model.ts
 import mongoose from "mongoose";
 import {IdentityModel} from "./models/identity.model";
-import {MembershipModel} from "../auth/models/member.ship.model";
+import MembershipModel from "./models/membership.model";
+
 
 async function testModels() {
   await mongoose.connect("mongodb://localhost:27017/saas");

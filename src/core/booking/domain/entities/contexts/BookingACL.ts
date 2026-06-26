@@ -2,11 +2,14 @@ import { inject, injectable } from "tsyringe";
 
 import { BookingAIContext } from "./bookingAI.context";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
+import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
+import { BookingGateway } from "@/core/booking/bookingGateway";
 
 @injectable()
 export class BookingACL {
   constructor(
-    
+    @inject(TOKENS_BOOKING.gateway.bookingGateway)
+    private gateway: BookingGateway
   ) {}
 
   async getContext(bookingId: string): Promise<BookingAIContext> {
@@ -16,9 +19,7 @@ export class BookingACL {
       bookingId: rawData.id,
       userId: rawData.guestId,
       amount: rawData.price,
-      status: rawData.state,
-      ipAddress: rawData.security.ip,
-      history: { previousCancellations: rawData.stats.cancels, totalBookings: rawData.stats.total },
+      status: rawData.status,
       metadata: {}
     };
   }

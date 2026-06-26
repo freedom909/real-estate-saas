@@ -27,6 +27,7 @@ console.info("Listing subgraph configuration loaded");
 
 import "@/shared/category/container";  // 👈 必须
 import { registerAIContainer } from "@/modules/container/ai.register";
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
 
 registerAIContainer()
@@ -69,12 +70,20 @@ console.info("MySQL connected");
 
     await server.start();
 
-    app.use(
-      '/graphql',
-      cors(),
-      express.json(),
-      expressMiddleware(server)
-    );
+app.use(
+  "/graphql",
+  express.json(),
+  (req, res, next) => {
+    (req as any).user = getUserFromContext(req);
+    next();
+  },
+  expressMiddleware(server, {
+    context: async ({ req }) => ({
+      req,
+      user: (req as any).user,
+    }),
+  })
+);
 
     httpServer.listen({ port: 4101 }, () =>
       console.info('Listing Subgraph running on http://localhost:4101/graphql')

@@ -38,6 +38,7 @@ import registerMQEventBus from "@/modules/container/mq.register";
 import { PaymentRegister } from "@/modules/container/payment.register";
 import { BookingMQEventBus } from "@/core/booking/interface/events/booking-event-bus";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
 
 const startApolloServer = async () => {
@@ -97,36 +98,17 @@ const startApolloServer = async () => {
 
 app.use(
   "/graphql",
-  cors(),
   express.json(),
+  (req, res, next) => {
+    (req as any).user = getUserFromContext(req);
+    next();
+  },
   expressMiddleware(server, {
-    context: async ({ req }) => {
-
-      const authHeader =
-        req.headers.authorization || "";
-
-      let user = null;
-
-      if (authHeader.startsWith("Bearer ")) {
-
-        const token =
-          authHeader.split(" ")[1];
-
-          try {
-            user = await getUserFromToken(token);
-          } catch (error) {
-            // Log the actual error for better debugging
-            console.error("JWT Verification Error:", error);
-            console.warn("Unauthorized request: Token verification failed.", error instanceof Error ? error.message : "");
-          }
-      }
-
-      return {
-        user,
-        container
-      };
-    },
-  }) as unknown as RequestHandler
+    context: async ({ req }) => ({
+      req,
+      user: (req as any).user,
+    }),
+  })
 );
     // ✅ 启动 HTTP
     httpServer.listen({ port: 4050 }, async () => {

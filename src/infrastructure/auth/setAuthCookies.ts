@@ -1,10 +1,7 @@
 // src/gateway/cookies/setAuthCookies.ts
 
 import { Response } from "express";
-import {
-  accessCookieOptions,
-  refreshCookieOptions,
-} from "../../gateway/cookies/cookieOptions.js";
+
 
 interface AuthTokens {
   accessToken: string;
@@ -22,7 +19,7 @@ export function setAuthCookies(
   res.cookie(
     "accessToken",
     accessToken,
-    accessCookieOptions
+   
   );
 
   if (refreshToken) {

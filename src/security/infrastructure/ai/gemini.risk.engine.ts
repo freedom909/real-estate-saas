@@ -3,11 +3,12 @@
 import { injectable, inject } from "tsyringe";
 import { IAiRiskEngine } from "../../domain/ai.risk.engine";
 import { GeminiClient } from "./gemini.client";
+import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 
 @injectable()
 export class GeminiRiskEngine implements IAiRiskEngine {
   constructor(
-    @inject("GeminiClient")
+    @inject(TOKENS_SECURITY.services.geminiClient)
     private client: GeminiClient
   ) {}
 
@@ -25,11 +26,10 @@ Return JSON:
 { "score": number (0-100), "reason": string }
 `;
 
-    const res = await this.client.analyze(prompt);
+    const res = await this.client.generate(prompt);
 
     try {
-      const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
-      return JSON.parse(text);
+      return JSON.parse(res);
     } catch {
       return { score: 50, reason: "fallback" };
     }

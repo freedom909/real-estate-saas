@@ -1,6 +1,7 @@
 import { injectable } from "tsyringe";
 import fetch from "node-fetch";
-import { IOpenAIAdapter } from "../../adapters/IOpenAIAdapter";
+import { IOpenAITool } from "@/wisdom/tools/IOpenAI.tool";
+
 
 interface OpenAIChatResponse {
   choices: Array<{
@@ -11,7 +12,7 @@ interface OpenAIChatResponse {
 }
 
 @injectable()
-export class OpenAIAdapter implements IOpenAIAdapter {
+export class OpenAIAdapter implements IOpenAITool {
   private readonly apiUrl: string;
   private readonly apiKey: string;
 

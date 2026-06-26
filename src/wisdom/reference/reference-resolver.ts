@@ -12,12 +12,20 @@ export class ReferenceResolver implements IReferenceResolver {
   constructor(
     @inject(delay(() => SearchListingUseCase))
     private searchListingUseCase: SearchListingUseCase,
-  ) {}
+  ) { }
 
   async resolve(
     semantic: SemanticContext,
     context: AIContext,
   ): Promise<SemanticContext> {
+    console.log(
+  "CURRENT SEARCH RESULTS",
+  JSON.stringify(
+    context.resources.searchResults,
+    null,
+    2
+  )
+);
     const ordinalEntity = semantic.entities.find(
       (e) => e.type === EntityType.ORDINAL,
     );
@@ -56,7 +64,10 @@ export class ReferenceResolver implements IReferenceResolver {
 
     const target = listings[index];
     if (!target) return;
-
+    console.log(
+      "REFERENCE RESOLVER",
+      semantic.entities
+    );
     semantic.entities.push({
       type: EntityType.LISTING_ID,
       value: target.id,

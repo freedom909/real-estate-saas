@@ -1,9 +1,8 @@
-// src/ai-platform/factory/aiRequest.factory.ts
-
+// src/wisdom/resolvers/aiRequest.factory.ts
+// src/wisdom/request/ai-request.factory.ts is not exist
 import crypto from "crypto";
 import { AIRequest } from "../contracts/ai-context";
-
-
+import { sessionMemory } from "../memory/session-memory";
 
 export class AIRequestFactory {
 
@@ -12,7 +11,20 @@ export class AIRequestFactory {
   // =====================================
 
   static fromGraphQL(input: any, context: any): AIRequest {
-
+    const sessionId =
+    context.user?.sessionId;
+    console.log(
+  "RAW CONTEXT USER",
+  context.user
+);
+    console.log(
+  "SESSION ID FROM REQUEST",
+  sessionId
+);
+    console.log(
+  "MEMORY BEFORE REQUEST",
+  sessionMemory
+);
     // Map getUserFromToken result { userId, email, role } → IdentityContext.user { id, email, role }
     const rawUser = context.user;
     const user = rawUser ? {
@@ -20,7 +32,20 @@ export class AIRequestFactory {
       email: rawUser.email,
       role: rawUser.role,
     } : undefined;
+const memoryKey =
+  user?.id ?? "anonymous";
+  const memory =
+  sessionMemory.get(memoryKey) || {};
 
+  console.log(
+  "MEMORY KEY",
+  memoryKey
+);
+console.log(
+  "MEMORY VALUE",
+  sessionMemory.get(memoryKey)
+);
+    
     return {
       message: input.message,
 
@@ -45,6 +70,10 @@ export class AIRequestFactory {
           listingId: input.listingId,
           bookingId: input.bookingId,
           reviewId: input.reviewId,
+            searchResults:
+              memory?.searchResults,
+            bookingDraft:
+              memory?.bookingDraft,    
         },
 
         trace: {

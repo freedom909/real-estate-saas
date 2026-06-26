@@ -1,0 +1,58 @@
+第一阶段：Listing Search
+find rooms in Kyoto
+
+Expected:
+SEARCH_LISTING
+LOCATION=Kyoto
+find rooms in Kyoto next week
+
+Expected:
+SEARCH_LISTING
+LOCATION=Kyoto
+DATE_RANGE=next week
+find rooms in Osaka for 2 guests
+
+Expected:
+SEARCH_LISTING
+LOCATION=Osaka
+GUEST_COUNT=2
+
+第二阶段：Booking Creation
+book listing kyoto-001
+
+Expected:
+CREATE_BOOKING
+LISTING_ID=kyoto-001
+book the first one
+
+Expected:
+CREATE_BOOKING
+ORDINAL=first
+book the second one
+
+Expected:
+CREATE_BOOKING
+ORDINAL=second
+
+第三阶段：Booking Retrieval
+show my bookings
+
+Expected:
+GET_MY_BOOKINGS
+show booking xxx
+
+Expected:
+GET_BOOKING
+BOOKING_ID=xxx
+第四阶段：Booking Confirmation
+confirm booking xxx
+
+Expected:
+CONFIRM_BOOKING
+BOOKING_ID=xxx
+第五阶段：Booking Cancellation
+cancel booking xxx
+
+Expected:
+CANCEL_BOOKING
+BOOKING_ID=xxx

@@ -9,7 +9,7 @@ import { SecurityAssessment } from "@/core/user/domain/entities/types";
 
 
 @injectable()
-export class OpenaiSecurityService {
+export class SecurityAIService {
   constructor(
     private client: OpenaiClient
   ) { }

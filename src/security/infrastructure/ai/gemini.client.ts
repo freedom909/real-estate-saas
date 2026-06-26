@@ -1,21 +1,43 @@
 // security/infrastructure/ai/gemini.client.ts
 
+import { AIClient } from "@/security/aiClient";
 import axios from "axios";
+import { inject, injectable } from "tsyringe";
 
-export class GeminiClient {
-  constructor(private apiKey: string) {}
+@injectable()
+export class GeminiClient implements AIClient {
 
-  async analyze(prompt: string) {
-    const res = await axios.post(
-      "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent",
-      {
-        contents: [{ parts: [{ text: prompt }] }]
-      },
-      {
-        params: { key: this.apiKey }
-      }
-    );
+    constructor(
+        @inject("GEMINI_API_KEY")
+        private readonly apiKey: string
+    ) {}
 
-    return res.data;
-  }
+    async generate(prompt: string): Promise<string> {
+
+        const res = await axios.post(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+            {
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: prompt
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                params: {
+                    key: this.apiKey
+                }
+            }
+        );
+
+        return (
+            res.data.candidates?.[0]
+                ?.content?.parts?.[0]
+                ?.text ?? ""
+        );
+    }
 }

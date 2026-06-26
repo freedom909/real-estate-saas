@@ -1,5 +1,21 @@
 // src/wisdom/contracts/ai-context.ts
 // Replaces the deleted @/ai-platform/context/types/context/ai.context.ts
+// src/wisdom/contracts/ai-context.ts
+
+export interface BookingDraft {
+  listingId?: string;
+  checkInDate?: string;
+  checkOutDate?: string;
+  guestCount?: number;
+}
+
+export interface AIContext {
+  identity: IdentityContext;
+  runtime: RuntimeContext;
+  resources: ResourceContext;
+  trace: TraceContext;
+}
+
 
 export interface AIUser {
   id: string;
@@ -8,6 +24,7 @@ export interface AIUser {
 }
 
 export interface IdentityContext {
+  sessionId?: string;
   user?: AIUser;
   tenant?: string;
 }
@@ -28,25 +45,51 @@ export interface RuntimeContext {
   voice?: {
     transcriptConfidence?: number;
   };
+  currentFlow?: string;
+}
+
+export interface SearchListingResult {
+  id: string;
+  title: string;
+  description: string;
+  address: string;
+  price: number;
+  numOfBeds: number;
+  numOfGuests: number;
+  numOfBathrooms: number;
+  numOfRooms: number;
+  picture: string[];
+  isFeatured: boolean;
+}
+
+export interface BookingDraft {
+  listingId?: string;
+  checkInDate?: string;
+  checkOutDate?: string;
+  guestCount?: number;
 }
 
 export interface ResourceContext {
   listingId?: string;
   bookingId?: string;
   reviewId?: string;
-  [key: string]: any;
+  searchResults?: SearchListingResult[];
+  bookingDraft?: BookingDraft;
+  // Confirmed Booking
+  booking?: {
+    id?: string;
+    listingId?: string;
+    checkInDate?: string;
+    checkOutDate?: string;
+    guestCount?: number;
+  };
 }
 
 export interface TraceContext {
   correlationId: string;
 }
 
-export interface AIContext {
-  identity: IdentityContext;
-  runtime: RuntimeContext;
-  resources: ResourceContext;
-  trace: TraceContext;
-}
+
 
 export interface AIRequest {
   message: string;

@@ -43,6 +43,8 @@ import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
 import { SessionService } from "./infrastructure/services/session.service";
 import { IdentityRepository } from "./infrastructure/repos/identity.repo";
 import { IdentityModel } from "./infrastructure/models/identity.model";
+import { JwtService } from "./infrastructure/services/jwt.service";
+import SessionModel from "./infrastructure/models/session.model";
 
 export default function registerAuthDependencies(container: DependencyContainer) {
 
@@ -101,8 +103,13 @@ container.register(TOKENS_AUTH.repos.credentialRepo, {
     useClass: ChallengeRepo
   });
 
-
-
+// ✅ 2. 再注册 repo
+container.register(TOKENS_AUTH.repos.identityRepo, {
+  useClass: IdentityRepository,
+});
+container.register(TOKENS_AUTH.repos.riskEventRepo, {
+  useClass: RiskEventRepo
+});
   // ================= USECASES =================
   container.register(TOKENS_AUTH.usecases.oauthLoginUseCase, {
     useClass: OAuthLoginUseCase
@@ -137,18 +144,22 @@ container.register(TOKENS_AUTH.ports.sessionPort, {
 });
 
 // ✅ 1. 先注册 model
+ // ================= models =================
 container.register(TOKENS_AUTH.models.identityModel, {
   useValue: IdentityModel,
 });
 
-// ✅ 2. 再注册 repo
-container.register(TOKENS_AUTH.repos.identityRepo, {
-  useClass: IdentityRepository,
-});
- // ================= models =================
  container.register(TOKENS_AUTH.models.challengeModel, {
   useValue: ChallengeModel,
 });
 
+container.register(TOKENS_AUTH.models.session, {
+  useValue: SessionModel,
+});
+ // ================= services =================
+container.registerSingleton(
+  TOKENS_AUTH.services.jwtService,
+  JwtService
+);
   return container;
 }

@@ -17,6 +17,10 @@ export function createUserApolloClient() {
     link: new HttpLink({
       uri: USER_SUBGRAPH_URL,
       fetch,
+      headers: { // to add this header to all requests just now
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.USER_SUBGRAPH_TOKEN}`,
+      },
     }),
     cache: new InMemoryCache(),
   });

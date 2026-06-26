@@ -22,6 +22,7 @@ import { registerUserDependencies } from "./registerUserDependencies";
 import   resolvers  from "./resolvers/user.resolver";
 import UserService from "./services/user.service";
 import { container } from "tsyringe";
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
 // 🔍 启动时验证 env
 console.log(
@@ -57,28 +58,16 @@ await server.start();
 
 app.use(
   "/graphql",
-  cors(),
   express.json(),
+  (req, res, next) => {
+    (req as any).user = getUserFromContext(req);
+    next();
+  },
   expressMiddleware(server, {
-    context: async ({ req }) => {
-      const userHeader = req.headers["x-user"];
-
-      let user = null;
-      try {
-        if (userHeader && typeof userHeader === "string") {
-          user = JSON.parse(userHeader);
-        }
-      } catch (e) {
-        console.error("Failed to parse x-user header:", e);
-      }
-
-      return {
-        req,
-        user,
-        container: userContainer,
-      };
-    },
-
+    context: async ({ req }) => ({
+      req,
+      user: (req as any).user,
+    }),
   })
 );
 

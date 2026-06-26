@@ -39,7 +39,7 @@ export const TOKENS_AUTH = {
   // services
   services: {
     authService: Symbol.for("auth.services.authService"),
-    tokenService: Symbol.for("auth.services.tokenService"),
+    jwtService: Symbol.for("auth.services.jwtService"),
     refreshTokenService: Symbol.for("auth.services.refreshTokenService"),
     oauthService: Symbol.for("auth.services.oauthService"),
     sessionService: Symbol.for("auth.services.sessionService"),

@@ -2,7 +2,7 @@ import { container, DependencyContainer } from 'tsyringe';
 import { TOKENS_AUDIT } from '../tokens/audit.tokens';
 import { TOKENS_SECURITY } from '@/modules/tokens/security.tokens';
 import RiskCalculator from '@/security/domain/riskCalculator';
-import { OpenaiSecurityService } from '@/security/infrastructure/openaiSecurity.service';
+import { SecurityAIService } from '@/security/infrastructure/openaiSecurity.service';
 import { GraphQLClient } from 'graphql-request';
 import AuditClient from '@/packages/audit-sdk/src/client/audit.client';
 import AuditModel from '@/subgraphs/audit/models/audit.model';
@@ -18,8 +18,8 @@ function registerAuditDependencies(container: DependencyContainer) {
   container.register(AuditRepository, { useClass: AuditRepository });
   container.register(AuditService, { useClass: AuditService });
 
-  container.register(TOKENS_SECURITY.services.openaiSecurityService, {
-    useClass: OpenaiSecurityService,
+  container.register(TOKENS_SECURITY.services.securityAIService, {
+    useClass: SecurityAIService,
   });
 
   container.register(TOKENS_SECURITY.services.riskCalculator, {

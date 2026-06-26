@@ -17,6 +17,7 @@ import { sequelize } from "@/infrastructure/config/seq";
 
 import { resolvers } from "./resolvers";
 import registerLocationDependencies from "@/modules/container/location.container";
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
 const startServer = async () => {
   try {
@@ -43,22 +44,20 @@ const startServer = async () => {
     await server.start();
 
     // 4. Middlewares
-    app.use(
-      "/graphql",
-      cors({
-        origin: process.env.CORS_ORIGIN || "http://localhost:3000",
-        credentials: true
-      }),
-      express.json(),
-      cookieParser(),
-      expressMiddleware(server, {
-        context: async ({ req, res }) => ({
-          req,
-          res,
-          user: (req as any).user ?? null
-        })
-      })
-    );
+app.use(
+  "/graphql",
+  express.json(),
+  (req, res, next) => {
+    (req as any).user = getUserFromContext(req);
+    next();
+  },
+  expressMiddleware(server, {
+    context: async ({ req }) => ({
+      req,
+      user: (req as any).user,
+    }),
+  })
+);
 
     const PORT = process.env.LOCATION_PORT || 4080;
     httpServer.listen(PORT, () => {
