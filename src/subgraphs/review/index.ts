@@ -6,8 +6,7 @@ import { gql } from "graphql-tag";
 import { readFileSync } from "fs";
 import express from "express";
 import http from "http";
-
-import { expressMiddleware } from "@apollo/server/express4";
+import { expressMiddleware } from "@as-integrations/express4"
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import type { RequestHandler } from "express";
 import cors from "cors";
@@ -71,18 +70,19 @@ const startApolloServer = async () => {
     await server.start();
 
     // ✅ 统一 context（唯一正确入口）
-   app.use(
+app.use(
   "/graphql",
-  cors(),
   express.json(),
+  (req, res, next) => {
+    (req as any).user = getUserFromContext(req);
+    next();
+  },
   expressMiddleware(server, {
-    context: async ({ req }) => {
-      const token = req.headers.authorization || "";
-      const user = await getUserFromToken(token);
-
-      return { user, container };
-    },
-  }) as unknown as RequestHandler // ✅ 关键
+    context: async ({ req }) => ({
+      req,
+      user: (req as any).user,
+    }),
+  })
 );
 
     // ✅ 启动 HTTP

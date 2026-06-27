@@ -1,6 +1,6 @@
 // routes/fileRouter.js
 import express from "express";
-import authMiddleware from "../../infrastructure/auth/authMiddleware";
+
 import { getPresignedUrl } from "../services/fileService"; // ✅ correct import
 
 const router = express.Router();
@@ -15,7 +15,7 @@ router.get("/presign-url", (req, res) => {
 /**
  * POST → Generate GCS Signed URL
  */
-router.post("/presign-url", authMiddleware, async (req, res) => {
+router.post("/presign-url", authGuard.middleware(), async (req, res) => {
   try {
     const userId = req.user?.id;
     const { fileName, fileType } = req.body;

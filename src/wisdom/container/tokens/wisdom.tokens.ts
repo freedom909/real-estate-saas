@@ -27,6 +27,12 @@ export const WISDOM_TOKENS = {
   memory: {
     bookingStateUpdater: Symbol.for("wisdom.bookingStateUpdater"),
     memoryStore: Symbol.for("wisdom.memoryStore"),
+    longTermStore: Symbol.for("wisdom.longTermStore"),
+    vectorStore: Symbol.for("wisdom.vectorStore"),
+    memoryManager: Symbol.for("wisdom.memoryManager"),
+    knowledgeExtractor: Symbol.for("wisdom.knowledgeExtractor"),
+    knowledgeStore: Symbol.for("wisdom.knowledgeStore"),
+    sessionMemory: Symbol.for("wisdom.sessionMemory"),
   },
 
   // Orchestration

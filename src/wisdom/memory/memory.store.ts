@@ -2,15 +2,12 @@
 
 import { inject, injectable } from "tsyringe";
 import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
-import { IMemoryState, IMemoryStore } from "./i-memoryStore";
+import { IMemoryState, IMemoryStore } from "./type/i-memoryStore";
 
 @injectable()
-export class MemoryStore implements IMemoryStore{
-    constructor(
-        @inject(WISDOM_TOKENS.memory.memoryStore)
-        private store: Map<string, any>,
+export class MemoryStore implements IMemoryStore {
 
-    ) {}
+    private readonly store = new Map<string, IMemoryState>();
      
 async get(userId: string): Promise<IMemoryState | null> {
   return this.store.get(userId) ?? null;

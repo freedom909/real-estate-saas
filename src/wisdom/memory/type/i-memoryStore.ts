@@ -10,4 +10,9 @@ export interface IMemoryState {
   preferences?: Record<string, any>;
   lastQueries?: string[];
   sessionContext?: Record<string, any>;
+  messages?: string[];
+  /** Long-term: history of cognitive deltas */
+  history?: any[];
+  /** Long-term: summary of significant events */
+  summary?: string[];
 }

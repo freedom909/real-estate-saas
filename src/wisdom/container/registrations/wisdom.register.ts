@@ -26,6 +26,8 @@ import { GeneralAgent } from "../../agents/general.agent";
 
 // Memory
 import { BookingStateUpdater } from "../../memory/booking-state-updater";
+import { KnowledgeExtractor } from "../../memory/extractor/knowledge.extractor";
+import { KnowledgeStore } from "../../memory/knowledge.store";
 
 // Orchestration
 import { WisdomOrchestrator } from "../../orchestration/wisdom-orchestrator";
@@ -33,6 +35,8 @@ import { WisdomOrchestrator } from "../../orchestration/wisdom-orchestrator";
 // Application
 import { ChatUseCase } from "../../application/usecases/chat.use-case";
 import { MemoryStore } from "@/wisdom/memory/memory.store";
+import { MemoryManager } from "@/wisdom/memory/memoryManager";
+import { LongTermStore } from "@/wisdom/memory/infra/long-term/long-term.store";
 
 export function registerWisdom() {
   // Infrastructure — OpenAI adapter (used by LLMExtractor and as LLM provider)
@@ -62,10 +66,18 @@ export function registerWisdom() {
   // Memory
   container.register(WISDOM_TOKENS.memory.bookingStateUpdater, { useClass: BookingStateUpdater });
   container.register(WISDOM_TOKENS.memory.memoryStore, { useClass: MemoryStore });
-
+  container.register(WISDOM_TOKENS.memory.memoryManager, { useClass: MemoryManager });
+  container.register(WISDOM_TOKENS.memory.knowledgeExtractor, { useClass: KnowledgeExtractor });
+  container.register(WISDOM_TOKENS.memory.knowledgeStore, { useClass: KnowledgeStore });
+  container.register(WISDOM_TOKENS.memory.longTermStore, { useClass: LongTermStore });
+  // container.register(WISDOM_TOKENS.memory.sessionMemory, { useClass: SessionMemory });
+  // container.register(WISDOM_TOKENS.memory.sessionMemoryUpdater, { useClass: SessionMemoryUpdater });
+  // container.register(WISDOM_TOKENS.memory.sessionMemoryExtractor, { useClass: SessionMemoryExtractor });
+  // container.register(WISDOM_TOKENS.memory.sessionMemoryManager, { useClass: SessionMemoryManager });
   // Orchestration
   container.register(WISDOM_TOKENS.orchestrator, { useClass: WisdomOrchestrator });
-
+ 
+ 
   // Application
   container.register(WISDOM_TOKENS.chatUseCase, { useClass: ChatUseCase });
 }
