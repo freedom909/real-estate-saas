@@ -37,10 +37,6 @@ export class AIRequestFactory {
 
 const userId = user?.id ?? sessionId ?? "anonymous";
 
-const existingMemory = sessionMemory.get(userId) || {};
-
-console.log("MEMORY BEFORE REQUEST", existingMemory);
-sessionMemory.set(userId, existingMemory);
 const memoryKey =
   user?.id ?? "anonymous";
   const memory =  sessionMemory.get(memoryKey) || {};

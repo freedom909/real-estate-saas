@@ -32,6 +32,10 @@ export const WISDOM_TOKENS = {
     memoryManager: Symbol.for("wisdom.memoryManager"),
     knowledgeExtractor: Symbol.for("wisdom.knowledgeExtractor"),
     knowledgeStore: Symbol.for("wisdom.knowledgeStore"),
+    deltaHandlers: Symbol.for("wisdom.deltaHandlers"),
+    conversationBuffer: Symbol.for("wisdom.conversationBuffer"),
+    summaryScheduler: Symbol.for("wisdom.summaryScheduler"),
+    summaryAgent: Symbol.for("wisdom.summaryAgent"),
     sessionMemory: Symbol.for("wisdom.sessionMemory"),
   },
 

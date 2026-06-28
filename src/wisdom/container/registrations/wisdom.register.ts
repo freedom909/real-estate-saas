@@ -26,8 +26,26 @@ import { GeneralAgent } from "../../agents/general.agent";
 
 // Memory
 import { BookingStateUpdater } from "../../memory/booking-state-updater";
-import { KnowledgeExtractor } from "../../memory/extractor/knowledge.extractor";
+import { KnowledgeExtractor, KNOWLEDGE_PLUGIN_TOKEN } from "../../memory/extractor/knowledge.extractor";
 import { KnowledgeStore } from "../../memory/knowledge.store";
+
+// Knowledge Plugins
+import { PreferencePlugin } from "../../memory/extractor/plugins/preference.plugin";
+import { FactPlugin } from "../../memory/extractor/plugins/fact.plugin";
+import { GoalPlugin } from "../../memory/extractor/plugins/goal.plugin";
+import { BehaviorPlugin } from "../../memory/extractor/plugins/behavior.plugin";
+
+// Delta Handlers
+import { PreferenceHandler } from "../../memory/store/handlers/preference.handler";
+import { FactHandler } from "../../memory/store/handlers/fact.handler";
+import { GoalHandler } from "../../memory/store/handlers/goal.handler";
+import { BehaviorHandler } from "../../memory/store/handlers/behavior.handler";
+import { SummaryHandler } from "../../memory/store/handlers/summary.handler";
+
+// Summary Pipeline
+import { ConversationBuffer } from "../../memory/summary/conversation-buffer";
+import { SummaryScheduler } from "../../memory/summary/summary-scheduler";
+import { SummaryAgent } from "../../memory/summary/summary-agent";
 
 // Orchestration
 import { WisdomOrchestrator } from "../../orchestration/wisdom-orchestrator";
@@ -63,6 +81,27 @@ export function registerWisdom() {
   container.register(WISDOM_TOKENS.agents.bookingAgent, { useClass: BookingAgent });
   container.register(WISDOM_TOKENS.agents.generalAgent, { useClass: GeneralAgent });
 
+  // Knowledge Plugins — each registered under the same token, injected as array
+  container.register(KNOWLEDGE_PLUGIN_TOKEN, { useClass: PreferencePlugin });
+  container.register(KNOWLEDGE_PLUGIN_TOKEN, { useClass: FactPlugin });
+  container.register(KNOWLEDGE_PLUGIN_TOKEN, { useClass: GoalPlugin });
+  container.register(KNOWLEDGE_PLUGIN_TOKEN, { useClass: BehaviorPlugin });
+  console.log("  ✅ Knowledge plugins registered (Preference, Fact, Goal, Behavior)");
+
+  // Delta Handlers — each registered under the same token, injected as array
+  container.register(WISDOM_TOKENS.memory.deltaHandlers, { useClass: PreferenceHandler });
+  container.register(WISDOM_TOKENS.memory.deltaHandlers, { useClass: FactHandler });
+  container.register(WISDOM_TOKENS.memory.deltaHandlers, { useClass: GoalHandler });
+  container.register(WISDOM_TOKENS.memory.deltaHandlers, { useClass: BehaviorHandler });
+  container.register(WISDOM_TOKENS.memory.deltaHandlers, { useClass: SummaryHandler });
+  console.log("  ✅ Delta handlers registered (Preference, Fact, Goal, Behavior, Summary)");
+
+  // Summary Pipeline
+  container.register(WISDOM_TOKENS.memory.conversationBuffer, { useClass: ConversationBuffer });
+  container.register(WISDOM_TOKENS.memory.summaryAgent, { useClass: SummaryAgent });
+  container.register(WISDOM_TOKENS.memory.summaryScheduler, { useClass: SummaryScheduler });
+  console.log("  ✅ Summary pipeline registered (Buffer, Agent, Scheduler)");
+
   // Memory
   container.register(WISDOM_TOKENS.memory.bookingStateUpdater, { useClass: BookingStateUpdater });
   container.register(WISDOM_TOKENS.memory.memoryStore, { useClass: MemoryStore });
@@ -70,14 +109,12 @@ export function registerWisdom() {
   container.register(WISDOM_TOKENS.memory.knowledgeExtractor, { useClass: KnowledgeExtractor });
   container.register(WISDOM_TOKENS.memory.knowledgeStore, { useClass: KnowledgeStore });
   container.register(WISDOM_TOKENS.memory.longTermStore, { useClass: LongTermStore });
-  // container.register(WISDOM_TOKENS.memory.sessionMemory, { useClass: SessionMemory });
-  // container.register(WISDOM_TOKENS.memory.sessionMemoryUpdater, { useClass: SessionMemoryUpdater });
-  // container.register(WISDOM_TOKENS.memory.sessionMemoryExtractor, { useClass: SessionMemoryExtractor });
-  // container.register(WISDOM_TOKENS.memory.sessionMemoryManager, { useClass: SessionMemoryManager });
+
   // Orchestration
   container.register(WISDOM_TOKENS.orchestrator, { useClass: WisdomOrchestrator });
- 
- 
+
   // Application
   container.register(WISDOM_TOKENS.chatUseCase, { useClass: ChatUseCase });
+
+  console.log("  ✅ Wisdom DI registered");
 }

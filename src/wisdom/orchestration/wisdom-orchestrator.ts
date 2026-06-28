@@ -9,8 +9,9 @@
 //   4. Agent.execute()         → produce artifacts
 //   5. KnowledgeExtractor      → extract knowledge deltas
 //   6. KnowledgeStore          → persist to long-term memory
-//   7. BookingStateUpdater     → legacy session memory update (kept for compat)
-//   8. Build WisdomResponse
+//   7. SummaryScheduler        → buffer turns, async summarization
+//   8. BookingStateUpdater     → legacy session memory update (kept for compat)
+//   9. Build WisdomResponse
 //
 // ────────────────────────────────────────────────────────────────
 
@@ -21,12 +22,14 @@ import { AgentRouter } from "../agents/agent-router";
 import { BookingStateUpdater } from "../memory/booking-state-updater";
 import { KnowledgeExtractor } from "../memory/extractor/knowledge.extractor";
 import { KnowledgeStore } from "../memory/knowledge.store";
+import { SummaryScheduler } from "../memory/summary/summary-scheduler";
 import { WisdomRequest } from "../contracts/request";
 import { WisdomResponse } from "../contracts/response";
 import { AIDomain } from "../shared/enums/domain.enum";
 import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
 import { AgentAction, SemanticContext } from "../semantic/semantic-context";
 import { sessionMemory } from "../memory/session-memory";
+import { MemoryContext, buildMemoryContext } from "../memory/type/memory-context";
 
 
 @injectable()
@@ -49,11 +52,14 @@ export class WisdomOrchestrator {
 
     @inject(WISDOM_TOKENS.memory.knowledgeStore)
     private knowledgeStore: KnowledgeStore,
+
+    @inject(WISDOM_TOKENS.memory.summaryScheduler)
+    private summaryScheduler: SummaryScheduler,
   ) { }
 
   async handle(request: WisdomRequest): Promise<WisdomResponse> {
-    const sessionId = request.context.identity.sessionId ?? "default";
-    const userId = request.context.identity.user?.id ?? "anonymous";
+    // ── 0. Unified memory context ──
+    const ctx: MemoryContext = buildMemoryContext(request.context);// は型 'AIContext' に存在しません。
 
     // ── 1. Semantic extraction ──
     const semantic = await this.semanticExtractor.extract(request);
@@ -94,7 +100,7 @@ export class WisdomOrchestrator {
     };
 
     // ── 6. Extract knowledge deltas ──
-    const existingKnowledge = await this.knowledgeStore.load(userId);
+    const existingKnowledge = await this.knowledgeStore.load(ctx);
     const knowledgeDeltas = this.knowledgeExtractor.extract(
       resolvedSemantic,
       response,
@@ -104,16 +110,39 @@ export class WisdomOrchestrator {
 
     // ── 7. Persist knowledge ──
     if (knowledgeDeltas.length > 0) {
-      await this.knowledgeStore.persist(userId, knowledgeDeltas);
-      console.log(`🧠 ${knowledgeDeltas.length} knowledge deltas persisted for user ${userId}`);
+      await this.knowledgeStore.persist(ctx, knowledgeDeltas);
+      console.log(`🧠 ${knowledgeDeltas.length} knowledge deltas persisted for user ${ctx.userId}`);
     }
 
-    // ── 8. Legacy: update session memory + booking state ──
-    const sessionMem = sessionMemory.get(sessionId) ?? {};
-    for (const artifact of response.artifacts ?? []) {
-      this.bookingStateUpdater.apply(request.context, artifact);
-    }
-    sessionMemory.set(sessionId, sessionMem);
+    // ── 8. Summary Pipeline (async, non-blocking) ──
+    // Buffer the turn and check if summarization is needed
+    this.summaryScheduler.onTurnComplete(ctx, {
+      role: "user",
+      content: request.message,
+      timestamp: Date.now(),
+      metadata: {
+        domain: resolvedSemantic.domain as string,
+        action: resolvedSemantic.action?.type,
+      },
+    }).catch((err) => console.error("❌ Summary scheduler error:", err));
+
+    this.summaryScheduler.onTurnComplete(ctx, {
+      role: "assistant",
+      content: response.summary,
+      timestamp: Date.now(),
+      metadata: {
+        domain: response.domain as string,
+        action: response.primaryAction?.name,
+        artifacts: response.artifacts,
+      },
+    }).catch((err) => console.error("❌ Summary scheduler error:", err));
+
+    // ── 9. Legacy: update session memory + booking state ──
+    // const sessionMem = sessionMemory.get(ctx.sessionId) ?? {};
+    // for (const artifact of response.artifacts ?? []) {
+    //   this.bookingStateUpdater.apply(request.context, artifact);
+    // }
+    // sessionMemory.set(ctx.sessionId, sessionMem);
 
     return response;
   }

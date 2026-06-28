@@ -1,78 +1,44 @@
 import { injectable } from "tsyringe";
-import { AIContext } from "../contracts/ai-context";
-import { sessionMemory } from "./session-memory";
 
+import { MemoryContext } from "./type/memory-context";
+
+interface MemoryArtifact {
+  type: string;
+  content: any;
+}
 @injectable()
 export class BookingStateUpdater {
 
-  apply(context: AIContext, artifact: any): void {
+    apply(
+        memory: MemoryContext,
+        artifact: MemoryArtifact 
+    ): void {
 
-    if (!artifact) return;
+        switch (artifact.type) {
 
-    const sessionId = context.identity.sessionId;
+            case "LISTING_SEARCH_RESULT": {
 
-    // 读取已有 Memory
-    const memory = sessionMemory.get(sessionId) ?? {};
+                const listings =
+                    artifact.content.listings ?? [];
 
-    switch (artifact.type) {
+                memory.session.searchResults =
+                    listings;
 
-      case "LISTING_SEARCH_RESULT": {
+                break;
+            }
 
-    const listings = artifact.content.listings;
+            case "BOOKING": {
 
-    memory.searchResults = listings;
+                memory.session.booking = {
 
-    context.resources.searchResults = listings;
+                    ...(memory.session.booking ?? {}),
 
-    sessionMemory.set(sessionId, memory);
+                    ...artifact.content
 
-    console.log(
-        "💾 Saved search results:",
-        listings.length,
-        "results"
-    );
+                };
 
-    break;
-}
-
-        memory.searchResults = artifact.content.results;
-const listings = artifact?.content?.listings ?? [];
-
-memory.searchResults = listings;
-
-console.log(
-    "Saved search results:",
-    listings.length
-);
-        context.resources.searchResults = artifact.content.results;
-
-        sessionMemory.set(sessionId, memory);
-
-        console.log(
-          "💾 Saved search results:",
-          artifact.content,
-          "results"
-        );
-
-        break;
-
-      case "BOOKING":
-
-        memory.booking = {
-          ...(memory.booking ?? {}),
-          ...artifact.content,
-        };
-
-        context.resources.booking = memory.booking;
-
-        sessionMemory.set(sessionId, memory);
-
-        break;
+                break;
+            }
+        }
     }
-
-    console.log(
-      "MEMORY AFTER SAVE",
-      sessionMemory.get(sessionId)
-    );
-  }
 }
