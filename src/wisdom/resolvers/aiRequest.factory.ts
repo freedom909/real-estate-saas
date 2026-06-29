@@ -1,174 +1,169 @@
 // src/wisdom/resolvers/aiRequest.factory.ts
 // src/wisdom/request/ai-request.factory.ts is not exist
 import crypto from "crypto";
-import { AIRequest } from "../contracts/ai-context";
+import { AIContext, AIRequest } from "../contracts/ai-context";
 import { sessionMemory } from "../memory/session-memory";
+import { inject, injectable } from "tsyringe";
+import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
+import { MemorySessionStore } from "../memory/session/session-memory.store";
 
+
+
+@injectable()
 export class AIRequestFactory {
+  constructor(
+    @inject(WISDOM_TOKENS.memory.sessionStore)
+    private sessionStore: MemorySessionStore,
+  ) {
+    console.log(
+        "AIRequestFactory sessionStore",
+        this.sessionStore
+    );
 
+  }
   // =====================================
   // GraphQL
   // =====================================
 
-  static fromGraphQL(input: any, context: any): AIRequest {
-    const sessionId =
-    context.user?.sessionId;
-    console.log(
-  "RAW CONTEXT USER",
-  context.user
-);
-    console.log(
-  "SESSION ID FROM REQUEST",
-  sessionId
-);
+  create(
+    source: "web" | "mobile" | "voice",
+    payload: any
+  ) {
 
+    switch (source) {
 
-    console.log(
-  "MEMORY BEFORE REQUEST",
-  sessionMemory
-);
-    // Map getUserFromToken result { userId, email, role } → IdentityContext.user { id, email, role }
-    const rawUser = context.user;
-    const user = rawUser ? {
-      id: rawUser.userId || rawUser.id,
-      email: rawUser.email,
-      role: rawUser.role,
-    } : undefined;
+      case "web":
+        return this.fromGraphQL(payload);
 
-const userId = user?.id ?? sessionId ?? "anonymous";
+      // case "mobile":
+      //   return this.fromMobile(payload);
 
-const memoryKey =
-  user?.id ?? "anonymous";
-  const memory =  sessionMemory.get(memoryKey) || {};
-console.log("MEMORY GET CALLED", memory);
-  console.log(
-  "MEMORY KEY",
-  memoryKey
-);
-console.log(
-  "MEMORY VALUE",
-  sessionMemory.get(memoryKey)
-);
-    
-    return {
-      message: input.message,
-
-      context: {
-        identity: {
-          user,
-          tenant: context.tenant,
-        },
-
-        runtime: {
-          source: "web",
-
-          locale: context.locale,
-          timezone: context.timezone,
-
-          sessionId: context.sessionId,
-          device: {
-            type: "desktop",
-          },
-        },
-        resources: {
-          listingId: input.listingId,
-          bookingId: input.bookingId,
-          reviewId: input.reviewId,
-            searchResults:
-              memory?.searchResults,
-            bookingDraft:
-              memory?.bookingDraft,    
-        },
-
-        trace: {
-          correlationId:
-            crypto.randomUUID(),
-        },
-      },
-    };
+      // case "voice":
+      //   return this.fromVoice(payload);
+    }
   }
+
+fromGraphQL(payload: any): AIRequest {
+
+    return {
+        message: payload.message,
+
+        context: {
+identity: {
+    user: {
+        id: payload.identity.user.userId,
+        email: payload.identity.user.email,
+        role: payload.identity.user.role,
+    },
+ tenant: payload.identity.tenant,
+          },
+                  runtime: {
+                source: "web",
+                locale: payload.runtime.locale,
+                timezone: payload.runtime.timezone,
+                sessionId: payload.runtime.session.id,
+            },
+
+            resources: payload.resources,
+
+            trace: {
+                correlationId: crypto.randomUUID(),
+            },
+        },
+    };
+}
+
 
   // =====================================
   // Mobile
   // =====================================
+  // buildMobile(payload: any): AIRequest {
+  //   const memoryContext = buildMemoryContext(payload);
+  //   const session = this.sessionStore.load(memoryContext);
+  //   return {
+  //     message: payload.message,
+  //     context: {
+  //       identity: {
+  //         user: payload.identity.user,
+  //         tenant: payload.identity.tenant,
+  //       },
 
-  static fromMobile(payload: any): AIRequest {
+  //       runtime: {
+  //         source: "mobile",
+  //         locale: payload.runtime.locale,
+  //         timezone: payload.runtime.timezone,
+  //         sessionId: payload.runtime.session.id,
+  //         device: {
+  //           type: "mobile",
+  //         },
+  //         ui: {
+  //           screen: payload.screen,
+  //           component: payload.component,
+  //         },
+  //       },
+  //       resources: {
+  //         ...payload.resources ?? {},
+  //         searchResults: session?.searchResults ?? {},
+  //         bookingDraft: session?.bookingDraft ?? {},
+  //         booking: session?.booking ?? {},
+  //       },
 
-    return {
-      message: payload.message,
-      context: {
-        identity: {
-          user: payload.user,
-          tenant: payload.tenant,
-        },
-
-        runtime: {
-          source: "mobile",
-          locale: payload.locale,
-          timezone: payload.timezone,
-          sessionId: payload.sessionId,
-          device: {
-            type: "mobile",
-          },
-          ui: {
-            screen: payload.screen,
-            component: payload.component,
-          },
-        },
-        resources:
-          payload.resources ?? {},
-
-        trace: {
-          correlationId:
-            crypto.randomUUID(),
-        },
-      },
-    };
-  }
+  //       trace: {
+  //         correlationId:
+  //           crypto.randomUUID(),
+  //       },
+  //     },
+  //   };
+  // }
 
   // =====================================
   // Voice
   // =====================================
 
-  static fromVoice(
-    payload: any
-  ): AIRequest {
+  // buildVoice(
+  //   payload: any
+  // ): AIRequest {
+  //   const memoryContext = buildMemoryContext(payload);
+  //   const session = this.sessionStore.load(memoryContext);
+  //   return {
+  //     message: payload.transcript,
 
-    return {
-      message: payload.transcript,
+  //     context: {
+  //       identity: {
+  //         user: {
+  //           id: payload.userId,
+  //         },
 
-      context: {
-        identity: {
-          user: {
-            id: payload.userId,
-          },
+  //         tenant: payload.tenant,
+  //       },
 
-          tenant: payload.tenant,
-        },
+  //       runtime: {
+  //         source: "voice",
 
-        runtime: {
-          source: "voice",
+  //         locale: payload.locale,
+  //         timezone: payload.timezone,
 
-          locale: payload.locale,
-          timezone: payload.timezone,
+  //         device: {
+  //           type: "voice",
+  //         },
 
-          device: {
-            type: "voice",
-          },
+  //         voice: {
+  //           transcriptConfidence:
+  //             payload.confidence,
+  //         },
+  //       },
+  //       resources: {
+  //         ...payload.resources ?? {},
+  //         searchResults: session?.searchResults ?? {},
+  //         bookingDraft: session?.bookingDraft ?? {},
+  //         booking: session?.booking ?? {},
+  //       },
 
-          voice: {
-            transcriptConfidence:
-              payload.confidence,
-          },
-        },
-        resources:
-          payload.resources ?? {},
-
-        trace: {
-          correlationId:
-            crypto.randomUUID(),
-        },
-      },
-    };
-  }
+  //       trace: {
+  //         correlationId:
+  //           crypto.randomUUID(),
+  //       },
+  //     },
+  //   };
+  // }
 }

@@ -83,18 +83,14 @@ export interface SessionMemoryState {
 export function buildMemoryContext(
     context: AIContext
 ): MemoryContext {
-
     return {
-
         userId:
-            context.identity.user?.id
-            ?? "anonymous",
+            context.identity.user?.id ??
+            "anonymous",
 
         sessionId:
-            context.runtime.sessionId
-            ?? "default",
-
-        session:{}
+            context.runtime.sessionId ??
+            "default",
+        session: {},
     };
-
 }

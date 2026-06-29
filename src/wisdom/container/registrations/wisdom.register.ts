@@ -55,6 +55,8 @@ import { ChatUseCase } from "../../application/usecases/chat.use-case";
 import { MemoryStore } from "@/wisdom/memory/memory.store";
 import { MemoryManager } from "@/wisdom/memory/memoryManager";
 import { LongTermStore } from "@/wisdom/memory/infra/long-term/long-term.store";
+import { MemorySessionStore } from "@/wisdom/memory/session/session-memory.store";
+
 
 export function registerWisdom() {
   // Infrastructure — OpenAI adapter (used by LLMExtractor and as LLM provider)
@@ -109,6 +111,7 @@ export function registerWisdom() {
   container.register(WISDOM_TOKENS.memory.knowledgeExtractor, { useClass: KnowledgeExtractor });
   container.register(WISDOM_TOKENS.memory.knowledgeStore, { useClass: KnowledgeStore });
   container.register(WISDOM_TOKENS.memory.longTermStore, { useClass: LongTermStore });
+  container.registerSingleton(WISDOM_TOKENS.memory.sessionStore, MemorySessionStore);
 
   // Orchestration
   container.register(WISDOM_TOKENS.orchestrator, { useClass: WisdomOrchestrator });

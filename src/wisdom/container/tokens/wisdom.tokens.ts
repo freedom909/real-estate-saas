@@ -37,6 +37,7 @@ export const WISDOM_TOKENS = {
     summaryScheduler: Symbol.for("wisdom.summaryScheduler"),
     summaryAgent: Symbol.for("wisdom.summaryAgent"),
     sessionMemory: Symbol.for("wisdom.sessionMemory"),
+    sessionStore: Symbol.for("wisdom.sessionStore"),
   },
 
   // Orchestration

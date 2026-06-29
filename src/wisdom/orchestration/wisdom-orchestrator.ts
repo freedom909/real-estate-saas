@@ -28,7 +28,7 @@ import { WisdomResponse } from "../contracts/response";
 import { AIDomain } from "../shared/enums/domain.enum";
 import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
 import { AgentAction, SemanticContext } from "../semantic/semantic-context";
-import { sessionMemory } from "../memory/session-memory";
+
 import { MemoryContext, buildMemoryContext } from "../memory/type/memory-context";
 
 
@@ -59,8 +59,8 @@ export class WisdomOrchestrator {
 
   async handle(request: WisdomRequest): Promise<WisdomResponse> {
     // ── 0. Unified memory context ──
-    const ctx: MemoryContext = buildMemoryContext(request.context);// は型 'AIContext' に存在しません。
-
+    const ctx: MemoryContext = buildMemoryContext(request.context);
+    await this.knowledgeStore.load(ctx);
     // ── 1. Semantic extraction ──
     const semantic = await this.semanticExtractor.extract(request);
 
@@ -139,11 +139,11 @@ export class WisdomOrchestrator {
 
     // ── 9. Legacy: update session memory + booking state ──
     // const sessionMem = sessionMemory.get(ctx.sessionId) ?? {};
-    // for (const artifact of response.artifacts ?? []) {
-    //   this.bookingStateUpdater.apply(request.context, artifact);
-    // }
+    for (const artifact of response.artifacts ?? []) {
+      this.bookingStateUpdater.apply(ctx, artifact);
+    }
     // sessionMemory.set(ctx.sessionId, sessionMem);
-
+    console.log("ARTIFACTS:", response.artifacts);
     return response;
   }
 
