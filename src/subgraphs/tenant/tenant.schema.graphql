@@ -1,18 +1,24 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: ["@key", "@shareable"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
 
-schema @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key", "@shareable"])
 enum TenantStatus {
   ACTIVE
   SUSPENDED
   DELETED
 }
 
-
 type Tenant @key(fields: "id") {
   id: ID! @shareable
   name: String! @shareable
   slug: String!
   status: TenantStatus!
-  ownerUserId: String!@shareable
+  ownerUserId: String! @shareable
   createdAt: String
   updatedAt: String @shareable
 }

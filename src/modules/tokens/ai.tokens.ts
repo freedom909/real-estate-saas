@@ -54,10 +54,10 @@ export const TOKENS_AI = {
     reviewValidationUseCase: Symbol.for("ReviewValidationUseCase"),
     reviewReplyUseCase: Symbol.for("ReviewReplyUseCase"),
     reviewReportUseCase: Symbol.for("ReviewReportUseCase"),
+    submitGuestReviewUseCase: Symbol.for("SubmitGuestReviewUseCase"),
     bookingFraudUseCase: Symbol.for("BookingFraudUseCase"),
     cancelBookingUseCase: Symbol.for("CancelBookingUseCase"),
     createBookingUseCase: Symbol.for("CreateBookingUseCase"),
-    createReviewUseCase: Symbol.for("CreateReviewUseCase"),
     generateDescriptionSuggestionUseCase: Symbol.for("GenerateDescriptionSuggestionUseCase"),
     generateOptimizeTitleUseCase: Symbol.for("GenerateOptimizeTitleUseCase"),
 
@@ -78,7 +78,6 @@ export const TOKENS_AI = {
     paymentRepository: Symbol.for("PaymentRepository"),
     reviewRepository: Symbol.for("ReviewRepository"),
     cancelBookingRepository: Symbol.for("CancelBookingRepository"),
-    listingAISuggestionRepository: Symbol.for("ListingAISuggestionRepository"),
-
+    listingAISuggestionRepository: Symbol.for("ListingAISuggestionRepository")
   },
 }

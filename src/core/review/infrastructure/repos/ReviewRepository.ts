@@ -8,8 +8,10 @@ import mongoose from "mongoose";
 
 @injectable()
 export class ReviewRepositoryImpl implements IReviewRepository {
-  findByBookingId(bookingId: string): Promise<Review | null> {
-    throw new Error("Method not implemented.");
+  
+  async findByBookingId(bookingId: string): Promise<Review | null> {
+    const doc = await ReviewModel.findOne({ bookingId });
+    return doc ? ReviewMapper.toDomain(doc) : null;
   }
   async findById(id: string): Promise<Review | null> {
     const doc = await ReviewModel.findById(id);
@@ -17,6 +19,7 @@ export class ReviewRepositoryImpl implements IReviewRepository {
   }
 
   async save(review: Review): Promise<Review> {
+    console.log("review++:", review);
     const persistence = ReviewMapper.toPersistence(review);
     const doc = await ReviewModel.findByIdAndUpdate(
       review.props.id || new mongoose.Types.ObjectId(),

@@ -1,7 +1,7 @@
 import { container } from 'tsyringe';
 import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
 
-import CreateListingUseCase from '../../../core/listing/application/usecase/createListingUseCase';
+import CreateListingUseCase from '../../../core/listing/application/usecase/createListing.usecase';
 import { IListingRepository } from '@/core/listing/domain/entities/IListingRepository';
 
 

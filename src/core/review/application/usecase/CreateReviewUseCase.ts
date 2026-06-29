@@ -6,7 +6,7 @@ import { Rating } from "../../infrastructure/services/rating";
 
 
 @injectable()
-export class CreateReviewUseCase {
+export class SubmitGuestReviewUseCase {
   constructor(
     @inject(TOKENS_REVIEW.repository.reviewRepository)
     private reviewRepo: IReviewRepository
@@ -20,6 +20,7 @@ export class CreateReviewUseCase {
     rating: number;
     content: string;
   }): Promise<Review> {
+    console.log("input++:", input);
     const review = new Review({
       bookingId: input.bookingId,
       listingId: input.listingId,

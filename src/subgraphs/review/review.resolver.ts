@@ -1,22 +1,32 @@
+import { SubmitGuestReviewUseCase } from "@/core/review/application/usecase/createReviewUseCase";
+
+import { IReviewRepository } from "@/core/review/domain/entities/repos/IReviewRepository";
+import { TOKENS_REVIEW } from "@/modules/tokens/review.tokens";
 import { container } from "tsyringe";
-import { TOKENS_REVIEW } from "../../container/review.tokens";
-import { CreateReviewUseCase } from "../../application/usecases/CreateReviewUseCase";
+
 
 export const reviewResolvers = {
   Query: {
     review: async (_: any, { id }: { id: string }) => {
-      const repo = container.resolve(TOKENS_REVIEW.repository.reviewRepository);
+      const repo = container.resolve<IReviewRepository>(TOKENS_REVIEW.repository.reviewRepository);
       return repo.findById(id);
     },
     reviewsByListing: async (_: any, { listingId }: { listingId: string }) => {
-      const repo = container.resolve(TOKENS_REVIEW.repository.reviewRepository);
+      const repo = container.resolve<IReviewRepository>(TOKENS_REVIEW.repository.reviewRepository);
       return repo.findByListingId(listingId);
     }
   },
   Mutation: {
-    createReview: async (_: any, { input }: any, context: any) => {
-      const useCase = container.resolve<CreateReviewUseCase>(TOKENS_REVIEW.usecase.createReview);
+    submitGuestReview: async (_: any, { input }: any, context: any) => {
+      console.log("input++:", input);
+      const useCase = container.resolve<SubmitGuestReviewUseCase>(TOKENS_REVIEW.usecase.submitGuestReview);
       return useCase.execute({ ...input, guestId: context.user.id });
+    },
+
+    submitHostReplyToGuestReview: async (_: any, { input }: any, context: any) => {
+      console.log("input+++:", input);
+      const useCase = container.resolve<SubmitGuestReviewUseCase>(TOKENS_REVIEW.usecase.submitHostReplyToGuestReview);
+      return useCase.execute({ ...input, hostId: context.user.id });
     },
     updateReview: async (_: any, { id, input }: any) => {
         const useCase = container.resolve(TOKENS_REVIEW.usecase.updateReview) as any;

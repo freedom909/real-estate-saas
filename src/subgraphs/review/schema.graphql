@@ -1,3 +1,198 @@
-# The schema.graphql in context was slightly off, here's the proper implementation
-# following the requirements.
-# (This follows the schema provided in the context file src/subgraphs/booking/schema.graphql)
+ schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: [
+      "@key",
+      "@shareable",
+      "@external"
+    ]
+  )
+  {
+  query: Query
+  mutation: Mutation
+}
+
+type Query  {
+  "Returns a list of reviews for a given listing"
+  searchReviews(input: SearchReviewsInput!): [Review] @shareable
+  reviewsForListing(listingId: ID!): [Review] @shareable
+  review(id: ID!): Review @shareable
+  "Returns all reviews in the system"
+  allReviews: [Review] @shareable
+}
+
+type Mutation {
+  submitGuestReview(
+    guestReview: ReviewInput!
+    bookingId: ID!
+  ): SubmitGuestReviewResponse! 
+
+
+  submitHostReplyToGuestReview (
+    bookingId: ID!
+    hostReview: ReviewInput!
+    guestReviewID:ID!
+    comment:CommentInput! 
+  ): SubmitHostReplyToGuestReviewResponse!
+}
+
+input CommentInput {
+  content: String!
+}
+
+### Reviews
+type Review @key(fields: "id") {
+  id: ID!
+  content: String! @shareable
+  rating: Float! @shareable
+  author: User! @shareable
+  booking: Booking! @shareable
+  location: Location @shareable
+  guest: Guest @shareable
+  host: Host @shareable
+  likes: [Like!] @shareable
+  dislikes: [Like!] @shareable
+  comments: [Comment!] @shareable
+  round: Int ! @shareable
+  isPinned: Boolean! @shareable
+  isRecommended: Boolean! @shareable
+  createdAt: String!
+  updatedAt: String!
+}
+### Enum
+enum ReviewSortField {
+  RATING
+  CREATED_AT
+  UPDATED_AT
+}
+
+
+enum Role {
+  HOST
+  GUEST
+  ADMIN
+  USER
+  PENDING_HOST
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+input SearchReviewsInput {
+  id: ID
+  guestId: ID
+  authorId: ID
+  listingId: ID
+  hostId: ID
+  targetType: String
+  content: String # full-text search support
+  rating: Float
+  round: Int
+  isPinned: Boolean
+  isRecommended: Boolean
+
+  # Pagination
+  limit: Int
+  offset: Int
+
+  # Sorting
+  sortBy: ReviewSortField
+  sortOrder: SortOrder
+}
+
+### Likes
+type Like {
+  id: ID!
+  userId: ID!
+  reviewId: ID!
+  createdAt: String! 
+  updatedAt: String!
+  isPositive: Boolean! 
+}
+
+### Location Type
+type Location @key(fields: "id") {
+  id: ID! @shareable
+  name: String! @shareable
+}
+
+### Input Types
+input ReviewInput {
+  content: String!
+  rating: Float!
+  locationId: ID
+  guestId: ID
+  bookingId: ID
+  round: Int!
+  hostId: ID
+}
+
+### Response Types
+type SubmitHostReplyToGuestReviewResponse implements MutationResponse {
+  code: Int! @shareable
+  success: Boolean! @shareable
+  message: String! @shareable
+  guestReviewID:ID @shareable
+  hostReview: Review! @shareable
+  locationReview: Review @shareable
+}
+
+type SubmitGuestReviewResponse implements MutationResponse{
+   bookingId:ID!
+   guestReview:String
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+interface MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+### Bookings
+type Booking @key(fields: "id") {
+  id: ID! @shareable
+}
+
+### Listings
+type Listing @key(fields: "id") {
+  id: ID! @shareable
+}
+
+### User Types
+extend type User @key(fields: "id") {
+  id: ID! @external  
+}
+
+type Host @key(fields: "id") {
+  role: Role @shareable
+  id: ID! @shareable
+  name: String! @shareable
+  overallRating: Float @shareable
+  picture: String! @shareable
+  bookings: [Booking!] @shareable
+  listings: [Listing!] @shareable
+}
+
+type Guest @key(fields: "id") {
+  id: ID! @shareable 
+  name: String! @shareable
+  picture: String! @shareable
+  role: Role @shareable
+  overallRating: Float @shareable
+  bookings: [Booking!] @shareable
+  listings: [Listing!] @shareable
+}
+
+type Comment {
+  id: ID!
+  content: String! @shareable
+  author: User! @shareable
+  review: Review @shareable
+  createdAt: String! @shareable 
+  updatedAt: String! @shareable
+}

@@ -18,15 +18,11 @@ import { initMongoContainer } from "@/infrastructure/container/initMongoContaine
 import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 
-import TOKENS from "@/modules/tokens/mq.tokens";
-import registerMQEventBus from "@/modules/container/mq.register";
 import { registerReviewDependencies } from "@/modules/container/review.register";
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
 
 dotenv.config();
-registerMQEventBus();
-const eventBus = container.resolve<ReviewMQEventBus>(TOKENS.eventBus);
-await eventBus.init();
 
 const typeDefs = gql(
   readFileSync("./src/subgraphs/review/schema.graphql", { encoding: "utf-8" })
@@ -37,7 +33,6 @@ const startApolloServer = async () => {
     // ✅ 初始化 DI（全局 container）
     console.log("⏳ Initializing containers...");
     await registerReviewDependencies();
-    await initMysqlContainer();
     await initMongoContainer();
     console.log("✅ Containers initialized");
 
@@ -53,11 +48,6 @@ const startApolloServer = async () => {
           async serverWillStart() {
             return {
               async drainServer() {
-
-                // ✅ 正确关闭 DB
-                const sequelize = container.resolve("Sequelize") as any;
-                if (sequelize) await sequelize.close();
-
                 const mongoose = container.resolve("MongoConnection") as any;
                 if (mongoose) await mongoose.disconnect();
               },
@@ -81,13 +71,14 @@ app.use(
     context: async ({ req }) => ({
       req,
       user: (req as any).user,
+      container,
     }),
   })
 );
 
     // ✅ 启动 HTTP
-    httpServer.listen({ port: 4050 }, async () => {
-      console.log("🚀 Review Subgraph ready at http://localhost:4050/graphql");
+    httpServer.listen({ port: 4040 }, async () => {
+      console.log("🚀 Review Subgraph ready at http://localhost:4040/graphql");
     });
   } catch (error) {
     console.error("❌ Server start error:", error);
