@@ -1,16 +1,18 @@
 // src/core/booking/domain/state/booking-event.ts
 
-export enum BookingEventType {
+export enum BookingEvent {
   SELECT_LISTING = "SELECT_LISTING",
   SET_DATES = "SET_DATES",
-  SET_GUESTS = "SET_GUESTS",
+  SET_GUEST_COUNT = "SET_GUEST_COUNT",
   CONFIRM = "CONFIRM",
   FAIL = "FAIL",
   CANCEL = "CANCEL",
   RESET = "RESET",
+  SET_SPECIAL_REQUESTS = "SET_SPECIAL_REQUESTS",
+  SET_CONTACT = "SET_CONTACT",
 }
 
-export interface BookingEvent {
-  type: BookingEventType;
-  payload?: any;
+export interface BookingTransitionEvent {
+  type: BookingEvent;
+  payload?: unknown;
 }
