@@ -1,11 +1,12 @@
-//
+// // src/wisdom/memory/type/session-memory.state.ts
 
 
 import { BookingDraft } from "@/wisdom/contracts/ai-context";
-import { BookingMemory, ListingSummary } from "./memory-context";
+import {  ListingSummary } from "./memory-context";
+import { BookingMemory } from "./booking.memory";
 
 
-export interface SessionMemoryState {
+export interface SessionMemoryState { 
 
     searchResults?: ListingSummary[];
 

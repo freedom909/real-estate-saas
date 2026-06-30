@@ -1,9 +1,10 @@
-// session memory types
+// // src/wisdom/memory/session-memory.types.ts
 
 import { BookingDraft } from "../contracts/ai-context";
+import { BookingMemory } from "./type/booking.memory";
 import { ListingSummary } from "./type/memory-context";
 
-// src/wisdom/memory/session-memory.types.ts
+
 
 export interface SessionMemoryState {
   searchResults?: ListingSummary[];
@@ -11,10 +12,3 @@ export interface SessionMemoryState {
   booking?: BookingMemory;
 }
 
-export interface BookingMemory {
-  id?: string;
-  listingId?: string;
-  checkInDate?: string;
-  checkOutDate?: string;
-  guestCount?: number;
-}

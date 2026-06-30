@@ -13,6 +13,7 @@
 
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { AIContext, BookingDraft } from "@/wisdom/contracts/ai-context";
+import { BookingMemory } from "./booking.memory";
 
 
 /**
@@ -57,20 +58,6 @@ export interface MemoryContext {
     knowledge?: KnowledgeSnapshot; 
 }
 
-export interface BookingMemory {
-
-    id?: string;
-
-    listingId?: string;
-
-    checkInDate?: string;
-
-    checkOutDate?: string;
-
-    guestCount?: number;
-
-    status?: string;
-}
 
 export interface SessionMemoryState {
 

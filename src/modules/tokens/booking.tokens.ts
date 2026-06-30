@@ -7,6 +7,9 @@ export const TOKENS_BOOKING = {
   acl: {
     bookingACL: Symbol.for("BookingACL"),
   },
+  state: {
+    bookingStateMachine: Symbol.for("BookingStateMachine"),
+  },
 
   usecase: {
     confirmBookingUseCase: Symbol.for("ConfirmBookingUseCase"),
