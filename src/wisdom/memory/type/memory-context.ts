@@ -12,7 +12,8 @@
 // ────────────────────────────────────────────────────────────────
 
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
-import { AIContext, BookingDraft, IdentityContext } from "@/wisdom/contracts/ai-context";
+import { AIContext, BookingDraft } from "@/wisdom/contracts/ai-context";
+
 
 /**
  * Unified context passed to all memory subsystems.
@@ -83,6 +84,10 @@ export interface SessionMemoryState {
 export function buildMemoryContext(
     context: AIContext
 ): MemoryContext {
+        console.log(
+        "AIContext.runtime",
+        context.runtime
+    );
     return {
         userId:
             context.identity.user?.id ??

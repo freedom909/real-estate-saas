@@ -6,6 +6,7 @@ import { sessionMemory } from "../memory/session-memory";
 import { inject, injectable } from "tsyringe";
 import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
 import { MemorySessionStore } from "../memory/session/session-memory.store";
+import { buildMemoryContext, MemoryContext } from "../memory/type/memory-context";
 
 
 
@@ -15,11 +16,6 @@ export class AIRequestFactory {
     @inject(WISDOM_TOKENS.memory.sessionStore)
     private sessionStore: MemorySessionStore,
   ) {
-    console.log(
-        "AIRequestFactory sessionStore",
-        this.sessionStore
-    );
-
   }
   // =====================================
   // GraphQL
@@ -44,36 +40,44 @@ export class AIRequestFactory {
   }
 
 fromGraphQL(payload: any): AIRequest {
+const memoryContext: MemoryContext = {
+    userId: payload.identity.user.userId,
+    sessionId: payload.runtime.session.id,
+    session: {},
+};
 
-    return {
-        message: payload.message,
+const session = this.sessionStore.load(memoryContext);
 
-        context: {
-identity: {
-    user: {
+console.log("Loaded session:", session);
+
+return {
+    message: payload.message,
+    context: {
+        identity: { 
+           user: {
         id: payload.identity.user.userId,
         email: payload.identity.user.email,
         role: payload.identity.user.role,
     },
- tenant: payload.identity.tenant,
-          },
-                  runtime: {
-                source: "web",
-                locale: payload.runtime.locale,
-                timezone: payload.runtime.timezone,
-                sessionId: payload.runtime.session.id,
-            },
-
-            resources: payload.resources,
-
-            trace: {
-                correlationId: crypto.randomUUID(),
-            },
+    tenant: payload.identity.tenant,
+         },
+        runtime: {
+            source: "web",
+            locale: payload.runtime.locale,
+            timezone: payload.runtime.timezone,
+            sessionId: payload.runtime.session.id,
         },
-    };
-}
-
-
+        resources: {
+            ...(payload.resources ?? {}),
+            searchResults: session?.searchResults ?? [],
+            bookingDraft: session?.bookingDraft ?? {},
+            booking: session?.booking ?? {},
+        },
+        trace: {
+            correlationId: crypto.randomUUID(),
+        },
+    },
+};
   // =====================================
   // Mobile
   // =====================================
@@ -166,4 +170,5 @@ identity: {
   //     },
   //   };
   // }
+}
 }

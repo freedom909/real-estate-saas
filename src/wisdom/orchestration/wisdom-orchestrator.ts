@@ -59,8 +59,14 @@ export class WisdomOrchestrator {
 
   async handle(request: WisdomRequest): Promise<WisdomResponse> {
     // ── 0. Unified memory context ──
-    const ctx: MemoryContext = buildMemoryContext(request.context);
-    await this.knowledgeStore.load(ctx);
+ const memoryContext: MemoryContext = {
+    userId: request.context.identity.user.id,
+    sessionId: request.context.runtime.sessionId,
+    session: {},
+};
+
+
+const knowledge = await this.knowledgeStore.load(memoryContext);
     // ── 1. Semantic extraction ──
     const semantic = await this.semanticExtractor.extract(request);
 
@@ -98,25 +104,24 @@ export class WisdomOrchestrator {
         executedSteps: raw?.executedSteps ?? [],
       },
     };
-
+   
     // ── 6. Extract knowledge deltas ──
-    const existingKnowledge = await this.knowledgeStore.load(ctx);
-    const knowledgeDeltas = this.knowledgeExtractor.extract(
+    const knowledgeDeltas = await this.knowledgeExtractor.extract(
       resolvedSemantic,
       response,
       request.context,
-      existingKnowledge,
+      knowledge,
     );
 
     // ── 7. Persist knowledge ──
     if (knowledgeDeltas.length > 0) {
-      await this.knowledgeStore.persist(ctx, knowledgeDeltas);
-      console.log(`🧠 ${knowledgeDeltas.length} knowledge deltas persisted for user ${ctx.userId}`);
+      await this.knowledgeStore.persist(memoryContext, knowledgeDeltas);
+      console.log(`🧠 ${knowledgeDeltas.length} knowledge deltas persisted for user ${memoryContext.userId}`);
     }
 
     // ── 8. Summary Pipeline (async, non-blocking) ──
     // Buffer the turn and check if summarization is needed
-    this.summaryScheduler.onTurnComplete(ctx, {
+    this.summaryScheduler.onTurnComplete(memoryContext, {
       role: "user",
       content: request.message,
       timestamp: Date.now(),
@@ -126,7 +131,7 @@ export class WisdomOrchestrator {
       },
     }).catch((err) => console.error("❌ Summary scheduler error:", err));
 
-    this.summaryScheduler.onTurnComplete(ctx, {
+    this.summaryScheduler.onTurnComplete(memoryContext, {
       role: "assistant",
       content: response.summary,
       timestamp: Date.now(),
@@ -140,7 +145,7 @@ export class WisdomOrchestrator {
     // ── 9. Legacy: update session memory + booking state ──
     // const sessionMem = sessionMemory.get(ctx.sessionId) ?? {};
     for (const artifact of response.artifacts ?? []) {
-      this.bookingStateUpdater.apply(ctx, artifact);
+      this.bookingStateUpdater.apply(memoryContext, artifact);
     }
     // sessionMemory.set(ctx.sessionId, sessionMem);
     console.log("ARTIFACTS:", response.artifacts);

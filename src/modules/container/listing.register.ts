@@ -7,7 +7,7 @@ import { TOKENS_AI } from '@/modules/tokens/ai.tokens';
 import { GenerateListingAIOptimizationUseCase } from '@/wisdom/agents/listing/generateListingAIOptimization.usecase';
 import ListingModel from '@/core/listing/infrastructure/models/listing.model';
 import { ListingRepository } from '@/core/listing/infrastructure/persistence/listing.repository';
-import CreateListingUseCase from '@/core/listing/application/usecase/createListingUseCase';
+import CreateListingUseCase from '@/core/listing/application/usecase/createListing.usecase';
 import GetListingUseCase from '@/core/listing/application/usecase/getListingUseCase';
 import { SearchListingUseCase } from '@/core/listing/application/usecase/searchListingUseCase';
 import { RunListingAgentUseCase } from '@/core/listing/application/usecase/runListingAgentUseCase';

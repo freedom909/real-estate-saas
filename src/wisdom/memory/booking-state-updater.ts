@@ -4,6 +4,7 @@ import { MemoryContext } from "./type/memory-context";
 import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
 import { MemorySessionStore } from "./session/session-memory.store";
 
+
 interface MemoryArtifact {
   type: string;
   content: any;
@@ -21,9 +22,11 @@ export class BookingStateUpdater {
         
      }
 apply(ctx: MemoryContext, artifact: MemoryArtifact) {
-console.log("BookingStateUpdater called:", artifact);
-    const session = this.sessionStore.load(ctx);
-console.log(artifact.type);
+console.log("REQUEST SESSION", ctx.sessionId);//
+
+const session = this.sessionStore.load(ctx);//型 'string' の引数を型 'MemoryContext' のパラメーターに割り当てることはできません。
+
+console.log(session);   
     switch (artifact.type) {
 
         case "LISTING_SEARCH_RESULT":
