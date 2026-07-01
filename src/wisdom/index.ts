@@ -25,6 +25,7 @@ import getUserFromToken from "@/infrastructure/auth/getUserFromToken"
 import { sequelize, connectMySQL } from "@/infrastructure/config/seq"
 import { initBookingModel } from "@/core/booking/infrastructure/models/booking.model"
 import { registerWisdom } from "./container/registrations/wisdom.register"
+import { registerEventBus } from "@/modules/container/event.bus.register"
 
 // ⭐ 注册 DI
 registerAuditDependencies(container)
@@ -37,7 +38,8 @@ BookingRegister()
 console.log("  ✅ Booking container loaded")
 registerWisdom()
 console.log("  ✅ Wisdom container loaded")
-
+registerEventBus()
+console.log("  ✅ Event Bus container loaded")
 // ⭐ MySQL — initialize BookingModel so SequelizeBookingRepository works
 await connectMySQL()
 initBookingModel(sequelize)

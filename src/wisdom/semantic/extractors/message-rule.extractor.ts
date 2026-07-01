@@ -1,109 +1,168 @@
 // src/wisdom/semantic/extractors/message-rule.extractor.ts
+//
+// Three responsibilities, one class:
+//   extractEntities(message)  → SemanticEntity[]   (what data did the user provide?)
+//   detectAction(message, entities) → SemanticAction | null (what does the user want to do?)
+//   extract(message)          → SemanticContext | null       (orchestrator — calls above two)
 
 import { injectable } from "tsyringe";
-import { AgentAction, Entity, SemanticContext } from "../semantic-context";
+import { AgentAction, SemanticContext } from "../semantic-context";
 import { EntityType } from "../../shared/enums/entity-type.enum";
 import { AIDomain } from "../../shared/enums/domain.enum";
+import { SemanticEntity } from "../semantic.entity";
+
+// ── Constants ───────────────────────────────────────────────────────────────
 
 const UUID_REGEX =
   /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
+const ORDINAL_MAP: Record<string, string> = {
+  "first": "first", "1st": "first",
+  "second": "second", "2nd": "second",
+  "third": "third", "3rd": "third",
+  "last": "last", "latest": "latest",
+};
+
+const BOOKING_ACTION_RULES: { keywords: string[]; action: AgentAction }[] = [
+  { keywords: ["confirm booking", "confirm reservation"], action: AgentAction.CONFIRM_BOOKING },
+  { keywords: ["cancel booking", "cancel reservation"], action: AgentAction.CANCEL_BOOKING },
+  { keywords: ["complete booking", "complete reservation"], action: AgentAction.COMPLETE_BOOKING },
+  { keywords: ["get booking", "get reservation"], action: AgentAction.GET_BOOKING },
+  { keywords: ["show booking", "show reservation"], action: AgentAction.GET_BOOKING },
+];
+
+// ── MessageRuleExtractor ────────────────────────────────────────────────────
+
 @injectable()
 export class MessageRuleExtractor {
-  private readonly bookingRules = [
-    { keywords: ["confirm booking", "confirm reservation"], action: AgentAction.CONFIRM_BOOKING },
-    { keywords: ["cancel booking", "cancel reservation"], action: AgentAction.CANCEL_BOOKING },
-    { keywords: ["complete booking", "complete reservation"], action: AgentAction.COMPLETE_BOOKING },
-    { keywords: ["get booking", "get reservation"], action: AgentAction.GET_BOOKING },
-    { keywords: ["show booking", "show reservation"], action: AgentAction.GET_BOOKING },
-  ];
 
-  extract(message: string): SemanticContext | null {
+  // =========================================================================
+  // 1. extractEntities — "What data did the user give me?"
+  // =========================================================================
+
+  extractEntities(message: string): SemanticEntity[] {
+    return [
+      ...this.extractDateRange(message),
+      ...this.extractGuestCount(message),
+      ...this.extractContactName(message),
+      ...this.extractSpecialRequest(message),
+      ...this.extractOrdinal(message),
+    ];
+  }
+
+  // =========================================================================
+  // 2. detectAction — "What does the user want to do?"
+  // =========================================================================
+
+  detectAction(
+    message: string,
+    entities: SemanticEntity[],
+  ): { type: AgentAction; confidence: number } | null {
     const lower = message.toLowerCase();
-    const bookingId = message.match(UUID_REGEX)?.[0];
-    const ordinalEntities = this.extractOrdinal(message);
+    const hasBookingId = entities.some(e => e.type === EntityType.BOOKING_ID);
+    const ordinalEntities = entities.filter(e => e.type === EntityType.ORDINAL);
+    const hasOrdinals = ordinalEntities.length > 0;
 
-    // GET MY BOOKINGS
+    // ── GET MY BOOKINGS ────────────────────────────────────────────────────
     if (lower.includes("show my bookings") || lower.includes("my bookings")) {
-      return new SemanticContext(
-        message, [],
-        { type: AgentAction.GET_MY_BOOKINGS, confidence: 0.99 },
-        0.99, AIDomain.BOOKING, true
-      );
+      return { type: AgentAction.GET_MY_BOOKINGS, confidence: 0.99 };
     }
 
-    // BOOKING ACTIONS (with UUID)
-    for (const rule of this.bookingRules) {
-      if (rule.keywords.some(keyword => lower.includes(keyword)) && bookingId) {
-        return this.buildBookingIntent(message, rule.action, [
-          { type: EntityType.BOOKING_ID, value: bookingId },
-        ]);
+    // ── Booking actions matched by keyword + ID type ───────────────────────
+    for (const rule of BOOKING_ACTION_RULES) {
+      if (!rule.keywords.some(kw => lower.includes(kw))) continue;
+
+      // With UUID → highest confidence
+      if (hasBookingId) {
+        return { type: rule.action, confidence: 0.95 };
       }
-    }
-
-    // BOOKING ACTIONS (with ORDINAL, no UUID)
-    if (ordinalEntities.length > 0) {
-      for (const rule of this.bookingRules) {
-        if (rule.keywords.some(keyword => lower.includes(keyword))) {
-          return this.buildBookingIntent(message, rule.action, ordinalEntities);
-        }
+      // With ordinal → good confidence (needs reference resolution)
+      if (hasOrdinals) {
+        return { type: rule.action, confidence: 0.90 };
       }
+      // Keyword only → will need reference resolution
+      return { type: rule.action, confidence: 0.85 };
     }
 
-    // BOOKING ACTIONS (keyword only, no ID — will need reference resolution)
-    for (const rule of this.bookingRules) {
-      if (rule.keywords.some(keyword => lower.includes(keyword))) {
-        return this.buildBookingIntent(message, rule.action, []);
-      }
+    // ── CREATE BOOKING with ordinal ("book the first one") ─────────────────
+    if (lower.includes("book") && hasOrdinals) {
+      return { type: AgentAction.CREATE_BOOKING, confidence: 0.95 };
     }
 
-    // BOOK THE FIRST ONE / BOOK THE SECOND ONE
-    if (lower.includes("book") && ordinalEntities.length > 0) {
-      return new SemanticContext(
-        message, ordinalEntities,
-        { type: AgentAction.CREATE_BOOKING, confidence: 0.95 },
-        0.95, AIDomain.BOOKING, true
-      );
-    }
-
-    // CREATE BOOKING
+    // ── CREATE BOOKING generic ("book this place") ─────────────────────────
     if (lower.includes("book") && !lower.includes("booking")) {
-      return new SemanticContext(
-        message, [],
-        { type: AgentAction.CREATE_BOOKING, confidence: 0.90 },
-        0.90, AIDomain.BOOKING, true
-      );
+      return { type: AgentAction.CREATE_BOOKING, confidence: 0.90 };
     }
 
     return null;
   }
 
-  private extractOrdinal(message: string): Entity[] {
-    const lower = message.toLowerCase();
-    const ordinals: Record<string, string> = {
-      "first": "first", "1st": "first",
-      "second": "second", "2nd": "second",
-      "third": "third", "3rd": "third",
-      "last": "last", "latest": "latest",
-    };
+  // =========================================================================
+  // 3. extract — orchestrator
+  // =========================================================================
 
-    for (const [keyword, value] of Object.entries(ordinals)) {
-      if (lower.includes(keyword)) {
-        return [{ type: EntityType.ORDINAL, value }];
-      }
-    }
+  extract(message: string): SemanticContext | null {
+    const entities = this.extractEntities(message);
+    const action = this.detectAction(message, entities);
+
+    if (!action) return null;
+
+    return new SemanticContext(
+      message,
+      entities,
+      { type: action.type, confidence: action.confidence },
+      action.confidence,
+      AIDomain.BOOKING,
+      true,
+    );
+  }
+
+  // =========================================================================
+  // Private extractors — each owns one entity type
+  // =========================================================================
+
+  /** "from 7-15 to 7-18" → CHECK_IN_DATE + CHECK_OUT_DATE */
+  private extractDateRange(message: string): SemanticEntity[] {
+    const match = message.match(
+      /from\s+(\d{1,2}-\d{1,2})\s+to\s+(\d{1,2}-\d{1,2})/i,
+    );
+    if (!match) return [];
+
+    return [
+      { type: EntityType.CHECK_IN_DATE, value: match[1], confidence: 0.95 },
+      { type: EntityType.CHECK_OUT_DATE, value: match[2], confidence: 0.95 },
+    ];
+  }
+
+  /** "2 guests", "3 people" → GUEST_COUNT */
+  private extractGuestCount(message: string): SemanticEntity[] {
+    const match = message.match(/(\d+)\s*(guests?|people|person|人)/i);
+    if (!match) return [];
+
+    return [{ type: EntityType.GUEST_COUNT, value: parseInt(match[1], 10), confidence: 0.95 }];
+  }
+
+  /** "contact: John Smith", "name: Tanaka" → CONTACT_NAME (future extensibility) */
+  private extractContactName(_message: string): SemanticEntity[] {
+    // TODO: implement when booking form patterns are defined
     return [];
   }
 
-  private buildBookingIntent(
-    message: string,
-    action: AgentAction,
-    entities: Entity[]
-  ): SemanticContext {
-    return new SemanticContext(
-      message, entities,
-      { type: action, confidence: 0.95 },
-      0.95, AIDomain.BOOKING, true
-    );
+  /** "vegetarian meal", "non-smoking room" → SPECIAL_REQUEST (future extensibility) */
+  private extractSpecialRequest(_message: string): SemanticEntity[] {
+    // TODO: implement when special request vocabulary is defined
+    return [];
+  }
+
+  /** "first", "second", "last" → ORDINAL */
+  private extractOrdinal(message: string): SemanticEntity[] {
+    const lower = message.toLowerCase();
+
+    for (const [keyword, value] of Object.entries(ORDINAL_MAP)) {
+      if (lower.includes(keyword)) {
+        return [{ type: EntityType.ORDINAL, value, confidence: 0.95 }];
+      }
+    }
+    return [];
   }
 }

@@ -26,7 +26,7 @@ export class RuleExtractor {
         entities.push({ type: EntityType.BOOKING_ID, value: request.context.resources.bookingId });
       }
       return new SemanticContext(
-        message, entities,
+        message, entities.map(e => ({ ...e, confidence: 0.95 })),
         { type: AgentAction.CANCEL_BOOKING, confidence: 0.99 },
         0.99, AIDomain.BOOKING, true
       );
@@ -46,7 +46,7 @@ export class RuleExtractor {
         entities.push({ type: EntityType.LISTING_ID, value: request.context.resources.listingId });
       }
       return new SemanticContext(
-        message, entities,
+        message, entities.map(e => ({ ...e, confidence: 0.95 })),
         { type: AgentAction.OPTIMIZE_TITLE, confidence: 0.99 },
         0.99, AIDomain.LISTING, true
       );
@@ -57,7 +57,7 @@ export class RuleExtractor {
         entities.push({ type: EntityType.LISTING_ID, value: request.context.resources.listingId });
       }
       return new SemanticContext(
-        message, entities,
+        message, entities.map(e => ({ ...e, confidence: 0.95 })),
         { type: AgentAction.OPTIMIZE_DESCRIPTION, confidence: 0.99 },
         0.99, AIDomain.LISTING, true
       );

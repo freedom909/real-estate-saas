@@ -10,7 +10,7 @@ import { WisdomResponse } from "../../contracts/response";
 import { GenerateListingAIOptimizationUseCase } from "@/wisdom/agents/listing/generateListingAIOptimization.usecase";
 import GetListingUseCase from "@/core/listing/application/usecase/getListingUseCase";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
-import { SemanticEntityType } from "@/wisdom/semantic/semantic.entityType";
+
 
 @injectable()
 export class ListingAgent implements IDomainAgent {
@@ -33,7 +33,7 @@ export class ListingAgent implements IDomainAgent {
     }
 
     let listingId = semantic.entities.find(
-      (e) => e.type === SemanticEntityType.LISTING,
+      (e) => e.type === EntityType.LISTING_ID,
     )?.value;
 
     if (!listingId && context.resources?.listingId) {
@@ -53,7 +53,7 @@ export class ListingAgent implements IDomainAgent {
     switch (action) {
       case AgentAction.OPTIMIZE_TITLE:
       case AgentAction.OPTIMIZE_DESCRIPTION: {
-        const result = await this.optimizationUseCase.execute(listingId);
+        const result = await this.optimizationUseCase.execute(listingId as string);
         return {
           success: true,
           domain: semantic.domain as any,
@@ -64,14 +64,14 @@ export class ListingAgent implements IDomainAgent {
       }
 
       case AgentAction.GET_LISTING: {
-        const listing = await this.getListingUseCase.execute(listingId);
+        const listing = await this.getListingUseCase.execute(listingId as string);
         return {
           success: true,
           domain: semantic.domain as any,
           primaryAction: { name: action, confidence: semantic.confidence ?? 0 },
           summary: `Found listing: ${listing.title}`,
           artifacts: [{
-            type: ArtifactType.LISTING,
+            type: ArtifactType.LISTING_SELECTED,
             content: listing as unknown as Record<string, unknown>,
           }],
         };
@@ -92,23 +92,23 @@ export class ListingAgent implements IDomainAgent {
     semantic: SemanticContext,
     action: AgentAction,
   ): Promise<WisdomResponse> {
-    const location = semantic.entities.find((e) => e.type === SemanticEntityType.LOCATION)?.value;
-    const dateRange = semantic.entities.find((e) => e.type === SemanticEntityType.DATE_RANGE)?.value;
-    const guestCount = semantic.entities.find((e) => e.type === SemanticEntityType.GUEST_COUNT)?.value;
-    const priceRange = semantic.entities.find((e) => e.type === SemanticEntityType.PRICE_RANGE)?.value;
+    const location = semantic.entities.find((e) => e.type === EntityType.LOCATION)?.value;
+    const dateRange = semantic.entities.find((e) => e.type === EntityType.DATE_RANGE)?.value;
+    const guestCount = semantic.entities.find((e) => e.type === EntityType.GUEST_COUNT)?.value;
+    const priceRange = semantic.entities.find((e) => e.type === EntityType.PRICE_RANGE)?.value;
 
     let minPrice: number | undefined;
     let maxPrice: number | undefined;
     if (priceRange) {
-      const parts = priceRange.split("-");
+      const parts = (priceRange as string).split("-");
       minPrice = parseInt(parts[0]);
       maxPrice = parts[1] ? parseInt(parts[1]) : undefined;
     }
 
     const searchResult = await this.searchListingUseCase.execute({
-      location,
-      dateRange,
-      guestCount: guestCount ? parseInt(guestCount) : undefined,
+      location: location as string,
+      dateRange: dateRange as string,
+      guestCount: guestCount ? parseInt(guestCount as string) : undefined,
       minPrice,
       maxPrice,
     });

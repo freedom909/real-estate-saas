@@ -7,7 +7,7 @@ import { AgentAction, SemanticContext } from "../../semantic/semantic-context";
 import { BookingEvent } from "@/core/booking/domain/state/booking-event";
 import { BookingState } from "@/core/booking/domain/state/booking-state";
 import { BookingMemory } from "@/wisdom/memory/type/booking.memory";
-import { SemanticEntityType } from "@/wisdom/semantic/semantic.entityType";
+import { EntityType } from "@/wisdom/shared/enums/entity-type.enum";
 
 @injectable()
 export class BookingEventMapper {
@@ -22,11 +22,11 @@ export class BookingEventMapper {
 
                 const hasCheckIn =
                     semantic.entities.some(
-                        e => e.type === SemanticEntityType.CHECK_IN_DATE
+                        e => e.type === EntityType.CHECK_IN_DATE
                     )
                 const hasCheckOut =
                     semantic.entities.some(
-                        e => e.type === SemanticEntityType.CHECK_OUT_DATE
+                        e => e.type === EntityType.CHECK_OUT_DATE
                     );
 
                 if (hasCheckIn && hasCheckOut) {

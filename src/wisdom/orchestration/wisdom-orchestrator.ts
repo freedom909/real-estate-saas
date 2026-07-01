@@ -69,12 +69,21 @@ export class WisdomOrchestrator {
 const knowledge = await this.knowledgeStore.load(memoryContext);
     // ── 1. Semantic extraction ──
     const semantic = await this.semanticExtractor.extract(request);
+    console.log(
+    JSON.stringify(semantic, null, 2)
+    
+);
+console.log("Entities:");
+console.log(semantic.entities);
 
     // ── 2. Reference resolution ──
     const resolvedSemantic = await this.referenceResolver.resolve(
       semantic,
       request.context,
     );
+    console.log(
+    JSON.stringify(resolvedSemantic, null, 2)
+);
     this.normalizeBookingIntent(resolvedSemantic);
 
     // ── 3. Route to agent ──

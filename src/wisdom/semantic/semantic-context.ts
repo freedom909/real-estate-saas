@@ -14,8 +14,6 @@ export interface SemanticAction {
   confidence: number;
 }
 
-
-
 export class SemanticContext {
   constructor(
     public readonly rawInput: string,

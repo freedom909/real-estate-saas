@@ -36,12 +36,15 @@ import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
 
-import TOKENS_MQ from "@/modules/tokens/mq.tokens";
+
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { UserClient } from "@/packages/user-sdk/src/client/user.client";
-import registerMQEventBus from "@/modules/container/mq.register";
+
 import { BookingMQEventBus } from "@/core/booking/interface/events/booking-event-bus";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
+import { registerEventBus } from "@/modules/container/event.bus.register";
+import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
+import { InMemoryEventBus } from "@/shared/eventbus/in-memory-event-bus";
 
 const startApolloServer = async () => {
   try {
@@ -69,10 +72,8 @@ const startApolloServer = async () => {
     const httpServer = http.createServer(app);
 
     // ✅ MQ Initialize (inside startup to catch errors)
-    registerMQEventBus();
-    const eventBus = container.resolve<BookingMQEventBus>(TOKENS_MQ.eventBus);
-    await eventBus.init();
-    console.log("✅ RabbitMQ Event Bus initialized");
+    registerEventBus();
+    console.log("✅ Event Bus initialized");
 
     // ✅ Apollo Server
     const server = new ApolloServer({

@@ -20,6 +20,7 @@ import { AIContext } from "@/wisdom/contracts/ai-context";
 import { GoalUpdatedDelta } from "../../type/cognitiveDelta";
 import { IUserKnowledge } from "../../model/IUserKnowledge";
 import { KnowledgePlugin } from "./knowledge-plugin.interface";
+import { ArtifactType } from "@/wisdom/shared/enums/artifact-type.enum";
 
 @injectable()
 export class GoalPlugin implements KnowledgePlugin {
@@ -53,7 +54,7 @@ export class GoalPlugin implements KnowledgePlugin {
             goalType,
             target: target || undefined,
             status: newStatus,
-            confidence: response.artifacts?.some(a => a.type === "BOOKING") ? 1.0 : semantic.confidence,
+            confidence: response.artifacts?.some(a => a.type === ArtifactType.BOOKING) ? 1.0 : semantic.confidence,
           },
           evidence: `Goal "${goalType}" transitioned: ${existingGoal.status} → ${newStatus}`,
         });

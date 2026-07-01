@@ -41,10 +41,10 @@ export class BookingStateUpdater {
     // Session memory belongs here, not inside the state machine.
     if (artifact.type === "LISTING_SEARCH_RESULT") {
       session.searchResults = artifact.content.listings ?? [];
+      
     }
 
     const transitionEvent = this.toTransitionEvent(artifact);
-
     if (!transitionEvent) {
       return;
     }

@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 
 import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
-import { IEventBus } from "@/shared/eventbus/IEventBus";
+
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
@@ -16,12 +16,15 @@ import { BookingCreatedEvent } from "@/core/booking/domain/events/booking-create
 
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 import { BookingPricingService } from "../../domain/service/booking-pricing.service";
+import { InMemoryEventBus } from "@/shared/eventbus/in-memory-event-bus";
 
 @injectable()
 export class CreateBookingUseCase {
   constructor(
-    @inject(TOKENS_BOOKING.repository.bookingRepository) private repo: IBookingRepository, 
-    @inject(TOKENS_EVENT_BUS.eventBus) private eventBus: IEventBus
+    @inject(TOKENS_BOOKING.repository.bookingRepository) 
+    private repo: IBookingRepository, 
+    @inject(TOKENS_EVENT_BUS.eventBus) 
+    private eventBus: InMemoryEventBus
   ) {}
 
   async execute(input: any) {

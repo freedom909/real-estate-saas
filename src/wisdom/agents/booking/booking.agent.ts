@@ -2,8 +2,8 @@
 
 import { inject, injectable, delay } from "tsyringe";
 import { IDomainAgent } from "../../contracts/agent";
-import { AgentAction, SemanticContext } from "../../semantic/semantic-context";
-import { EntityType } from "../../shared/enums/entity-type.enum";
+import { AgentAction, EntityType, SemanticContext } from "../../semantic/semantic-context";
+
 import { ArtifactType } from "../../shared/enums/artifact-type.enum";
 import { AIContext } from "../../contracts/ai-context";
 import { WisdomResponse } from "../../contracts/response";
@@ -15,7 +15,7 @@ import { CompleteBookingUseCase } from "@/core/booking/application/usecases/comp
 import { GetBookingsForGuestUseCase } from "@/core/booking/application/usecases/getBookingsForGuest.useCase";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
 import { GetLatestBookingForGuestUseCase } from "@/core/booking/application/usecases/getLatestBookingForGuest.useCase";
-import { SemanticEntityType } from "@/wisdom/semantic/semantic.entityType";
+
 
 @injectable()
 export class BookingAgent implements IDomainAgent {
@@ -105,8 +105,8 @@ export class BookingAgent implements IDomainAgent {
       };
     }
 
-    const checkIn = this.extractEntity(semantic, ["check_in", "checkIn", "CHECK_IN", "check_in_date"]);
-    const checkOut = this.extractEntity(semantic, ["check_out", "checkOut", "CHECK_OUT", "check_out_date"]);
+    const checkIn = this.extractEntity(semantic, ["check_in", "checkIn", "CHECK_IN", "check_in_date", "CHECK_IN_DATE"]);
+    const checkOut = this.extractEntity(semantic, ["check_out", "checkOut", "CHECK_OUT", "check_out_date", "CHECK_OUT_DATE"]);
 
     let resolvedCheckIn = checkIn;
     let resolvedCheckOut = checkOut;
@@ -129,14 +129,15 @@ export class BookingAgent implements IDomainAgent {
         domain: semantic.domain as any,
         primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
         summary: `Great choice! You want to book "${listingTitle}". When would you like to check in and check out? Please provide dates like "July 5-10".`,
-        artifacts: [{
-          type: ArtifactType.BOOKING,
-          content: {
-            status: "awaiting_dates",
-            listingId: resolvedListingId,
-            listingTitle,
-          },
-        }],
+        artifacts:[
+        {
+            type: ArtifactType.LISTING_SELECTED,
+            content:{
+                listingId:resolvedListingId,
+                listingTitle,
+            }
+        }
+    ]
       };
     }
 
@@ -156,7 +157,7 @@ export class BookingAgent implements IDomainAgent {
       primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
       summary: `Booking confirmed! Your booking ID is ${result.id}. Check-in: ${resolvedCheckIn}, Check-out: ${resolvedCheckOut}.`,
       artifacts: [{
-        type: ArtifactType.BOOKING,
+        type: ArtifactType.BOOKING_CREATED,
         content: result as unknown as Record<string, unknown>,
       }],
     };
@@ -182,7 +183,7 @@ export class BookingAgent implements IDomainAgent {
       primaryAction: { name: AgentAction.CANCEL_BOOKING, confidence: 0.95 },
       summary: `Booking ${bookingId} has been cancelled.`,
       artifacts: [{
-        type: ArtifactType.BOOKING,
+        type: ArtifactType.BOOKING_CANCELLED,
         content: result as unknown as Record<string, unknown>,
       }],
     };
@@ -208,7 +209,7 @@ export class BookingAgent implements IDomainAgent {
       primaryAction: { name: AgentAction.GET_BOOKING, confidence: 0.95 },
       summary: `Booking ${bookingId}: status=${result.status}.`,
       artifacts: [{
-        type: ArtifactType.BOOKING,
+        type: ArtifactType.BOOKING_GET,
         content: result as unknown as Record<string, unknown>,
       }],
     };
@@ -235,7 +236,7 @@ export class BookingAgent implements IDomainAgent {
       primaryAction: { name: AgentAction.GET_MY_BOOKINGS, confidence: 0.95 },
       summary: `You have ${result.length} booking(s).`,
       artifacts: [{
-        type: ArtifactType.BOOKING,
+        type: ArtifactType.BOOKING_GET,
         content: { bookings: result } as Record<string, unknown>,
       }],
     };
@@ -261,7 +262,7 @@ export class BookingAgent implements IDomainAgent {
       primaryAction: { name: AgentAction.CONFIRM_BOOKING, confidence: 0.95 },
       summary: `Booking ${bookingId} has been confirmed.`,
       artifacts: [{
-        type: ArtifactType.BOOKING,
+        type: ArtifactType.BOOKING_CONFIRMED,
         content: result as unknown as Record<string, unknown>,
       }],
     };
@@ -287,7 +288,7 @@ export class BookingAgent implements IDomainAgent {
       primaryAction: { name: AgentAction.COMPLETE_BOOKING, confidence: 0.95 },
       summary: `Booking ${bookingId} has been completed.`,
       artifacts: [{
-        type: ArtifactType.BOOKING,
+        type: ArtifactType.BOOKING_COMPLETED,
         content: result as unknown as Record<string, unknown>,
       }],
     };
@@ -307,7 +308,9 @@ export class BookingAgent implements IDomainAgent {
       summary: `Found ${searchResult.total} listings.`,
       artifacts: [{
         type: ArtifactType.LISTING_SEARCH_RESULT,
-        content: searchResult as unknown as Record<string, unknown>,
+        content: {
+        listings:[...searchResult.listings]
+      }
       }],
     };
   }
@@ -316,20 +319,20 @@ export class BookingAgent implements IDomainAgent {
 
   private extractBookingId(semantic: SemanticContext, context: AIContext): string | undefined {
     return (
-      semantic.entities.find((e) => e.type === SemanticEntityType.BOOKING)?.value ??
-      context.resources?.bookingId
+      semantic.entities.find((e) => e.type === EntityType.BOOKING || e.type === EntityType.BOOKING_ID)?.value as string ??
+      context.resources?.bookingId as string
     );
   }
 
   private extractListingId(semantic: SemanticContext, context: AIContext): string | undefined {
     return (
-      semantic.entities.find((e) => e.type === SemanticEntityType.LISTING)?.value ??
-      context.resources?.listingId
+      semantic.entities.find((e) => e.type === EntityType.LISTING || e.type === EntityType.LISTING_ID)?.value as string ??
+      context.resources?.listingId as string
     );
   }
 
   private extractEntity(semantic: SemanticContext, types: string[]): string | undefined {
-    return semantic.entities.find((e) => types.includes(e.type))?.value;
+    return semantic.entities.find((e) => types.includes(e.type))?.value as string;
   }
 
   private parseOrdinal(ordinal: string | undefined): number {

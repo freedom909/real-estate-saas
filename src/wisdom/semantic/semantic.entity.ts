@@ -1,9 +1,8 @@
 // src/wisdom/semantic/semantic.entity.ts
+import { EntityType } from "../shared/enums/entity-type.enum";
 
-import { SemanticEntityType } from "./semantic.entityType";
-
-export interface SemanticEntity {
-    type: SemanticEntityType;
-    value: string;
+export interface SemanticEntity<T = unknown> {
+    type: EntityType;
+    value: T;
     confidence: number;
 }

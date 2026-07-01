@@ -14,7 +14,7 @@ export interface BookingData {
 }
 
 @injectable()
-export class BookingMQService {
+export class EventBusService {
   private producer = bookingProducer;
   private initialized = false;
 
