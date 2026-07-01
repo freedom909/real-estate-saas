@@ -3,6 +3,7 @@
 import { AIDomain } from "../shared/enums/domain.enum";
 import { AgentAction } from "../shared/enums/action.enum";
 import { EntityType } from "../shared/enums/entity-type.enum";
+import { SemanticEntity } from "./semantic.entity";
 
 export { AgentAction } from "../shared/enums/action.enum";
 export { EntityType } from "../shared/enums/entity-type.enum";
@@ -13,15 +14,12 @@ export interface SemanticAction {
   confidence: number;
 }
 
-export interface Entity {
-  type: EntityType;
-  value: string;
-}
+
 
 export class SemanticContext {
   constructor(
     public readonly rawInput: string,
-    public readonly entities: Entity[],
+    public readonly entities: SemanticEntity[],
     public readonly action: SemanticAction | null,
     public readonly confidence: number,
     public readonly domain: AIDomain,

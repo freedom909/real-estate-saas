@@ -2,14 +2,15 @@
 
 import { inject, injectable, delay } from "tsyringe";
 import { IDomainAgent } from "../../contracts/agent";
-import { AgentAction, SemanticContext } from "../../semantic/semantic-context";
-import { EntityType } from "../../shared/enums/entity-type.enum";
+import { AgentAction, EntityType, SemanticContext } from "../../semantic/semantic-context";
+
 import { ArtifactType } from "../../shared/enums/artifact-type.enum";
 import { AIContext } from "../../contracts/ai-context";
 import { WisdomResponse } from "../../contracts/response";
 import { GenerateListingAIOptimizationUseCase } from "@/wisdom/agents/listing/generateListingAIOptimization.usecase";
 import GetListingUseCase from "@/core/listing/application/usecase/getListingUseCase";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
+import { SemanticEntityType } from "@/wisdom/semantic/semantic.entityType";
 
 @injectable()
 export class ListingAgent implements IDomainAgent {
@@ -32,7 +33,7 @@ export class ListingAgent implements IDomainAgent {
     }
 
     let listingId = semantic.entities.find(
-      (e) => e.type === EntityType.LISTING_ID,
+      (e) => e.type === SemanticEntityType.LISTING,
     )?.value;
 
     if (!listingId && context.resources?.listingId) {
@@ -91,10 +92,10 @@ export class ListingAgent implements IDomainAgent {
     semantic: SemanticContext,
     action: AgentAction,
   ): Promise<WisdomResponse> {
-    const location = semantic.entities.find((e) => e.type === EntityType.LOCATION)?.value;
-    const dateRange = semantic.entities.find((e) => e.type === EntityType.DATE_RANGE)?.value;
-    const guestCount = semantic.entities.find((e) => e.type === EntityType.GUEST_COUNT)?.value;
-    const priceRange = semantic.entities.find((e) => e.type === EntityType.PRICE_RANGE)?.value;
+    const location = semantic.entities.find((e) => e.type === SemanticEntityType.LOCATION)?.value;
+    const dateRange = semantic.entities.find((e) => e.type === SemanticEntityType.DATE_RANGE)?.value;
+    const guestCount = semantic.entities.find((e) => e.type === SemanticEntityType.GUEST_COUNT)?.value;
+    const priceRange = semantic.entities.find((e) => e.type === SemanticEntityType.PRICE_RANGE)?.value;
 
     let minPrice: number | undefined;
     let maxPrice: number | undefined;

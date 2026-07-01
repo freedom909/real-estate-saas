@@ -75,7 +75,7 @@ ${message}
 
     return new SemanticContext(
       message,
-      entities,
+      [],
       { type: actionType, confidence: result.confidence },
       result.confidence,
       resolvedDomain,

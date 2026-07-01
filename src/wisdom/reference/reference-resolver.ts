@@ -6,6 +6,7 @@ import { SemanticContext } from "../semantic/semantic-context";
 import { EntityType } from "../shared/enums/entity-type.enum";
 import { AIContext } from "../contracts/ai-context";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
+import { SemanticEntityType } from "../semantic/semantic.entityType";
 
 @injectable()
 export class ReferenceResolver implements IReferenceResolver {
@@ -27,7 +28,7 @@ export class ReferenceResolver implements IReferenceResolver {
   )
 );
     const ordinalEntity = semantic.entities.find(
-      (e) => e.type === EntityType.ORDINAL,
+      (e) => e.type === SemanticEntityType.ORDINAL,
     );
 
     if (!ordinalEntity) {
@@ -69,8 +70,9 @@ export class ReferenceResolver implements IReferenceResolver {
       semantic.entities
     );
     semantic.entities.push({
-      type: EntityType.LISTING_ID,
+      type: SemanticEntityType.LISTING, 
       value: target.id,
+      confidence: 1,
     });
   }
 }

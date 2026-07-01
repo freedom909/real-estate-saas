@@ -15,6 +15,7 @@ import { CompleteBookingUseCase } from "@/core/booking/application/usecases/comp
 import { GetBookingsForGuestUseCase } from "@/core/booking/application/usecases/getBookingsForGuest.useCase";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
 import { GetLatestBookingForGuestUseCase } from "@/core/booking/application/usecases/getLatestBookingForGuest.useCase";
+import { SemanticEntityType } from "@/wisdom/semantic/semantic.entityType";
 
 @injectable()
 export class BookingAgent implements IDomainAgent {
@@ -315,14 +316,14 @@ export class BookingAgent implements IDomainAgent {
 
   private extractBookingId(semantic: SemanticContext, context: AIContext): string | undefined {
     return (
-      semantic.entities.find((e) => e.type === EntityType.BOOKING_ID)?.value ??
+      semantic.entities.find((e) => e.type === SemanticEntityType.BOOKING)?.value ??
       context.resources?.bookingId
     );
   }
 
   private extractListingId(semantic: SemanticContext, context: AIContext): string | undefined {
     return (
-      semantic.entities.find((e) => e.type === EntityType.LISTING_ID)?.value ??
+      semantic.entities.find((e) => e.type === SemanticEntityType.LISTING)?.value ??
       context.resources?.listingId
     );
   }

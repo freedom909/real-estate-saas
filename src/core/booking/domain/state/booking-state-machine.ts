@@ -31,9 +31,20 @@ export class BookingStateMachine {
         booking.status = BookingState.READY_TO_BOOK;
         return booking;
     
-
     case BookingEvent.CONFIRM:
-      booking.status = BookingState.BOOKING_PENDING;
+          if (
+        booking.checkInDate &&
+        booking.checkOutDate &&
+        booking.guestCount
+    ) {
+        booking.status = BookingState.BOOKING_PENDING;
+      return booking;
+    }
+
+    case BookingEvent.CANCEL:
+      booking.status = BookingState.CANCELLED;
+      return booking;
+    default:
       return booking;
     }
   }

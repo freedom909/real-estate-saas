@@ -60,62 +60,53 @@ export class BookingStateUpdater {
   /**
    * Convert Wisdom artifacts into Booking domain events.
    */
-  private toTransitionEvent(
-    artifact: MemoryArtifact,
-  ): BookingTransitionEvent | null {
+private toTransitionEvent(artifact: MemoryArtifact): BookingTransitionEvent | null {
+
     switch (artifact.type) {
-      case "LISTING_SEARCH_RESULT":
-        return {
-          type: BookingEvent.SELECT_LISTING,
-          payload: artifact.content.listings?.[0],
-        };
 
-      case "SET_DATES":
-        return {
-          type: BookingEvent.SET_DATES,
-          payload: {
-            checkInDate: artifact.content.checkInDate,
-            checkOutDate: artifact.content.checkOutDate,
-          },
-        };
+        case "LISTING_SEARCH_RESULT":
+            return {
+                type: BookingEvent.SELECT_LISTING,
+                payload: artifact.content.listings?.[0],
+            };
 
-      case "SET_GUEST_COUNT":
-        return {
-          type: BookingEvent.SET_GUEST_COUNT,
-          payload: {
-            guestCount: artifact.content.guestCount,
-          },
-        };
+        case "DATES_SELECTED":
+            return {
+                type: BookingEvent.SET_DATES,
+                payload: artifact.content,
+            };
 
-      case "SET_CONTACT":
-        return {
-          type: BookingEvent.SET_CONTACT,
-          payload: {
-            contactName: artifact.content.contactName,
-          },
-        };
+        case "GUEST_COUNT_SELECTED":
+            return {
+                type: BookingEvent.SET_GUEST_COUNT,
+                payload: artifact.content,
+            };
 
-      case "SET_SPECIAL_REQUESTS":
-        return {
-          type: BookingEvent.SET_SPECIAL_REQUESTS,
-          payload: {
-            specialRequests: artifact.content.specialRequests,
-          },
-        };
+        case "CONTACT_SET":
+            return {
+                type: BookingEvent.SET_CONTACT,
+                payload: artifact.content,
+            };
 
-      case "BOOKING":
-        return {
-          type: BookingEvent.CONFIRM,
-          payload: artifact.content,
-        };
+        case "SPECIAL_REQUEST_SET":
+            return {
+                type: BookingEvent.SET_SPECIAL_REQUESTS,
+                payload: artifact.content,
+            };
 
-      case "BOOKING_CANCELLED":
-        return {
-          type: BookingEvent.CANCEL,
-        };
+        case "BOOKING_CREATED":
+            return {
+                type: BookingEvent.CONFIRM,
+                payload: artifact.content,
+            };
 
-      default:
-        return null;
+        case "BOOKING_CANCELLED":
+            return {
+                type: BookingEvent.CANCEL,
+            };
+
+        default:
+            return null;
     }
-  }
+}
 }
