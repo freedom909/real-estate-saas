@@ -93,7 +93,9 @@ export class ListingAgent implements IDomainAgent {
     action: AgentAction,
   ): Promise<WisdomResponse> {
     const location = semantic.entities.find((e) => e.type === EntityType.LOCATION)?.value;
-    const dateRange = semantic.entities.find((e) => e.type === EntityType.DATE_RANGE)?.value;
+    const checkIn = semantic.entities.find((e) => e.type === EntityType.CHECK_IN_DATE)?.value;
+    const checkOut = semantic.entities.find((e) => e.type === EntityType.CHECK_OUT_DATE)?.value;
+    const dateRange = checkIn && checkOut ? `${checkIn} to ${checkOut}` : undefined;
     const guestCount = semantic.entities.find((e) => e.type === EntityType.GUEST_COUNT)?.value;
     const priceRange = semantic.entities.find((e) => e.type === EntityType.PRICE_RANGE)?.value;
 
@@ -112,7 +114,7 @@ export class ListingAgent implements IDomainAgent {
       minPrice,
       maxPrice,
     });
-
+console.log("searchResult++:", searchResult);
     return {
       success: true,
       domain: semantic.domain as any,

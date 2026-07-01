@@ -12,6 +12,12 @@ import { SemanticExtractor } from "../../semantic/semantic-extractor";
 import { RuleExtractor } from "../../semantic/extractors/rule.extractor";
 import { MessageRuleExtractor } from "../../semantic/extractors/message-rule.extractor";
 import { LLMExtractor } from "../../semantic/extractors/llm.extractor";
+import { IntentExtractor } from "../../semantic/extractors/intent.extractor";
+import { DateExtractor } from "../../semantic/extractors/date.extractor";
+import { LocationExtractor } from "../../semantic/extractors/location.extractor";
+import { BookingIdExtractor } from "../../semantic/extractors/booking-id.extractor";
+import { ListingExtractor } from "../../semantic/extractors/listing.extractor";
+import { GuestExtractor } from "../../semantic/extractors/guest.extractor";
 
 // Reference
 import { ReferenceResolver } from "../../reference/reference-resolver";
@@ -68,6 +74,12 @@ export function registerWisdom() {
   container.register(WISDOM_TOKENS.extractors.ruleExtractor, { useClass: RuleExtractor });
   container.register(WISDOM_TOKENS.extractors.messageRuleExtractor, { useClass: MessageRuleExtractor });
   container.register(WISDOM_TOKENS.extractors.llmExtractor, { useClass: LLMExtractor });
+  container.register(WISDOM_TOKENS.extractors.intentExtractor, { useClass: IntentExtractor });
+  container.register(WISDOM_TOKENS.extractors.dateExtractor, { useClass: DateExtractor });
+  container.register(WISDOM_TOKENS.extractors.locationExtractor, { useClass: LocationExtractor });
+  container.register(WISDOM_TOKENS.extractors.bookingIdExtractor, { useClass: BookingIdExtractor });
+  container.register(WISDOM_TOKENS.extractors.listingExtractor, { useClass: ListingExtractor });
+  container.register(WISDOM_TOKENS.extractors.guestExtractor, { useClass: GuestExtractor });
 
   // Semantic
   container.register(WISDOM_TOKENS.semanticExtractor, { useClass: SemanticExtractor });

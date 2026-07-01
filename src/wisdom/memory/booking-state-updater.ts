@@ -37,11 +37,14 @@ export class BookingStateUpdater {
         status: BookingState.AWAITING_LISTING,
       };
     }
-
+console.log(
+    "ARTIFACT",
+    JSON.stringify(artifact, null, 2)
+);
     // Session memory belongs here, not inside the state machine.
     if (artifact.type === "LISTING_SEARCH_RESULT") {
       session.searchResults = artifact.content.listings ?? [];
-      
+      console.log("session.searchResults++", session.searchResults);//it is [], how to do
     }
 
     const transitionEvent = this.toTransitionEvent(artifact);

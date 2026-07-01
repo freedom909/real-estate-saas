@@ -42,7 +42,7 @@ export class MessageRuleExtractor {
 
   extractEntities(message: string): SemanticEntity[] {
     return [
-      ...this.extractDateRange(message),
+      // ...this.extractDateRange(message),
       ...this.extractGuestCount(message),
       ...this.extractContactName(message),
       ...this.extractSpecialRequest(message),
@@ -121,18 +121,41 @@ export class MessageRuleExtractor {
   // Private extractors — each owns one entity type
   // =========================================================================
 
-  /** "from 7-15 to 7-18" → CHECK_IN_DATE + CHECK_OUT_DATE */
-  private extractDateRange(message: string): SemanticEntity[] {
-    const match = message.match(
-      /from\s+(\d{1,2}-\d{1,2})\s+to\s+(\d{1,2}-\d{1,2})/i,
-    );
-    if (!match) return [];
+  /** "from 7-15 to 7-18", "from July 7 to July 10", "from 7/15 to 7/18" → CHECK_IN_DATE + CHECK_OUT_DATE */
+  // private extractDateRange(message: string): SemanticEntity[] {
+  //   // Pattern 1: "from M-D to M-D" or "from M/D to M/D" (numeric)
+  //   const numericMatch = message.match(
+  //     /from\s+(\d{1,2}[-/]\d{1,2})\s+to\s+(\d{1,2}[-/]\d{1,2})/i,
+  //   );
+  //   if (numericMatch) {
+  //     return [
+  //       { type: EntityType.CHECK_IN_DATE, value: numericMatch[1], confidence: 0.95 },
+  //       { type: EntityType.CHECK_OUT_DATE, value: numericMatch[2], confidence: 0.95 },
+  //     ];
+  //   }
 
-    return [
-      { type: EntityType.CHECK_IN_DATE, value: match[1], confidence: 0.95 },
-      { type: EntityType.CHECK_OUT_DATE, value: match[2], confidence: 0.95 },
-    ];
-  }
+  //   // Pattern 2: "from MonthName Day to MonthName Day" (e.g. "from July 7 to July 10")
+  //   const monthMatch = message.match(
+  //     /from\s+([A-Za-z]+)\s+(\d{1,2})\s+to\s+([A-Za-z]+)\s+(\d{1,2})/i,
+  //   );
+  //   if (monthMatch) {
+  //     const monthMap: Record<string, string> = {
+  //       january: "01", february: "02", march: "03", april: "04",
+  //       may: "05", june: "06", july: "07", august: "08",
+  //       september: "09", october: "10", november: "11", december: "12",
+  //     };
+  //     const inMonth = monthMap[monthMatch[1].toLowerCase()] ?? monthMatch[1];
+  //     const outMonth = monthMap[monthMatch[3].toLowerCase()] ?? monthMatch[3];
+  //     const inDay = monthMatch[2].padStart(2, "0");
+  //     const outDay = monthMatch[4].padStart(2, "0");
+  //     return [
+  //       { type: EntityType.CHECK_IN_DATE, value: `${inMonth}-${inDay}`, confidence: 0.95 },
+  //       { type: EntityType.CHECK_OUT_DATE, value: `${outMonth}-${outDay}`, confidence: 0.95 },
+  //     ];
+  //   }
+
+  //   return [];
+  // }
 
   /** "2 guests", "3 people" → GUEST_COUNT */
   private extractGuestCount(message: string): SemanticEntity[] {

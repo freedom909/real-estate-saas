@@ -18,8 +18,11 @@ export class SearchListingUseCase {
     "🔍 SEARCH PARAMS",
     JSON.stringify(query, null, 2)
   );
-
-
+  console.log(
+    "🔍 SEARCH RESULTS",
+    JSON.stringify(listings, null, 2)
+  );
+    
     return {
       listings: listings.map(l => ({
         id: l.id,

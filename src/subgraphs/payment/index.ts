@@ -31,14 +31,16 @@ import  resolvers  from "./payment.resolver";
 import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 
-import TOKENS_MQ from "@/modules/tokens/mq.tokens";
+
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { UserClient } from "@/packages/user-sdk/src/client/user.client";
-import registerMQEventBus from "@/modules/container/mq.register";
+
 import { PaymentRegister } from "@/modules/container/payment.register";
 import { BookingMQEventBus } from "@/core/booking/interface/events/booking-event-bus";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
+import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
+import { registerEventBus } from "@/modules/container/event.bus.register";
 
 
 const startApolloServer = async () => {
@@ -65,9 +67,8 @@ const startApolloServer = async () => {
 
     // ✅ MQ Initialize (inside startup to catch errors)
     PaymentRegister();
-    registerMQEventBus();
-    const eventBus = container.resolve<BookingMQEventBus>(TOKENS_MQ.eventBus);
-    await eventBus.init();
+    registerEventBus();
+ 
     console.log("✅ RabbitMQ Event Bus initialized");
 
     // ✅ Apollo Server

@@ -8,6 +8,12 @@ export const WISDOM_TOKENS = {
     ruleExtractor: Symbol.for("wisdom.ruleExtractor"),
     messageRuleExtractor: Symbol.for("wisdom.messageRuleExtractor"),
     llmExtractor: Symbol.for("wisdom.llmExtractor"),
+    intentExtractor: Symbol.for("wisdom.intentExtractor"),
+    dateExtractor: Symbol.for("wisdom.dateExtractor"),
+    locationExtractor: Symbol.for("wisdom.locationExtractor"),
+    bookingIdExtractor: Symbol.for("wisdom.bookingIdExtractor"),
+    listingExtractor: Symbol.for("wisdom.listingExtractor"),
+    guestExtractor: Symbol.for("wisdom.guestExtractor"),
   },
 
   // Reference

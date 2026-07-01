@@ -10,6 +10,7 @@ import { IOpenAITool } from "@/wisdom/tools/IOpenAI.tool";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { WisdomRequest } from "../../contracts/request";
 import { SemanticSchema } from "@/wisdom/schemas/semantic.schema";
+import { SemanticEntity } from "../semantic.entity";
 
 @injectable()
 export class LLMExtractor {
@@ -53,35 +54,44 @@ ${message}
     const raw = typeof response === "string" ? response : JSON.stringify(response);
     const cleaned = raw.replace(/```json/g, "").replace(/```/g, "").trim();
 
+    
     let parsed: any;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch {
-      return new SemanticContext(message, [], null, 0, AIDomain.GENERAL, false);
-    }
+   let result;
 
-    const result = SemanticSchema.parse(parsed);
-
-    const entities = (result.entities ?? []).map((e: any) => ({
-      type: this.mapEntityType(e.type),
-      value: String(e.value),
-    }));
-
-    const actionType = this.mapAction(result.primaryAction);
-    const domain = this.mapDomain(result.domain);
-
-    // Fix domain if action implies a different domain
-    const resolvedDomain = this.resolveDomainFromAction(actionType, domain);
-
+try {
+    const parsed = JSON.parse(cleaned);
+    result = SemanticSchema.parse(parsed);
+} catch {
     return new SemanticContext(
-      message,
-      [],
-      { type: actionType, confidence: result.confidence },
-      result.confidence,
-      resolvedDomain,
-      false,
+        message,
+        [],
+        null,
+        0,
+        AIDomain.GENERAL,
+        false,
     );
-  }
+}
+
+const entities: SemanticEntity[] = (result.entities ?? []).map((e: any) => ({
+    type: this.mapEntityType(e.type),
+    value: String(e.value),
+    confidence: e.confidence ?? result.confidence ?? 0.9,
+}));
+
+return new SemanticContext(
+    message,
+    entities,
+    {
+        type: this.mapAction(result.primaryAction),
+        confidence: result.confidence,
+    },
+    result.confidence,
+    this.resolveDomainFromAction(
+        this.mapAction(result.primaryAction),
+        this.mapDomain(result.domain),
+    ),
+    false,
+)}
 
   private mapEntityType(type: string): EntityType {
     const map: Record<string, EntityType> = {
