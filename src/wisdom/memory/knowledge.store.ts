@@ -58,13 +58,27 @@ export class KnowledgeStore implements IKnowledgeStore {
    */
   async persist(ctx: MemoryContext, deltas: KnowledgeDelta[]): Promise<void> {
     if (deltas.length === 0) return;
-
+      console.log(
+        JSON.stringify(deltas, null, 2)
+      );
     const existing = await this.longTermStore.get(ctx.userId);
+    console.log(
+      JSON.stringify(existing, null, 2)
+    );
     const knowledge: IUserKnowledge = existing?.knowledge ?? { ...EMPTY_KNOWLEDGE };
-
+    console.log(
+      JSON.stringify(knowledge, null, 2)
+    );
+    
     for (const delta of deltas) {
+      console.log(
+        JSON.stringify(delta, null, 2)
+      );
       const handler = this.handlers.get(delta.kind);
       if (handler) {
+        console.log(
+          JSON.stringify(handler, null, 2)
+        );
         handler.apply(knowledge, delta.data);
       }
       // Unknown delta kinds are silently ignored (forward-compatible)

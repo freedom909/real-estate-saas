@@ -1,8 +1,9 @@
 // FILE: src/subgraphs/order/interface/resolvers/order.resolver.ts
 
 import { container } from 'tsyringe';
-import { CreateOrderUseCase } from '../../application/usecases/create-order.usecase';
-import { ConfirmOrderUseCase } from '../../application/usecases/confirm-order.usecase';
+import { CreateOrderUseCase } from '../../application/use-cases/create-order.use-case';
+import { ConfirmOrderUseCase } from '../../application/use-cases/confirm-order.use-case';
+
 
 export const resolvers = {
   Query: {

@@ -90,9 +90,7 @@ const suggestion =
     seo: parsed.seo,
     tips: parsed.tips,
   });
-
     await this.aiSuggestionRepo.save(suggestion);
-
     return result;
   }
 }

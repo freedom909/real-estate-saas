@@ -26,4 +26,5 @@ export enum AgentAction {
   
   // General
   GENERAL = "GENERAL",
+  GET_LATEST_BOOKING = "GET_LATEST_BOOKING",
 }

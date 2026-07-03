@@ -70,6 +70,10 @@ export interface BookingDraft {
 }
 
 export interface ResourceContext {
+  guestCount: number;
+  checkOut: string;
+  checkIn: string;
+  location: string;
   listingId?: string;
   bookingId?: string;
   reviewId?: string;

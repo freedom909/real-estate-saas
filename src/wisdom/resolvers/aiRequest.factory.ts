@@ -43,9 +43,12 @@ export class AIRequestFactory {
   // ====================================================
 
   private fromGraphQL(payload: any): AIRequest {
+    const user = payload.identity?.user;
+    const userId = user?.userId ?? "anonymous";
+
     const memoryContext: MemoryContext = {
-      userId: payload.identity.user.userId,
-      sessionId: payload.runtime.session.id,
+      userId,
+      sessionId: payload.runtime?.session?.id ?? "default",
       session: {},
     };
 
@@ -58,19 +61,21 @@ export class AIRequestFactory {
 
       context: {
         identity: {
-          user: {
-            id: payload.identity.user.userId,
-            email: payload.identity.user.email,
-            role: payload.identity.user.role,
-          },
-          tenant: payload.identity.tenant,
+          user: user
+            ? {
+                id: user.userId,
+                email: user.email,
+                role: user.role,
+              }
+            : undefined,
+          tenant: payload.identity?.tenant,
         },
 
         runtime: {
           source: "web",
-          locale: payload.runtime.locale,
-          timezone: payload.runtime.timezone,
-          sessionId: payload.runtime.session.id,
+          locale: payload.runtime?.locale,
+          timezone: payload.runtime?.timezone,
+          sessionId: payload.runtime?.session?.id ?? "default",
         },
 
         resources: {
@@ -92,9 +97,12 @@ export class AIRequestFactory {
   // ====================================================
 
   private fromMobile(payload: any): AIRequest {
+    const user = payload.identity?.user;
+    const userId = user?.userId ?? "anonymous";
+
     const memoryContext: MemoryContext = {
-      userId: payload.identity.user.userId,
-      sessionId: payload.runtime.session.id,
+      userId,
+      sessionId: payload.runtime?.session?.id ?? "default",
       session: {},
     };
 
@@ -105,15 +113,15 @@ export class AIRequestFactory {
 
       context: {
         identity: {
-          user: payload.identity.user,
-          tenant: payload.identity.tenant,
+          user: user,
+          tenant: payload.identity?.tenant,
         },
 
         runtime: {
           source: "mobile",
-          locale: payload.runtime.locale,
-          timezone: payload.runtime.timezone,
-          sessionId: payload.runtime.session.id,
+          locale: payload.runtime?.locale,
+          timezone: payload.runtime?.timezone,
+          sessionId: payload.runtime?.session?.id ?? "default",
 
           device: {
             type: "mobile",
@@ -144,9 +152,12 @@ export class AIRequestFactory {
   // ====================================================
 
   private fromVoice(payload: any): AIRequest {
+    const user = payload.identity?.user;
+    const userId = user?.userId ?? "anonymous";
+
     const memoryContext: MemoryContext = {
-      userId: payload.identity.user.userId,
-      sessionId: payload.runtime.session.id,
+      userId,
+      sessionId: payload.runtime?.session?.id ?? "default",
       session: {},
     };
 
@@ -159,9 +170,11 @@ export class AIRequestFactory {
 
       context: {
         identity: {
-          user: {
-            id: payload.userId,
-          },
+          user: user
+            ? {
+                id: user.userId,
+              }
+            : undefined,
           tenant: payload.tenant,
         },
 
@@ -170,7 +183,7 @@ export class AIRequestFactory {
           locale: payload.locale,
           timezone: payload.timezone,
 
-          sessionId: payload.runtime.session.id,
+          sessionId: payload.runtime?.session?.id ?? "default",
 
           device: {
             type: "voice",

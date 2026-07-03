@@ -2,10 +2,8 @@
 
 import { AIDomain } from "../shared/enums/domain.enum";
 import { AgentAction } from "../shared/enums/action.enum";
-import { EntityType } from "../shared/enums/entity-type.enum";
-import { SemanticEntity } from "./semantic.entity";
 
-export { AgentAction } from "../shared/enums/action.enum";
+import { SemanticEntity } from "./semantic.entity";
 export { EntityType } from "../shared/enums/entity-type.enum";
 export { AIDomain } from "../shared/enums/domain.enum";
 

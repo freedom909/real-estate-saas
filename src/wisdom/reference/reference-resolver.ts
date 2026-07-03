@@ -13,7 +13,7 @@ export class ReferenceResolver implements IReferenceResolver {
   constructor(
     @inject(delay(() => SearchListingUseCase))
     private searchListingUseCase: SearchListingUseCase,
-  ) { }
+  ) {}
 
   async resolve(
     semantic: SemanticContext,
@@ -38,7 +38,7 @@ export class ReferenceResolver implements IReferenceResolver {
     // Auto-search if no results exist yet
     if (!context.resources.searchResults || context.resources.searchResults.length === 0) {
       try {
-        const searchResult = await this.searchListingUseCase.execute({});
+        const searchResult = await this.searchListingUseCase.execute({location: context.resources.location,checkIn: context.resources.checkIn,checkOut: context.resources.checkOut,guestCount: context.resources.guestCount});
         context.resources.searchResults = searchResult.listings;
       } catch {
         return semantic;

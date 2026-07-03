@@ -62,7 +62,17 @@ import { MemoryStore } from "@/wisdom/memory/memory.store";
 import { MemoryManager } from "@/wisdom/memory/memoryManager";
 import { LongTermStore } from "@/wisdom/memory/infra/long-term/long-term.store";
 import { MemorySessionStore } from "@/wisdom/memory/session/session-memory.store";
+import { WisdomPipeline } from "@/wisdom/orchestration/wisdom.pipeline";
 
+import { ResponseStage } from "@/wisdom/orchestration/stage/response.stage";
+import { RoutingStage } from "@/wisdom/orchestration/stage/routing.stage";
+import { WisdomPipelineContext } from "@/wisdom/orchestration/wisdom-pipeline.context";
+import { ExecutionStage } from "@/wisdom/orchestration/stage/execution.stage";
+import { SemanticStage } from "@/wisdom/orchestration/stage/semantic.stage";
+import { NormalizeIntentStage } from "@/wisdom/orchestration/stage/normalizeIntent.stage";
+import { KnowledgeStage } from "@/wisdom/orchestration/stage/knowledge.stage";
+import { SummaryStage } from "@/wisdom/orchestration/stage/summary.stage";
+import { ReferenceStage } from "@/wisdom/orchestration/stage/reference.stage";
 
 export function registerWisdom() {
   // Infrastructure — OpenAI adapter (used by LLMExtractor and as LLM provider)
@@ -83,13 +93,35 @@ export function registerWisdom() {
 
   // Semantic
   container.register(WISDOM_TOKENS.semanticExtractor, { useClass: SemanticExtractor });
+  
 
   // Reference
   container.register(WISDOM_TOKENS.referenceResolver, { useClass: ReferenceResolver });
+  container.register(WISDOM_TOKENS.referenceStage, { useClass: ReferenceStage });
 
+  //Execution
+   container.register(WISDOM_TOKENS.executionStage, { useClass: ExecutionStage });
+
+  //Response
+//  container.register(WISDOM_TOKENS.response, { useClass: ResponseContext });// not found
+ 
+//   //RoutingScheduler
+//   container.register(WISDOM_TOKENS.routingScheduler, { useClass: RoutingScheduler });// not found
+
+//stage
+  container.register(WISDOM_TOKENS.semanticStage, { useClass: SemanticStage });
+  container.register(WISDOM_TOKENS.routingStage, { useClass: RoutingStage });
+    //ResponseStage
+  container.register(WISDOM_TOKENS.responseStage, { useClass: ResponseStage });
   // Routing
   container.register(WISDOM_TOKENS.router, { useClass: AgentRouter });
-
+  container.register(WISDOM_TOKENS.executionStage, { useClass: ExecutionStage });
+  container.register(WISDOM_TOKENS.normalizeIntentStage, { useClass: NormalizeIntentStage });
+  container.register(WISDOM_TOKENS.knowledgeStage, { useClass: KnowledgeStage });
+  container.register(WISDOM_TOKENS.summaryStage, { useClass: SummaryStage });
+  //Resolver
+container.register(WISDOM_TOKENS.referenceResolver, { useClass: ReferenceResolver });
+ 
   // Agents
   container.register(WISDOM_TOKENS.agents.listingAgent, { useClass: ListingAgent });
   container.register(WISDOM_TOKENS.agents.bookingAgent, { useClass: BookingAgent });
@@ -114,6 +146,9 @@ export function registerWisdom() {
   container.register(WISDOM_TOKENS.memory.conversationBuffer, { useClass: ConversationBuffer });
   container.register(WISDOM_TOKENS.memory.summaryAgent, { useClass: SummaryAgent });
   container.register(WISDOM_TOKENS.memory.summaryScheduler, { useClass: SummaryScheduler });
+ 
+  container.register(WISDOM_TOKENS.pipeline, { useClass: WisdomPipeline });
+ 
   console.log("  ✅ Summary pipeline registered (Buffer, Agent, Scheduler)");
 
   // Memory
@@ -124,7 +159,7 @@ export function registerWisdom() {
   container.register(WISDOM_TOKENS.memory.knowledgeStore, { useClass: KnowledgeStore });
   container.register(WISDOM_TOKENS.memory.longTermStore, { useClass: LongTermStore });
   container.registerSingleton(WISDOM_TOKENS.memory.sessionStore, MemorySessionStore);
-
+ 
   // Orchestration
   container.register(WISDOM_TOKENS.orchestrator, { useClass: WisdomOrchestrator });
 

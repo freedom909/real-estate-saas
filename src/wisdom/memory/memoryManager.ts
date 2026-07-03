@@ -24,6 +24,7 @@ export class MemoryManager {
 
   async load(userId: string) {
     const session = await this.sessionStore.get(userId);
+    console.log("session+++", session);
     const longTerm = await this.longTermStore.get(userId);
     const semantic = await this.vectorStore.search({
       userId,
@@ -67,5 +68,6 @@ export class MemoryManager {
     }
 
     await this.sessionStore.set(userId, session);
+    console.log("session+++++", session);
   }
 }

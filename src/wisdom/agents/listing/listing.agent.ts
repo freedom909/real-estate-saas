@@ -2,7 +2,7 @@
 
 import { inject, injectable, delay } from "tsyringe";
 import { IDomainAgent } from "../../contracts/agent";
-import { AgentAction, EntityType, SemanticContext } from "../../semantic/semantic-context";
+import { EntityType, SemanticContext } from "../../semantic/semantic-context";
 
 import { ArtifactType } from "../../shared/enums/artifact-type.enum";
 import { AIContext } from "../../contracts/ai-context";
@@ -10,6 +10,7 @@ import { WisdomResponse } from "../../contracts/response";
 import { GenerateListingAIOptimizationUseCase } from "@/wisdom/agents/listing/generateListingAIOptimization.usecase";
 import GetListingUseCase from "@/core/listing/application/usecase/getListingUseCase";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
+import { AgentAction } from "@/wisdom/shared/enums/action.enum";
 
 
 @injectable()

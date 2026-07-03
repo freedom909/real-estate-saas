@@ -11,12 +11,12 @@ export class SearchListingUseCase {
     private readonly repo: IListingRepository
   ) {}
 
-  async execute(query: SearchListingsQuery) {
+  async execute({location,checkIn,checkOut,guestCount}: SearchListingsQuery) {
     
-    const listings = await this.repo.search(query);
+    const listings = await this.repo.search({location,checkIn,checkOut,guestCount});
   console.log(
     "🔍 SEARCH PARAMS",
-    JSON.stringify(query, null, 2)
+    JSON.stringify({location,checkIn,checkOut,guestCount}, null, 2)
   );
   console.log(
     "🔍 SEARCH RESULTS",

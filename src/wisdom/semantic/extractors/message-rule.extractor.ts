@@ -6,10 +6,11 @@
 //   extract(message)          → SemanticContext | null       (orchestrator — calls above two)
 
 import { injectable } from "tsyringe";
-import { AgentAction, SemanticContext } from "../semantic-context";
+import {  SemanticContext } from "../semantic-context";
 import { EntityType } from "../../shared/enums/entity-type.enum";
 import { AIDomain } from "../../shared/enums/domain.enum";
 import { SemanticEntity } from "../semantic.entity";
+import { AgentAction } from "@/wisdom/shared/enums/action.enum";
 
 // ── Constants ───────────────────────────────────────────────────────────────
 

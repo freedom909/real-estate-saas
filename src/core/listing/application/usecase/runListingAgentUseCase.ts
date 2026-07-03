@@ -2,8 +2,9 @@
 
 import { inject, injectable } from "tsyringe";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
-import { ListingOptimizationAgent } from "../agents/listingOptimizationAgent";
+
 import { ListingAIContext } from "../../domain/entities/listingAI.context";
+import { ListingOptimizationAgent } from "@/wisdom/agents/listing/listingOptimization.agent";
 
 
 @injectable()

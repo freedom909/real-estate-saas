@@ -34,6 +34,7 @@ export interface ListingSummary {
     address: string;
     price: number;
     numOfGuests: number;
+    response: string;
 }
 
 export interface KnowledgeSnapshot {

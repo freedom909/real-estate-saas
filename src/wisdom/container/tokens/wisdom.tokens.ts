@@ -1,8 +1,20 @@
 // src/wisdom/container/tokens/wisdom.tokens.ts
 
+import { KnowledgeStage } from "@/wisdom/orchestration/stage/knowledge.stage";
+
 export const WISDOM_TOKENS = {
   // Semantic
   semanticExtractor: Symbol.for("wisdom.semanticExtractor"),
+  semanticParser: Symbol.for("wisdom.semanticParser"),
+  semanticStage: Symbol.for("wisdom.semanticStage"),
+  normalizeIntentStage: Symbol.for("wisdom.normalizeIntentStage"),
+  executionStage: Symbol.for("wisdom.executionStage"),
+  responseStage: Symbol.for("wisdom.responseStage"),
+  routingStage: Symbol.for("wisdom.routingStage"),
+  routingScheduler: Symbol.for("wisdom.routingScheduler"),
+  knowledgeStage: Symbol.for("wisdom.knowledgeStage"),
+  summaryStage: Symbol.for("wisdom.summaryStage"),
+ 
 
   extractors: {
     ruleExtractor: Symbol.for("wisdom.ruleExtractor"),
@@ -15,10 +27,18 @@ export const WISDOM_TOKENS = {
     listingExtractor: Symbol.for("wisdom.listingExtractor"),
     guestExtractor: Symbol.for("wisdom.guestExtractor"),
   },
-
+  // Pipeline
+  pipeline: Symbol.for("wisdom.pipeline"),
+  pipelineStage: Symbol.for("PipelineStage"),
+  pipelineContext: Symbol.for("PipelineContext"),
   // Reference
   referenceResolver: Symbol.for("wisdom.referenceResolver"),
+  //Execution
+ 
+//ResponseStage
+ 
 
+  response: Symbol.for("wisdom.ctx.response"),
   // Routing
   router: Symbol.for("wisdom.router"),
 
@@ -28,6 +48,8 @@ export const WISDOM_TOKENS = {
     bookingAgent: Symbol.for("wisdom.bookingAgent"),
     generalAgent: Symbol.for("wisdom.generalAgent"),
   },
+
+  referenceStage: Symbol.for("wisdom.referenceStage"),
 
   // Memory
   memory: {

@@ -25,6 +25,7 @@ import getUserFromToken from "@/infrastructure/auth/getUserFromToken"
 import { sequelize, connectMySQL } from "@/infrastructure/config/seq"
 import { initBookingModel } from "@/core/booking/infrastructure/models/booking.model"
 import { registerWisdom } from "./container/registrations/wisdom.register"
+
 import { registerEventBus } from "@/modules/container/event.bus.register"
 
 // ⭐ 注册 DI

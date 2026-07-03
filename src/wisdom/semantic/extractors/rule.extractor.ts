@@ -1,10 +1,11 @@
 // src/wisdom/semantic/extractors/rule.extractor.ts
 
 import { injectable } from "tsyringe";
-import { AgentAction, SemanticContext } from "../semantic-context";
+import {  SemanticContext } from "../semantic-context";
 import { EntityType } from "../../shared/enums/entity-type.enum";
 import { AIDomain } from "../../shared/enums/domain.enum";
 import { WisdomRequest } from "../../contracts/request";
+import { AgentAction } from "@/wisdom/shared/enums/action.enum";
 
 const UUID_REGEX =
   /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;

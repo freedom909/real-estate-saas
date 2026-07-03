@@ -2,7 +2,8 @@
 
 import { inject, injectable, delay } from "tsyringe";
 import { IDomainAgent } from "../../contracts/agent";
-import { AgentAction, EntityType, SemanticContext } from "../../semantic/semantic-context";
+import { EntityType, SemanticContext } from "../../semantic/semantic-context";
+import { AgentAction } from "@/wisdom/shared/enums/action.enum";
 
 import { ArtifactType } from "../../shared/enums/artifact-type.enum";
 import { AIContext } from "../../contracts/ai-context";
@@ -13,7 +14,7 @@ import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booki
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
 import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
 import { GetBookingsForGuestUseCase } from "@/core/booking/application/usecases/getBookingsForGuest.useCase";
-import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
+
 import { GetLatestBookingForGuestUseCase } from "@/core/booking/application/usecases/getLatestBookingForGuest.useCase";
 
 
@@ -32,10 +33,9 @@ export class BookingAgent implements IDomainAgent {
     private completeBookingUseCase: CompleteBookingUseCase,
     @inject(delay(() => GetBookingsForGuestUseCase))
     private getBookingsForGuestUseCase: GetBookingsForGuestUseCase,
-    @inject(delay(() => SearchListingUseCase))
-    private searchListingUseCase: SearchListingUseCase,
+
     @inject(delay(() => GetLatestBookingForGuestUseCase))
-    private getLatestBookingForGuestUseCase: GetLatestBookingForGuestUseCase,
+    private getLatestBookingForGuestUseCase: GetLatestBookingForGuestUseCase,//it was not used
   ) {}
 
   async execute(semantic: SemanticContext, context: AIContext): Promise<WisdomResponse> {
@@ -44,9 +44,6 @@ export class BookingAgent implements IDomainAgent {
     const listingId = this.extractListingId(semantic, context);
 
     switch (action) {
-      case AgentAction.SEARCH_LISTING:
-      case AgentAction.CHECK_AVAILABILITY:
-        return this.handleSearchOrAvailability(semantic, action);
 
       case AgentAction.CREATE_BOOKING:
         return this.handleCreateBooking(semantic, context, listingId);
@@ -65,6 +62,9 @@ export class BookingAgent implements IDomainAgent {
 
       case AgentAction.COMPLETE_BOOKING:
         return this.handleCompleteBooking(bookingId);
+
+      case AgentAction.GET_LATEST_BOOKING:
+        return this.handleGetBooking(bookingId);
 
       default:
         return {
@@ -294,26 +294,6 @@ export class BookingAgent implements IDomainAgent {
     };
   }
 
-  // ─── SEARCH / AVAILABILITY ───────────────────────────────────
-
-  private async handleSearchOrAvailability(
-    semantic: SemanticContext,
-    action: AgentAction,
-  ): Promise<WisdomResponse> {
-    const searchResult = await this.searchListingUseCase.execute({});
-    return {
-      success: true,
-      domain: semantic.domain as any,
-      primaryAction: { name: action, confidence: semantic.confidence ?? 0 },
-      summary: `Found ${searchResult.total} listings.`,
-      artifacts: [{
-        type: ArtifactType.LISTING_SEARCH_RESULT,
-        content: {
-        listings:[...searchResult.listings]
-      }
-      }],
-    };
-  }
 
   // ─── HELPERS ─────────────────────────────────────────────────
 

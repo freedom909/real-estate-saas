@@ -12,7 +12,7 @@ import { BookingGateway } from "@/core/booking/bookingGateway";
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
 import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
 import { GetBookingsForGuestUseCase } from "@/core/booking/application/usecases/getBookingsForGuest.useCase";
-import { BookingStateMachine } from "@/core/booking/domain/state/booking-state-machine";
+
 
 
 export const BookingRegister = () => {
@@ -22,9 +22,9 @@ export const BookingRegister = () => {
   });
 
   // State Machine
-  container.register(TOKENS_BOOKING.state.bookingStateMachine, {
-    useClass: BookingStateMachine,
-  });
+  // container.register(TOKENS_BOOKING.state.bookingStateMachine, {
+  //   useClass: BookingStateMachine,
+  // });
   // Use Cases
   container.register(TOKENS_BOOKING.usecase.confirmBookingUseCase, {
     useClass: ConfirmBookingUseCase,

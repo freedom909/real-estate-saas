@@ -1,4 +1,23 @@
 // src/wisdom/memory/booking-state-updater.ts
+//
+// BookingStateUpdater — thin orchestrator for booking state flow.
+//
+// Architecture (Redux / Event Sourcing inspired):
+//
+//   Artifact
+//       ↓  ArtifactTransitionMapper.map()
+//   BookingTransitionEvent | null
+//       ↓  bookingReducer(state, event)
+//   BookingMemory (new state)
+//       ↓  SessionStore.save()
+//   Persisted
+//
+// This class has NO logic of its own. It wires three pure layers:
+//   1. ArtifactTransitionMapper — maps artifact types → domain events
+//   2. bookingReducer           — computes next state (pure function)
+//   3. MemorySessionStore       — loads and saves session data
+//
+// ────────────────────────────────────────────────────────────────
 
 import { inject, injectable } from "tsyringe";
 
@@ -7,17 +26,9 @@ import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
 import { MemorySessionStore } from "./session/session-memory.store";
 
 import { BookingState } from "@/core/booking/domain/state/booking-state";
-import { BookingStateMachine } from "@/core/booking/domain/state/booking-state-machine";
-import {
-  BookingEvent,
-  BookingTransitionEvent,
-} from "@/core/booking/domain/state/booking-event";
-import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
-
-interface MemoryArtifact {
-  type: string;
-  content: any;
-}
+import { bookingReducer } from "@/core/booking/domain/state/booking-reducer";
+import { ArtifactTransitionMapper, Artifact } from "./booking/artifact-transition-mapper";
+import { SessionMemory } from "./type/sessionMemory";
 
 @injectable()
 export class BookingStateUpdater {
@@ -25,91 +36,35 @@ export class BookingStateUpdater {
     @inject(WISDOM_TOKENS.memory.sessionStore)
     private readonly sessionStore: MemorySessionStore,
 
-    @inject(TOKENS_BOOKING.state.bookingStateMachine)
-    private readonly bookingStateMachine: BookingStateMachine,
+    private readonly mapper = new ArtifactTransitionMapper(),
   ) {}
 
-  apply(ctx: MemoryContext, artifact: MemoryArtifact): void {
+  /**
+   * Process one artifact through the booking state pipeline:
+   *   artifact → event → reduce → save
+   */
+  apply(ctx: MemoryContext, artifact: Artifact): void {
+    // ── 1. Load current session ──
     const session = this.sessionStore.load(ctx);
-
     if (!session.booking) {
-      session.booking = {
-        status: BookingState.AWAITING_LISTING,
-      };
+      session.booking = { status: BookingState.AWAITING_LISTING };
     }
-console.log(
-    "ARTIFACT",
-    JSON.stringify(artifact, null, 2)
-);
-    // Session memory belongs here, not inside the state machine.
+
+    // ── 2. Side-effect: cache search results in session ──
     if (artifact.type === "LISTING_SEARCH_RESULT") {
       session.searchResults = artifact.content.listings ?? [];
-      console.log("session.searchResults++", session.searchResults);//it is [], how to do
     }
 
-    const transitionEvent = this.toTransitionEvent(artifact);
-    if (!transitionEvent) {
-      return;
+    // ── 3. Map artifact → domain event ──
+    const event = this.mapper.map(artifact);
+    if (!event) {
+      return; // artifact doesn't affect booking state
     }
 
-    session.booking = this.bookingStateMachine.transition(
-      session.booking,
-      transitionEvent,
-    );
+    // ── 4. Reduce: compute new booking state ──
+    session.booking = bookingReducer(session.booking, event);
 
-    this.sessionStore.save(ctx, session);
+    // ── 5. Persist ──
+    this.sessionStore.save(ctx, session as SessionMemory);
   }
-
-  /**
-   * Convert Wisdom artifacts into Booking domain events.
-   */
-private toTransitionEvent(artifact: MemoryArtifact): BookingTransitionEvent | null {
-
-    switch (artifact.type) {
-
-        case "LISTING_SEARCH_RESULT":
-            return {
-                type: BookingEvent.SELECT_LISTING,
-                payload: artifact.content.listings?.[0],
-            };
-
-        case "DATES_SELECTED":
-            return {
-                type: BookingEvent.SET_DATES,
-                payload: artifact.content,
-            };
-
-        case "GUEST_COUNT_SELECTED":
-            return {
-                type: BookingEvent.SET_GUEST_COUNT,
-                payload: artifact.content,
-            };
-
-        case "CONTACT_SET":
-            return {
-                type: BookingEvent.SET_CONTACT,
-                payload: artifact.content,
-            };
-
-        case "SPECIAL_REQUEST_SET":
-            return {
-                type: BookingEvent.SET_SPECIAL_REQUESTS,
-                payload: artifact.content,
-            };
-
-        case "BOOKING_CREATED":
-            return {
-                type: BookingEvent.CONFIRM,
-                payload: artifact.content,
-            };
-
-        case "BOOKING_CANCELLED":
-            return {
-                type: BookingEvent.CANCEL,
-            };
-
-        default:
-            return null;
-    }
-}
 }

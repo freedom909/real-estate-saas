@@ -14,6 +14,7 @@ export class ChatUseCase {
   ) {}
 
   async execute(request: WisdomRequest): Promise<WisdomResponse> {
+    console.log("execute request+", request);
     return await this.orchestrator.handle(request);
   }
 }
