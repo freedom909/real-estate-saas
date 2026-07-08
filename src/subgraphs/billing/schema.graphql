@@ -9,7 +9,7 @@ schema
 
 scalar DateTime
 
-type Host @key(fields: "id") {
+type Tenant @key(fields: "id") {
  id: ID! @external
 }
 
@@ -17,7 +17,7 @@ type Subscription @key(fields: "id") {
 
  id: ID!
 
- host: Host!
+ host: Tenant!
 
  plan: Plan!
 

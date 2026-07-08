@@ -58,7 +58,25 @@ await server.start();
 
 app.use(
   "/graphql",
+
   express.json(),
+  (req,res,next)=>{
+     console.log(
+     "🔥🔥🔥 USER REQUEST ARRIVED"
+   );
+
+   console.log(
+     "METHOD:",
+     req.method
+   );
+
+   console.log(
+     "BODY:",
+     req.body
+   );
+      next();
+
+ },
   (req, res, next) => {
     (req as any).user = getUserFromContext(req);
     next();

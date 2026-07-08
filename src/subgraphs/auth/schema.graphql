@@ -22,9 +22,9 @@ extend type User @key(fields: "id") {
 }
 
 # =====================
-# Host (REFERENCE)
+# Tenant (REFERENCE)
 # =====================
-extend type Host @key(fields: "id") {
+extend type Tenant @key(fields: "id") {
   id: ID! @external
 }
 

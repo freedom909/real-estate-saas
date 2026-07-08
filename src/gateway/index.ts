@@ -1,6 +1,7 @@
 import express from "express"
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
+import cors from "cors"
 import { ApolloGateway, RemoteGraphQLDataSource, IntrospectAndCompose } from "@apollo/gateway"
 
 async function start() {
@@ -10,9 +11,9 @@ async function start() {
       subgraphs: [
         { name: "auth", url: "http://localhost:4010/graphql" },
         { name: "user", url: "http://localhost:4020/graphql" },
-        // { name: "booking", url: "http://localhost:4030/graphql" },
+        { name: "booking", url: "http://localhost:4030/graphql" },
          {name:"review",url:"http://localhost:4040/graphql"},
-        // { name: "payment", url: "http://localhost:4050/graphql" },
+        { name: "payment", url: "http://localhost:4050/graphql" },
         {name:"tenant",url:"http://localhost:4060/graphql"},
         { name: "audit", url: "http://localhost:4070/graphql" },
         { name: "location", url: "http://localhost:4080/graphql" },
@@ -23,11 +24,29 @@ async function start() {
        
       ]
     }),
-    buildService({ url }) {
+    buildService({ name, url }) {
+     console.log(
+   "BUILD SERVICE:",
+   name,
+   url
+   )
       return new RemoteGraphQLDataSource({
         url,
 
         willSendRequest({ request, context }) {
+     console.log(
+        "========== FORWARD =========="
+      );
+
+      console.log(
+        "SERVICE:",
+        name
+      );
+
+      console.log(
+        "OPERATION:",
+        request.operationName
+      );
 
           if (context.token) {
             request.http?.headers.set(
@@ -48,7 +67,12 @@ async function start() {
   await server.start()
   const app = express()
 
-  app.use("/graphql", express.json(),
+  app.use("/graphql",   
+  cors({
+    origin:"http://localhost:3000",
+    credentials:true,
+  }),
+  express.json(),
     expressMiddleware(server, {
       context: async ({ req }) => {
 

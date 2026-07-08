@@ -1,0 +1,22 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: ["@key", "@shareable", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+scalar JSON
+type Query {
+  _empty: String
+}
+
+type Mutation {
+
+    textToSpeech(
+        input: TextToSpeechInput!
+    ): VoiceAudio!
+
+}

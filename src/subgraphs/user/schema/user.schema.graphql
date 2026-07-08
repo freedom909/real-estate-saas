@@ -9,9 +9,10 @@ schema
 
 scalar DateTime
 
-type User @key(fields: "id") {
+extend type User @key(fields:"id") {
  id: ID!
  email: String!
+  role:Role!
  profile: Profile!
  status: AccountStatus!
  createdAt: DateTime!
@@ -30,8 +31,14 @@ type Profile {
  avatar: String
 }
 
+enum Role {
+ ADMIN
+ OWNER
+ AGENT
+ CUSTOMER
+} 
+
 enum AuthProvider {
-  
   GOOGLE
   APPLE
   GITHUB

@@ -1,10 +1,11 @@
 import { injectable, inject } from "tsyringe";
 import { TOKENS_USER} from "../../../modules/tokens/user.tokens";
-import { normalizeRole } from "@/core/user/domain/entities/role";
+import { normalizeRole } from "@/core/user/domain/entities/normalize.role";
+import { UserResponse } from "./user.dto";
 
 type User = {
   id: string;
-  role: string;
+  
   [key: string]: any;
 }
 
@@ -27,12 +28,28 @@ class UserService {
     this.userRepository = userRepository;
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string): Promise<UserResponse | null> {
     const user = await this.userRepository.findById(id);
     if (!user) return null;
+ return {
+   id:user._id.toString(),
 
-    user.role = normalizeRole(user.role);
-    return user;
+   email:user.email,
+
+   name:user.name,
+
+   avatar:user.avatar,
+
+   role:user.role,
+
+   status:user.status,
+
+   tokenVersion:user.tokenVersion,
+
+   createdAt:user.createdAt,
+
+   updatedAt:user.updatedAt
+ };
   }
 
   async userByEmail(email: string): Promise<User | null> {

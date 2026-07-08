@@ -9,103 +9,47 @@ schema
 
 scalar DateTime
 
-"""
-User subgraph owns User
-"""
-type User @key(fields: "id") {
-  id: ID!
-  email: String
-  profile: Profile
-  status: AccountStatus!
-  tokenVersion: Int!
-  picture: String
-  role: Role!
-  name: String
-  createdAt: DateTime! @shareable
 
-  """
-  User can belong to multiple Hosts (multi-tenant)
-  """
-  memberships: [Membership!]
+extend type Tenant @key(fields: "id") {
+id:ID! @external
 }
 
-"""
-A Host is a business entity (tenant / organization / landlord)
-"""
-type Host @key(fields: "id") {
-  id: ID!
-  name: String! @shareable
-  listings: [Listing!]! @shareable
-
-  """
-  Creator / owner of the host
-  """
-  ownerId: ID! @shareable
-
-  createdAt: DateTime!
-}
-
-enum Role {
-  ADMIN
-  HOST
-  GUEST
-  USER
-  PENDING_HOST
-}
 
 extend type Listing @key(fields: "id") {
   id: ID! @external
   }
 
-type Guest @key(fields: "id") {
+type User @key(fields: "id") {
   id: ID!
   name: String @shareable
   email: String @shareable
-  booking:[Booking!]
+  bookings:[Booking!]! @shareable
   picture: String @shareable
   createdAt: DateTime! @shareable
   updatedAt: DateTime! @shareable
+  memberships: [Membership!]
 }
 
 extend type Booking @key(fields: "id") {
   id: ID! @external
 }
 
-"""
-Join table between User and Host
-"""
-type Membership @key(fields: "id") {
-  id: ID!
 
-  user: User!
-  host: Host!
-
-  """
-  Role inside this host (NOT global role)
-  """
-  role: MembershipRole!
-
-  approvalStatus: ApprovalStatus!
-
-  createdAt: DateTime!
+extend type Membership @key(fields:"id") {
+    id: ID! @external
 }
 
-"""
-User profile (shareable across subgraphs)
-"""
 type Profile @shareable {
   name: String
   avatar: String
   email: String
 }
 
-"""
-Role inside a Host (multi-tenant role)
-"""
 enum MembershipRole {
   OWNER
   ADMIN
-  MEMBER
+  CUSTOMER
+  AGENT
 }
 
 """
@@ -118,15 +62,7 @@ enum AccountStatus {
   DELETED
 }
 
-"""
-Membership approval flow
-"""
-enum ApprovalStatus {
-  NONE
-  PENDING
-  APPROVED
-  REJECTED
-}
+
 
 """
 OAuth providers
@@ -146,11 +82,7 @@ enum OAuthProvider {
 type Query {
   user(id: ID!): User
   userByEmail(email: String!): User
-
-  """
-  Multi-tenant queries
-  """
-  hostsByUser(userId: ID!): [Host!]!
+  tenantsByUser(userId: ID!): [Tenant!]!
   membershipsByUser(userId: ID!): [Membership!]!
 }
 
@@ -159,35 +91,12 @@ type Query {
 # ======================
 
 type Mutation {
-  # -------- User --------
+ 
   createOAuthUser(input: CreateOAuthUserInput!): User!
   deactivateUser(userId: ID!): Boolean!
   updateLastLogin(userId: ID!): Boolean!
+  
 
-  # -------- Host --------
-  createHost(name: String!): Host!
-
-  # -------- Membership --------
-  addUserToHost(
-    hostId: ID!
-    userId: ID!
-    role: MembershipRole!
-  ): Membership!
-
-  removeUserFromHost(
-    hostId: ID!
-    userId: ID!
-  ): Boolean!
-
-  updateMembershipRole(
-    hostId: ID!
-    userId: ID!
-    role: MembershipRole!
-  ): Membership!
-
-  approveMembership(
-    membershipId: ID!
-  ): Membership!
 }
 
 # ======================
@@ -205,3 +114,5 @@ input ProfileInput {
   name: String
   avatar: String
 }
+
+

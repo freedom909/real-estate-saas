@@ -20,12 +20,35 @@ export default async function verifyGoogleIdToken(
   if (!idToken) {
     throw new Error("GOOGLE_ID_TOKEN_REQUIRED");
   }
+  console.log(
+ "VERIFY GOOGLE CLIENT ID:",
+ process.env.GOOGLE_CLIENT_ID
+);
 
-  const ticket = await client.verifyIdToken({
-    idToken,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  });
 
+console.log(
+ "TOKEN AUD:",
+ JSON.parse(
+ Buffer.from(
+ idToken.split(".")[1],
+ "base64"
+ ).toString()
+ ).aud
+);
+
+
+// const ticket = await client.verifyIdToken({
+//     id_token:idToken,
+//     audience:
+//        process.env.GOOGLE_CLIENT_ID
+//  });
+const ticket =
+ await client.verifyIdToken({
+    idToken:idToken,
+    audience:
+       process.env.GOOGLE_CLIENT_ID
+ });
+ // console.log("ticket:", ticket) //should be print here? no record output
   const payload = ticket.getPayload();
 
   if (!payload) {

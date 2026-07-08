@@ -1,10 +1,10 @@
-import mongoose, { Schema, Document } from "mongoose"
+// membership.model.ts
+// tenant.infrastructure.models.membership.model.ts
 
-export type Role =
-  | "OWNER"
-  | "ADMIN"
-  | "AGENT"
-  | "CUSTOMER"
+import mongoose, { Schema, Document } from "mongoose"
+import { UserRole } from "../../../user/domain/userRole"
+
+
 
 export type MembershipStatus =
   | "ACTIVE"
@@ -17,7 +17,7 @@ export interface MembershipDocument extends Document {
 
   hostId: mongoose.Types.ObjectId
 
-  role: Role
+  role: UserRole
 
   status: MembershipStatus
 

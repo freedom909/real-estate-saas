@@ -38,7 +38,9 @@ console.log(
   "Auth Subgraph - INTERNAL_SERVICE_TOKEN env var at startup =",
   process.env.INTERNAL_SERVICE_TOKEN
 );
-
+      console.log("google_client_id:", 
+ process.env.GOOGLE_CLIENT_ID
+)
 // ⭐ Mongo
 await mongoose.connect(
   process.env.MONGO_URI || "mongodb://localhost:27017/just"

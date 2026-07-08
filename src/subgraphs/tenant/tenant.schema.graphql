@@ -1,11 +1,12 @@
 schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.11",
-    import: ["@key", "@shareable"]
+    import: ["@key", "@shareable","@external"]
   ) {
   query: Query
   mutation: Mutation
 }
+scalar DateTime
 
 enum TenantStatus {
   ACTIVE
@@ -13,20 +14,26 @@ enum TenantStatus {
   DELETED
 }
 
+extend type User @key(fields:"id") {
+  id: ID! @external
+}
+
 type Tenant @key(fields: "id") {
   id: ID! @shareable
   name: String! @shareable
   slug: String!
   status: TenantStatus!
-  ownerUserId: String! @shareable
-  createdAt: String
-  updatedAt: String @shareable
+  owner:User!
+  memberships: [Membership!]!
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 type PageInfo {
   total: Int!
   hasNextPage: Boolean!
 }
+
 
 type TenantConnection {
   items: [Tenant!]!
@@ -36,7 +43,7 @@ type TenantConnection {
 input CreateTenantInput {
   name: String!
   slug: String!
-  ownerUserId: String!
+  ownerUserId:ID!
 }
 
 input TenantFilterInput {
@@ -55,4 +62,27 @@ type Mutation {
   createTenant(input: CreateTenantInput!): Tenant!
   updateTenant(id: ID!, name: String!): Tenant!
   suspendTenant(id: ID!): Tenant!
+}
+
+type Membership @key(fields:"id"){
+ id: ID!
+ user: User!
+ tenant: Tenant!
+ role:MembershipRole!
+ createdAt:DateTime!
+ status: MembershipStatus!
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  AGENT
+  CUSTOMER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INVITED
+  PENDING
+  SUSPENDED
 }

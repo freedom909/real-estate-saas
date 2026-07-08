@@ -1,7 +1,8 @@
 
+import { Action, Resource } from "@/core/user/domain/entities/types";
 import UserService from "./user.service";
 import { ForbiddenError } from "@/infrastructure/utils/errors";
-import { Action, Resource } from "@/domain/user/types/types";
+
 import PolicyEngine from "@/rbac/policy.engine";
 
 class GetUserUseCase {

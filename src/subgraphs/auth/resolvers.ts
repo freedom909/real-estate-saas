@@ -118,6 +118,19 @@ export default {
       { provider, idToken }: { provider: string; idToken: string },
       ctx: Context
     ) => {
+      console.log(
+  "========== AUTH OAUTH LOGIN CALLED =========="
+);
+
+console.log(
+  "provider:",
+  provider
+);
+
+console.log(
+  "token length:",
+  idToken?.length
+);
       const usecase = ctx.container.resolve<OAuthLoginUseCase>(
         TOKENS_AUTH.usecases.oauthLoginUseCase
       );

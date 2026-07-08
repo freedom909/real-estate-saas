@@ -1,18 +1,17 @@
 // user.model.ts
+
+import { IProfile } from "@/core/user/domain/entities/user";
+import { UserRole } from "@/core/user/domain/userRole";
 import mongoose, { HydratedDocument, Types } from "mongoose";
-import { v4 as uuidv4 } from "uuid";
-import { Role } from "../../../domain/user/types/role";
-import { IProfile } from "../../../domain/user/types/user";
 
 export type UserDocument = HydratedDocument<IUserDB>;
 
 export interface IUserDB {
   _id: Types.ObjectId;
-  id: string; // Virtual ID for GraphQL
   email: string; // Mongoose schema requires it, so it's a string
   name: string;
-  avatar: string;
-  role: Role;
+  picture: string;
+  role: UserRole;
   status: "ACTIVE" | "SUSPENDED" | "BANNED" | "DELETED"; // Aligned with Mongoose enum
   tokenVersion: number; // Corrected type from schema definition to actual type
   createdAt: Date;
@@ -22,8 +21,6 @@ export interface IUserDB {
 
 
 const userSchema = new mongoose.Schema({
-  _id: { type: Types.ObjectId, default: () => new Types.ObjectId() },
- 
   email: {
   type: String,
   required: true,
@@ -32,26 +29,20 @@ const userSchema = new mongoose.Schema({
   },
   
   name: { type: String, required: true },
-  avatar: { type: String, default: "" },
+  picture: { type: String, default: "" },
   status: { type: String, enum: ["ACTIVE", "SUSPENDED", "BANNED","DELETED"], default: "ACTIVE" },
   tokenVersion: {
     type: Number,
     required: true,
     default: 0,
   },
-  // Add profile field to Mongoose schema if it's part of the data model
-  // profile: {
-  //   name: { type: String },
-  //   avatar: { type: String },
-  //   email: { type: String },
-  //   status: { type: String, enum: ["ACTIVE", "SUSPENDED", "BANNED", "DELETED"] },
-  // },
+
 }, {
   timestamps: true,
   toJSON: {
     virtuals: true,
-    transform: (doc, ret) => {
-      ret.id = ret._id.toString(); // Map _id to id
+    transform: (doc, ret: any) => {
+      ret.id = ret._id.toString(); // Map _id to id ??
       delete ret._id; // Remove _id
       delete ret.__v; // Remove __v (version key)
       return ret;
@@ -59,7 +50,7 @@ const userSchema = new mongoose.Schema({
   },
   toObject: {
     virtuals: true,
-    transform: (doc, ret) => {
+    transform: (doc, ret: any) => {
       ret.id = ret._id.toString();
       delete ret.__v;
       return ret;

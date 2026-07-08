@@ -32,5 +32,12 @@ export const resolvers = {
       const useCase = container.resolve<any>(TOKENS_TENANT.useCases.getTenant);
       return useCase.execute(reference.id);
     },
+
+    owner(parent){
+    return {
+      __typename:"User",
+      id:parent.ownerUserId
+    };
+  }
   },
 };

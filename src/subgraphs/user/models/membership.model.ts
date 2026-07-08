@@ -1,13 +1,15 @@
 //src/subgraphs/user/models/membership.model.ts
 
+
+import { UserRole } from "@/core/user/domain/userRole";
 import mongoose, { Types, HydratedDocument } from "mongoose";
-import { Role } from "../../../domain/user/types/role";
+
 
 export interface IMembershipDB {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
   hostId: Types.ObjectId;
-  role: Role;
+  role: UserRole;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,8 +23,11 @@ const membershipSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: Object.values(Role),
-      default: Role.CUSTOMER,
+      enum: Object.values(UserRole),
+      // @ts-ignore
+      default: Object.keys(Object.values(UserRole))[0],
+      // @ts-ignore
+      default: UserRole.CUSTOMER,
       required: true
     }
   },

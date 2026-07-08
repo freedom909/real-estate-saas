@@ -29,7 +29,10 @@ Guest: {
     ref: UserReference,
     { container }: ResolverContext
   ) => {
-
+console.log(
+ "🔥🔥 USER REFERENCE CALLED",
+ ref
+);
     console.log(
       "🔥 Guest __resolveReference",
       ref
@@ -51,13 +54,18 @@ Guest: {
     return guest;
   },
 },
-  User: {
-    id: (parent: any) => parent.id || parent._id?.toString(),
-    __resolveReference: async (ref: UserReference, { container }: ResolverContext) => {
-      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
-      return userService.findById(ref.id);
-    },
+User: {
+  __resolveReference: async (
+    reference: UserReference,
+    { container }: ResolverContext
+  ) => {
+    const userService = container.resolve<UserService>(
+        TOKENS_USER.services.userService
+      );
+    const user =await userService.findById(reference.id);
+    return user;
   },
+},
   Query: {
     me: (_: any, __: any, ctx: any) => {
       if (!ctx.user) {
@@ -68,7 +76,13 @@ Guest: {
     },
     user: async (_: unknown, { id }: { id: string }) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
-      return userService.findById(id);
+        const user =
+    await userService.findById(id);
+       console.log(
+    "🔥🔥 USER FIND RESULT:",
+    user
+  );
+      return user
     },
 
     internalUserByEmail: async (

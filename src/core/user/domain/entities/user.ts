@@ -1,4 +1,5 @@
-import { Role } from "./role";
+import { Role } from "@/wisdom-web/app/types/role";
+import { UserRole } from "../userRole";
 
 export  interface IProfile {
   userId: string;

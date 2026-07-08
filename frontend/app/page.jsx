@@ -1,17 +1,20 @@
 "use client";
-console.log("GOOGLE_CLIENT_ID =", process.env.GOOGLE_CLIENT_ID);
+console.log("GOOGLE_CLIENT_ID =", process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
 import { useEffect } from "react";
 import { useMutation } from "@apollo/client/react";
 import { OAUTH_LOGIN } from "@/graphql/oauthLogin";
 
-
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+if (!GOOGLE_CLIENT_ID) {
+  throw new Error("GOOGLE_CLIENT_ID environment variable not set");
+}
 export default function Home() {
   const [oauthLogin] = useMutation(OAUTH_LOGIN);
 
   useEffect(() => {
     if (!window.google) return;
     window.google.accounts.id.initialize({
-      client_id: "102545635753-olkgv48kgdta2bjiokrnb3u15gahgoqs.apps.googleusercontent.com",
+      client_id: "",
       auto_select: false,
       cancel_on_tap_outside: true,
       prompt: "consent  select_account",
@@ -20,7 +23,7 @@ export default function Home() {
 
     window.google.accounts.id.renderButton(
       document.getElementById("googleButton"),
-      { theme: "outline", size: "large" }
+      { theme: "outline", size: "medium" }
     );
   }, []);
 
