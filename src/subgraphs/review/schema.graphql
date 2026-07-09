@@ -22,18 +22,18 @@ type Query  {
 }
 
 type Mutation {
-  submitGuestReview(
+  submitCustomerReview(
     guestReview: ReviewInput!
     bookingId: ID!
-  ): SubmitGuestReviewResponse! 
+  ): SubmitCustomerReviewResponse! 
 
 
-  submitHostReplyToGuestReview (
+  submitOwnerReplyToCustomerReview (
     bookingId: ID!
     hostReview: ReviewInput!
     guestReviewID:ID!
     comment:CommentInput! 
-  ): SubmitHostReplyToGuestReviewResponse!
+  ): SubmitOwnerReplyToCustomerReviewResponse!
 }
 
 input CommentInput {
@@ -48,8 +48,8 @@ type Review @key(fields: "id") {
   author: User! @shareable
   booking: Booking! @shareable
   location: Location @shareable
-  guest: Guest @shareable
-  host: Host @shareable
+  guest: Customer @shareable
+  host: Owner @shareable
   likes: [Like!] @shareable
   dislikes: [Like!] @shareable
   comments: [Comment!] @shareable
@@ -130,7 +130,7 @@ input ReviewInput {
 }
 
 ### Response Types
-type SubmitHostReplyToGuestReviewResponse implements MutationResponse {
+type SubmitOwnerReplyToCustomerReviewResponse implements MutationResponse {
   code: Int! @shareable
   success: Boolean! @shareable
   message: String! @shareable
@@ -139,7 +139,7 @@ type SubmitHostReplyToGuestReviewResponse implements MutationResponse {
   locationReview: Review @shareable
 }
 
-type SubmitGuestReviewResponse implements MutationResponse{
+type SubmitCustomerReviewResponse implements MutationResponse{
    bookingId:ID!
    guestReview:String
   code: Int!
@@ -168,7 +168,7 @@ extend type User @key(fields: "id") {
   id: ID! @external  
 }
 
-type Host @key(fields: "id") {
+type Owner @key(fields: "id") {
   role: Role @shareable
   id: ID! @shareable
   name: String! @shareable
@@ -178,7 +178,7 @@ type Host @key(fields: "id") {
   listings: [Listing!] @shareable
 }
 
-type Guest @key(fields: "id") {
+type Customer @key(fields: "id") {
   id: ID! @shareable 
   name: String! @shareable
   picture: String! @shareable

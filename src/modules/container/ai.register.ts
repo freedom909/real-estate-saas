@@ -21,7 +21,7 @@ import { BookingFraudTool } from "@/core/booking/infrastructure/tools/bookingFra
 import { BookingFraudAgent } from "@/core/booking/bookingFraud.agent";
 import { TOKENS_BOOKING } from "../tokens/booking.tokens";
 import { BookingACL } from "@/core/booking/domain/entities/contexts/BookingACL";
-import { ReviewAnalysisAgent } from "@/core/review/application/agents/ReviewAnalysisAgent";
+import { ReviewAnalysisAgent } from "@/core/review/application/agents/reviewAnalysis.agent";
 import { RunReviewAgentUseCase } from "@/core/review/application/runReviewAgentUseCase";
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";

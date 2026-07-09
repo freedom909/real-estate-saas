@@ -4,12 +4,6 @@ import { oauthLogin } from "app/services/auth.service";
 import { redirect } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-declare global {
-  interface Window {
-    google: any;
-  }
-}
-
 export default function LoginPage() {
   const GOOGLE_CLIENT_ID =
     process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
@@ -28,19 +22,43 @@ export default function LoginPage() {
 
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
-        callback: async (response: any) => {
-          const idToken = response.credential;
+callback: async (response: any) => {
 
-          const { data } = await oauthLogin("GOOGLE", idToken);
-          const result = data?.oauthLogin;
+console.log("1. callback entered");
 
-          if (result?.accessToken) {
-            localStorage.setItem("accessToken", result.accessToken);
-            localStorage.setItem("refreshToken", result.refreshToken);
-            window.location.href = "/listing";
-            redirect("/home");
-          }
-        }
+const idToken = response.credential;
+
+console.log("2. token received");
+
+const result = await oauthLogin("GOOGLE", idToken);
+
+console.log("3. graphql finished");
+
+console.log(result);
+
+if (result?.accessToken) {
+
+console.log("4. token exists");
+
+localStorage.setItem("accessToken", result.accessToken);
+
+localStorage.setItem("refreshToken", result.refreshToken);
+
+console.log("5. saved");
+
+setTimeout(() => {
+
+window.location.assign("/");
+
+}, 100);
+
+} else {
+
+console.log("NO TOKEN");
+
+}
+
+}
       });
       initialized.current = true;
       window.google.accounts.id.renderButton(

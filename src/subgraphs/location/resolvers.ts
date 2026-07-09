@@ -1,7 +1,7 @@
 import { container } from "tsyringe";
 import { TOKENS_LOCATION } from "../../modules/tokens/location.tokens";
 import { GetLocationUseCase } from "@/core/location/application/usecases/getLocationUseCase";
-import { CreateLocationUseCase } from "@/core/location/application/usecases/CreateLocationUseCase";
+import { CreateLocationUseCase } from "@/core/location/application/usecases/createLocationUseCase";
 
 
 

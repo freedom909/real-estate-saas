@@ -7,7 +7,7 @@ import { ReviewMapper } from "../../infrastructure/models/ReviewMapper";
 import { IReviewModerationPolicy } from "../../domain/entities/policy/IReviewModerationPolicy";
 
 @injectable()
-export class SubmitHostReplyToGuestReviewUseCase {
+export class SubmitOwnerReplyToCustomerReviewUseCase {
     constructor(
     @inject(TOKENS_REVIEW.repository.reviewRepository)
     private reviewRepository: IReviewRepository,

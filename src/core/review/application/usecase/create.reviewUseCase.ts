@@ -6,7 +6,7 @@ import { Rating } from "../../infrastructure/services/rating";
 
 
 @injectable()
-export class SubmitGuestReviewUseCase {
+export class SubmitCustomerReviewUseCase {
   constructor(
     @inject(TOKENS_REVIEW.repository.reviewRepository)
     private reviewRepo: IReviewRepository

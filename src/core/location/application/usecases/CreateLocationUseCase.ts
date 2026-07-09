@@ -1,9 +1,10 @@
 import { injectable, inject } from "tsyringe";
 import { ILocationRepository } from "../../domain/repos/ILocationRepository";
-import { Location } from "../../domain/entities/location";
+import {Location} from "../../domain/entities/location";
 
 import { TOKENS_LOCATION } from "@/modules/tokens/location.tokens";
-import { EventBus } from "@/infrastructure/events/event-bus";
+import { EventBus } from "@/core/tenant/infrastructure/services/event-bus.service";
+
 
 export interface CreateLocationInput {
   province: string;
@@ -35,10 +36,10 @@ export class CreateLocationUseCase {
       longitude: input.longitude,
     });
 
-    await this.locationRepository.save(location);
+    await this.locationRepository.save(location);//
 
-    await this.eventBus.publish({
-      type: "LocationCreated",
+    this.eventBus.publish({
+      eventName: "LocationCreated",
       payload: {
         name: location.name,
         locationId: location.id,
@@ -48,7 +49,7 @@ export class CreateLocationUseCase {
         latitude: location.latitude,
         longitude: location.longitude,
       },
-      timestamp: new Date(),
+      occurredOn: new Date(),
     });
 
     return location;

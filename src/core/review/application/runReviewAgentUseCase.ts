@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 
-import { ReviewAnalysisAgent } from "./agents/ReviewAnalysisAgent";
+import { ReviewAnalysisAgent } from "./agents/reviewAnalysis.agent";
 import { ReviewACL } from "@/core/booking/domain/entities/contexts/ReviewACL";
 
 @injectable()

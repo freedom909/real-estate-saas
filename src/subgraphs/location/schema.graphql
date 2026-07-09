@@ -22,7 +22,7 @@ extend type Host @key(fields: "id") {
   listings: [Listing!]@shareable
 }
 
-extend type Guest @key(fields: "id") {
+extend type Customer @key(fields: "id") {
   id: ID! @external
   overallRating: Float @shareable
   bookings: [Booking!] @shareable

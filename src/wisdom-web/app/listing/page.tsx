@@ -1,7 +1,8 @@
-// src/wisdom-web/app/pages/listing.ts
-
-import { listingService } from "../services/listing.service";
+// src/wisdom-web/app/pages/ListingPage.ts
+"use client";
 import { usePermission } from "../permission/usePermission";
+import {listingService }from "app/services/listing.service";
+
 
 export default function ListingPage() {
     const { can } = usePermission();
@@ -21,3 +22,4 @@ export default function ListingPage() {
         </button>
     );
 }
+

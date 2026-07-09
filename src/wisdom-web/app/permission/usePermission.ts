@@ -3,6 +3,7 @@ import { hasPermission } from "./hasPermission";
 
 import { useAuthStore } from "../store/auth.store";
 import { ROLE_PERMISSIONS } from "../permission/permission";
+import { Role } from "./role";
 
 export const usePermission = () => {
   const user = useAuthStore((s) => s.user);
@@ -10,8 +11,8 @@ export const usePermission = () => {
   const can = (permission: string) => {
     if (!user) return false;
     const role = user.role;
-    return hasPermission(role, permission);
+    return hasPermission(role as Role, permission);
   };
-
+ 
   return { can };
 };

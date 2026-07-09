@@ -1,7 +1,9 @@
+import { Role } from "./role";
+
 // src/wisdom-web/app/types/User.ts
 export interface User {
   id: number;
   email: string;
-  role: "guest" | "host" | "admin";
+  role: Role;
   tenantId: string;   // ⭐关键字段
 }

@@ -3,14 +3,14 @@ export const TOKENS_REVIEW = {
     reviewRepository: Symbol.for("ReviewRepository"),
   },
   usecase: {
-    submitGuestReview: Symbol.for("SubmitGuestReviewUseCase"),
+    submitCustomerReview: Symbol.for("SubmitCustomerReviewUseCase"),
     updateReview: Symbol.for("UpdateReviewUseCase"),
     deleteReview: Symbol.for("DeleteReviewUseCase"),
     replyToReview: Symbol.for("ReplyToReviewUseCase"),
     reportReview: Symbol.for("ReportReviewUseCase"),
     getListingReviews: Symbol.for("GetListingReviewsUseCase"),
-    getHostReviews: Symbol.for("GetHostReviewsUseCase"),
-    submitHostReplyToGuestReview: Symbol.for("SubmitHostReplyToGuestReviewUseCase"),
+    getOwnerReviews: Symbol.for("GetOwnerReviewsUseCase"),
+    submitOwnerReplyToCustomerReview: Symbol.for("SubmitOwnerReplyToCustomerReviewUseCase"),
   },
   service: {
     moderationPolicy: Symbol.for("ReviewModerationPolicy"),

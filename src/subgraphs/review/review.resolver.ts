@@ -1,6 +1,7 @@
 
 
-import { SubmitGuestReviewUseCase } from "@/core/review/application/usecase/createReviewUseCase";
+import { SubmitCustomerReviewUseCase } from "@/core/review/application/usecase/create.reviewUseCase";
+import { SubmitOwnerReplyToCustomerReviewUseCase } from "@/core/review/application/usecase/submitOwnerReplyToCustomerReviewUseCase";
 import { IReviewRepository } from "@/core/review/domain/entities/repos/IReviewRepository";
 import { TOKENS_REVIEW } from "@/modules/tokens/review.tokens";
 import { container } from "tsyringe";
@@ -18,16 +19,16 @@ export const reviewResolvers = {
     }
   },
   Mutation: {
-    submitGuestReview: async (_: any, { input }: any, context: any) => {
+    submitCustomerReview: async (_: any, { input }: any, context: any) => {
       console.log("input++:", input);
-      const useCase = container.resolve<SubmitGuestReviewUseCase>(TOKENS_REVIEW.usecase.submitGuestReview);
+      const useCase = container.resolve<SubmitCustomerReviewUseCase>(TOKENS_REVIEW.usecase.submitCustomerReview);
       return useCase.execute({ ...input, guestId: context.user.id });
     },
 
-    submitHostReplyToGuestReview: async (_: any, { input }: any, context: any) => {
+    submitOwnerReplyToCustomerReview: async (_: any, { input }: any, context: any) => {
       console.log("input+++:", input);
-      const useCase = container.resolve<SubmitGuestReviewUseCase>(TOKENS_REVIEW.usecase.submitHostReplyToGuestReview);
-      return useCase.execute({ ...input, hostId: context.user.id });
+      const useCase = container.resolve<SubmitOwnerReplyToCustomerReviewUseCase>(TOKENS_REVIEW.usecase.submitOwnerReplyToCustomerReview);
+      return useCase.execute({ ...input, ownerId: context.user.id });
     },
     updateReview: async (_: any, { id, input }: any) => {
         const useCase = container.resolve(TOKENS_REVIEW.usecase.updateReview) as any;
@@ -40,8 +41,8 @@ export const reviewResolvers = {
     },
   },
   Review: {
-    author: (review: any) => ({ __typename: "Guest", id: review.guestId }),
+    author: (review: any) => ({ __typename: "Customer", id: review.guestId }),
     listing: (review: any) => ({ __typename: "Listing", id: review.listingId }),
-    host: (review: any) => ({ __typename: "Host", id: review.hostId }),
+    host: (review: any) => ({ __typename: "Owner", id: review.hostId }),
   }
 };

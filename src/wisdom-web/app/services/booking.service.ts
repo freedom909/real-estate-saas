@@ -1,7 +1,7 @@
 // src/wisdom-web/app/services/booking.service.ts
 //import { Booking } from "@/graphql/generated";
 import axios from "axios";
-import client from "../lib/apolloClient";
+import {client }from "../lib/apolloClient";
 const API_URL = "/4000/graphql/bookings";
 
 export interface Booking {

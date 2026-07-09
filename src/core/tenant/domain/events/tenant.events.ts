@@ -1,6 +1,7 @@
 export interface DomainEvent {
   occurredOn: Date;
   eventName: string;
+  payload: any;
 }
 
 export class TenantCreatedEvent implements DomainEvent {

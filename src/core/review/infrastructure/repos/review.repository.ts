@@ -34,7 +34,7 @@ export class ReviewRepositoryImpl implements IReviewRepository {
     return docs.map(ReviewMapper.toDomain);
   }
 
-  async findByHostId(hostId: string): Promise<Review[]> {
+  async findByOwnerId(hostId: string): Promise<Review[]> {
     const docs = await ReviewModel.find({ hostId });
     return docs.map(ReviewMapper.toDomain);
   }

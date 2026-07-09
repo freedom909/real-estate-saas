@@ -1,24 +1,41 @@
 // src/wisdom-web/app/permission/permission.ts
 
+import { Role } from "./role";
 
-export const PERMISSIONS = {
-  LISTING_CREATE: "listing:create",
-  LISTING_EDIT: "listing:edit",
-  LISTING_DELETE: "listing:delete",
-  ADMIN_PANEL: "admin:panel",
-} as const;
+export const ROLE_PERMISSIONS: Record<Role, string[]> = {
 
-export const ROLE_PERMISSIONS = {
-  guest: [],
-  host: [
-    "listing:create",
-    "listing:edit",
-    "listing:delete",
-  ],
-  admin: [
-    "listing:create",
-    "listing:edit",
-    "listing:delete",
-    "admin:panel",
-  ],
+ADMIN: [
+
+"listing.create",
+
+"listing.update",
+
+"listing.delete",
+
+"user.manage",
+
+"booking.manage",
+
+],
+
+OWNER: [
+
+"listing.create",
+
+"listing.update",
+
+"booking.manage",
+
+],
+
+AGENT: [
+
+"listing.create",
+
+"listing.update",
+
+],
+
+CUSTOMER: [],
+
 };
