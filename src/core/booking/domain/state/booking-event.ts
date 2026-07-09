@@ -3,7 +3,7 @@
 export enum BookingEvent {
   SELECT_LISTING = "SELECT_LISTING",
   SET_DATES = "SET_DATES",
-  SET_GUEST_COUNT = "SET_GUEST_COUNT",
+  SET_CUSTOMER_COUNT = "SET_CUSTOMER_COUNT",
   CONFIRM = "CONFIRM",
   FAIL = "FAIL",
   CANCEL = "CANCEL",
@@ -26,8 +26,8 @@ export interface SetDatesPayload {
   [key: string]: unknown;
 }
 
-export interface SetGuestCountPayload {
-  guestCount: number;
+export interface SetCustomerCountPayload {
+  customerCount: number;
   [key: string]: unknown;
 }
 
@@ -46,7 +46,7 @@ export interface SetSpecialRequestsPayload {
 export type BookingTransitionEvent =
   | { type: BookingEvent.SELECT_LISTING; payload?: SelectListingPayload }
   | { type: BookingEvent.SET_DATES;      payload?: SetDatesPayload }
-  | { type: BookingEvent.SET_GUEST_COUNT; payload?: SetGuestCountPayload }
+  | { type: BookingEvent.SET_CUSTOMER_COUNT; payload?: SetCustomerCountPayload }
   | { type: BookingEvent.SET_CONTACT;    payload?: SetContactPayload }
   | { type: BookingEvent.SET_SPECIAL_REQUESTS; payload?: SetSpecialRequestsPayload }
   | { type: BookingEvent.CONFIRM;        payload?: Record<string, unknown> }

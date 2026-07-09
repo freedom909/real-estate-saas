@@ -1,13 +1,13 @@
 export interface BookingExternalDTO {
   id: string;
-  guestId: string;
+  customerId: string;
   price: number;
   status: string;
   metadata: {
     ipAddress?: string;
     userAgent?: string;
   };
-  guestStats: {
+  customerStats: {
     cancellationCount: number;
     totalBookingsCount: number;
   };

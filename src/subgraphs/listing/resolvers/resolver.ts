@@ -7,7 +7,7 @@ import { container } from "tsyringe";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import GetListingUseCase from "@/core/listing/application/usecase/getListingUseCase";
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
-import CreateListingUseCase from "@/core/listing/application/usecase/createListingUseCase";
+
 
 export const resolvers = {
   Query: {
@@ -26,11 +26,11 @@ export const resolvers = {
       return useCase.execute(id);
     },
 
-    listingsByHost: async (_: any, { hostId }: { hostId: string }) => {
+    listingsByOwner: async (_: any, { hostId }: { hostId: string }) => {
       const repo = container.resolve<IListingRepository>(
         TOKENS_LISTING.repos.listingRepository
       );
-      return repo.findByHostId(hostId);
+      return repo.findByOwnerId(hostId);
     },
 
 
@@ -64,7 +64,7 @@ Mutation: {
   Listing: {
     host: (parent: any) => {
       return {
-        __typename: "Host",
+        __typename: "Owner",
         id: parent.hostId,
       };
     },
@@ -94,12 +94,12 @@ Mutation: {
     },
   },
 
-  Host: {
+  Owner: {
     listings: async (parent: { id: string }) => {
       const repo = container.resolve<IListingRepository>(
         TOKENS_LISTING.repos.listingRepository
       );
-      return repo.findByHostId(parent.id);
+      return repo.findByOwnerId(parent.id);
     },
   },
 };

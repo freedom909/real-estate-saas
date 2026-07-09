@@ -3,7 +3,7 @@ import { IBookingRepository } from "../../domain/repositories/i-booking.reposito
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 
 @injectable()
-export class GetBookingsForGuestUseCase {
+export class GetBookingsForCustomerUseCase {
 
   constructor(
     @inject(TOKENS_BOOKING.repository.bookingRepository)
@@ -11,10 +11,10 @@ export class GetBookingsForGuestUseCase {
   ) {}
 
   async execute(
-    guestId: string
+    customerId: string
   ) {
-    return this.bookingRepository.findByGuestId(
-      guestId
+    return this.bookingRepository.findByCustomerId(
+      customerId
     );
   }
 }

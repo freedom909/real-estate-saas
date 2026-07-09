@@ -35,7 +35,7 @@ Available primaryAction:
 
 Rules:
 - primaryAction is REQUIRED
-- Extract entities: LISTING_ID, LOCATION, DATE_RANGE, GUEST_COUNT, ORDINAL
+- Extract entities: LISTING_ID, LOCATION, DATE_RANGE, CUSTOMER_COUNT, ORDINAL
 - ORDINAL: "first", "second", "third", "last", "latest"
 
 Output: {"domain":"...","primaryAction":"...","confidence":0.95,"entities":[{"type":"...","value":"..."}]}
@@ -101,7 +101,7 @@ return new SemanticContext(
       CHECK_OUT: EntityType.CHECK_OUT,
       LOCATION: EntityType.LOCATION,
       DATE_RANGE: EntityType.DATE_RANGE,
-      GUEST_COUNT: EntityType.GUEST_COUNT,
+      CUSTOMER_COUNT: EntityType.CUSTOMER_COUNT,
       PRICE_RANGE: EntityType.PRICE_RANGE,
       ORDINAL: EntityType.ORDINAL,
       REVIEW_ID: EntityType.REVIEW_ID,

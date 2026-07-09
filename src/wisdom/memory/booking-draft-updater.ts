@@ -27,14 +27,14 @@ export class BookingDraftUpdater {
     };
   }
 
-  updateGuests(
+  updateCustomers(
     context: AIContext,
-    guestCount: number
+    customerCount: number
   ) {
 
     context.resources.bookingDraft = {
       ...context.resources.bookingDraft,
-      guestCount
+      customerCount
     };
   }
 

@@ -43,13 +43,13 @@ export class PaymentRepository implements IPaymentRepository {
       : null;
   }
 
-  async findByGuestId(
-    guestId: string
+  async findByCustomerId(
+    customerId: string
   ): Promise<Payment[]> {
 
     const models =
       await PaymentModel.findAll({
-        where: { guestId }
+        where: { customerId }
       });
 
     return models.map(

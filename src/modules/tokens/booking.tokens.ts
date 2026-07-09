@@ -17,7 +17,7 @@ export const TOKENS_BOOKING = {
     getBookingUseCase: Symbol.for("GetBookingUseCase"),
     createBookingUseCase: Symbol.for("CreateBookingUseCase"),
     completeBookingUseCase: Symbol.for("CompleteBookingUseCase"),
-    getBookingsForGuestUseCase: Symbol.for("GetBookingsForGuestUseCase"),
+    getBookingsForCustomerUseCase: Symbol.for("GetBookingsForCustomerUseCase"),
   },
   repository: {
     bookingRepository: Symbol.for("BookingRepository"),

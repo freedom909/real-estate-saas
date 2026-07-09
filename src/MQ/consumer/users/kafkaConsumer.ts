@@ -31,28 +31,28 @@ const consumer = kafka.consumer({ groupId: 'my-group' });
  * @param {string} picture - User's picture
  * @returns {Object} - Status object indicating success or failure
  */
-async function registerHost(email, password, name, nickname, inviteCode, picture) {
+async function registerTenant(email, password, name, nickname, inviteCode, picture) {
   try {
     const isValidInviteCode = await validateInviteCode(inviteCode);
     if (!isValidInviteCode) {
       return { success: false, message: 'Invalid invite code' };
     }
 
-    const result = await userService.register({ email, password, name, nickname, role: 'HOST', picture });
+    const result = await userService.register({ email, password, name, nickname, role: 'OWNER', picture });
     const { userId, username } = result.data;
 
     // Store user data in the repository
-    await userRepository.insertUser({ email, name, nickname, role: 'HOST', picture, _id: userId });
+    await userRepository.insertUser({ email, name, nickname, role: 'OWNER', picture, _id: userId });
 
     await sendRegisterMessage(userId, username);
-    return { success: true, message: 'Host registered successfully' };
+    return { success: true, message: 'Tenant registered successfully' };
   } catch (error) {
     return { success: false, message: error.message };
   }
 }
 
 /**
- * Registers a guest user.
+ * Registers a customer user.
  * @param {string} email - User's email
  * @param {string} password - User's password
  * @param {string} name - User's name
@@ -60,16 +60,16 @@ async function registerHost(email, password, name, nickname, inviteCode, picture
  * @param {string} picture - User's picture
  * @returns {Object} - Status object indicating success or failure
  */
-async function registerGuest(email, password, name, nickname, picture) {
+async function registerCustomer(email, password, name, nickname, picture) {
   try {
-    const result = await userService.register({ email, password, name, nickname, role: 'GUEST', picture });
+    const result = await userService.register({ email, password, name, nickname, role: 'CUSTOMER', picture });
     const { userId, username } = result.data;
 
     // Store user data in the repository
-    await userRepository.insertUser({ email, name, nickname, role: 'GUEST', picture, _id: userId });
+    await userRepository.insertUser({ email, name, nickname, role: 'CUSTOMER', picture, _id: userId });
 
     await sendRegisterMessage(userId, username);
-    return { success: true, message: 'Guest registered successfully' };
+    return { success: true, message: 'Customer registered successfully' };
   } catch (error) {
     return { success: false, message: error.message };
   }
@@ -107,7 +107,7 @@ const sendRegisterMessage = async (userId, username) => {
     ];
 
     // Send the message to a Kafka topic named 'register-topic'
-    producer.send(payloads, (err, data) => {
+    consumer.send(payloads, (err, data) => {
       if (err) {
         console.error('Error sending registration message to Kafka:', err);
       } else {
@@ -135,4 +135,4 @@ async function getUserById(userId) {
   return userFromApi;
 }
 
-export { registerHost, registerGuest, getUserById };
+export { registerTenant, registerCustomer, getUserById };

@@ -1,9 +1,9 @@
 import { injectable } from 'tsyringe';
 
 @injectable()
-export class HostAdapter {
-  async validateHostExists(hostId: string): Promise<boolean> {
-    // Implementation would typically call the Host SDK
+export class TenantAdapter {
+  async validateOwnerExists(ownerId: string): Promise<boolean> {
+    // Implementation would typically call the Tenant SDK
     return true; 
   }
 }

@@ -39,7 +39,7 @@ async execute(id: string) {
     await this.eventBus.publish(
       new BookingConfirmedEvent(
         booking.id,
-        booking.guestId,
+        booking.customerId,
         booking.tenantId,      
         booking.listingId,
         booking.price,

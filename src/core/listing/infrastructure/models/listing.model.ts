@@ -43,7 +43,7 @@ ListingModel.init(
       defaultValue: 1,
     },
 
-    numOfGuests: {
+    numOfCustomers: {
       type: DataTypes.INTEGER,
       defaultValue: 1,
     },

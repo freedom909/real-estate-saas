@@ -27,7 +27,7 @@ type Listing @key(fields: "id") {
   amenityIds: [Amenity!]!
 
   numOfBeds: Int!
-  numOfGuests: Int!
+  numOfCustomers: Int!
   numOfBathrooms: Int!
   numOfRooms: Int!
 
@@ -42,9 +42,9 @@ type Listing @key(fields: "id") {
 }
 
 # -----------------------------------
-# Host Federation Extension
+# Owner Federation Extension
 # -----------------------------------
-extend type Host @key(fields: "id") {
+extend type Owner @key(fields: "id") {
   id: ID! @external
 
   listings: [Listing!] @shareable
@@ -84,7 +84,7 @@ input CreateListingInput {
   amenityIds: [ID!]
 
   numOfBeds: Int
-  numOfGuests: Int
+  numOfCustomers: Int
   numOfBathrooms: Int
   numOfRooms: Int
 
@@ -115,7 +115,7 @@ type Query {
   listing(id: ID!): Listing
   listingAISuggestions(listingId: ID!): [ListingAISuggestion!]!
   listings: [Listing!]!
-  listingsByHost(hostId: ID!): [Listing!]!
+  listingsByOwner(hostId: ID!): [Listing!]!
 }
 
 type ListingAISuggestion {

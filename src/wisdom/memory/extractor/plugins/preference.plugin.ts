@@ -61,19 +61,19 @@ export class PreferencePlugin implements KnowledgePlugin {
         }
       }
 
-      // Guest count — user intent
-      if (entity.type === "GUEST_COUNT" && entity.value) {
-        if (!this.hasPreference(knowledge, "guestCount", entity.value)) {
+      // Customer count — user intent
+      if (entity.type === "CUSTOMER_COUNT" && entity.value) {
+        if (!this.hasPreference(knowledge, "customerCount", entity.value)) {
           deltas.push({
             kind: "PREFERENCE_LEARNED",
             data: {
-              key: "guestCount",
+              key: "customerCount",
               value: entity.value,
               confidence: 0.9,
               source: "user",
               createdAt: Date.now(),
             },
-            evidence: `User specified ${entity.value} guests`,
+            evidence: `User specified ${entity.value} customers`,
           });
         }
       }

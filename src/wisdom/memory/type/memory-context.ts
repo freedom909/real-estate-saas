@@ -33,7 +33,7 @@ export interface ListingSummary {
     title: string;
     address: string;
     price: number;
-    numOfGuests: number;
+    numOfCustomers: number;
     response: string;
 }
 

@@ -15,7 +15,7 @@ export class SubmitCustomerReviewUseCase {
   async execute(input: {
     bookingId: string;
     listingId: string;
-    guestId: string;
+    customerId: string;
     hostId: string;
     rating: number;
     content: string;
@@ -24,7 +24,7 @@ export class SubmitCustomerReviewUseCase {
     const review = new Review({
       bookingId: input.bookingId,
       listingId: input.listingId,
-      guestId: input.guestId,
+      customerId: input.customerId,
       hostId: input.hostId,
       rating: new Rating(input.rating),
       content: input.content,

@@ -36,7 +36,7 @@ export class ProcessPaymentUseCase {
       new PaymentProcessedEvent(
         payment.id,
         payment.bookingId,
-        payment.guestId,
+        payment.customerId,
         payment.tenantId,
         payment.amount,
         payment.checkInDate,

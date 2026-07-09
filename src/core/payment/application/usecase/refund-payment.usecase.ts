@@ -42,7 +42,7 @@ export class RefundPaymentUseCase {
       new PaymentRefundedEvent(
         payment.id,
         payment.bookingId,
-        payment.guestId,
+        payment.customerId,
         payment.tenantId,
         payment.amount,
         payment.checkInDate,

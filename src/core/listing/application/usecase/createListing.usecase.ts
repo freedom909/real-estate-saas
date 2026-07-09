@@ -20,7 +20,7 @@ export interface CreateListingInput {
   description: string;
   address: string;
   numOfBeds: number;
-  numOfGuests: number;
+  numOfCustomers: number;
   numOfBathrooms: number;
   numOfRooms: number;
   price: number;
@@ -94,7 +94,7 @@ export default class CreateListingUseCase {
       id: uuidv4(),
       numOfBeds: input.numOfBeds || 1,
 
-      numOfGuests: input.numOfGuests || 1,
+      numOfCustomers: input.numOfCustomers || 1,
 
       numOfBathrooms: input.numOfBathrooms || 1,
 

@@ -25,7 +25,7 @@ ${listing.amenityIds.join(", ")}
 Location:
 ${listing.address}
 - Maximum 60 characters
-- Attractive to guests
+- Attractive to customers
 - SEO optimized
 - Highlight strongest selling points
 - Human sounding

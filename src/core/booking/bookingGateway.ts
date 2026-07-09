@@ -22,14 +22,14 @@ export class BookingGateway extends BaseGateway {
     query GetBookingDetails($id: ID!) {
       booking(id: $id) {
         id
-        guestId
+        customerId
         price
         status
         metadata {
           ipAddress
           userAgent
         }
-        guestStats {
+        customerStats {
           cancellationCount
           totalBookingsCount
         }

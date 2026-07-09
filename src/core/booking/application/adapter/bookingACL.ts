@@ -14,14 +14,14 @@ export class BookingACL {
     // Mapping logic: Transforming external DTO to internal Domain Context
     return {
       bookingId: rawData.id,
-      userId: rawData.guestId,
+      userId: rawData.customerId,
       amount: rawData.price,
       status: rawData.status,
       ipAddress: rawData.metadata.ipAddress,
       userAgent: rawData.metadata.userAgent,
       history: {
-        previousCancellations: rawData.guestStats.cancellationCount,
-        totalBookings: rawData.guestStats.totalBookingsCount,
+        previousCancellations: rawData.customerStats.cancellationCount,
+        totalBookings: rawData.customerStats.totalBookingsCount,
       },
       metadata: {}, // AI-specific metadata can be initialized here
       riskScore: 0,  // Initial state for the Agent to populate

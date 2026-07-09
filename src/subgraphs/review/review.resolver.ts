@@ -22,7 +22,7 @@ export const reviewResolvers = {
     submitCustomerReview: async (_: any, { input }: any, context: any) => {
       console.log("input++:", input);
       const useCase = container.resolve<SubmitCustomerReviewUseCase>(TOKENS_REVIEW.usecase.submitCustomerReview);
-      return useCase.execute({ ...input, guestId: context.user.id });
+      return useCase.execute({ ...input, customerId: context.user.id });
     },
 
     submitOwnerReplyToCustomerReview: async (_: any, { input }: any, context: any) => {
@@ -41,7 +41,7 @@ export const reviewResolvers = {
     },
   },
   Review: {
-    author: (review: any) => ({ __typename: "Customer", id: review.guestId }),
+    author: (review: any) => ({ __typename: "Customer", id: review.customerId }),
     listing: (review: any) => ({ __typename: "Listing", id: review.listingId }),
     host: (review: any) => ({ __typename: "Owner", id: review.hostId }),
   }

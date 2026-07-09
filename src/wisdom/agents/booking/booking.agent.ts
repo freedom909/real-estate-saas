@@ -13,9 +13,9 @@ import { CreateBookingUseCase } from "@/core/booking/application/usecases/create
 import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booking.usecase";
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
 import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
-import { GetBookingsForGuestUseCase } from "@/core/booking/application/usecases/getBookingsForGuest.useCase";
+import { GetLatestBookingForCustomerUseCase } from "@/core/booking/application/usecases/getLatestBookingForCustomer.useCase";
+import { GetBookingsForCustomerUseCase } from "@/core/booking/application/usecases/getBookingsForCustomer.useCase";
 
-import { GetLatestBookingForGuestUseCase } from "@/core/booking/application/usecases/getLatestBookingForGuest.useCase";
 
 
 @injectable()
@@ -31,11 +31,11 @@ export class BookingAgent implements IDomainAgent {
     private confirmBookingUseCase: ConfirmBookingUseCase,
     @inject(delay(() => CompleteBookingUseCase))
     private completeBookingUseCase: CompleteBookingUseCase,
-    @inject(delay(() => GetBookingsForGuestUseCase))
-    private getBookingsForGuestUseCase: GetBookingsForGuestUseCase,
+    @inject(delay(() => GetBookingsForCustomerUseCase))
+    private getBookingsForCustomerUseCase: GetBookingsForCustomerUseCase,
 
-    @inject(delay(() => GetLatestBookingForGuestUseCase))
-    private getLatestBookingForGuestUseCase: GetLatestBookingForGuestUseCase,//it was not used
+    @inject(delay(() => GetLatestBookingForCustomerUseCase))
+    private getLatestBookingForCustomerUseCase: GetLatestBookingForCustomerUseCase,//it was not used
   ) {}
 
   async execute(semantic: SemanticContext, context: AIContext): Promise<WisdomResponse> {
@@ -141,14 +141,14 @@ export class BookingAgent implements IDomainAgent {
       };
     }
 
-    const guestCount = parseInt(this.extractEntity(semantic, ["GUEST_COUNT", "guest_count"]) ?? "1");
+    const customerCount = parseInt(this.extractEntity(semantic, ["Customer_COUNT", "gues_count"]) ?? "1");
 
     const result = await this.createBookingUseCase.execute({
       listingId: resolvedListingId,
-      guestId: context.identity.user?.id ?? "",
+      customerId: context.identity.user?.id ?? "",
       checkInDate: new Date(resolvedCheckIn),
       checkOutDate: new Date(resolvedCheckOut),
-      guestCount,
+      customerCount,
     });
 
     return {
@@ -218,8 +218,8 @@ export class BookingAgent implements IDomainAgent {
   // ─── GET MY BOOKINGS ─────────────────────────────────────────
 
   private async handleGetMyBookings(context: AIContext): Promise<WisdomResponse> {
-    const guestId = context.identity.user?.id;
-    if (!guestId) {
+    const customerId = context.identity.user?.id;
+    if (!customerId) {
       return {
         success: false,
         domain: "BOOKING" as any,
@@ -229,7 +229,7 @@ export class BookingAgent implements IDomainAgent {
       };
     }
 
-    const result = await this.getBookingsForGuestUseCase.execute(guestId);
+    const result = await this.getBookingsForCustomerUseCase.execute(customerId);
     return {
       success: true,
       domain: "BOOKING" as any,

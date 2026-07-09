@@ -14,8 +14,8 @@ export interface IPaymentRepository {
     bookingId: string
   ): Promise<Payment | null>;
 
-  findByGuestId(
-    guestId: string
+  findByCustomerId(
+    customerId: string
   ): Promise<Payment[]>;
 
   save(

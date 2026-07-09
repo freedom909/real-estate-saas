@@ -7,7 +7,7 @@ import { BookingLifecycleStatus } from "../value-objects/booking-lifecycle.statu
 export interface BookingProps {
   id: string;
   listingId: string;
-  guestId: string;
+  customerId: string;
   dateRange: DateRange;
   tenantId: string;
   price: number;
@@ -109,8 +109,8 @@ this.props.updatedAt =new Date();
     return this.props.id;
   }
 
-  get guestId() {
-    return this.props.guestId;
+  get customerId() {
+    return this.props.customerId;
   }
 
   get tenantId() {

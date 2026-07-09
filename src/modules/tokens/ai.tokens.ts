@@ -54,7 +54,7 @@ export const TOKENS_AI = {
     reviewValidationUseCase: Symbol.for("ReviewValidationUseCase"),
     reviewReplyUseCase: Symbol.for("ReviewReplyUseCase"),
     reviewReportUseCase: Symbol.for("ReviewReportUseCase"),
-    submitGuestReviewUseCase: Symbol.for("SubmitGuestReviewUseCase"),
+    submitCustomerReviewUseCase: Symbol.for("SubmitCustomerReviewUseCase"),
     bookingFraudUseCase: Symbol.for("BookingFraudUseCase"),
     cancelBookingUseCase: Symbol.for("CancelBookingUseCase"),
     createBookingUseCase: Symbol.for("CreateBookingUseCase"),

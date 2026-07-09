@@ -6,7 +6,7 @@ export interface SearchListingsQuery {
   dateRange?: string;
   checkIn?: string;
   checkOut?: string;
-  guestCount?: number;
+  customerCount?: number;
   minPrice?: number;
   maxPrice?: number;
   limit?: number;
@@ -16,7 +16,7 @@ export interface SearchListingsQuery {
 export interface IListingRepository {
   create(listing: Listing): Promise<Listing>;
   findById(id: string): Promise<Listing | null>;
-  findByHostId(hostId: string): Promise<Listing[]>;
+  findByOwnerId(hostId: string): Promise<Listing[]>;
   search(query: SearchListingsQuery): Promise<Listing[]>;
   update(id: string, listing: Listing): Promise<boolean>;
   delete(id: string): Promise<boolean>;

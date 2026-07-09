@@ -6,7 +6,7 @@ export interface BookingDraft {
   listingId?: string;
   checkInDate?: string;
   checkOutDate?: string;
-  guestCount?: number;
+  customerCount?: number;
 }
 
 export interface AIContext {
@@ -55,7 +55,7 @@ export interface SearchListingResult {
   address: string;
   price: number;
   numOfBeds: number;
-  numOfGuests: number;
+  numOfCustomers: number;
   numOfBathrooms: number;
   numOfRooms: number;
   picture: string[];
@@ -66,11 +66,11 @@ export interface BookingDraft {
   listingId?: string;
   checkInDate?: string;
   checkOutDate?: string;
-  guestCount?: number;
+  customerCount?: number;
 }
 
 export interface ResourceContext {
-  guestCount: number;
+  customerCount: number;
   checkOut: string;
   checkIn: string;
   location: string;
@@ -85,7 +85,7 @@ export interface ResourceContext {
     listingId?: string;
     checkInDate?: string;
     checkOutDate?: string;
-    guestCount?: number;
+    customerCount?: number;
   };
 }
 

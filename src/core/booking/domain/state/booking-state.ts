@@ -4,7 +4,7 @@ export enum BookingState {
     IDLE = "idle",
     AWAITING_LISTING = "awaiting_listing",
     AWAITING_DATES = "awaiting_dates",
-    AWAITING_GUEST_COUNT = "awaiting_guest_count",
+    AWAITING_CUSTOMER_COUNT = "awaiting_customer_count",
     AWAITING_PAYMENT = "awaiting_payment",
 
     READY_TO_BOOK = "ready_to_book",

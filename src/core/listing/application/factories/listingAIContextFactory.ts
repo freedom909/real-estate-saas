@@ -25,7 +25,7 @@ console.log(
       amenities: listing.amenityIds.map(amenityId => amenityId),
       price: listing.price,
       numOfBeds: listing.numOfBeds,
-      numOfGuests: listing.numOfGuests,
+      numOfCustomers: listing.numOfCustomers,
       analysis: undefined,
       seoKeywords: []
     };

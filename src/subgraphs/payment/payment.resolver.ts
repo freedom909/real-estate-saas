@@ -129,7 +129,7 @@ const resolvers = {
     checkInDate: (parent: any) => parent.checkInDate || parent.dateRange?.checkInDate,
     checkOutDate: (parent: any) => parent.checkOutDate || parent.dateRange?.checkOutDate,
     booking: (parent: any) => ({ __typename: "Booking", id: parent.bookingId }),
-    guest: (parent: any) => ({ __typename: "User", id: parent.guestId }),
+    customer: (parent: any) => ({ __typename: "User", id: parent.customerId }),
   }
 };
 

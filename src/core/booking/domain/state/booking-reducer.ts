@@ -51,25 +51,25 @@ export function bookingReducer(
         ...state,
         checkInDate: event.payload.startDate,
         checkOutDate: event.payload.endDate,
-        status: BookingState.AWAITING_GUEST_COUNT,
+        status: BookingState.AWAITING_CUSTOMER_COUNT,
       };
     }
 
-    // ── Set guest count ─────────────────────────────────────
-    case BookingEvent.SET_GUEST_COUNT: {
+    // ── Set customer count ─────────────────────────────────────
+    case BookingEvent.SET_CUSTOMER_COUNT: {
       if (!event.payload) {
         return state;
       }
       return {
         ...state,
-        guestCount: event.payload.guestCount,
+        customerCount: event.payload.customerCount,
         status: BookingState.READY_TO_BOOK,
       };
     }
 
     // ── Confirm / submit booking ────────────────────────────
     case BookingEvent.CONFIRM: {
-      if (!state.checkInDate || !state.checkOutDate || !state.guestCount) {
+      if (!state.checkInDate || !state.checkOutDate || !state.customerCount) {
         return state; // guard: missing required fields
       }
       return {

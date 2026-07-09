@@ -19,18 +19,18 @@ export const resolvers = {
     },
   },
   BillingAccount: {
-    host: (parent: any) => {
-      return { __typename: 'Host', id: parent.hostId };
+    tenant: (parent: any) => {
+      return { __typename: 'Tenant', id: parent.tenantId };
     },
     __resolveReference: async (ref: { id: string }) => {
       const service = container.resolve(BillingService);
       return service.getBillingAccount(ref.id);
     },
   },
-  Host: {
+  Tenant: {
     billingAccount: async (parent: { id: string }) => {
       const service = container.resolve(BillingService);
-      return service.getAccountByHost(parent.id);
+      return service.getAccountByTenant(parent.id);
     }
   }
 };

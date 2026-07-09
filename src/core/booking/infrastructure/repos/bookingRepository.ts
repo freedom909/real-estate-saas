@@ -12,11 +12,11 @@ import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifec
 
 @injectable()
 export class BookingRepository implements IBookingRepository {
-  async findByLatestByGuestId(guestId: string): Promise<Booking | null> {
-    if (!guestId) return null;
+  async findByLatestByCustomerId(customerId: string): Promise<Booking | null> {
+    if (!customerId) return null;
     const model = await BookingModel.findOne({
 
-      where: { guestId },
+      where: { customerId },
       order: [["createdAt", "DESC"]],
     });
 
@@ -31,7 +31,7 @@ export class BookingRepository implements IBookingRepository {
     await BookingModel.upsert({
       id: data.id,
       listingId: data.listingId,
-      guestId: data.guestId,
+      customerId: data.customerId,
       tenantId: data.tenantId,
       checkInDate: data.dateRange.checkInDate,
       checkOutDate: data.dateRange.checkOutDate,
@@ -52,9 +52,9 @@ export class BookingRepository implements IBookingRepository {
   }
 
 
-  async findByGuestId(guestId: string): Promise<Booking[]> {
+  async findByCustomerId(customerId: string): Promise<Booking[]> {
     const models = await BookingModel.findAll({
-      where: { guestId },
+      where: { customerId },
       order: [["createdAt", "DESC"]],
     });
 
@@ -75,7 +75,7 @@ export class BookingRepository implements IBookingRepository {
     return Booking.rehydrate({
       id: model.id,
       listingId: model.listingId,
-      guestId: model.guestId,
+      customerId: model.customerId,
       tenantId: model.tenantId,
       dateRange: new DateRange(
         new Date(model.checkInDate),

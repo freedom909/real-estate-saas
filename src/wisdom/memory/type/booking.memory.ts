@@ -7,7 +7,7 @@ export interface BookingMemory {
     listingTitle?: string;
     checkInDate?: string;
     checkOutDate?: string;
-    guestCount?: number;
+    customerCount?: number;
     contactName?: string;
     specialRequests?: string;
     status: BookingState;

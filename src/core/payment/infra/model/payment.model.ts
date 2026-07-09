@@ -19,7 +19,7 @@ export interface PaymentAttributes {
 
     bookingId: string;
 
-    guestId: string;
+    customerId: string;
 
     tenantId: string;
 
@@ -66,7 +66,7 @@ export class PaymentModel
 
     public bookingId!: string;
 
-    public guestId!: string;
+    public customerId!: string;
 
     public tenantId!: string;
 
@@ -105,10 +105,10 @@ PaymentModel.init(
             field: 'booking_id', // Explicitly map to snake_case
         },
 
-        guestId: {
+        customerId: {
             type: DataTypes.STRING,
             allowNull: false,
-            field: 'guest_id', // Explicitly map to snake_case
+            field: 'customer_id', // Explicitly map to snake_case
         },
 
         tenantId: {

@@ -32,7 +32,7 @@ export class CreateBookingUseCase {
     
 const required = [
   "listingId",
-  "guestId",
+  "customerId",
   "checkInDate",
   "checkOutDate"
 ];
@@ -81,7 +81,7 @@ const booking =
   Booking.create({
     id: uuidv4(),
     listingId: input.listingId,
-    guestId: input.guestId,
+    customerId: input.customerId,
     tenantId: input.tenantId ?? "tenant-dev",
     dateRange: new DateRange(
       new Date(input.checkInDate),
@@ -98,7 +98,7 @@ const booking =
     // ✅ 发布领域事件
     await this.eventBus.publish(new BookingCreatedEvent(
       booking.id,
-      booking.guestId,
+      booking.customerId,
       booking.tenantId, // Use the tenantId from the created booking entity
       booking.listingId,
       booking.price,

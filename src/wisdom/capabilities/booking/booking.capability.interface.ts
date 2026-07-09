@@ -4,7 +4,7 @@
 export interface IBookingCapability {
   createBooking(input: {
     listingId: string;
-    guestId: string;
+    customerId: string;
     checkInDate: string | Date;
     checkOutDate: string | Date;
     tenantId: string;

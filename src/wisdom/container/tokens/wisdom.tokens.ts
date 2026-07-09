@@ -25,7 +25,7 @@ export const WISDOM_TOKENS = {
     locationExtractor: Symbol.for("wisdom.locationExtractor"),
     bookingIdExtractor: Symbol.for("wisdom.bookingIdExtractor"),
     listingExtractor: Symbol.for("wisdom.listingExtractor"),
-    guestExtractor: Symbol.for("wisdom.guestExtractor"),
+    customerExtractor: Symbol.for("wisdom.customerExtractor"),
   },
   // Pipeline
   pipeline: Symbol.for("wisdom.pipeline"),

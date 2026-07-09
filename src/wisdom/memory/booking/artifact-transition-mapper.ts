@@ -48,9 +48,9 @@ export class ArtifactTransitionMapper {
           payload: artifact.content,
         };
 
-      case "GUEST_COUNT_SELECTED":
+      case "CUSTOMER_COUNT_SELECTED":
         return {
-          type: BookingEvent.SET_GUEST_COUNT,
+          type: BookingEvent.SET_CUSTOMER_COUNT,
           payload: artifact.content,
         };
 

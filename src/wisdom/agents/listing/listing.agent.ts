@@ -97,7 +97,7 @@ export class ListingAgent implements IDomainAgent {
     const checkIn = semantic.entities.find((e) => e.type === EntityType.CHECK_IN_DATE)?.value;
     const checkOut = semantic.entities.find((e) => e.type === EntityType.CHECK_OUT_DATE)?.value;
     const dateRange = checkIn && checkOut ? `${checkIn} to ${checkOut}` : undefined;
-    const guestCount = semantic.entities.find((e) => e.type === EntityType.GUEST_COUNT)?.value;
+    const customerCount = semantic.entities.find((e) => e.type === EntityType.CUSTOMER_COUNT)?.value;
     const priceRange = semantic.entities.find((e) => e.type === EntityType.PRICE_RANGE)?.value;
 
     let minPrice: number | undefined;
@@ -111,7 +111,7 @@ export class ListingAgent implements IDomainAgent {
     const searchResult = await this.searchListingUseCase.execute({
       location: location as string,
       dateRange: dateRange as string,
-      guestCount: guestCount ? parseInt(guestCount as string) : undefined,
+      customerCount: customerCount ? parseInt(customerCount as string) : undefined,
       minPrice,
       maxPrice,
     });

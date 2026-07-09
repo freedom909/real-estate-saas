@@ -24,7 +24,7 @@ interface UserReference {
 
 const resolvers = {
 
-Guest: {
+Customer: {
   __resolveReference: async (
     ref: UserReference,
     { container }: ResolverContext
@@ -34,7 +34,7 @@ console.log(
  ref
 );
     console.log(
-      "🔥 Guest __resolveReference",
+      "🔥 Customer __resolveReference",
       ref
     );
 
@@ -43,15 +43,15 @@ console.log(
         TOKENS_USER.services.userService
       );
 
-    const guest =
+    const customer =
       await userService.findById(ref.id);
 
     console.log(
-      "🔥 Guest Found",
-      guest
+      "🔥 Customer Found",
+      customer
     );
 
-    return guest;
+    return customer;
   },
 },
 User: {

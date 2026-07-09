@@ -14,7 +14,7 @@ export class BookingCompletedEvent extends DomainEvent{
   
     constructor(
     public readonly bookingId: string,
-    public readonly guestId: string,
+    public readonly customerId: string,
     public readonly tenantId: string,
     public readonly listingId: string,
     public readonly price: number,

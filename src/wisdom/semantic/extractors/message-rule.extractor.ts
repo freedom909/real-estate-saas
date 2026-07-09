@@ -44,7 +44,7 @@ export class MessageRuleExtractor {
   extractEntities(message: string): SemanticEntity[] {
     return [
       // ...this.extractDateRange(message),
-      ...this.extractGuestCount(message),
+      ...this.extractCustomerCount(message),
       ...this.extractContactName(message),
       ...this.extractSpecialRequest(message),
       ...this.extractOrdinal(message),
@@ -158,12 +158,12 @@ export class MessageRuleExtractor {
   //   return [];
   // }
 
-  /** "2 guests", "3 people" → GUEST_COUNT */
-  private extractGuestCount(message: string): SemanticEntity[] {
-    const match = message.match(/(\d+)\s*(guests?|people|person|人)/i);
+  /** "2 customers", "3 people" → CUSTOMER_COUNT */
+  private extractCustomerCount(message: string): SemanticEntity[] {
+    const match = message.match(/(\d+)\s*(customers?|people|person|人)/i);
     if (!match) return [];
 
-    return [{ type: EntityType.GUEST_COUNT, value: parseInt(match[1], 10), confidence: 0.95 }];
+    return [{ type: EntityType.CUSTOMER_COUNT, value: parseInt(match[1], 10), confidence: 0.95 }];
   }
 
   /** "contact: John Smith", "name: Tanaka" → CONTACT_NAME (future extensibility) */

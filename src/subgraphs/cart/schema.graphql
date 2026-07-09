@@ -8,7 +8,7 @@ scalar DateTime
 
 enum Role {
   ADMIN
-  GUEST
+  CUSTOMER
   HOST
   USER
   PENDING_HOST
@@ -30,7 +30,7 @@ type User @key(fields: "id") {
   role: Role!
 }
 
-type Host @key(fields: "id") {
+type Tenant @key(fields: "id") {
   id: ID! @shareable
   email: String! @shareable
   name: String! @shareable
@@ -38,7 +38,7 @@ type Host @key(fields: "id") {
   listings: [Listing!]! @shareable
 }
 
-type Guest @key(fields: "id") {
+type Customer @key(fields: "id") {
   id: ID! @shareable
   email: String! @shareable
   name: String! @shareable
@@ -52,7 +52,7 @@ type Booking @key(fields: "id") {
   isFeatured: Boolean! @shareable
   reservedDate: DateTime! @shareable
   listing: Listing! @shareable
-  guest: Guest! @shareable
+  customer: Customer! @shareable
   review: Review @shareable
   checkInDate: DateTime! @shareable
   checkOutDate: DateTime! @shareable
@@ -74,7 +74,7 @@ type Listing @key(fields: "id") {
   reviewsCount: Int! @shareable
   checkInDate: String! @shareable
   checkOutDate: String! @shareable
-  numOfGuests: Int! @shareable
+  numOfCustomers: Int! @shareable
   numOfBeds: Int! @shareable
   status: ListingStatus! 
   averageRating: Float! @shareable
@@ -116,7 +116,7 @@ input CreateBookingInput {
   reservedDate: DateTime
   checkInDate: DateTime!
   checkOutDate: DateTime!
-  guestId: ID!
+  customerId: ID!
 }
 
 type Query {
@@ -142,7 +142,7 @@ type CartItem {
 
 type Cart {
   id: ID!
-  guestId: ID!
+  customerId: ID!
   checkInDate: DateTime
   checkOutDate: DateTime
   price: Float!
@@ -158,7 +158,7 @@ type CartResponse implements MutationResponse {
 
 input AddToCartInput {
   cartId: ID!
-  guestId: ID!
+  customerId: ID!
   listingId: ID!
   quantity: Int
   price: Float
@@ -180,7 +180,7 @@ input RemoveFromCartInput {
 
 extend type Query {
   getCart(cartId: ID!): Cart @shareable
-  getCartsByGuest(guestId: ID!): [Cart!]! @shareable
+  getCartsByCustomer(customerId: ID!): [Cart!]! @shareable
 }
 
 extend type Mutation {

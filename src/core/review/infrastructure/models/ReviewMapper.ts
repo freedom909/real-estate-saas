@@ -8,7 +8,7 @@ export class ReviewMapper {
       id: raw._id.toString(),
       bookingId: raw.bookingId,
       listingId: raw.listingId,
-      guestId: raw.guestId,
+      customerId: raw.customerId,
       hostId: raw.hostId,
       rating: new Rating(raw.rating),
       content: raw.content,
@@ -25,7 +25,7 @@ export class ReviewMapper {
     return {
       bookingId: domain.props.bookingId,
       listingId: domain.props.listingId,
-      guestId: domain.props.guestId,
+      customerId: domain.props.customerId,
       hostId: domain.props.hostId,
       rating: domain.props.rating.value,
       content: domain.props.content,

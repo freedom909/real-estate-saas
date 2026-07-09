@@ -5,7 +5,7 @@ import bookingProducer from '../../../../MQ/producer/bookingProducer.js';
 export interface BookingData {
   id: string;
   listingId: string;
-  guestId: string;
+  customerId: string;
   checkInDate: string;
   checkOutDate: string;
   price: number;
@@ -29,7 +29,7 @@ export class BookingMQService {
     try {
       await this.initialize();
       await this.producer.sendBookingCreatedMessage(bookingData);
-      await this.producer.sendHostNotificationMessage(bookingData, 'NEW_BOOKING');
+      await this.producer.sendOwnerNotificationMessage(bookingData, 'NEW_BOOKING');
     } catch (error) {
       console.error('❌ Error sending booking created notification:', error);
     }
@@ -39,7 +39,7 @@ export class BookingMQService {
     try {
       await this.initialize();
       await this.producer.sendBookingConfirmedMessage(bookingData);
-      await this.producer.sendHostNotificationMessage(bookingData, 'BOOKING_CONFIRMED');
+      await this.producer.sendOwnerNotificationMessage(bookingData, 'BOOKING_CONFIRMED');
     } catch (error) {
       console.error('❌ Error sending booking confirmed notification:', error);
     }
@@ -54,7 +54,7 @@ export class BookingMQService {
       const bookingWithReason = { ...bookingData, cancellationReason };
 
       await this.producer.sendBookingCancelledMessage(bookingWithReason);
-      await this.producer.sendHostNotificationMessage(bookingData, 'BOOKING_CANCELLED');
+      await this.producer.sendOwnerNotificationMessage(bookingData, 'BOOKING_CANCELLED');
     } catch (error) {
       console.error('❌ Error sending booking cancelled notification:', error);
     }
@@ -69,7 +69,7 @@ export class BookingMQService {
     }
   }
 
-  async sendCustomHostNotification(
+  async sendCustomOwnerNotification(
     bookingData: BookingData,
     notificationType: string,
     customData: Record<string, any> = {}
@@ -77,7 +77,7 @@ export class BookingMQService {
     try {
       await this.initialize();
       const notificationData = { ...bookingData, ...customData };
-      await this.producer.sendHostNotificationMessage(notificationData, notificationType);
+      await this.producer.sendOwnerNotificationMessage(notificationData, notificationType);
     } catch (error) {
       console.error('❌ Error sending custom host notification:', error);
     }

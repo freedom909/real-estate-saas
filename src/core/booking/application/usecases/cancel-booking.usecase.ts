@@ -41,7 +41,7 @@ export class CancelBookingUseCase {
 
     await this.eventBus.publish(new BookingCancelledEvent(
       booking.id,
-      booking.guestId,
+      booking.customerId,
       booking.tenantId,
       booking.listingId,
       booking.price,

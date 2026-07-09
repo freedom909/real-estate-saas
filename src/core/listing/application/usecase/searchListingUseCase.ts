@@ -11,12 +11,12 @@ export class SearchListingUseCase {
     private readonly repo: IListingRepository
   ) {}
 
-  async execute({location,checkIn,checkOut,guestCount}: SearchListingsQuery) {
+  async execute({location,checkIn,checkOut,customerCount}: SearchListingsQuery) {
     
-    const listings = await this.repo.search({location,checkIn,checkOut,guestCount});
+    const listings = await this.repo.search({location,checkIn,checkOut,customerCount});
   console.log(
     "🔍 SEARCH PARAMS",
-    JSON.stringify({location,checkIn,checkOut,guestCount}, null, 2)
+    JSON.stringify({location,checkIn,checkOut,customerCount}, null, 2)
   );
   console.log(
     "🔍 SEARCH RESULTS",
@@ -31,7 +31,7 @@ export class SearchListingUseCase {
         address: l.address,
         price: l.price,
         numOfBeds: l.numOfBeds,
-        numOfGuests: l.numOfGuests,
+        numOfCustomers: l.numOfCustomers,
         numOfBathrooms: l.numOfBathrooms,
         numOfRooms: l.numOfRooms,
         picture: l.picture,

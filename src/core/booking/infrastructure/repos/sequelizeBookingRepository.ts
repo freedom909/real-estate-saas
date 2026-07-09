@@ -10,6 +10,9 @@ import { BookingStatus } from "../../domain/value-objects/booking-status";
 
 @injectable()
 export class SequelizeBookingRepository implements IBookingRepository {
+  findByLatestByCustomerId(customerId: string): Promise<Booking | null> {
+    throw new Error("Method not implemented.");
+  }
 
   async findById(id: string): Promise<Booking | null> {
     const model = await BookingModel.findByPk(id);
@@ -25,7 +28,7 @@ export class SequelizeBookingRepository implements IBookingRepository {
     await BookingModel.upsert({
       id: data.id,
       listingId: data.listingId,
-      guestId: data.guestId,
+      customerId: data.customerId,
       tenantId: data.tenantId,
       checkInDate: data.dateRange.checkInDate,
       checkOutDate: data.dateRange.checkOutDate,
@@ -38,9 +41,9 @@ export class SequelizeBookingRepository implements IBookingRepository {
     });
   }
 
-  async findByGuestId(guestId: string): Promise<Booking[]> {
+  async findByCustomerId(customerId: string): Promise<Booking[]> {
     const models = await BookingModel.findAll({
-      where: { guestId },
+      where: { customerId },
       order: [["createdAt", "DESC"]],
     });
 
@@ -61,7 +64,7 @@ export class SequelizeBookingRepository implements IBookingRepository {
     return Booking.rehydrate({
       id: model.id,
       listingId: model.listingId,
-      guestId: model.guestId,
+      customerId: model.customerId,
       dateRange: new DateRange(
         new Date(model.checkInDate),
         new Date(model.checkOutDate)

@@ -14,13 +14,13 @@ export const resolvers = {
     booking: async (_: any, { id }: any) => {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(id);
     },
-    bookingsForGuest: async (_: any, { userId }: any) => {
+    bookingsForCustomer: async (_: any, { userId }: any) => {
       const repo =
         container.resolve<IBookingRepository>(
           TOKENS_BOOKING.repository.bookingRepository
         );
 
-      return repo.findByGuestId(userId);
+      return repo.findByCustomerId(userId);
     },
   },
   Mutation: {
@@ -37,7 +37,7 @@ export const resolvers = {
         .resolve<CreateBookingUseCase>(TOKENS_BOOKING.usecase.createBookingUseCase)
         .execute({
           listingId: input.listingId, // Explicitly pass required fields
-          guestId: userId,
+          customerId: userId,
           checkInDate: input.checkInDate,
           checkOutDate: input.checkOutDate,
           tenantId: tenantId,
@@ -87,9 +87,9 @@ export const resolvers = {
   Booking: {
     listing: (parent: any) => ({ __typename: "Listing", id: parent.listingId || parent.listing_id }),
 
-    guest: (parent) => ({
+    customer: (parent) => ({
       __typename: "User",
-      id: parent.guestId
+      id: parent.customerId
     }),
 
     // ✅ Handle potential snake_case from DB or missing fields
@@ -109,7 +109,7 @@ export const resolvers = {
           TOKENS_BOOKING.repository.bookingRepository
         );
 
-      return repo.findByGuestId(
+      return repo.findByCustomerId(
         user.id
       );
     },

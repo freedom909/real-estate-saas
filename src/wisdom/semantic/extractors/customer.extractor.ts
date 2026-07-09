@@ -1,8 +1,8 @@
-// src/wisdom/semantic/extractors/guest.extractor.ts
+// src/wisdom/semantic/extractors/customer.extractor.ts
 //
-// Extracts GUEST_COUNT entities from the message.
+// Extracts CUSTOMER_COUNT entities from the message.
 // Handles:
-//   "2 guests", "3 people", "1 person"
+//   "2 customers", "3 people", "1 person"
 //   "2人" (Japanese)
 
 import { injectable } from "tsyringe";
@@ -11,13 +11,13 @@ import { EntityType } from "../../shared/enums/entity-type.enum";
 import { ISemanticEntityExtractor } from "./entity-extractor.interface";
 
 @injectable()
-export class GuestExtractor implements ISemanticEntityExtractor {
+export class CustomerExtractor implements ISemanticEntityExtractor {
   extract(message: string): SemanticEntity[] {
-    // Pattern 1: "N guests/people/person"
-    const match = message.match(/(\d+)\s*(guests?|people|person)/i);
+    // Pattern 1: "N customers/people/person"
+    const match = message.match(/(\d+)\s*(customers?|people|person)/i);
     if (match) {
       return [{
-        type: EntityType.GUEST_COUNT,
+        type: EntityType.CUSTOMER_COUNT,
         value: parseInt(match[1], 10),
         confidence: 0.95,
       }];
@@ -27,7 +27,7 @@ export class GuestExtractor implements ISemanticEntityExtractor {
     const japaneseMatch = message.match(/(\d+)人/);
     if (japaneseMatch) {
       return [{
-        type: EntityType.GUEST_COUNT,
+        type: EntityType.CUSTOMER_COUNT,
         value: parseInt(japaneseMatch[1], 10),
         confidence: 0.95,
       }];

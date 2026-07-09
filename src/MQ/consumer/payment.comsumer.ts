@@ -73,7 +73,7 @@ const processPaymentEvent = async (msg: amqp.ConsumeMessage | null) => {
         await handlePaymentSucceeded(event);
 
         // await sendEmailNotification.sendEmail({
-        //   to: event.guestId,
+        //   to: event.customerId,
         //   subject: "Payment Confirmed",
         //   template: "Payment_confirmed",
         //   data: event,
@@ -118,17 +118,17 @@ export const startConsuming = async () => {
 // Handle Payment created event
 const handlePaymentCreated = async (event: any) => {
   await sendEmailNotification({
-    to: event.guestId,
+    to: event.customerId,
     subject: "Payment Created",
     template: "Payment_created",
     data: event,
   });
 
-  await sendHostNotification({
-    hostId: event.hostId,
+  await sendTenantNotification({
+    tenantId: event.tenantId,
     type: "NEW_Payment",
     PaymentId: event.PaymentId,
-    guestId: event.guestId,
+    customerId: event.customerId,
   });
 
   console.log("📧 Payment created handled");
@@ -136,7 +136,7 @@ const handlePaymentCreated = async (event: any) => {
 
 const handlePaymentSucceeded = async (event: any) => {
   await sendEmailNotification({
-    to: event.guestId,
+    to: event.customerId,
     subject: "Payment Succeeded",
     template: "Payment_succeeded",
     data: event,
@@ -147,17 +147,17 @@ const handlePaymentSucceeded = async (event: any) => {
 
 const handlePaymentCancelled = async (event: any) => {
   await sendEmailNotification({
-    to: event.guestId,
+    to: event.customerId,
     subject: "Payment Cancelled",
     template: "Payment_cancelled",
     data: event,
   });
 
-  await sendHostNotification({
-    hostId: event.hostId,
+  await sendTenantNotification({
+    tenantId: event.tenantId,
     type: "Payment_CANCELLED",
     PaymentId: event.PaymentId,
-    guestId: event.guestId,
+    customerId: event.customerId,
   });
 
   console.log("❌ Payment cancelled handled");
@@ -165,7 +165,7 @@ const handlePaymentCancelled = async (event: any) => {
 
 const handlePaymentReminder = async (event: any) => {
   await sendEmailNotification({
-    to: event.guestId,
+    to: event.customerId,
     subject: "Payment Reminder",
     template: "Payment_reminder",
     data: event,
@@ -174,15 +174,15 @@ const handlePaymentReminder = async (event: any) => {
   console.log("🔔 Reminder handled");
 };
 
-const handleHostNotification = async (event: any) => {
-  await sendHostNotification({
-    hostId: event.hostId,
+const handleTenantNotification = async (event: any) => {
+  await sendTenantNotification({
+    tenantId: event.tenantId,
     type: event.notificationType,
     PaymentId: event.PaymentId,
-    guestId: event.guestId,
+    customerId: event.customerId,
   });
 
-  console.log("🏠 Host notification handled");
+  console.log("🏠 Tenant notification handled");
 };
 
 
@@ -193,8 +193,8 @@ const sendEmailNotification = async (data: any) => {
   console.log("📧 Email:", data);
 };
 
-const sendHostNotification = async (data: any) => {
-  console.log("🔔 Host:", data);
+const sendTenantNotification = async (data: any) => {
+  console.log("🔔 Tenant:", data);
 };
 
 export default {

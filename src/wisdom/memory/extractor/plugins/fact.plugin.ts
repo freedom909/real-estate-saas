@@ -94,8 +94,8 @@ export class FactPlugin implements KnowledgePlugin {
                     );
                     break;
 
-                case ArtifactType.GUEST_COUNT_SELECTED:
-                    this.handleGuestCountSelected(
+                case ArtifactType.CUSTOMER_COUNT_SELECTED:
+                    this.handleCustomerCountSelected(
                         artifact.content,
                         knowledge,
                         deltas,
@@ -220,10 +220,10 @@ export class FactPlugin implements KnowledgePlugin {
     }
 
     //---------------------------------------------------------
-    // Guest Count
+    // Customer Count
     //---------------------------------------------------------
 
-    private handleGuestCountSelected(
+    private handleCustomerCountSelected(
         content: any,
         knowledge: IUserKnowledge,
         deltas: FactLearnedDelta[],
@@ -232,9 +232,9 @@ export class FactPlugin implements KnowledgePlugin {
         this.addFact(
             deltas,
             knowledge,
-            `GUEST_COUNT:${content.guestCount}`,
+            `CUSTOMER_COUNT:${content.customerCount}`,
             content,
-            `Guest count selected`,
+            `Customer count selected`,
         );
     }
 

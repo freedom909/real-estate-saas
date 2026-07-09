@@ -16,7 +16,7 @@ export interface ReviewProps {
   id?: string;
   bookingId: string;
   listingId: string;
-  guestId: string;
+  customerId: string;
   hostId: string;
   rating: Rating;
   content: string;

@@ -17,7 +17,7 @@ import { DateExtractor } from "../../semantic/extractors/date.extractor";
 import { LocationExtractor } from "../../semantic/extractors/location.extractor";
 import { BookingIdExtractor } from "../../semantic/extractors/booking-id.extractor";
 import { ListingExtractor } from "../../semantic/extractors/listing.extractor";
-import { GuestExtractor } from "../../semantic/extractors/guest.extractor";
+
 
 // Reference
 import { ReferenceResolver } from "../../reference/reference-resolver";
@@ -73,6 +73,7 @@ import { NormalizeIntentStage } from "@/wisdom/orchestration/stage/normalizeInte
 import { KnowledgeStage } from "@/wisdom/orchestration/stage/knowledge.stage";
 import { SummaryStage } from "@/wisdom/orchestration/stage/summary.stage";
 import { ReferenceStage } from "@/wisdom/orchestration/stage/reference.stage";
+import { CustomerExtractor } from "@/wisdom/semantic/extractors/customer.extractor";
 
 export function registerWisdom() {
   // Infrastructure — OpenAI adapter (used by LLMExtractor and as LLM provider)
@@ -89,7 +90,7 @@ export function registerWisdom() {
   container.register(WISDOM_TOKENS.extractors.locationExtractor, { useClass: LocationExtractor });
   container.register(WISDOM_TOKENS.extractors.bookingIdExtractor, { useClass: BookingIdExtractor });
   container.register(WISDOM_TOKENS.extractors.listingExtractor, { useClass: ListingExtractor });
-  container.register(WISDOM_TOKENS.extractors.guestExtractor, { useClass: GuestExtractor });
+  container.register(WISDOM_TOKENS.extractors.customerExtractor, { useClass: CustomerExtractor });
 
   // Semantic
   container.register(WISDOM_TOKENS.semanticExtractor, { useClass: SemanticExtractor });

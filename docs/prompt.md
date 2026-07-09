@@ -139,13 +139,13 @@ Follow the same architecture used in auth-subgraph.
 
 Relationships
 
-User ↔ Host
+User ↔ Tenant
 many to many through Membership
 
-Host → Listing
+Tenant → Listing
 one to many
 
-Host → BillingAccount
+Tenant → BillingAccount
 one to one
 
 User actions → AuditLog
@@ -159,28 +159,28 @@ Use mongoose schema
 
 Example:
 
-const HostSchema = new Schema(
+const TenantSchema = new Schema(
 {
    name: String,
    slug: String,
    createdAt: Date
 })
 
-export const HostModel = model("Host", HostSchema)
+export const TenantModel = model("Tenant", TenantSchema)
 
 ------------------------------------------------
 
 Example service pattern:
 
 @injectable()
-export class HostService {
+export class TenantService {
 
  constructor(
-   @inject(TOKENS.HostRepository)
-   private repo: HostRepository
+   @inject(TOKENS.TenantRepository)
+   private repo: TenantRepository
  ) {}
 
- async createHost(data) {
+ async createTenant(data) {
    return this.repo.create(data)
  }
 
@@ -191,11 +191,11 @@ export class HostService {
 Repository pattern example:
 
 @injectable()
-export class HostRepository {
+export class OwnerRepository {
 
  constructor(
-   @inject(TOKENS.HostModel)
-   private model: Model<HostDocument>
+   @inject(TOKENS.OwnerModel)
+   private model: Model<OwnerDocument>
  ) {}
 
  async create(data){
@@ -212,11 +212,11 @@ export const resolvers = {
 
  Mutation: {
 
-   createHost: async (_, { input }, { container }) => {
+   createOwner: async (_, { input }, { container }) => {
 
-     const service = container.resolve(HostService)
+     const service = container.resolve(OwnerService)
 
-     return service.createHost(input)
+     return service.createOwner(input)
 
    }
 

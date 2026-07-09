@@ -4,7 +4,7 @@ import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 import { TenantDocument } from '../models/tenant.model';
 
 @injectable()
-export class HostRepository {
+export class TenantRepository {
   constructor(
     @inject(TOKENS_TENANT.models.tenant) private model: Model<TenantDocument>
   ) {}
@@ -30,7 +30,7 @@ export class HostRepository {
     return !!result;
   }
 
-  async findAllHosts(): Promise<TenantDocument[]> {
+  async findAllTenants(): Promise<TenantDocument[]> {
     return this.model.find().exec();
   }
 

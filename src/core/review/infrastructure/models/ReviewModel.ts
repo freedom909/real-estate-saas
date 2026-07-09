@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const ReviewSchema = new Schema({
   bookingId: { type: String, required: true, unique: true, index: true },
   listingId: { type: String, required: true, index: true },
-  guestId: { type: String, required: true, index: true },
+  customerId: { type: String, required: true, index: true },
   hostId: { type: String, required: true, index: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
   content: { type: String, required: true },

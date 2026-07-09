@@ -22,7 +22,7 @@ export interface ListingProps {
   amenityIds: string[];
 
   numOfBeds: number;
-  numOfGuests: number;
+  numOfCustomers: number;
   numOfBathrooms: number;
   numOfRooms: number;
 
@@ -61,7 +61,7 @@ get description(): string {
   get updatedAt() { return this.props.updatedAt; }
   get address() { return this.props.address; }
   get numOfBeds() { return this.props.numOfBeds; }
-  get numOfGuests() { return this.props.numOfGuests; }
+  get numOfCustomers() { return this.props.numOfCustomers; }
   get numOfBathrooms() { return this.props.numOfBathrooms; }
   get numOfRooms() { return this.props.numOfRooms; }
   get price() { return this.props.price; }

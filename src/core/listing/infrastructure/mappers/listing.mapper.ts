@@ -35,8 +35,8 @@ amenityIds:
     numOfBeds:
       raw.numOfBeds ?? 1,
 
-    numOfGuests:
-      raw.numOfGuests ?? 1,
+    numOfCustomers:
+      raw.numOfCustomers ?? 1,
 
     numOfBathrooms:
       raw.numOfBathrooms ?? 1,
@@ -82,7 +82,7 @@ amenityIds:
 //     amenityIds: raw.amenityIds || [],
 
 //     numOfBeds: raw.numOfBeds || 1,
-//     numOfGuests: raw.numOfGuests || 1,
+//     numOfCustomers: raw.numOfCustomers || 1,
 //     numOfBathrooms: raw.numOfBathrooms || 1,
 //     numOfRooms: raw.numOfRooms || 1,
 
@@ -111,7 +111,7 @@ description: listing.description,
     address: listing.address,
 
     numOfBeds: listing.numOfBeds,
-    numOfGuests: listing.numOfGuests,
+    numOfCustomers: listing.numOfCustomers,
     numOfBathrooms: listing.numOfBathrooms,
     numOfRooms: listing.numOfRooms,
 

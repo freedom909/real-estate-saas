@@ -5,7 +5,7 @@ import UserRepository from "../../../subgraphs/user/repos/user.repo";
 
 /**
  * UserAdapter acts as an Anti-Corruption Layer (ACL).
- * It prevents the Host context from leaking User implementation details.
+ * It prevents the Tenant context from leaking User implementation details.
  */
 @injectable()
 export class UserAdapter {
@@ -15,7 +15,7 @@ export class UserAdapter {
 
   async getUserById(id: string) {
     // This implementation uses the Repo directly because of the monorepo structure,
-    // but provides a clean boundary for the HostService.
+    // but provides a clean boundary for the TenantService.
     // In a distributed system, this would call the User subgraph via GraphQL/SDK.
     const user = await this.userRepo.findById(id);
     if (!user) return null;

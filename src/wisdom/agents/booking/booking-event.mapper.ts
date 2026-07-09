@@ -3,11 +3,12 @@
 // wisdom/booking/booking-event.mapper.ts
 
 import { injectable } from "tsyringe";
-import { AgentAction, SemanticContext } from "../../semantic/semantic-context";
+import { SemanticContext } from "../../semantic/semantic-context";
 import { BookingEvent } from "@/core/booking/domain/state/booking-event";
 import { BookingState } from "@/core/booking/domain/state/booking-state";
 import { BookingMemory } from "@/wisdom/memory/type/booking.memory";
 import { EntityType } from "@/wisdom/shared/enums/entity-type.enum";
+import { AgentAction } from "@/wisdom/shared/enums/action.enum";
 
 @injectable()
 export class BookingEventMapper {
@@ -46,10 +47,10 @@ export class BookingEventMapper {
 
                 break;
 
-            case BookingState.AWAITING_GUEST_COUNT:
+            case BookingState.AWAITING_CUSTOMER_COUNT:
 
-                if (semantic.entities.find(entity => entity.value === AgentAction.GUEST_COUNT)) {
-                    return BookingEvent.SET_GUEST_COUNT;
+                if (semantic.entities.find(entity => entity.value === AgentAction.CUSTOMER_COUNT)) {
+                    return BookingEvent.SET_CUSTOMER_COUNT;
                 }
 
                 break;

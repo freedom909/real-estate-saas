@@ -16,10 +16,11 @@ import { DateExtractor } from "./extractors/date.extractor";
 import { LocationExtractor } from "./extractors/location.extractor";
 import { BookingIdExtractor } from "./extractors/booking-id.extractor";
 import { ListingExtractor } from "./extractors/listing.extractor";
-import { GuestExtractor } from "./extractors/guest.extractor";
+
 import { LLMExtractor } from "./extractors/llm.extractor";
 import { WisdomRequest } from "../contracts/request";
 import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
+import { CustomerExtractor } from "./extractors/customer.extractor";
 
 @injectable()
 export class SemanticExtractor implements ISemanticExtractor {
@@ -39,8 +40,8 @@ export class SemanticExtractor implements ISemanticExtractor {
     @inject(WISDOM_TOKENS.extractors.listingExtractor)
     private listingExtractor: ListingExtractor,
 
-    @inject(WISDOM_TOKENS.extractors.guestExtractor)
-    private guestExtractor: GuestExtractor,
+    @inject(WISDOM_TOKENS.extractors.customerExtractor)
+    private customerExtractor: CustomerExtractor,
 
     @inject(WISDOM_TOKENS.extractors.llmExtractor)
     private llmExtractor: LLMExtractor,
@@ -66,7 +67,7 @@ export class SemanticExtractor implements ISemanticExtractor {
       ...this.locationExtractor.extract(message),
       ...this.bookingIdExtractor.extract(message),
       ...this.listingExtractor.extract(message),
-      ...this.guestExtractor.extract(message),
+      ...this.customerExtractor.extract(message),
     ];
 
     // ── 3. Assemble SemanticContext ──────────────────────────────────────────

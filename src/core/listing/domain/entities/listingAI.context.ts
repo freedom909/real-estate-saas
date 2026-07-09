@@ -21,7 +21,7 @@ export interface ListingAIContext {
 
   numOfBeds: number;
 
-  numOfGuests: number;
+  numOfCustomers: number;
 
   analysis?: AnalysisResult;
   seoKeywords: string[];

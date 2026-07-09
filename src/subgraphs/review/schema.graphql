@@ -23,7 +23,7 @@ type Query  {
 
 type Mutation {
   submitCustomerReview(
-    guestReview: ReviewInput!
+    customerReview: ReviewInput!
     bookingId: ID!
   ): SubmitCustomerReviewResponse! 
 
@@ -31,7 +31,7 @@ type Mutation {
   submitOwnerReplyToCustomerReview (
     bookingId: ID!
     hostReview: ReviewInput!
-    guestReviewID:ID!
+    customerReviewID:ID!
     comment:CommentInput! 
   ): SubmitOwnerReplyToCustomerReviewResponse!
 }
@@ -48,7 +48,7 @@ type Review @key(fields: "id") {
   author: User! @shareable
   booking: Booking! @shareable
   location: Location @shareable
-  guest: Customer @shareable
+  customer: Customer @shareable
   host: Owner @shareable
   likes: [Like!] @shareable
   dislikes: [Like!] @shareable
@@ -69,7 +69,7 @@ enum ReviewSortField {
 
 enum Role {
   HOST
-  GUEST
+  CUSTOMER
   ADMIN
   USER
   PENDING_HOST
@@ -82,7 +82,7 @@ enum SortOrder {
 
 input SearchReviewsInput {
   id: ID
-  guestId: ID
+  customerId: ID
   authorId: ID
   listingId: ID
   hostId: ID
@@ -123,7 +123,7 @@ input ReviewInput {
   content: String!
   rating: Float!
   locationId: ID
-  guestId: ID
+  customerId: ID
   bookingId: ID
   round: Int!
   hostId: ID
@@ -134,14 +134,14 @@ type SubmitOwnerReplyToCustomerReviewResponse implements MutationResponse {
   code: Int! @shareable
   success: Boolean! @shareable
   message: String! @shareable
-  guestReviewID:ID @shareable
+  customerReviewID:ID @shareable
   hostReview: Review! @shareable
   locationReview: Review @shareable
 }
 
 type SubmitCustomerReviewResponse implements MutationResponse{
    bookingId:ID!
-   guestReview:String
+  customerReview:String
   code: Int!
   success: Boolean!
   message: String!

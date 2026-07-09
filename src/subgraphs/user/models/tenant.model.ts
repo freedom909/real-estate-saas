@@ -2,7 +2,7 @@
 
 import mongoose, { Types } from "mongoose";
 
-interface IHost{
+interface ITenantModel{
 _id:Types.ObjectId;
 name:string;
 plan:string;
@@ -21,5 +21,5 @@ const hostSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now},
 
 })
-hostSchema.index({ hostId: 1 },{unique:true})
-export default mongoose.model<IHost>("Host",hostSchema)
+hostSchema.index({ tenantId: 1 },{unique:true})
+export default mongoose.model<ITenantModel>("Tenant",hostSchema)

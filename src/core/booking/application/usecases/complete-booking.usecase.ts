@@ -35,7 +35,7 @@ export class CompleteBookingUseCase {
     await this.eventBus.publish(
       new BookingCompletedEvent(
         booking.id,
-        booking.guestId,
+        booking.customerId,
         booking.tenantId,
         booking.listingId,
         

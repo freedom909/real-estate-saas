@@ -70,7 +70,7 @@ const processBookingEvent = async (msg: amqp.ConsumeMessage | null) => {
         await handleBookingConfirmed(event);
 
         // await sendEmailNotification.sendEmail({
-        //   to: event.guestId,
+        //   to: event.customerId,
         //   subject: "Booking Confirmed",
         //   template: "booking_confirmed",
         //   data: event,
@@ -117,17 +117,17 @@ export const startConsuming = async () => {
 // Handle booking created event
 const handleBookingCreated = async (event: any) => {
   await sendEmailNotification({
-    to: event.guestId,
+    to: event.customerId,
     subject: "Booking Created",
     template: "booking_created",
     data: event,
   });
 
-  await sendHostNotification({
-    hostId: event.hostId,
+  await sendTenantNotification({
+    tenantId: event.tenantId,
     type: "NEW_BOOKING",
     bookingId: event.bookingId,
-    guestId: event.guestId,
+    customerId: event.customerId,
   });
 
   console.log("📧 Booking created handled");
@@ -135,7 +135,7 @@ const handleBookingCreated = async (event: any) => {
 
 const handleBookingConfirmed = async (event: any) => {
   await sendEmailNotification({
-    to: event.guestId,
+    to: event.customerId,
     subject: "Booking Confirmed",
     template: "booking_confirmed",
     data: event,
@@ -146,17 +146,17 @@ const handleBookingConfirmed = async (event: any) => {
 
 const handleBookingCancelled = async (event: any) => {
   await sendEmailNotification({
-    to: event.guestId,
+    to: event.customerId,
     subject: "Booking Cancelled",
     template: "booking_cancelled",
     data: event,
   });
 
-  await sendHostNotification({
-    hostId: event.hostId,
+  await sendTenantNotification({
+    tenantId: event.tenantId,
     type: "BOOKING_CANCELLED",
     bookingId: event.bookingId,
-    guestId: event.guestId,
+    customerId: event.customerId,
   });
 
   console.log("❌ Booking cancelled handled");
@@ -164,7 +164,7 @@ const handleBookingCancelled = async (event: any) => {
 
 const handleBookingReminder = async (event: any) => {
   await sendEmailNotification({
-    to: event.guestId,
+    to: event.customerId,
     subject: "Booking Reminder",
     template: "booking_reminder",
     data: event,
@@ -173,15 +173,15 @@ const handleBookingReminder = async (event: any) => {
   console.log("🔔 Reminder handled");
 };
 
-const handleHostNotification = async (event: any) => {
-  await sendHostNotification({
-    hostId: event.hostId,
+const handleTenantNotification = async (event: any) => {
+  await sendTenantNotification({
+    tenantId: event.tenantId,
     type: event.notificationType,
     bookingId: event.bookingId,
-    guestId: event.guestId,
+    customerId: event.customerId,
   });
 
-  console.log("🏠 Host notification handled");
+  console.log("🏠 Tenant notification handled");
 };
 
 
@@ -192,8 +192,8 @@ const sendEmailNotification = async (data: any) => {
   console.log("📧 Email:", data);
 };
 
-const sendHostNotification = async (data: any) => {
-  console.log("🔔 Host:", data);
+const sendTenantNotification = async (data: any) => {
+  console.log("🔔 Tenant:", data);
 };
 
 export default {

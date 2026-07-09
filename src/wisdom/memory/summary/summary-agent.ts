@@ -14,10 +14,10 @@ import { OpenAITool } from "@/wisdom/tools/openai.tool";
 import { TOKENS_AI } from "@/modules/tokens/ai.tokens";
 import { ConversationTurn } from "./conversation-buffer";
 
-const SUMMARY_SYSTEM_PROMPT = `You are a conversation summarizer for a 民宿 (minshuku/guesthouse) booking assistant.
+const SUMMARY_SYSTEM_PROMPT = `You are a conversation summarizer for a 民宿 (minshuku/customer) booking assistant.
 
 Given a conversation between a user and the assistant, produce a concise summary that captures:
-1. Key user preferences (location, price range, dates, guest count, pet policy, etc.)
+1. Key user preferences (location, price range, dates, Customer count, pet policy, etc.)
 2. Important facts learned (specific listings discussed, booking confirmations, etc.)
 3. Current goal state (what the user is trying to do)
 4. Any decisions made or pending

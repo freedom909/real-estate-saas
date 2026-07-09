@@ -23,7 +23,7 @@ export class ListingDTOMapper {
 
       numOfBeds: listing.numOfBeds,
 
-      numOfGuests: listing.numOfGuests,
+      numOfCustomers: listing.numOfCustomers,
 
       numOfBathrooms: listing.numOfBathrooms,
 

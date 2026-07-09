@@ -12,7 +12,7 @@ export class PaymentMapper {
 
       bookingId: row.bookingId,
 
-      guestId: row.guestId,
+      customerId: row.customerId,
 
       tenantId: row.tenantId,
 
@@ -50,7 +50,7 @@ export class PaymentMapper {
     return {
       id: data.id,
       bookingId: data.bookingId,
-      guestId: data.guestId,
+      customerId: data.customerId,
       tenantId: data.tenantId,
       checkInDate: data.dateRange.checkInDate,
       checkOutDate: data.dateRange.checkOutDate,

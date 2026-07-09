@@ -10,7 +10,7 @@ export interface PaymentProps {
 
   bookingId: string;
 
-  guestId: string;
+  customerId: string;
 
   tenantId: string;
 
@@ -208,8 +208,8 @@ get checkOutDate() {
     return this.props.bookingId;
   }
 
-  get guestId() {
-    return this.props.guestId;
+  get customerId() {
+    return this.props.customerId;
   }
 
   get tenantId() {

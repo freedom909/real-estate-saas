@@ -16,7 +16,7 @@ type Payment @key(fields: "id") {
   id: ID!
   tenantId: ID! @shareable
   bookingId: ID! @shareable
-  guestId: ID! @shareable
+  customerId: ID! @shareable
   amount: Float! @shareable
   status: PaymentStatus! @shareable
   paymentIntentId: String @shareable
@@ -37,7 +37,7 @@ enum PaymentStatus {
 # --------------------------
 # EXTERNAL TYPES
 # --------------------------
-extend type Guest @key(fields: "id") {
+extend type Customer @key(fields: "id") {
   id: ID! @external
 }
 
@@ -80,7 +80,7 @@ input ProcessPaymentInput {
 input CreatePaymentInput {
   bookingId: ID!
   amount: Float!
-    guestId: ID!
+    customerId: ID!
   tenantId: ID!
 }
 
@@ -94,7 +94,7 @@ input RefundInput {
 # --------------------------
 type Query {
   payment(id: ID!): Payment @shareable
-  paymentsByGuest(guestId: ID!): [Payment!]! @shareable
+  paymentsByCustomer(customerId: ID!): [Payment!]! @shareable
   paymentsByBooking(bookingId: ID!): [Payment!]! @shareable
   
 }

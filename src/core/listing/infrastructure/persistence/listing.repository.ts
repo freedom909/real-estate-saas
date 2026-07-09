@@ -72,8 +72,8 @@ export class ListingRepository implements IListingRepository {
     return domain;
   }
 
-  async findByHostId(hostId: string): Promise<Listing[]> {
-    const records = await this.model.findAll({ where: { hostId: hostId } });
+  async findByOwnerId(ownerId: string): Promise<Listing[]> {
+    const records = await this.model.findAll({ where: { ownerId: ownerId } });
     return records.map(record => ListingMapper.toDomain(record));
   }
 
@@ -85,9 +85,9 @@ export class ListingRepository implements IListingRepository {
       where.address = { [Op.like]: `%${query.location}%` };
     }
 
-    // Filter by guest count
-    if (query.guestCount) {
-      where.numOfGuests = { [Op.gte]: query.guestCount };
+    // Filter by customer count
+    if (query.customerCount) {
+      where.numOfCustomers = { [Op.gte]: query.customerCount };
     }
 
     // Filter by price range

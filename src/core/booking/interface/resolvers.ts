@@ -15,7 +15,7 @@ export const resolvers = {
     createBooking: async (_: any, { input }: any, { user }: any) => {
       return container
         .resolve(CreateBookingUseCase)
-        .execute({ ...input, guestId: user.id });
+        .execute({ ...input, customerId: user.id });
     },
 
     cancelBooking: async (_: any, { id, reason }: any) => {

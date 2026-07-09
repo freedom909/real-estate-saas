@@ -21,7 +21,7 @@ export class CreatePaymentUseCase {
 
   async execute(input: {
     bookingId: string;
-    guestId: string;
+    customerId: string;
     tenantId: string;
     amount: number;
   }): Promise<Payment> {
@@ -52,7 +52,7 @@ console.log(
       Payment.create({
         id: uuidv4(),
         bookingId: input.bookingId,
-        guestId: input.guestId,
+        customerId: input.customerId,
         tenantId: input.tenantId,
         dateRange: booking.dateRange,
         amount: input.amount,

@@ -11,7 +11,7 @@ import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifec
 export interface BookingAttributes {
   id: string;
   listingId: string;
-  guestId: string;
+  customerId: string;
   tenantId: string;
   checkInDate: Date;
   checkOutDate: Date;
@@ -36,7 +36,7 @@ export class BookingModel
 {
   public id!: string;
   public listingId!: string;
-  public guestId!: string;
+  public customerId!: string;
   public tenantId!: string;
   public checkInDate!: Date;
   public checkOutDate!: Date;
@@ -59,7 +59,7 @@ export const initBookingModel = (sequelize: Sequelize) => {
         primaryKey: true,
       },
       listingId: DataTypes.STRING,
-      guestId: DataTypes.STRING,
+      customerId: DataTypes.STRING,
       tenantId: DataTypes.STRING,
       checkInDate: DataTypes.DATE,
       checkOutDate: DataTypes.DATE,

@@ -3,8 +3,8 @@ const resolvers = {
     getCart: async (_, { cartId }, { dataSources }) => {
       return dataSources.cartService.getCart(cartId);
     },
-    getCartsByGuest: async (_, { guestId }, { dataSources }) => {
-      return dataSources.cartService.getCartsByGuest(guestId);
+    getCartsByCustomer: async (_, { customerId }, { dataSources }) => {
+      return dataSources.cartService.getCartsByCustomer(customerId);
     },
   },
   Mutation: {

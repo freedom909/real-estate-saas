@@ -10,7 +10,7 @@ Generate an engaging property description.
 Requirements:
 
 - Natural human language
-- Guest-focused
+- Customer-focused
 - Persuasive but realistic
 - No placeholders
 - No markdown

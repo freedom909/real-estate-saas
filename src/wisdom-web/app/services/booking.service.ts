@@ -2,15 +2,17 @@
 //import { Booking } from "@/graphql/generated";
 import axios from "axios";
 import {client }from "../lib/apolloClient";
+import { CreateBookingInput } from "app/types/booking.types";
 const API_URL = "/4000/graphql/bookings";
+
 
 export interface Booking {
     listingId: string;
     checkIn: string;
     checkOut: string;
-    guests: number;
+    customers: number;
 }
-export async function createBooking(input: CreateBookingInput) {
+export async function createBooking(input: CreateBookingInput) {//名前 'CreateBookingInput' が見つかりません。
     const { data } = await client.mutate({
         mutation: CREATE_BOOKING,
         variables: {

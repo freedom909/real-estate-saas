@@ -43,7 +43,7 @@ async execute(paymentId: string) {
     new PaymentConfirmedEvent(
     payment.id,
     payment.bookingId,
-    payment.guestId,
+    payment.customerId,
     payment.tenantId,
     payment.amount,
     payment.completedAt!,

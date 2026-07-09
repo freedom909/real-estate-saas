@@ -9,7 +9,7 @@ export class PaymentCancelledEvent extends DomainEvent {
   constructor(
     public readonly paymentId: string,
     public readonly bookingId: string,
-    public readonly guestId: string,
+    public readonly customerId: string,
     public readonly tenantId: string,  
     public readonly amount: number,
     public readonly checkInDate: Date,
