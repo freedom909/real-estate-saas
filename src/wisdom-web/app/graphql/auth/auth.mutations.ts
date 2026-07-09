@@ -10,8 +10,6 @@ export const OAUTH_LOGIN = gql`
       refreshToken
       user {
         id
-       email
-       name
       }
     }
   }

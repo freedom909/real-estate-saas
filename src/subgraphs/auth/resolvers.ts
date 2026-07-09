@@ -119,18 +119,18 @@ export default {
       ctx: Context
     ) => {
       console.log(
-  "========== AUTH OAUTH LOGIN CALLED =========="
-);
+        "========== AUTH OAUTH LOGIN CALLED =========="
+      );
 
-console.log(
-  "provider:",
-  provider
-);
+      console.log(
+        "provider:",
+        provider
+      );
 
-console.log(
-  "token length:",
-  idToken?.length
-);
+      console.log(
+        "token length:",
+        idToken?.length
+      );
       const usecase = ctx.container.resolve<OAuthLoginUseCase>(
         TOKENS_AUTH.usecases.oauthLoginUseCase
       );
@@ -146,22 +146,22 @@ console.log(
       });
 
       console.log("__typename:", result)
-  if (result.status === "SUCCESS") {
-  return {
-    __typename: "AuthPayload",
+      if (result.status === "SUCCESS") {
+        return {
+          __typename: "AuthPayload",
 
-    accessToken: result.accessToken,
-    refreshToken: result.refreshToken,
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
 
-    user: {
-      __typename: "User",
-      id: result.user.id,
-      email: result.user.email,
-      name: result.user.name,
-      role: result.user.role,
-    },
-  };
-}
+          user: {
+            __typename: "User",
+            id: result.user.id,
+            email: result.user.email,
+            name: result.user.name,
+            role: result.user.role,
+          },
+        };
+      }
     },
 
     // refreshToken: async (
@@ -225,6 +225,7 @@ console.log(
       { challengeId, code }: { challengeId: string; code: string }, // ✅ 修正
       ctx: Context
     ) => {
+
       const usecase = ctx.container.resolve<VerifyOtpUseCase>(
         TOKENS_AUTH.usecases.verifyOtpUseCase
       );

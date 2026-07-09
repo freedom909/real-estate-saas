@@ -1,7 +1,7 @@
 // src/wisdom-web/app/pages/ListingPage.ts
 
 import { usePermission } from "../permission/usePermission";
-import AdminPanel from "../components/AdminPanel";
+import AdminPanel from "./components/AdminPanel";
 
 
 function ListingPage() {

@@ -14,7 +14,6 @@ extend type Tenant @key(fields: "id") {
 id:ID! @external
 }
 
-
 extend type Listing @key(fields: "id") {
   id: ID! @external
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { oauthLogin } from "app/services/auth.service";
+import { redirect } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 declare global {
@@ -11,14 +12,12 @@ declare global {
 
 export default function LoginPage() {
   const GOOGLE_CLIENT_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
   const initialized = useRef(false);
   useEffect(() => {
-    console.log("useEffect running");
     if (initialized.current) return;
-
-    if (!window.google) return;
     const script = document.createElement("script");
+
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
@@ -30,16 +29,17 @@ export default function LoginPage() {
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: async (response: any) => {
-
-          console.log("========== CALLBACK ==========");
-          console.log(response);
-
           const idToken = response.credential;
 
-          console.log("Google ID TOKEN:");
-          console.log(idToken);
           const { data } = await oauthLogin("GOOGLE", idToken);
-          console.log(data);
+          const result = data?.oauthLogin;
+
+          if (result?.accessToken) {
+            localStorage.setItem("accessToken", result.accessToken);
+            localStorage.setItem("refreshToken", result.refreshToken);
+            window.location.href = "/listing";
+            redirect("/home");
+          }
         }
       });
       initialized.current = true;
