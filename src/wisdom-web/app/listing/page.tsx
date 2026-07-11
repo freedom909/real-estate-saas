@@ -23,7 +23,7 @@ offset: 0,
 },
 
 });
-
+console.log("DETAIL DATA =", data);
 if (loading) return <p>Loading...</p>;
 
 if (error) return <p>Error: {error.message}</p>;

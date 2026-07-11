@@ -32,7 +32,7 @@ export const TOKENS_LISTING = {
     categoryOptimizationUseCase: Symbol.for('CategoryOptimizationUseCase'),
     applyDescriptionSuggestionUseCase: Symbol.for('ApplyDescriptionSuggestionUseCase'),
     createListingUseCase: Symbol.for('CreateListingUseCase'),
-    getListingUseCase: Symbol.for('GetListingUseCase'),
+    getListingByIdUseCase: Symbol.for('GetListingByIdUseCase'),
     searchListingUseCase: Symbol.for('SearchListingUseCase'),
     updateListingUseCase: Symbol.for('UpdateListingUseCase'),
     deleteListingUseCase: Symbol.for('DeleteListingUseCase'),

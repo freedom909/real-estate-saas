@@ -5,26 +5,26 @@ import { container } from "tsyringe";
 
 // AI UseCases（用 Apply，不用 Generate// Tokens
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
-import GetListingUseCase from "@/core/listing/application/usecase/getListingUseCase";
+
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
 import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
+import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase.ts";
 
 
 export const resolvers = {
   Query: {
-    listings: async () => {//
-      const useCase = container.resolve<GetListingUseCase>(
-        TOKENS_LISTING.usecase.getListingUseCase
-      );  
-      return useCase.execute();
+    listings: async (_: any, { query }: any) => {
+      const repo = container.resolve<IListingRepository>(TOKENS_LISTING.repos.listingRepository);
+      return repo.findAll();
     },
+    
 
     // 保留一个 listing（删除重复 repo 版本）
     listing: async (_: any, { id }: { id: string }) => {
-      const useCase = container.resolve<GetListingUseCase>(
-        TOKENS_LISTING.usecase.getListingUseCase
+      const useCase = container.resolve<GetListingByIdUseCase>(
+        TOKENS_LISTING.usecase.getListingByIdUseCase
       );
-      return useCase.execute();
+      return useCase.execute(id);
     },
 
     listingsByOwner: async (_: any, { hostId }: { hostId: string }) => {
@@ -34,7 +34,10 @@ export const resolvers = {
       return repo.findByOwnerId(hostId);
     },
 
-
+  getListing: async (_: any, { id }: { id: string }) => {
+      const repo = container.resolve<IListingRepository>(TOKENS_LISTING.repos.listingRepository);
+      return repo.findById(id);
+    },
   },
 
 Mutation: {
@@ -51,15 +54,6 @@ Mutation: {
   // Generate TITLE suggestion
   // --------------------------------
 
-
-  // --------------------------------
-  // Generate DESCRIPTION suggestion
-  // --------------------------------
-
-
-  // --------------------------------
-  // Apply accepted suggestion
-  // --------------------------------
 },
 
   Listing: {
@@ -88,10 +82,10 @@ Mutation: {
 
     // ✅ Federation reference resolver
     __resolveReference: async (ref: { id: string }) => {
-      const useCase = container.resolve<GetListingUseCase>(
-        TOKENS_LISTING.usecase.getListingUseCase
+      const useCase = container.resolve<GetListingByIdUseCase>(
+        TOKENS_LISTING.usecase.getListingByIdUseCase
       );
-      return useCase.execute();
+      return useCase.execute(ref.id);
     },
   },
 

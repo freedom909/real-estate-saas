@@ -2,8 +2,6 @@
 
 import { ListingAISuggestion } from "./listingAI.suggestion";
 
-
-
 export interface IListingAISuggestionRepository {
   save(
     suggestion: ListingAISuggestion

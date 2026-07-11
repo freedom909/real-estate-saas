@@ -11,6 +11,7 @@ class GetListingUseCase {
 
   async execute() {
     const listings = await this.repo.findAll();
+    console.log("🔥🔥 GET LISTINGS CALLED++", listings);
     if (!listings) throw new Error("Listing not found");
     
     return listings.map((listing) => ({
