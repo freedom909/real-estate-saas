@@ -8,7 +8,6 @@ import { ListingAISuggestionMapper } from "../mappers/listingAISuggestionMapper"
 import { IListingAISuggestionRepository } from "../../domain/entities/IListingAISuggestionRepository";
 import { ListingAISuggestion } from "../../domain/entities/listingAI.suggestion";
 
-
 @injectable()
 export class ListingAISuggestionRepository implements IListingAISuggestionRepository {
     constructor(

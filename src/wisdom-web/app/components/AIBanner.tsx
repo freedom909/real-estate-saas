@@ -1,4 +1,4 @@
-// src/wisdom-web/app/components/AIBanner.tsx
+  // src/wisdom-web/app/components/AIBanner.tsx
 export default function AIBanner() {
   return (
     <section

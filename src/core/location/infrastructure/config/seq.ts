@@ -1,20 +1,23 @@
-// src/infrastructure/config/seq.ts
+import { Sequelize } from "sequelize";
 
-import { Sequelize } from 'sequelize';
+export const sequelize = new Sequelize(
 
-// 模拟 Sequelize 实例，实际项目中会连接到数据库
-export const sequelize = new Sequelize('sqlite::memory:', {
-  logging: false, // 关闭日志
-});
+process.env.MYSQL_DATABASE || "saas",
 
-// 可以在这里定义模型同步等操作，但对于模拟的 LocationRepository 来说不是必需的
-// async function initializeDatabase() {
-//   try {
-//     await sequelize.authenticate();
-//     console.log('Connection to database has been established successfully.');
-//     // await sequelize.sync({ force: true }); // 生产环境慎用
-//   } catch (error) {
-//     console.error('Unable to connect to the database:', error);
-//   }
-// }
-// initializeDatabase();
+process.env.MYSQL_USER || "root",
+
+process.env.MYSQL_PASSWORD || "princess",
+
+{
+
+host: process.env.MYSQL_HOST || "localhost",
+
+port: Number(process.env.MYSQL_PORT || 3307),
+
+dialect: "mysql",
+
+logging: console.log,
+
+}
+
+);

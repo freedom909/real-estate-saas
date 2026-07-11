@@ -2,7 +2,7 @@
 import {client} from "../lib/apolloClient";
 import { gql } from "@apollo/client/core";
 import { OAUTH_LOGIN } from "../graphql/auth/auth.mutations";
-import {  useAuthStore } from "../store/auth.store";
+import {  AuthPayload, useAuthStore } from "../store/auth.store";
 const API_URL = "/4000/graphql/mutations";
 
 export async function logout() {
@@ -22,7 +22,7 @@ export async function refreshToken() {
             }
         `,
     });
-    useAuthStore.getState().setAuth(data.refreshToken);
+    useAuthStore.getState().setAuth(data as AuthPayload['refreshToken']);
     return true;
 }
 
@@ -34,7 +34,7 @@ export async function oauthLogin(provider: string, idToken: string) {
             idToken,
         },
     });
-    return data.oauthLogin;
+    return data .oauthLogin;
 }
 
 export async function getCurrentUser() {
@@ -50,5 +50,5 @@ export async function getCurrentUser() {
             }
         `,
     });
-    return data.user;
+    return data as AuthPayload['user'];
 }

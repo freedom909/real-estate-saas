@@ -1,88 +1,108 @@
 schema
-  @link(
-    url: "https://specs.apollo.dev/federation/v2.11",
-    import: ["@key", "@shareable","@external"]
-  ) {
-  query: Query
-  mutation: Mutation
+
+@link(
+
+url: "https://specs.apollo.dev/federation/v2.11"
+,
+
+import: ["@key", "@shareable", "@external"]
+
+) {
+
+query: Query
+
+mutation: Mutation
+
 }
+
 scalar DateTime
 
 enum TenantStatus {
-  ACTIVE
-  SUSPENDED
-  DELETED
+
+ACTIVE
+
+SUSPENDED
+
+DELETED
+
 }
 
-extend type User @key(fields:"id") {
-  id: ID! @external
+extend type User @key(fields: "id") {
+
+id: ID! @external
+
 }
 
 type Tenant @key(fields: "id") {
-  id: ID! @shareable
-  name: String! @shareable
-  slug: String!
-  status: TenantStatus!
-  owner:User!
-  memberships: [Membership!]!
-  createdAt: DateTime
-  updatedAt: DateTime
+
+id: ID! @shareable
+
+name: String! @shareable
+
+slug: String!
+
+status: TenantStatus!
+
+owner: User! # 一对一关系
+
+createdAt: DateTime
+
+updatedAt: DateTime
+
 }
 
 type PageInfo {
-  total: Int!
-  hasNextPage: Boolean!
+
+total: Int!
+
+hasNextPage: Boolean!
+
 }
 
-
 type TenantConnection {
-  items: [Tenant!]!
-  pageInfo: PageInfo!
+
+items: [Tenant!]!
+
+pageInfo: PageInfo!
+
 }
 
 input CreateTenantInput {
-  name: String!
-  slug: String!
-  ownerUserId:ID!
+
+name: String!
+
+slug: String!
+
+ownerUserId: ID!
+
 }
 
 input TenantFilterInput {
-  keyword: String
-  status: TenantStatus
-  limit: Int
-  offset: Int
+
+keyword: String
+
+status: TenantStatus
+
+limit: Int
+
+offset: Int
+
 }
 
 type Query {
-  getTenant(id: ID!): Tenant
-  getTenants(filter: TenantFilterInput): TenantConnection!
+
+getTenant(id: ID!): Tenant
+
+getTenants(filter: TenantFilterInput): TenantConnection!
+
 }
 
 type Mutation {
-  createTenant(input: CreateTenantInput!): Tenant!
-  updateTenant(id: ID!, name: String!): Tenant!
-  suspendTenant(id: ID!): Tenant!
-}
 
-type Membership @key(fields:"id"){
- id: ID!
- user: User!
- tenant: Tenant!
- role:MembershipRole!
- createdAt:DateTime!
- status: MembershipStatus!
-}
+createTenant(input: CreateTenantInput!): Tenant!
 
-enum MembershipRole {
-  OWNER
-  ADMIN
-  AGENT
-  CUSTOMER
-}
+updateTenant(id: ID!, name: String!): Tenant!
 
-enum MembershipStatus {
-  ACTIVE
-  INVITED
-  PENDING
-  SUSPENDED
+suspendTenant(id: ID!): Tenant!
+
 }

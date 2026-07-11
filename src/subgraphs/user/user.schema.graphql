@@ -19,23 +19,27 @@ extend type Listing @key(fields: "id") {
   }
 
 type User @key(fields: "id") {
-  id: ID!
-  name: String @shareable
-  email: String @shareable
-  bookings:[Booking!]! @shareable
-  picture: String @shareable
-  createdAt: DateTime! @shareable
-  updatedAt: DateTime! @shareable
-  memberships: [Membership!]
+
+id: ID!
+
+name: String @shareable
+
+email: String @shareable
+
+picture: String @shareable
+
+tenant: Tenant @shareable
+
+bookings: [Booking!]! @shareable
+
+createdAt: DateTime! @shareable
+
+updatedAt: DateTime! @shareable
+
 }
 
 extend type Booking @key(fields: "id") {
   id: ID! @external
-}
-
-
-extend type Membership @key(fields:"id") {
-    id: ID! @external
 }
 
 type Profile @shareable {
@@ -44,7 +48,7 @@ type Profile @shareable {
   email: String
 }
 
-enum MembershipRole {
+enum UserRole {
   OWNER
   ADMIN
   CUSTOMER
@@ -82,7 +86,7 @@ type Query {
   user(id: ID!): User
   userByEmail(email: String!): User
   tenantsByUser(userId: ID!): [Tenant!]!
-  membershipsByUser(userId: ID!): [Membership!]!
+
 }
 
 # ======================

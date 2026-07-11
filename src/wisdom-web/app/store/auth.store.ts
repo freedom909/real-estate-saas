@@ -1,17 +1,6 @@
 // store/auth.store.ts
 
 import { create } from "zustand";
-import { oauthLogin } from "../services/auth.service";
-
-interface AuthState {
-    accessToken: string | null;
-    refreshToken: string | null;
-    user: User | null;
-    status: string | null;
-    challengeId: string | null;
-    setAuth(payload: AuthPayload): void;
-    logout: () => void;
-}
 
 export interface AuthPayload {
     accessToken: string;
@@ -28,6 +17,13 @@ export interface User {
     role: "ADMIN" | "OWNER" | "AGENT" | "CUSTOMER";
 }
 
+export interface AuthState {
+    accessToken: string | null;
+    refreshToken: string | null;
+    user: User | null;
+    status: string | null;
+    challengeId: string | null;
+}
 
 export const useAuthStore = create<AuthState>((set) => ({
     accessToken: null,
@@ -36,7 +32,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     status: null,
     challengeId: null,
 
-    setAuth: (payload) =>
+    setAuth: (payload: AuthPayload) =>
         set({
             accessToken: payload.accessToken,
             refreshToken: payload.refreshToken,
@@ -46,14 +42,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         }),
     setUser: (user: User | null) =>
         set({
-            user,
+            user: user || undefined,
         }),
 
     clear: () =>
         set({
             accessToken: null,
             refreshToken: null,
-            user: null,
+            user: undefined,
             status: null,
             challengeId: null,
         }),
@@ -62,8 +58,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({
             accessToken: null,
             refreshToken: null,
-            user: null,
             status: null,
+            user: undefined,
             challengeId: null,
         }),
 }));

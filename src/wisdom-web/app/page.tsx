@@ -6,11 +6,14 @@ import ListingCard from "./components/ListingCard";
 import CategorySection from "./components/CategorySection";
 import AIBanner from "./components/AIBanner";
 import Footer from "./components/Footer";
+import Navbar from "./components/navbar";
 
 export default function Home() {
   return (
     <>
-      <Header />
+    <Navbar />
+
+
 
 <Hero />
      <ListingCard title={""} address={""} price={0} />

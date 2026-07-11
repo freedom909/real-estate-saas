@@ -129,7 +129,7 @@ type RiskEvent {
 
   userId: ID!
 
-  hostId: ID
+  tenantId: ID
 
   type: RiskEventType!
 
@@ -153,7 +153,8 @@ type RiskEvent {
 # Auth Payload
 # =====================
 type AuthPayload {
-  hostId: ID
+  ownerId: ID
+  Id: ID
   accessToken: String
   refreshToken: String
   user: User

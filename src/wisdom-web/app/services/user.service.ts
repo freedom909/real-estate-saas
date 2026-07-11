@@ -1,12 +1,35 @@
-// src/wisdom-web/app/services/user.service.ts
-import { User } from "@/graphql/generated";
-import axios from "axios";
-import client from "../lib/apolloClient";
-const API_URL = "/4000/graphql/user";
-export async function getUser() {
-    const { data } = await client.query({
-        query: GET_USER,
-    });
+import { gql } from "@apollo/client";
 
-    return data?.user;
+import { client } from "../lib/apolloClient";
+
+const GET_USER = gql`
+
+query GetUser($id: ID!) {
+
+user(id: $id) {
+
+id
+
+email
+
+name
+
+}
+
+}
+
+`;
+
+export async function getUser(id: string) {
+
+const { data } = await client.query({
+
+query: GET_USER,
+
+variables: { id },
+
+});
+
+return data?.user;
+
 }

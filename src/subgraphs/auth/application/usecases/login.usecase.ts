@@ -60,7 +60,7 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
 
     // 4️⃣ 尝试 email merge（高级策略）
     if (profile.email) {
-      const existingUser = await this.userGateway.findEmailById(profile.email);
+      const existingUser = await this.userGateway.findByEmail(profile.email);
 
       if (existingUser) {
         user = existingUser;

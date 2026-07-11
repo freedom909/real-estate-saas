@@ -13,7 +13,7 @@ export class ListingDTOMapper {
 
       address: listing.address,
 
-      hostId: listing.hostId,
+      ownerId: listing.ownerId,
 
       locationId: listing.locationId,
 

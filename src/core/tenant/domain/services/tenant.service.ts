@@ -4,8 +4,9 @@ import { UserAdapter } from '../../adapter/user.adapter';
 import { TenantRepository } from '../../infrastructure/repos/tenant.repo';
 import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 import { MembershipRepository } from '../../infrastructure/repos/membership.repo';
-import { TenantDocument } from '../../infrastructure/models/tenant.model';
+
 import { MembershipDocument } from '../../infrastructure/models/membership.model';
+import { TenantDocument } from '../tenant.model';
 
 @injectable()
 export class TenantService {

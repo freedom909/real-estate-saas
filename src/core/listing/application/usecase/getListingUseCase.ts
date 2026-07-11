@@ -6,22 +6,30 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 class GetListingUseCase {
   constructor(
     @inject(TOKENS_LISTING.repos.listingRepository)
-    private repo: IListingRepository
+    private readonly repo: IListingRepository
   ) {}
 
-  async execute(id: string) {
-    const listing = await this.repo.findById(id);
-    if (!listing) throw new Error("Listing not found");
+  async execute() {
+    const listings = await this.repo.findAll();
+    if (!listings) throw new Error("Listing not found");
     
-    return {
+    return listings.map((listing) => ({
       id: listing.id,
-      hostId: listing.hostId,
+      ownerId: listing.ownerId,
       title: listing.title,
       description: listing.description,
       amenityIds: listing.amenityIds,
-      locationId: listing.locationId,
+      locationId: listing.locationId,// 位置ID
+      address: listing.address,
       categories: listing.categories,
-    };
+      isFeatured: listing.isFeatured,
+      picture: listing.picture,
+      price: listing.price,
+      numOfBeds: listing.numOfBeds,
+      numOfCustomers: listing.numOfCustomers,
+      numOfBathrooms: listing.numOfBathrooms,
+      numOfRooms: listing.numOfRooms,
+    }));
   }
 }
 

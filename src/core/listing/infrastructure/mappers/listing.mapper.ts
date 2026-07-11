@@ -13,7 +13,7 @@ static toDomain(raw: any): Listing {
 
     id: raw.id,
 
-    hostId: raw.hostId,
+    ownerId: raw.ownerId,
     locationId: raw.locationId,
 
     title:
@@ -105,7 +105,7 @@ static toPersistence(listing: Listing) {
 title: listing.title,
 description: listing.description,
 
-    hostId: listing.hostId,
+    ownerId: listing.ownerId,
     locationId: listing.locationId,
 
     address: listing.address,

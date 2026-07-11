@@ -18,6 +18,13 @@ import { sequelize } from "@/infrastructure/config/seq";
 import { resolvers } from "./resolvers";
 import registerLocationDependencies from "@/modules/container/location.container";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
+import LocationModel from "@/core/location/infrastructure/persistence/location.model";
+
+console.log("before sync");
+
+await LocationModel.sync({ alter: true });
+
+console.log("after sync");
 
 const startServer = async () => {
   try {

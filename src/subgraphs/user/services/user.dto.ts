@@ -1,6 +1,7 @@
 // user.dto.ts
 
-import { Role } from "@/core/user/domain/entities/normalize.role";
+import { Role } from "@/wisdom-web/app/permission/role";
+
 
 export interface UserResponse {
 

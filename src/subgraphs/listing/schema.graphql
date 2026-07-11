@@ -20,7 +20,7 @@ type Listing @key(fields: "id") {
 
   address: String!
 
-  hostId: ID!
+  ownerId: ID!
   locationId: ID!
 
   categories: [Category!]!
@@ -75,8 +75,8 @@ input CreateListingInput {
 
   address: String!
 
-  hostId: ID!
-  ownerId: ID
+
+  ownerId: ID!
 
   locationId: ID!
 
@@ -115,7 +115,7 @@ type Query {
   listing(id: ID!): Listing
   listingAISuggestions(listingId: ID!): [ListingAISuggestion!]!
   listings: [Listing!]!
-  listingsByOwner(hostId: ID!): [Listing!]!
+  listingsByOwner(ownerId: ID!): [Listing!]!
 }
 
 type ListingAISuggestion {
@@ -153,8 +153,6 @@ type Mutation {
   generateDescriptionSuggestion(
     listingId: ID!
   ): String!
-
-
 
   applyAISuggestion(
     suggestionId: ID!

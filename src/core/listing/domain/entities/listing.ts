@@ -9,8 +9,6 @@ export interface ListingProps {
   id: string;
   rawTitle?: string;
   rawDescription?: string;
-
-  hostId: string;
   locationId: string;
 
   title: Title;
@@ -31,7 +29,7 @@ export interface ListingProps {
   picture: string[];
 
   isFeatured: boolean;
-  
+  ownerId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,14 +44,14 @@ export class Listing {
 
   // getters
   get id() { return this.props.id; }
-  get hostId() { return this.props.hostId; }
-get title(): string {
-  return this.props.title.getValue();
-}
 
-get description(): string {
-  return this.props.description.getValue();
-}
+  get title(): string {
+    return this.props.title.getValue();
+  }
+  get ownerId() { return this.props.ownerId; }
+  get description(): string {
+    return this.props.description.getValue();
+  }
   get locationId() { return this.props.locationId; }
   get categories() { return this.props.categories; }
   get amenityIds() { return this.props.amenityIds; }
@@ -68,8 +66,9 @@ get description(): string {
   get picture() { return this.props.picture; }
   get isFeatured() { return this.props.isFeatured; }
   get rawTitle() { return this.props.rawTitle; }
-  get rawDescription() { return this.props.rawDescription;
-  
+  get rawDescription() {
+    return this.props.rawDescription;
+
   }
   // ======================
   // Business Logic
@@ -115,7 +114,7 @@ get description(): string {
   }
 
   private validate(props: ListingProps) {
-    if (!props.hostId) throw new Error("hostId required");
+    if (!props.ownerId) throw new Error("ownerId required");//ownerId required
     if (!props.locationId) throw new Error("locationId required");
     // categories may be empty when loaded from DB (join table may have no rows)
   }

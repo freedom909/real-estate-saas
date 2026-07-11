@@ -1,10 +1,6 @@
 // src/wisdom-web/app/components/login/handleGoogle.login.ts
 
 import { oauthLogin } from "app/services/auth.service";
-console.log(
- process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-)
-
 
 export const handleGoogleLogin = async () => {
     console.log("Google Login");

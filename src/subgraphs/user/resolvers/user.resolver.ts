@@ -121,27 +121,26 @@ User: {
 
       console.log("🔥 createOAuthUser input =", input);
 
-      const hostId = input.hostId
-        ? new mongoose.Types.ObjectId(input.hostId)
+      const ownerId = input.ownerId? new mongoose.Types.ObjectId(input.ownerId)
         : null;
 
       const user = await UserModel.create({
-        hostId,
+        ownerId,
         email: input.email || "unknown",
         name: input.profile?.name || "unknown",
-        avatar: input.profile?.avatar || "",
+        picture: input.profile?.picture || "",
         role: "CUSTOMER"
       });
+      console.log("CREATE OAUTH USER RESULT", user);
       return user;
     },
     // updateLastLogin: async (_: unknown, { userId }: { userId: string }) => {
 
     //   const user = await UserModel.findByIdAndUpdate(
-    //     userId,// 型 'string' の引数を型 'Query<any, any, {}, unknown, "find", Record<string, never>>' のパラメーターに割り当てることはできません。
+    //     userId, // 型を変換
     //     { lastLoginAt: new Date() },
     //     { new: true }
     //   )
-
     //   return !!user
     // }
   },

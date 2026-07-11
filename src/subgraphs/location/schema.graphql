@@ -13,10 +13,9 @@ scalar DateTime
 ### User Types
 extend type User @key(fields: "id") {
   id: ID! @external
-
 }
 
-extend type Host @key(fields: "id") {
+extend type Owner @key(fields: "id") {
   
   id: ID! @external
   listings: [Listing!]@shareable

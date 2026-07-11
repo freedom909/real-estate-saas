@@ -15,7 +15,7 @@ import { buildSubgraphSchema } from "@apollo/subgraph"
 import { connectMongo } from "../../shared/db/mongo.js";
 import mongoose from "mongoose"
 import { container } from "tsyringe"
-import { registerTenantDependencies } from "./resolvers/tenant.container.js"
+import { registerTenantDependencies } from "../../modules/container/tenant.container.js"
 import { resolvers } from "./resolvers/tenant.resolver.js"
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext.js"
 

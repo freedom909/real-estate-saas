@@ -19,6 +19,8 @@ import { registerUserDependencies } from "../user/registerUserDependencies";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import registerListingDependencies from "@/modules/container/listing.register";
 
+
+await ListingModel.sync();
 console.log(TOKENS_LISTING.adapters.amenityAdapter);
 console.info("Listing subgraph configuration loaded");
 // Register all dependencies for the listing subgraph
@@ -28,6 +30,7 @@ console.info("Listing subgraph configuration loaded");
 import "@/shared/category/container";  // 👈 必须
 import { registerAIContainer } from "@/modules/container/ai.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
+import ListingModel from "@/core/listing/infrastructure/models/listing.model";
 
 
 registerAIContainer()

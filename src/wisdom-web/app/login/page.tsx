@@ -1,12 +1,12 @@
 "use client";
 
 import { oauthLogin } from "app/services/auth.service";
+import { useAuthStore } from "app/store/auth.store";
 import { redirect } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 export default function LoginPage() {
-  const GOOGLE_CLIENT_ID =
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
+  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
   const initialized = useRef(false);
   useEffect(() => {
     if (initialized.current) return;
@@ -31,10 +31,18 @@ const idToken = response.credential;
 console.log("2. token received");
 
 const result = await oauthLogin("GOOGLE", idToken);
+console.log("OAUTH RESULT:", result);
+useAuthStore.getState().setAuth({
 
-console.log("3. graphql finished");
+ accessToken:result.accessToken,
 
-console.log(result);
+ refreshToken:result.refreshToken,
+
+});
+useAuthStore.getState().setUser(
+ result.user
+);
+window.location.href = "/listing";
 
 if (result?.accessToken) {
 
@@ -65,7 +73,7 @@ console.log("NO TOKEN");
         document.getElementById("googleButton"),
         {
           theme: "outline",
-          size: "large",
+          size: "medium",
         }
       );
     };

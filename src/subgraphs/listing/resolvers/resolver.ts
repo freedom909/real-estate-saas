@@ -7,15 +7,16 @@ import { container } from "tsyringe";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import GetListingUseCase from "@/core/listing/application/usecase/getListingUseCase";
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
+import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
 
 
 export const resolvers = {
   Query: {
-    getListing: async (_: any, { id }: { id: string }) => {
+    listings: async () => {//
       const useCase = container.resolve<GetListingUseCase>(
         TOKENS_LISTING.usecase.getListingUseCase
-      );
-      return useCase.execute(id);
+      );  
+      return useCase.execute();
     },
 
     // 保留一个 listing（删除重复 repo 版本）
@@ -23,7 +24,7 @@ export const resolvers = {
       const useCase = container.resolve<GetListingUseCase>(
         TOKENS_LISTING.usecase.getListingUseCase
       );
-      return useCase.execute(id);
+      return useCase.execute();
     },
 
     listingsByOwner: async (_: any, { hostId }: { hostId: string }) => {
@@ -62,14 +63,14 @@ Mutation: {
 },
 
   Listing: {
-    host: (parent: any) => {
+    owner: (parent: any) => {
       return {
         __typename: "Owner",
-        id: parent.hostId,
+        id: parent.ownerId,
       };
     },
 
-    ownerId: (parent: any) => parent.hostId,
+    ownerId: (parent: any) => parent.ownerId,
 
     categories: (parent: any) => {
       return parent.categories?.map((id: string) => ({
@@ -90,7 +91,7 @@ Mutation: {
       const useCase = container.resolve<GetListingUseCase>(
         TOKENS_LISTING.usecase.getListingUseCase
       );
-      return useCase.execute(ref.id);
+      return useCase.execute();
     },
   },
 

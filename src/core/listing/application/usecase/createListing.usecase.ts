@@ -29,7 +29,7 @@ export interface CreateListingInput {
   locationId: string;
   categories: string[];
   amenityIds?: string[];
-  hostId: string;
+  ownerId: string;
 }
 
 @injectable()
@@ -88,7 +88,7 @@ export default class CreateListingUseCase {
       rawTitle: input.title,
       categories: input.categories,
       amenityIds: input.amenityIds || [],
-      hostId: input.hostId,
+      ownerId: input.ownerId,
       createdAt: new Date(),
       updatedAt: new Date(),
       id: uuidv4(),

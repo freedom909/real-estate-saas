@@ -21,7 +21,9 @@ import  registerSecurityDependencies  from "../../modules/container/security.reg
 import registerAuditDependencies from "../../modules/container/audit.register"
 import registerAmenityDependencies from "@/modules/container/amenity.register"
 
-console.log("process.env.DB_NAME:", process.env.DB_NAME);
+import { TOKENS_AMENITY } from "@/modules/tokens/amenity.tokens";
+import AmenityModel from "@/core/amenity/infrastructure/models/amenityModel"
+await AmenityModel.sync();
 // ⭐ 注册 DI
 registerAuditDependencies(container)
 registerSecurityDependencies();

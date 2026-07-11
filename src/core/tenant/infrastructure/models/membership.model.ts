@@ -4,8 +4,6 @@
 import mongoose, { Schema, Document } from "mongoose"
 import { UserRole } from "../../../user/domain/userRole"
 
-
-
 export type MembershipStatus =
   | "ACTIVE"
   | "INVITED"

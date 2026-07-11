@@ -15,8 +15,9 @@ export interface SearchListingsQuery {
 
 export interface IListingRepository {
   create(listing: Listing): Promise<Listing>;
+  findAll(): Promise<Listing[]>;
   findById(id: string): Promise<Listing | null>;
-  findByOwnerId(hostId: string): Promise<Listing[]>;
+  findByOwnerId(ownerId: string): Promise<Listing[]>;
   search(query: SearchListingsQuery): Promise<Listing[]>;
   update(id: string, listing: Listing): Promise<boolean>;
   delete(id: string): Promise<boolean>;

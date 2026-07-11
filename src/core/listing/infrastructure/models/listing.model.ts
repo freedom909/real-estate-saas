@@ -23,7 +23,7 @@ ListingModel.init(
       allowNull: false,
     },
 
-    hostId: {
+    ownerId: {
       type: DataTypes.STRING(50),
       allowNull: false,
     },

@@ -1,7 +1,9 @@
 import { injectable, inject } from 'tsyringe';
 import { Model } from 'mongoose';
 import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
-import { TenantDocument } from '../models/tenant.model';
+import { TenantDocument } from '../../domain/tenant.model';
+
+
 
 @injectable()
 export class TenantRepository {

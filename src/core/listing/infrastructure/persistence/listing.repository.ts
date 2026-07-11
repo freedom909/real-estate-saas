@@ -26,6 +26,9 @@ export class ListingRepository implements IListingRepository {
     @inject(TOKENS_LISTING.sequelize)
     private sequelize: Sequelize,
   ) {}
+  findAll(): Promise<Listing[]> {
+    return this.model.findAll().then(records => records.map(record => ListingMapper.toDomain(record)));
+  }
 
   async create(listing: Listing): Promise<Listing> {
     const persistence = ListingMapper.toPersistence(listing);
