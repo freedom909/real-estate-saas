@@ -23,8 +23,10 @@ import   resolvers  from "./resolvers/user.resolver";
 import UserService from "./services/user.service";
 import { container } from "tsyringe";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
+import userRegister from "@/modules/container/user.register";
 
 // 🔍 启动时验证 env
+userRegister();
 console.log(
   "BOOT USER_SUBGRAPH_URL =",
   process.env.USER_SUBGRAPH_URL
@@ -85,7 +87,7 @@ app.use(
     context: async ({ req }) => ({
       req,
       user: (req as any).user,
-      //container,
+      container,
       userContainer,
     }),
   })

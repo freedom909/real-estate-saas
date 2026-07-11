@@ -8,12 +8,10 @@ export class AuthResponseMapper {
   static toUserDTO(user: any): AuthUserResponseDTO {
 
     return new AuthUserResponseDTO(
-      user.id?.toString?.()
-        || user._id?.toString?.(),
-
+      user.id?.toString?.()|| user._id?.toString?.(),
       user.email,
       user.name,
-      user.role,
+      user.role
     );
   }
 }

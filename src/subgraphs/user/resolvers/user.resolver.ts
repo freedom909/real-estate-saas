@@ -7,6 +7,7 @@ import UserService from "../services/user.service.js";
 import mongoose from "mongoose";
 import { TOKENS_USER } from "../../../modules/tokens/user.tokens.js";
 import verifyInternalRequest from "./verifyInternalRequest.js";
+import CreateOAuthUserUseCase from "../application/usecase/createOAuthUserUseCase.js";
 
 
 interface ResolverContext {
@@ -76,8 +77,7 @@ User: {
     },
     user: async (_: unknown, { id }: { id: string }) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
-        const user =
-    await userService.findById(id);
+        const user = await userService.findById(id);
        console.log(
     "🔥🔥 USER FIND RESULT:",
     user
@@ -117,23 +117,15 @@ User: {
       return userService.deactivate(userId);
     },
 
-    createOAuthUser: async (_: any, { input }: any) => {
+createOAuthUser: async (_: any, { input }: any) => {
 
-      console.log("🔥 createOAuthUser input =", input);
-
-      const ownerId = input.ownerId? new mongoose.Types.ObjectId(input.ownerId)
-        : null;
-
-      const user = await UserModel.create({
-        ownerId,
-        email: input.email || "unknown",
-        name: input.profile?.name || "unknown",
-        picture: input.profile?.picture || "",
-        role: "CUSTOMER"
-      });
-      console.log("CREATE OAUTH USER RESULT", user);
-      return user;
-    },
+const useCase = container.resolve<CreateOAuthUserUseCase>(TOKENS_USER.usecase.createOAuthUserUseCase);
+console.log(
+    "🔥🔥 CREATE OAUTH USER CALLED",
+    input
+  );
+return await useCase.execute(input);
+}
     // updateLastLogin: async (_: unknown, { userId }: { userId: string }) => {
 
     //   const user = await UserModel.findByIdAndUpdate(

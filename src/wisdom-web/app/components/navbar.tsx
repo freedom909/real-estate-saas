@@ -134,17 +134,11 @@ export default function Navbar() {
 
           ) : (
 
-            <Link
-
-              href="/login"
-
-              className="rounded-lg bg-black px-4 py-2 text-white"
-
-            >
-
-              Login
-
-            </Link>
+          <Link href="/login">
+          <button className="rounded-lg border border-white px-5 py-2 hover:bg-white hover:text-slate-900 transition" >
+            Login
+          </button>
+          </Link>
 
           )}
 

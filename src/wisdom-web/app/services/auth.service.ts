@@ -1,54 +1,103 @@
-// src/wisdom-web/app/services/auth.service.ts
-import {client} from "../lib/apolloClient";
+// src/auth.service.ts
+
+import { client } from "../lib/apolloClient";
+
 import { gql } from "@apollo/client/core";
+
 import { OAUTH_LOGIN } from "../graphql/auth/auth.mutations";
-import {  AuthPayload, useAuthStore } from "../store/auth.store";
-const API_URL = "/4000/graphql/mutations";
+
+import { AuthPayload, useAuthStore } from "../store/auth.store";
 
 export async function logout() {
-    await client.clearStore();
-    useAuthStore.getState().accessToken = "";
-    return true;
+
+await client.clearStore();
+
+useAuthStore.getState().logout();
+
+return true;
+
 }
 
-export async function refreshToken() {   
-    const { data } = await client.mutate({
-        mutation: gql`
-            mutation RefreshToken {
-                refreshToken {
-                    accessToken
-                    refreshToken
-                }
-            }
-        `,
-    });
-    useAuthStore.getState().setAuth(data as AuthPayload['refreshToken']);
-    return true;
+export async function refreshToken() {
+
+const { data } = await client.mutate<{
+
+refreshToken: {
+
+accessToken: string;
+
+refreshToken: string;
+
+};
+
+}>({
+
+mutation: gql`
+
+mutation RefreshToken {
+
+refreshToken {
+
+accessToken
+
+refreshToken
+
 }
 
-export async function oauthLogin(provider: string, idToken: string) {
-    const { data } = await client.mutate({
-        mutation: OAUTH_LOGIN,
-        variables: {
-            provider,
-            idToken,
-        },
-    });
-    return data .oauthLogin;
+}
+
+`,
+
+});
+
+if (data?.refreshToken) {
+
+useAuthStore.getState().setAuth({
+
+accessToken: data.refreshToken.accessToken,
+
+refreshToken: data.refreshToken.refreshToken,
+
+});
+
+}
+
+return true;
+
+}
+
+export async function oauthLogin(
+
+provider: string,
+
+idToken: string
+
+): Promise<AuthPayload> {
+
+const { data } = await client.mutate<{
+
+oauthLogin: AuthPayload;
+
+}>({
+
+mutation: OAUTH_LOGIN,
+
+variables: {
+
+provider,
+
+idToken,
+
+},
+
+});
+
+return data!.oauthLogin;
+
 }
 
 export async function getCurrentUser() {
-    if (!useAuthStore.getState().accessToken) {
-        return null;
-    }
-    const { data } = await client.query({
-        query: gql`
-            query CurrentUser {
-                user {
-                    id
-                }
-            }
-        `,
-    });
-    return data as AuthPayload['user'];
+
+return useAuthStore.getState().user;
+
 }

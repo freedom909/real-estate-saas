@@ -21,6 +21,9 @@ export class UserClient {
         userByEmail(email: $email) {
           id
           email
+          picture
+       
+          name
         }
       }
     `;
@@ -36,6 +39,9 @@ export class UserClient {
         user(id: $id) {
           id
           email
+          name
+          picture
+         
         }
       }
     `;

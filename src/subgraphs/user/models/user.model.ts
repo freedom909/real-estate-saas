@@ -5,7 +5,6 @@ import { UserRole } from "@/core/user/domain/userRole";
 import mongoose, { HydratedDocument, Types } from "mongoose";
 
 export type UserDocument = HydratedDocument<IUserDB>;
-
 export interface IUserDB {
   _id: Types.ObjectId;
   email: string; // Mongoose schema requires it, so it's a string
@@ -18,7 +17,6 @@ export interface IUserDB {
   updatedAt: Date;
   profile?: IProfile;
 }
-
 
 const userSchema = new mongoose.Schema({
   email: {

@@ -40,7 +40,7 @@ export default class CreateListingUseCase {
     @inject(TOKENS_LISTING.adapters.amenityAdapter)
     private amenityAdapter: IAmenityAdapter,
     @inject(TOKENS_CATEGORY.categoryRepository)
-    private categoryRepo: ICategoryRepository,// it should be the 'CategoryRepository' for the ICategoryAdapter   
+    private categoryRepo: ICategoryRepository,
   ) { }
 
   async execute(input: CreateListingInput): Promise<GenerateTitleResult> {

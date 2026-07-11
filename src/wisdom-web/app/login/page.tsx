@@ -1,99 +1,122 @@
 "use client";
 
 import { oauthLogin } from "app/services/auth.service";
+
 import { useAuthStore } from "app/store/auth.store";
-import { redirect } from "next/navigation";
+
 import { useEffect, useRef } from "react";
 
 export default function LoginPage() {
-  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
-  const initialized = useRef(false);
-  useEffect(() => {
-    if (initialized.current) return;
-    const script = document.createElement("script");
 
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
 
-    script.onload = () => {
-      console.log("Google GIS Loaded");
-      console.log(window.google);
+const initialized = useRef(false);
 
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
+useEffect(() => {
+
+if (initialized.current) return;
+
+const script = document.createElement("script");
+
+script.src = "https://accounts.google.com/gsi/client"
+;
+
+script.async = true;
+
+script.defer = true;
+
+script.onload = () => {
+
+window.google.accounts.id.initialize({
+
+client_id: GOOGLE_CLIENT_ID,
+
 callback: async (response: any) => {
 
-console.log("1. callback entered");
+try {
 
 const idToken = response.credential;
 
-console.log("2. token received");
-
 const result = await oauthLogin("GOOGLE", idToken);
-console.log("OAUTH RESULT:", result);
-useAuthStore.getState().setAuth({
 
- accessToken:result.accessToken,
+if (!result?.accessToken) return;
 
- refreshToken:result.refreshToken,
+const fullUser = {
 
-});
-useAuthStore.getState().setUser(
- result.user
-);
-window.location.href = "/listing";
+id: result.user.id,
 
-if (result?.accessToken) {
+email: result.user.email,
 
-console.log("4. token exists");
+name: result.user.name,
+
+};
 
 localStorage.setItem("accessToken", result.accessToken);
 
 localStorage.setItem("refreshToken", result.refreshToken);
 
-console.log("5. saved");
+localStorage.setItem("user", JSON.stringify(fullUser));
 
-setTimeout(() => {
+useAuthStore.getState().setAuth({
 
-window.location.assign("/");
+accessToken: result.accessToken,
 
-}, 100);
+refreshToken: result.refreshToken,
 
-} else {
+});
 
-console.log("NO TOKEN");
+useAuthStore.getState().setUser(fullUser);
+
+window.location.href = "/listing";
+
+} catch (err) {
+
+console.error("Login callback error:", err);
 
 }
 
+},
+
+});
+
+initialized.current = true;
+
+window.google.accounts.id.renderButton(
+
+document.getElementById("googleButton"),
+
+{
+
+theme: "outline",
+
+size: "large",
+
 }
-      });
-      initialized.current = true;
-      window.google.accounts.id.renderButton(
-        document.getElementById("googleButton"),
-        {
-          theme: "outline",
-          size: "medium",
-        }
-      );
-    };
 
-    document.body.appendChild(script);
+);
 
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+};
 
-  return (
-    <div
-      style={{
-        padding: 80,
-      }}
-    >
-      <h1>Google Login Test</h1>
+document.body.appendChild(script);
 
-      <div id="googleButton"></div>
-    </div>
-  );
+return () => {
+
+document.body.removeChild(script);
+
+};
+
+}, []);
+
+return (
+
+<div style={{ padding: 80 }}>
+
+<h1>Google Login Test</h1>
+
+<div id="googleButton"></div>
+
+</div>
+
+);
+
 }

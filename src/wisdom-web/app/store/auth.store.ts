@@ -1,65 +1,75 @@
-// store/auth.store.ts
-
 import { create } from "zustand";
 
-export interface AuthPayload {
-    accessToken: string;
-    refreshToken: string;
-    user: User;
-    status: string;
-    challengeId: string;
-}
+export type User = {
 
-export interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: "ADMIN" | "OWNER" | "AGENT" | "CUSTOMER";
-}
+id: string;
 
-export interface AuthState {
-    accessToken: string | null;
-    refreshToken: string | null;
-    user: User | null;
-    status: string | null;
-    challengeId: string | null;
-}
+email?: string;
+
+name?: string;
+
+picture?: string;
+
+};
+
+export type AuthPayload = {
+
+accessToken: string;
+
+refreshToken: string;
+
+user: User;
+
+};
+
+type AuthState = {
+
+accessToken: string | null;
+
+refreshToken: string | null;
+
+user: User | null;
+
+setAuth: (payload: {
+
+accessToken: string;
+
+refreshToken: string;
+
+}) => void;
+
+setUser: (user: User) => void;
+
+logout: () => void;
+
+};
 
 export const useAuthStore = create<AuthState>((set) => ({
-    accessToken: null,
-    refreshToken: null,
-    user: null,
-    status: null,
-    challengeId: null,
 
-    setAuth: (payload: AuthPayload) =>
-        set({
-            accessToken: payload.accessToken,
-            refreshToken: payload.refreshToken,
-            user: payload.user,
-            status: payload.status,
-            challengeId: payload.challengeId,
-        }),
-    setUser: (user: User | null) =>
-        set({
-            user: user || undefined,
-        }),
+accessToken: null,
 
-    clear: () =>
-        set({
-            accessToken: null,
-            refreshToken: null,
-            user: undefined,
-            status: null,
-            challengeId: null,
-        }),
+refreshToken: null,
 
-    logout: () =>
-        set({
-            accessToken: null,
-            refreshToken: null,
-            status: null,
-            user: undefined,
-            challengeId: null,
-        }),
+user: null,
+
+setAuth: ({ accessToken, refreshToken }) =>
+
+set({ accessToken, refreshToken }),
+
+setUser: (user) =>
+
+set({ user }),
+
+logout: () =>
+
+set({
+
+accessToken: null,
+
+refreshToken: null,
+
+user: null,
+
+}),
+
 }));

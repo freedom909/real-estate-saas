@@ -12,11 +12,17 @@ export const TOKENS_USER={
     repos: {
       userRepo: Symbol.for("user.repos.userRepo"),
       profileRepo: Symbol.for("user.repos.profileRepo"),
+      createOAuthRepository: Symbol.for("user.usecase.createOAuthRepository"),
     },
 
     services: {
       userService: Symbol.for("user.services.userService"),
     },
+
+    usecase: {
+      createOAuthUserUseCase: Symbol.for("user.usecase.createOAuthUserUseCase"),
+    },
+
     mergeAccountService: Symbol.for("user.services.mergeAccountService"),
   
 }
