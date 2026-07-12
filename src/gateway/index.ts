@@ -25,41 +25,41 @@ async function start() {
 
       ]
     }),
-buildService({ url }) {
+    buildService({ url }) {
 
-return new RemoteGraphQLDataSource({
+      return new RemoteGraphQLDataSource({
 
-url,
+        url,
 
-willSendRequest({ request, context }) {
+        willSendRequest({ request, context }) {
 
-console.log("WILL SEND CONTEXT:", context);
+          console.log("WILL SEND CONTEXT:", context);
 
-if (context.user) {
+          if (context.user) {
 
-request.http.headers.set(
+            request.http.headers.set(
 
-"x-user-id",
+              "x-user-id",
 
-context.user.sub
+              context.user.sub
 
-);
+            );
 
-request.http.headers.set(
+            request.http.headers.set(
 
-"x-tenant-id",
+              "x-tenant-id",
 
-context.user.sub
+              context.user.sub
 
-);
+            );
 
-}
+          }
 
-},
+        },
 
-});
+      });
 
-}
+    }
   });
 
   console.log("gateway:", gateway)
@@ -77,37 +77,37 @@ context.user.sub
     }),
     express.json(),
     expressMiddleware(server, {
-    context: async ({ req }) => {
+      context: async ({ req }) => {
 
-const authHeader = req.headers.authorization;
+        const authHeader = req.headers.authorization;
 
-let user = null;
+        let user = null;
 
-try {
+        try {
 
-if (authHeader) {
+          if (authHeader) {
 
-const token = authHeader.replace("Bearer ", "");
+            const token = authHeader.replace("Bearer ", "");
 
-console.log("AUTH HEADER:", authHeader);
+            console.log("AUTH HEADER:", authHeader);
 
-console.log("CLEAN TOKEN:", token);
+            console.log("CLEAN TOKEN:", token);
 
-user = verifyJwt(token);
+            user = verifyJwt(token);
 
-console.log("GATEWAY USER:", user);
+            console.log("GATEWAY USER:", user);
 
-}
+          }
 
-} catch (err) {
+        } catch (err) {
 
-console.error("JWT VERIFY ERROR:", err);
+          console.error("JWT VERIFY ERROR:", err);
 
-}
+        }
 
-return { user };
+        return { user };
 
-}
+      }
     }))
 
   app.listen(4000, () => {

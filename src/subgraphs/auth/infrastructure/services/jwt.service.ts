@@ -27,7 +27,7 @@ export class JwtService {
       payload,
       process.env.JWT_SECRET!,
       {
-        expiresIn: "15m",
+        expiresIn: "1115m",
       }
     );
   }

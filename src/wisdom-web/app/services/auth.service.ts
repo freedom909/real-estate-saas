@@ -10,29 +10,31 @@ import { AuthPayload, useAuthStore } from "../store/auth.store";
 
 export async function logout() {
 
-await client.clearStore();
+    await client.clearStore();
 
-useAuthStore.getState().logout();
+    useAuthStore.getState().logout();
 
-return true;
+    return true;
 
 }
 
 export async function refreshToken() {
 
-const { data } = await client.mutate<{
+    const { data } = await client.mutate<{
 
-refreshToken: {
+        refreshToken: {
+            user: { id: string; email: string; name?: string | undefined; };
 
-accessToken: string;
+            accessToken: string;
 
-refreshToken: string;
+            refreshToken: string;
+       
 
-};
+        };
 
-}>({
+    }>({
 
-mutation: gql`
+        mutation: gql`
 
 mutation RefreshToken {
 
@@ -48,59 +50,60 @@ refreshToken
 
 `,
 
-});
+    });
 
-if (data?.refreshToken) {
+    if (data?.refreshToken) {
 
-useAuthStore.getState().setAuth({
+        useAuthStore.getState().setAuth({
 
-accessToken: data.refreshToken.accessToken,
+            accessToken: data.refreshToken.accessToken,
 
-refreshToken: data.refreshToken.refreshToken,
+            refreshToken: data.refreshToken.refreshToken,
+            user: data.refreshToken.user,
 
-});
+        });
 
-}
+    }
 
-return true;
+    return true;
 
 }
 
 export async function oauthLogin(
 
-provider: string,
+    provider: string,
 
-idToken: string
+    idToken: string
 
 ): Promise<AuthPayload> {
 
-const { data } = await client.mutate<{
+    const { data } = await client.mutate<{
 
-oauthLogin: AuthPayload;
+        oauthLogin: AuthPayload;
 
-}>({
+    }>({
 
-mutation: OAUTH_LOGIN,
+        mutation: OAUTH_LOGIN,
 
-variables: {
+        variables: {
 
-provider,
+            provider,
 
-idToken,
+            idToken,
 
-},
+        },
 
-});
-const authPayload = data!.oauthLogin;
-useAuthStore.getState().setAuth(authPayload);
+    });
+    const authPayload = data!.oauthLogin;
+    useAuthStore.getState().setAuth(authPayload);
 
-console.log("保存的 token:", authPayload.accessToken);
-return authPayload;
+    console.log("保存的 token:", authPayload.accessToken);
+    return authPayload;
 
 }
 
 export async function getCurrentUser() {
 
-return useAuthStore.getState().user;
+    return useAuthStore.getState().user;
 
 }

@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe"
 import mongoose, { Model } from "mongoose"
 import SessionRepository from "./session.repo"
-import RefreshTokenRepository from "./refresh-token.repo"
+
 import { RiskEventModel } from "../models/riskEvent.model"
 import { hash } from "@/infrastructure/utils/hash"
 import RiskEventEntity from "../../domain/risk.event"
@@ -13,8 +13,8 @@ export class RiskEventRepo {
     private model: Model<RiskEventModel>,
     @inject("SessionRepository")
     private sessionRepo: SessionRepository,
-    @inject("RefreshTokenRepo")
-    private refreshTokenRepo: RefreshTokenRepository
+    // @inject("RefreshTokenRepo")
+    // private refreshTokenRepo: RefreshTokenRepository
   ) { }
   async create(data: Partial<RiskEventModel>) {
 
@@ -121,10 +121,10 @@ export class RiskEventRepo {
   async handleRefreshTokenReuse(data) {
     const { familyId, reusedJti } = data;
 
-    const family = await this.refreshTokenRepo.findFamily(familyId);
+    // const family = await this.refreshTokenRepo.findFamily(familyId);
 
     // 1️⃣ revoke 全家
-    await this.refreshTokenRepo.revokeFamily(familyId);
+    // await this.refreshTokenRepo.revokeFamily(familyId);
 
     // 2️⃣ revoke session
     await this.sessionRepo.revokeSession(data.sessionId);

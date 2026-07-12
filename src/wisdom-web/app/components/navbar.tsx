@@ -2,47 +2,19 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
-
 import Link from "next/link";
 
-type User = {
+import { useAuthStore } from "app/store/auth.store";
 
-  id: string;
-
-  email?: string;
-
-  name?: string;
-
-  picture?: string;
-
-};
+import { logout as authLogout } from "app/services/auth.service";
 
 export default function Navbar() {
 
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-
-    const raw = localStorage.getItem("user");
-
-    console.log("LOCAL USER =", raw);
-
-    if (raw) {
-
-      setUser(JSON.parse(raw));
-
-    }
-
-  }, []);
+  const user = useAuthStore((s) => s.user);
 
   const logout = () => {
 
-    localStorage.removeItem("accessToken");
-
-    localStorage.removeItem("refreshToken");
-
-    localStorage.removeItem("user");
+    authLogout();
 
     window.location.href = "/";
 
@@ -87,17 +59,19 @@ export default function Navbar() {
               AI Assistant
 
             </Link>
-                      <Link href="/dashboard" className="hover:text-blue-600 transition">
+
+            <Link href="/dashboard" className="hover:text-blue-600 transition">
 
               Dashboard
 
             </Link>
 
-                        <Link href="/campaign" className="hover:text-blue-600 transition">
+            <Link href="/campaign" className="hover:text-blue-600 transition">
 
               Campaign
 
             </Link>
+
           </div>
 
         </div>
@@ -144,11 +118,15 @@ export default function Navbar() {
 
           ) : (
 
-          <Link href="/login">
-          <button className="rounded-lg border border-white px-5 py-2 hover:bg-white hover:text-slate-900 transition" >
-            Login
-          </button>
-          </Link>
+            <Link href="/login">
+
+              <button className="rounded-lg border border-white px-5 py-2 hover:bg-white hover:text-slate-900 transition">
+
+                Login
+
+              </button>
+
+            </Link>
 
           )}
 
