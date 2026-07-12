@@ -7,12 +7,14 @@ scalar DateTime
 type Query {
   ### Bookings
   bookingsForTenant(listingId: ID!, status: BookingStatus): [Booking!]! @shareable
+  bookingsForCustomer(userId: ID!): [Booking!] @shareable
+  myBookings: [Booking!]! @shareable
   currentCustomerBooking: Booking @shareable
   upcomingCustomerBookings: [Booking!]! @shareable
   pastCustomerBookings: [Booking!]! @shareable
   customerBookings: [Booking!]! @shareable
   booking(id: ID!): Booking @shareable
-  bookingsForCustomer(userId: ID!): [Booking!] @shareable
+  
 }
 
 extend type User @key(fields: "id") {
@@ -117,5 +119,4 @@ input CreateBookingInput {
   listingId: ID!
   checkInDate: DateTime!
   checkOutDate: DateTime!
-  tenantId: ID!
 }

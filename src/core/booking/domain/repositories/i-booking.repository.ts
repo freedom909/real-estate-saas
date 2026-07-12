@@ -5,6 +5,5 @@ export interface IBookingRepository {
   save(booking: Booking): Promise<void>;
   findByCustomerId(customerId: string): Promise<Booking[]>;
   delete(id: string): Promise<void>;
-  findByLatestByCustomerId(customerId: string): Promise<Booking | null>;
-
+  findByLatestByCustomerId(customerId: string): Promise<Booking | null>; 
 }

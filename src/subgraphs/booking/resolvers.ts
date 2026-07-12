@@ -22,16 +22,31 @@ export const resolvers = {
 
       return repo.findByCustomerId(userId);
     },
+    myBookings: async (_: any, __: any, { context }: any) => {
+      const userId = context.user.userId;
+      return container.resolve<IBookingRepository>(
+        TOKENS_BOOKING.repository.bookingRepository
+      ).findByCustomerId(userId);
+    },
   },
   Mutation: {
-    createBooking: async (_: any, { input }: any, { user }: any) => {
-      const userId = user?.id || user?.userId;
-      if (!userId) {
-        throw new Error("Unauthenticated: Please log in to create a booking.");
+    createBooking: async (_: any, { input }: any, context: any) => {
+      console.log("FULL CONTEXT:", context);
+
+      console.log("CONTEXT USER:", context.user);
+
+      const user = context.user;
+
+      if (!user) {
+
+        throw new Error("Unauthenticated: context.user is null");
+
       }
+      const tenantId = user.sub;
+      const userId = user.userId;
 
       // Fallback to input.tenantId if context user doesn't have it
-      const tenantId = user?.tenantId || input.tenantId || "tenant-dev";
+
       const price = input.price !== undefined ? Number(input.price) : 0; // Default price to 0 if not provided
       const booking = await container
         .resolve<CreateBookingUseCase>(TOKENS_BOOKING.usecase.createBookingUseCase)

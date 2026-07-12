@@ -91,8 +91,11 @@ idToken,
 },
 
 });
+const authPayload = data!.oauthLogin;
+useAuthStore.getState().setAuth(authPayload);
 
-return data!.oauthLogin;
+console.log("保存的 token:", authPayload.accessToken);
+return authPayload;
 
 }
 

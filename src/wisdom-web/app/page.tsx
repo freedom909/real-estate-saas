@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Header from "./components/Header";
+
+
 import Hero from "./components/Hero";
 import SearchBar from "./components/SearchBar";
 import ListingCard from "./components/ListingCard";
@@ -12,9 +12,6 @@ export default function Home() {
   return (
     <>
     <Navbar />
-
-
-
 <Hero />
      <ListingCard title={""} address={""} price={0} />
       <CategorySection />

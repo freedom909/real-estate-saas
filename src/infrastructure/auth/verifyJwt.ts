@@ -43,8 +43,7 @@ function verifyJwt(token: string): JwtPayload {
     token,
     verifyKey,
     {
-      algorithms: ["RS256"],
-      issuer: process.env.JWT_ISSUER,
+      algorithms: ["HS256"],   
     }
   ) as JwtPayload;
 }

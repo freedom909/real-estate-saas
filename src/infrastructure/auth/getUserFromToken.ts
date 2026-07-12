@@ -23,7 +23,8 @@ async function getUserFromToken(reqOrToken) {
 
   // Auto-extract token if req object is passed
   if (typeof reqOrToken === 'string') {
-    token = reqOrToken;
+    // Strip "Bearer " prefix if present (gateway forwards raw Authorization header)
+    token = reqOrToken.startsWith('Bearer ') ? reqOrToken.slice(7) : reqOrToken;
   } else if (reqOrToken?.headers) {
     const authHeader = reqOrToken.headers.authorization || '';
     if (authHeader.startsWith('Bearer ')) {
@@ -99,16 +100,10 @@ async function getUserFromToken(reqOrToken) {
       throw error;
     }
 
-    // ✅ 2. Use error names for more reliable checking
-    if (error.name === 'TokenExpiredError') {
-      throw new GraphQLError('Token has expired', { extensions: { code: 'TOKEN_EXPIRED' } });
-    }
-    if (error.name === 'JsonWebTokenError' || error.name === 'NotBeforeError') {
-      logger.error('JWT Verification Failed:', error.message);
-      return null;
-    }
-    throw new GraphQLError('Token verification failed', {
-      extensions: { code: 'AUTHENTICATION_ERROR', error: error.message }
+    // ✅ 2. For any other error (expired, malformed, etc.), throw a clear auth error
+    console.error("[Auth Error] Token verification failed:", error.message);
+    throw new GraphQLError('Authentication required: ' + error.message, {
+      extensions: { code: 'UNAUTHENTICATED' }
     });
   }
 }

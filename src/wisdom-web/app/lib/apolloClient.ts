@@ -1,22 +1,31 @@
 // src/wisdom-web/app/lib/apolloClient.ts
 
-import { ApolloClient,  HttpLink,  InMemoryCache } from "@apollo/client/core";
-import {  SetContextLink } from "@apollo/client/link/context";
+import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
+
+import { setContext } from "@apollo/client/link/context";
+
 import { useAuthStore } from "../store/auth.store";
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL || 'http://localhost:4000/graphql';
 const httpLink = new HttpLink({uri: GATEWAY_URL, credentials: "include"}); 
-const authLink = new SetContextLink((prevContext) => {
-    const token = useAuthStore.getState().accessToken;
+const authLink = setContext((_, { headers }) => {
 
-    return {
-        headers: {
-            ...prevContext.headers,
-            authorization: token
-                ? `Bearer ${token}`
-                : "",
-        },
-    };
+const token = useAuthStore.getState().accessToken;
+
+console.log("Apollo token:", token);
+
+return {
+
+headers: {
+
+...headers,
+
+authorization: token ? `Bearer ${token}` : "",
+
+},
+
+};
+
 });
 
 export const client = new ApolloClient({

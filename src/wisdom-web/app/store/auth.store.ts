@@ -1,75 +1,82 @@
 import { create } from "zustand";
 
-export type User = {
+import { persist } from "zustand/middleware";
+
+export interface AuthPayload {
+
+accessToken: string;
+
+refreshToken: string;
+
+user: {
 
 id: string;
 
-email?: string;
+email: string;
 
 name?: string;
 
-picture?: string;
-
 };
 
-export type AuthPayload = {
+}
 
-accessToken: string;
+interface AuthState {
 
-refreshToken: string;
+    accessToken: string | null;
 
-user: User;
+    refreshToken: string | null;
 
-};
+    user: any | null;
 
-type AuthState = {
+    setAuth: (auth: AuthPayload) => void;
 
-accessToken: string | null;
+    logout: () => void;
 
-refreshToken: string | null;
+}
 
-user: User | null;
+export const useAuthStore = create<AuthState>()(
 
-setAuth: (payload: {
+    persist(
 
-accessToken: string;
+        (set) => ({
 
-refreshToken: string;
+            accessToken: null,
 
-}) => void;
+            refreshToken: null,
 
-setUser: (user: User) => void;
+            user: null,
 
-logout: () => void;
+            setAuth: (auth) =>
 
-};
+                set({
 
-export const useAuthStore = create<AuthState>((set) => ({
+                    accessToken: auth.accessToken,
 
-accessToken: null,
+                    refreshToken: auth.refreshToken,
 
-refreshToken: null,
+                }),
 
-user: null,
+            logout: () =>
 
-setAuth: ({ accessToken, refreshToken }) =>
+                set({
 
-set({ accessToken, refreshToken }),
+                    accessToken: null,
 
-setUser: (user) =>
+                    refreshToken: null,
 
-set({ user }),
+                    user: null,
 
-logout: () =>
+                }),
 
-set({
+        }),
 
-accessToken: null,
+        {
 
-refreshToken: null,
+            name: "auth-storage",
 
-user: null,
+        }
 
-}),
+    )
 
-}));
+);
+

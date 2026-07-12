@@ -1,8 +1,6 @@
 import { sequelize } from '@/infrastructure/config/seq';
 import { DataTypes } from 'sequelize';
 
-
-
 const BookingItem = sequelize.define('BookingItem', {
   id: {
     type: DataTypes.UUIDV4,

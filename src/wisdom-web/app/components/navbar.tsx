@@ -76,9 +76,9 @@ export default function Navbar() {
 
             </Link>
 
-            <Link href="/booking" className="hover:text-blue-600 transition">
+            <Link href="/bookings" className="hover:text-blue-600 transition">
 
-              Booking
+              Bookings
 
             </Link>
 
@@ -87,7 +87,17 @@ export default function Navbar() {
               AI Assistant
 
             </Link>
+                      <Link href="/dashboard" className="hover:text-blue-600 transition">
 
+              Dashboard
+
+            </Link>
+
+                        <Link href="/campaign" className="hover:text-blue-600 transition">
+
+              Campaign
+
+            </Link>
           </div>
 
         </div>

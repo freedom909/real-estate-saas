@@ -8,115 +8,93 @@ import { useEffect, useRef } from "react";
 
 export default function LoginPage() {
 
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
+    const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
 
-const initialized = useRef(false);
+    const initialized = useRef(false);
 
-useEffect(() => {
+    useEffect(() => {
 
-if (initialized.current) return;
+        if (initialized.current) return;
 
-const script = document.createElement("script");
+        const script = document.createElement("script");
 
-script.src = "https://accounts.google.com/gsi/client"
-;
+        script.src = "https://accounts.google.com/gsi/client"
+            ;
 
-script.async = true;
+        script.async = true;
 
-script.defer = true;
+        script.defer = true;
 
-script.onload = () => {
+        script.onload = () => {
 
-window.google.accounts.id.initialize({
+            window.google.accounts.id.initialize({
 
-client_id: GOOGLE_CLIENT_ID,
+                client_id: GOOGLE_CLIENT_ID,
+                callback: async (response: any) => {
 
-callback: async (response: any) => {
+                    try {
 
-try {
+                        const idToken = response.credential;
 
-const idToken = response.credential;
+                        // 只调用一次 oauthLogin
 
-const result = await oauthLogin("GOOGLE", idToken);
+                        const result = await oauthLogin("GOOGLE", idToken);
 
-if (!result?.accessToken) return;
+                        if (!result?.accessToken) return;
 
-const fullUser = {
+                        console.log("登录成功:", result);
 
-id: result.user.id,
+                        // 直接跳转
 
-email: result.user.email,
+                        window.location.href = "/listing";
 
-name: result.user.name,
+                    } catch (err) {
 
-};
+                        console.error("Login callback error:", err);
 
-localStorage.setItem("accessToken", result.accessToken);
+                    }
 
-localStorage.setItem("refreshToken", result.refreshToken);
+                },
+            });
 
-localStorage.setItem("user", JSON.stringify(fullUser));
+            initialized.current = true;
 
-useAuthStore.getState().setAuth({
+            window.google.accounts.id.renderButton(
 
-accessToken: result.accessToken,
+                document.getElementById("googleButton"),
 
-refreshToken: result.refreshToken,
+                {
 
-});
+                    theme: "outline",
 
-useAuthStore.getState().setUser(fullUser);
+                    size: "large",
 
-window.location.href = "/listing";
+                }
 
-} catch (err) {
+            );
 
-console.error("Login callback error:", err);
+        };
 
-}
+        document.body.appendChild(script);
 
-},
+        return () => {
 
-});
+            document.body.removeChild(script);
 
-initialized.current = true;
+        };
 
-window.google.accounts.id.renderButton(
+    }, []);
 
-document.getElementById("googleButton"),
+    return (
 
-{
+        <div style={{ padding: 80 }}>
 
-theme: "outline",
+            <h1>Google Login Test</h1>
 
-size: "large",
+            <div id="googleButton"></div>
 
-}
+        </div>
 
-);
-
-};
-
-document.body.appendChild(script);
-
-return () => {
-
-document.body.removeChild(script);
-
-};
-
-}, []);
-
-return (
-
-<div style={{ padding: 80 }}>
-
-<h1>Google Login Test</h1>
-
-<div id="googleButton"></div>
-
-</div>
-
-);
+    );
 
 }

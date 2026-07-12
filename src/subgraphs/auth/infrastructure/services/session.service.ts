@@ -27,7 +27,7 @@ export class SessionService implements ISessionPort {
         type: "access",
       },
       process.env.JWT_SECRET!,
-      { expiresIn: "15m" }
+      { expiresIn: "1125m" }
     );
 
     const refreshToken = jwt.sign(

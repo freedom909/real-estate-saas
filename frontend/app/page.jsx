@@ -39,7 +39,7 @@ export default function Home() {
       });
 
       localStorage.setItem("accessToken", data.oauthLogin.accessToken);
-
+     console.log("accessToken:", data.oauthLogin.accessToken);
       alert("登录成功！");
     } catch (err) {
       console.error(err);

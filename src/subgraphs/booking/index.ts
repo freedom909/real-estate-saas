@@ -45,7 +45,17 @@ import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import { registerEventBus } from "@/modules/container/event.bus.register";
 import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { InMemoryEventBus } from "@/shared/eventbus/in-memory-event-bus";
+import { BookingModel, initBookingModel } from "@/core/booking/infrastructure/models/booking.model";
+import { sequelize } from "@/infrastructure/config/seq";
 
+
+// 　await initBookingModel(sequelize);// 初始化模型，确保模型已同步
+//  await BookingModel.sync(); // 同步模型到数据库
+console.log("BookingModel =", BookingModel);
+
+console.log("typeof =", typeof BookingModel);
+
+console.log("name =", BookingModel?.name);
 const startApolloServer = async () => {
   try {
     // ✅ Robust Path Resolution for Schema
@@ -63,8 +73,8 @@ const startApolloServer = async () => {
     container.register(TOKENS_USER.userClient, {
       useFactory: () =>
         new UserClient(
-         process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql",
-         process.env.INTERNAL_SERVICE_TOKEN
+          process.env.USER_SUBGRAPH_URL || "http://localhost:4020/graphql",
+          process.env.INTERNAL_SERVICE_TOKEN
         ),
     });
 
@@ -101,35 +111,36 @@ const startApolloServer = async () => {
     await server.start();
     console.log("✅ Apollo Server started");
 
-    // ✅ 统一 context（唯一正确入口）
-//    app.use(
-//   "/graphql",
-//   cors(),
-//   express.json(),
-//   expressMiddleware(server, {
-//     context: async ({ req }) => {
-//       const token = req.headers.authorization || "";
-//       const user = await getUserFromToken(token);
+       app.use(
+      "/graphql",
+      cors(),
+      express.json(),
+      expressMiddleware(server, {
+        context: async ({ req }) => {
 
-//       return { user, container };
-//     },
-//   }) as unknown as RequestHandler // ✅ 关键
-// );
+          const userId = req.headers["x-user-id"];
 
-app.use(
-  "/graphql",
-  express.json(),
-  (req, res, next) => {
-    (req as any).user = getUserFromContext(req);
-    next();
-  },
-  expressMiddleware(server, {
-    context: async ({ req }) => ({
-      req,
-      user: (req as any).user,
-    }),
-  })
-);
+          const tenantId = req.headers["x-tenant-id"];
+
+          console.log("FORWARDED USER:", userId);
+
+          console.log("FORWARDED TENANT:", tenantId);
+
+          return {
+
+            user: userId
+
+              ? { userId, sub: tenantId }
+
+              : null,
+
+          };
+
+        }
+      }) // ✅ 关键
+    );
+
+
     // ✅ 启动 HTTP
     httpServer.listen({ port: 4030 }, async () => {
       console.log("🚀 Server ready at http://localhost:4030/graphql");

@@ -259,7 +259,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-green-600">¥{booking.totalPrice}</p>
+                          <p className="font-bold text-green-600">¥{booking.price}</p>
                           <p className="text-xs text-gray-500">
                             {new Date(booking.createdAt).toLocaleDateString()}
                           </p>
