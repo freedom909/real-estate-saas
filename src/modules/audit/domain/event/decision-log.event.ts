@@ -11,7 +11,7 @@ export interface DecisionLogEvent {
   actor: {
     userId?: string,
     tenantId?: string,
-    hostId?: string,
+    ownerId?: string,
     role?: string,
   },
   input: {

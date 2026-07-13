@@ -20,10 +20,10 @@ class BookingCache {
   }
 
   // Clear all booking-related caches when booking status changes
-  static async clearBookingRelatedCaches(bookingId, listingId, guestId) {
+  static async clearBookingRelatedCaches(bookingId, listingId, customerId) {
     const cacheKeys = [
       `booking_${bookingId}`,
-      `bookings:${guestId}:*`,
+      `bookings:${customerId}:*`,
       `bookings:*:${listingId}:*`
     ];
     

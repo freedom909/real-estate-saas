@@ -85,7 +85,7 @@ input SearchReviewsInput {
   customerId: ID
   authorId: ID
   listingId: ID
-  hostId: ID
+  ownerId: ID
   targetType: String
   content: String # full-text search support
   rating: Float
@@ -126,7 +126,7 @@ input ReviewInput {
   customerId: ID
   bookingId: ID
   round: Int!
-  hostId: ID
+  ownerId: ID
 }
 
 ### Response Types
@@ -135,7 +135,7 @@ type SubmitOwnerReplyToCustomerReviewResponse implements MutationResponse {
   success: Boolean! @shareable
   message: String! @shareable
   customerReviewID:ID @shareable
-  hostReview: Review! @shareable
+  ownerReview: Review! @shareable
   locationReview: Review @shareable
 }
 

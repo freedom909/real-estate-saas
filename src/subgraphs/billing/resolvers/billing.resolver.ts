@@ -9,9 +9,9 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createBillingAccount: async (_: any, { hostId }: { hostId: string }) => {
+    createBillingAccount: async (_: any, { ownerId }: { ownerId: string }) => {
       const service = container.resolve(BillingService);
-      return service.createAccount(hostId);
+      return service.createAccount(ownerId);
     },
     addCredit: async (_: any, { accountId, amount }: { accountId: string; amount: number }) => {
       const service = container.resolve(BillingService);

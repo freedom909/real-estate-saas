@@ -17,7 +17,7 @@ export interface ReviewProps {
   bookingId: string;
   listingId: string;
   customerId: string;
-  hostId: string;
+  ownerId: string;
   rating: Rating;
   content: string;
   status: ReviewStatus;

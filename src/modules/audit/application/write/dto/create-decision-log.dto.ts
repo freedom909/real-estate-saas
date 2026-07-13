@@ -11,7 +11,7 @@ export interface CreateDecisionLogDTO {
   actor: {
     userId?: string;
     tenantId?: string;
-    hostId?: string;
+    ownerId?: string;
     role?: string;
   };
   input: {

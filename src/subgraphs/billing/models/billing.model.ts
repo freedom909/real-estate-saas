@@ -1,14 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface BillingAccountDocument extends Document {
-  hostId: string;
+  ownerId: string;
   status: string;
   balance: number;
   createdAt: Date;
 }
 
 const BillingAccountSchema = new Schema({
-  hostId: { type: Schema.Types.ObjectId, required: true, unique: true },
+  ownerId: { type: Schema.Types.ObjectId, required: true, unique: true },
   status: { type: String, enum: ['ACTIVE', 'SUSPENDED', 'PENDING'], default: 'ACTIVE' },
   balance: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }

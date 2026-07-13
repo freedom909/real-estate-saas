@@ -69,7 +69,7 @@ amenityIds:
 //   return new Listing({
 //     id: raw.id,
 
-//     hostId: raw.hostId,
+//     ownerId: raw.ownerId,
 //     locationId: raw.locationId,
 
 //     title: new Title(raw.title),

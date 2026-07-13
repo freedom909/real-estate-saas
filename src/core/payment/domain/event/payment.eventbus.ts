@@ -1,7 +1,7 @@
 //src/subgraphs/booking/interface/events/rabbitmq-event-bus.ts
 import { injectable } from "tsyringe";
 import * as amqp from "amqplib";
-
+console.log("RabbitMQ URL:", process.env.RABBITMQ_URL);
 
 @injectable()
 export class PaymentMQEventBus {

@@ -12,7 +12,7 @@ userId:Types.ObjectId;
 updateAt:Date;
 }
 
-const hostSchema=new mongoose.Schema({
+const ownerSchema=new mongoose.Schema({
     _id:Types.ObjectId,
     name:{type:String,required:true},
     plan:{type:String,required:true},
@@ -21,5 +21,5 @@ const hostSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now},
 
 })
-hostSchema.index({ tenantId: 1 },{unique:true})
-export default mongoose.model<ITenantModel>("Tenant",hostSchema)
+ownerSchema.index({ tenantId: 1 },{unique:true})
+export default mongoose.model<ITenantModel>("Tenant",ownerSchema)

@@ -8,7 +8,7 @@ export interface CreateAuditLogDTO {
 
   tenantId?: string;
 
-  hostId?: string;
+  ownerId?: string;
 
   action: string;
 

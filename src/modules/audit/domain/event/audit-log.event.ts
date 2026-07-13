@@ -9,7 +9,7 @@ export interface AuditLogEvent {
   correlationId?: string;
   createdAt?: Date;
   tenantId?: string;
-  hostId?: string;
+  ownerId?: string;
   requestId?: string;
   meta?: {
   deviceId?: string;

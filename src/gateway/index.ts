@@ -20,7 +20,8 @@ async function start() {
         { name: "location", url: "http://localhost:4080/graphql" },
         { name: "amenity", url: "http://localhost:4090/graphql" },
         { name: "listing", url: "http://localhost:4101/graphql" },
-
+        { name: "account", url: "http://localhost:4102/graphql" },
+        // name: "wisdom", url: "http://localhost:4200/graphql" },
         // { name: "wisdom", url: "http://localhost:4200/graphql" },
 
       ]

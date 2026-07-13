@@ -106,8 +106,8 @@ implements IAuditLogRepository {
       tenantId:
         doc.tenantId,
 
-      hostId:
-        doc.hostId,
+      ownerId:
+        doc.ownerId,
 
       action:
         doc.action,

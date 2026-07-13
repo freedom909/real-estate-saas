@@ -14,7 +14,7 @@ const ROUTING_KEYS = [
   "payment.cancelled",
   "payment.fail",
   "payment.refund",
-  "host.notification",
+  "owner.notification",
 ];
 
 // MQ/consumer/PaymentConsumer.ts
@@ -25,7 +25,7 @@ const QUEUE = "payment_queue";
 
 export const initializeConsumer = async () => {
   try {
-    const connection = await amqp.connect("amqp://127.0.0.1:5673");
+    const connection = await amqp.connect("amqp://127.0.0.1:5672");
 
     channel = await connection.createChannel(); // ✅ 必须有
 

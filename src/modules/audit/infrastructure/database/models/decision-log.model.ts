@@ -13,7 +13,7 @@ export interface DecisionLogDocument extends Document {
   actor: {
     userId?: mongoose.Types.ObjectId;
     tenantId?: string;
-    hostId?: string;
+    ownerId?: string;
     role?: string;
   };
   input: {
@@ -43,7 +43,7 @@ export const DecisionLogSchema = new Schema<DecisionLogDocument>(
     actor: {
       userId: { type: Schema.Types.ObjectId },
       tenantId: { type: String, index: true },
-      hostId: { type: String, index: true },
+      ownerId: { type: String, index: true },
       role: { type: String },
     },
     input: {

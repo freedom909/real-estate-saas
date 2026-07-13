@@ -5,10 +5,10 @@ services:
     container_name: rabbitmq
 
     ports:
-      - "5673:5672"
-      - "15673:15672"
+      - "5672:5672"
+      - "15672:15672"
 
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: customer
+      RABBITMQ_DEFAULT_PASS: customer
 

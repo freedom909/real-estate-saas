@@ -22,7 +22,7 @@ export const resolvers = {
 
       return repo.findByCustomerId(userId);
     },
-    myBookings: async (_: any, __: any, { context }: any) => {
+    myBookings: async (_: any, __: any, context: any) => {
       const userId = context.user.userId;
       return container.resolve<IBookingRepository>(
         TOKENS_BOOKING.repository.bookingRepository

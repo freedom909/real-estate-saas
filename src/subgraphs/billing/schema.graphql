@@ -17,7 +17,7 @@ type Subscription @key(fields: "id") {
 
  id: ID!
 
- host: Tenant!
+ hos: Tenant!
 
  plan: Plan!
 
@@ -46,14 +46,14 @@ enum SubscriptionStatus {
 type Query {
 
  subscription(
-   hostId: ID!
+   ownerId: ID!
  ): Subscription
 }
 
 type Mutation {
 
  createSubscription(
-   hostId: ID!
+   ownerId: ID!
    planId: ID!
  ): Subscription!
 

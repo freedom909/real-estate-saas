@@ -27,11 +27,11 @@ export const resolvers = {
       return useCase.execute(id);
     },
 
-    listingsByOwner: async (_: any, { hostId }: { hostId: string }) => {
+    listingsByOwner: async (_: any, { ownerId }: { ownerId: string }) => {
       const repo = container.resolve<IListingRepository>(
         TOKENS_LISTING.repos.listingRepository
       );
-      return repo.findByOwnerId(hostId);
+      return repo.findByOwnerId(ownerId);
     },
 
   getListing: async (_: any, { id }: { id: string }) => {
@@ -57,9 +57,9 @@ Mutation: {
 },
 
   Listing: {
-    owner: (parent: any) => {
+    owner: (parent: { ownerId: string }) => {
       return {
-        __typename: "Owner",
+        __typename: "User",
         id: parent.ownerId,
       };
     },

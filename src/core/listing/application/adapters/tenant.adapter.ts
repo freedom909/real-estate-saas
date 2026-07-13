@@ -5,12 +5,12 @@ import { injectable, inject } from 'tsyringe';
 
 
 export interface OwnerAdapter {
-  validateOwnerExists(hostId: string): Promise<boolean>;
+  validateOwnerExists(ownerId: string): Promise<boolean>;
 }
 
 @injectable()
 class OwnerAdapterImpl implements OwnerAdapter {   
-    async validateOwnerExists(hostId: string): Promise<boolean> {
+    async validateOwnerExists(ownerId: string): Promise<boolean> {
         return true;
     }
 }

@@ -1,4 +1,4 @@
-//src/subgraphs/host/services/membership.repo.service.ts
+//src/subgraphs/hos/services/membership.repo.service.ts
 
 import { inject, injectable } from "tsyringe";
 import { MembershipRepository } from "../../infrastructure/repos/membership.repo";

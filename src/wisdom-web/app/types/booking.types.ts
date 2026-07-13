@@ -8,6 +8,6 @@ checkIn: string;
 
 checkOut: string;
 
-guests: number;
+customer: number;
 
 }

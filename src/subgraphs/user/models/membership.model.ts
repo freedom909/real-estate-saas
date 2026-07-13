@@ -8,7 +8,7 @@ import mongoose, { Types, HydratedDocument } from "mongoose";
 export interface IMembershipDB {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
-  hostId: Types.ObjectId;
+  ownerId: Types.ObjectId;
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
@@ -19,7 +19,7 @@ export type MembershipDocument = HydratedDocument<IMembershipDB>;
 const membershipSchema = new mongoose.Schema(
   {
     userId: { type: Types.ObjectId, required: true, index: true },
-    hostId: { type: Types.ObjectId, required: true, index: true },
+    ownerId: { type: Types.ObjectId, required: true, index: true },
 
     role: {
       type: String,
@@ -34,7 +34,7 @@ const membershipSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-membershipSchema.index({ userId: 1, hostId: 1 }, { unique: true });
+membershipSchema.index({ userId: 1, ownerId: 1 }, { unique: true });
 
 const MembershipModel =
   mongoose.models.Membership ||

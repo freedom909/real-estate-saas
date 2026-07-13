@@ -60,6 +60,7 @@ type CreateBookingResponse {
 enum BookingStatus {
 PENDING
 CONFIRMED
+FAILED
 CANCELLED
 COMPLETED
 }

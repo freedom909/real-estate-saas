@@ -9,7 +9,7 @@ AgentOS 是一个完整的 **Cognitive Architecture（认知架构）**，将知
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                  USER INPUT                                 │
-│                      "The guest wants to leave and get a refund"             │
+│                      "The customer wants to leave and get a refund"             │
 └────────────────────────────────────────┬────────────────────────────────────┘
                                          │
                                          ▼
@@ -207,7 +207,7 @@ agent.semanticLayer.registerRule({...});
 
 // 运行代理
 const result = await agent.run(
-  { naturalLanguage: "The guest wants to cancel and get a refund" },
+  { naturalLanguage: "The customer wants to cancel and get a refund" },
   { 
     booking: { id: "123", status: "confirmed" },
     payment: { id: "456", status: "completed" }

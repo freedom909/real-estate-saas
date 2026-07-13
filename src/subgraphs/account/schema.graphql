@@ -1,136 +1,282 @@
 schema
-  @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key","@external","@shareable"]) {
+  @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key", "@external", "@shareable"]) {
   query: Query
+  mutation: Mutation
 }
 scalar JSON
-scalar DateTime 
-
-scalar JSON
-
 scalar DateTime
 
+# =====================
+# Enums
+# =====================
+
 enum AccountStatus {
-
-ACTIVE
-
-INACTIVE
-
+  ACTIVE
+  INACTIVE
 }
 
 enum BookingStatus {
-
-PENDING
-
-CONFIRMED
-
-CANCELLED
-
-FAILED
-
-COMPLETED
-
+  PENDING
+  CONFIRMED
+  FAILED
+  CANCELLED
+  COMPLETED
 }
 
 enum ListingStatus {
-
-PENDING
-
-PUBLISH
-
+  PENDING
+  PUBLISH
 }
 
 enum ReviewStatus {
-
-PENDING
-
-PUBLISH
-
+  PENDING
+  PUBLISH
 }
 
 # =====================
-
-# User (扩展用户中心)
-
+# Federation Extensions
 # =====================
 
 extend type User @key(fields: "id") {
-
-id: ID! @external
-
-myBookings: [Booking!]! @shareable
-
-myListings: [Listing!]! @shareable
-
-myReviews: [Review!]! @shareable
-
+  id: ID! @external
+  myBookings: [Booking!]! @shareable
+  myListings: [Listing!]! @shareable
+  myReviews: [Review!]! @shareable
+  tenant: Tenant! @shareable
 }
-
-# =====================
-
-# Tenant (只保留租户身份)
-
-# =====================
 
 extend type Tenant @key(fields: "id") {
-
-id: ID! @external
-
+  id: ID! @external
 }
-
-# =====================
-
-# Booking 引用
-
-# =====================
 
 extend type Booking @key(fields: "id") {
-
-id: ID! @external
-
+  id: ID! @external
 }
-
-# =====================
-
-# Listing 引用
-
-# =====================
 
 extend type Listing @key(fields: "id") {
-
-id: ID! @external
-
+  id: ID! @external
 }
-
-# =====================
-
-# Review 引用
-
-# =====================
 
 extend type Review @key(fields: "id") {
-
-id: ID! @external
-
+  id: ID! @external
 }
 
 # =====================
-
-# Account Dashboard
-
+# Dashboard Types
 # =====================
 
 type AccountDashboard {
-
-bookings: [Booking!]!
-
-listings: [Listing!]!
-
-reviews: [Review!]!
-
+  bookings: [Booking!]!
+  listings: [Listing!]!
+  reviews: [Review!]!
 }
 
+# =====================
+# Business Rule Types
+# =====================
+
+type RuleCheck {
+  passed: Boolean!
+  ruleName: String!
+  message: String!
+  details: JSON
+}
+
+type CancellationPolicyResult {
+  passed: Boolean!
+  ruleName: String!
+  message: String!
+}
+
+type HolidayPricingResult {
+  nights: Int!
+  holidayNights: Int!
+  weekendNights: Int!
+  surcharge: Float!
+  nightPrices: [NightPrice!]!
+}
+
+type NightPrice {
+  date: DateTime!
+  basePrice: Float!
+  surcharge: Float!
+  finalPrice: Float!
+}
+
+type CleaningFeeResult {
+  passed: Boolean!
+  ruleName: String!
+  message: String!
+  cleaningFee: Float!
+}
+
+type OversaleCheckResult {
+  passed: Boolean!
+  available: Boolean!
+  existingBookings: Int!
+  totalRooms: Int!
+  requestedRooms: Int!
+  reason: String!
+}
+
+type MultiRoomInventoryResult {
+  passed: Boolean!
+  available: Boolean!
+  existingBookings: Int!
+  totalRooms: Int!
+  requestedRooms: Int!
+  reason: String!
+}
+
+type CouponValidationResult {
+  valid: Boolean!
+  discountType: String!
+  discountValue: Float!
+  finalPrice: Float!
+  reason: String!
+}
+
+type RefundResult {
+  eligible: Boolean!
+  refundAmount: Float!
+  reason: String!
+}
+
+type OccupancyResult {
+  passed: Boolean!
+  ruleName: String!
+  message: String!
+}
+
+type BookingValidationResult {
+  results: [RuleCheck!]!
+  allPassed: Boolean!
+}
+
+type PriceBreakdown {
+  basePrice: Float!
+  cleaningFee: Float!
+  holidaySurcharge: Float!
+  couponDiscount: Float!
+  totalPrice: Float!
+}
+
+# =====================
+# Inputs
+# =====================
+
+input CheckCancellationPolicyInput {
+  bookingId: ID!
+  checkInDate: DateTime!
+}
+
+input HolidayPricingInput {
+  listingId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  nightlyPrice: Float!
+  customerCount: Int
+  numRooms: Int
+}
+
+input CleaningFeeInput {
+  listingId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  nightlyPrice: Float!
+  customerCount: Int!
+  numRooms: Int
+}
+
+input OversaleCheckInput {
+  listingId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  numRooms: Int
+  totalRooms: Int!
+  existingBookings: Int!
+}
+
+input MultiRoomInput {
+  listingId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  numRooms: Int!
+  totalRooms: Int!
+  existingBookings: Int!
+}
+
+input ValidateCouponInput {
+  couponCode: String!
+  listingId: ID!
+  totalPrice: Float!
+  customerId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+}
+
+input CheckRefundInput {
+  bookingId: ID!
+  totalPrice: Float!
+  amountPaid: Float!
+  checkInDate: DateTime!
+  cancelledAt: DateTime!
+  status: String!
+}
+
+input CheckOccupancyInput {
+  listingId: ID!
+  checkInDate: DateTime!
+  customerCount: Int!
+  maxOccupancy: Int!
+}
+
+input ValidateBookingInput {
+  listingId: ID!
+  customerId: ID!
+  tenantId: ID
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  nightlyPrice: Float!
+  totalPrice: Float!
+  customerCount: Int!
+  status: String
+  dailyBookingCount: Int
+  maxDailyBookings: Int
+}
+
+# =====================
+# Queries
+# =====================
+
 type Query {
+  myDashboard: AccountDashboard!
 
-myDashboard: AccountDashboard!
+  # Business rule queries
+  checkCancellationPolicy(input: CheckCancellationPolicyInput!): CancellationPolicyResult!
+  calculateHolidayPricing(input: HolidayPricingInput!): HolidayPricingResult!
+  calculateCleaningFee(input: CleaningFeeInput!): CleaningFeeResult!
+  checkOversale(input: OversaleCheckInput!): OversaleCheckResult!
+  checkMultiRoomInventory(input: MultiRoomInput!): MultiRoomInventoryResult!
+  validateCoupon(input: ValidateCouponInput!): CouponValidationResult!
+  checkRefund(input: CheckRefundInput!): RefundResult!
+  checkOccupancy(input: CheckOccupancyInput!): OccupancyResult!
+  validateBooking(input: ValidateBookingInput!): BookingValidationResult!
+}
 
+# =====================
+# Mutations
+# =====================
+
+type Mutation {
+  cancelBookingWithPolicy(bookingId: ID!, checkInDate: DateTime!, totalPrice: Float!, amountPaid: Float!): CancelWithPolicyResponse!
+}
+
+type CancelWithPolicyResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+  refundEligible: Boolean!
+  refundAmount: Float!
+  cancellationPolicy: CancellationPolicyResult!
 }

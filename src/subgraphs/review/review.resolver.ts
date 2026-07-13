@@ -43,6 +43,6 @@ export const reviewResolvers = {
   Review: {
     author: (review: any) => ({ __typename: "Customer", id: review.customerId }),
     listing: (review: any) => ({ __typename: "Listing", id: review.listingId }),
-    host: (review: any) => ({ __typename: "Owner", id: review.hostId }),
+    owner: (review: any) => ({ __typename: "Owner", id: review.ownerId }),
   }
 };

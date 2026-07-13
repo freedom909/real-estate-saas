@@ -1,4 +1,4 @@
-// FILE: src/subgraphs/host/container/registerDependencies.ts
+// FILE: src/subgraphs/owner/container/registerDependencies.ts
 
 import { DependencyContainer } from 'tsyringe';
 

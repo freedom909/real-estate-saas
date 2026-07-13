@@ -10,12 +10,12 @@ Expected:
 SEARCH_LISTING
 LOCATION=Kyoto
 DATE_RANGE=next week
-find rooms in Osaka for 2 guests
+find rooms in Osaka for 2 customers
 
 Expected:
 SEARCH_LISTING
 LOCATION=Osaka
-GUEST_COUNT=2
+customer_COUNT=2
 
 第二阶段：Booking Creation
 book listing kyoto-001

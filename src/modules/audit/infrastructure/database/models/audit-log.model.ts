@@ -21,7 +21,7 @@ export const RESOURCE_TYPES = [
   "LISTING",
   "PAYMENT",
   "USER",
-  "HOST",
+  "OWNER",
   "TENANT",
   "AUTH",
   "REVIEW",
@@ -52,7 +52,7 @@ export interface AuditLogDocument
 
   tenantId?: string;
 
-  hostId?: string;
+  ownerId?: string;
 
   action: string;
 
@@ -88,7 +88,7 @@ export const AuditLogSchema =
      
       },
 
-      hostId: {
+      ownerId: {
         type: String,
      
       },
@@ -159,7 +159,7 @@ AuditLogSchema.index({
 });
 
 AuditLogSchema.index({
-  hostId: 1,
+  ownerId: 1,
 });
 
 AuditLogSchema.index({

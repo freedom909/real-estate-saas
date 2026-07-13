@@ -16,7 +16,7 @@ export class SubmitCustomerReviewUseCase {
     bookingId: string;
     listingId: string;
     customerId: string;
-    hostId: string;
+    ownerId: string;
     rating: number;
     content: string;
   }): Promise<Review> {
@@ -25,7 +25,7 @@ export class SubmitCustomerReviewUseCase {
       bookingId: input.bookingId,
       listingId: input.listingId,
       customerId: input.customerId,
-      hostId: input.hostId,
+      ownerId: input.ownerId,
       rating: new Rating(input.rating),
       content: input.content,
       status: ReviewStatus.PENDING

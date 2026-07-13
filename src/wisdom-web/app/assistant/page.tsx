@@ -49,7 +49,7 @@ export default function AssistantPage() {
                     },
                     body: JSON.stringify({
                         message: inputText,
-                        user_id: 'guest-user', // In production, use actual user ID
+                        user_id: 'customer-user', // In production, use actual user ID
                         context: {}
                     })
                 });

@@ -15,7 +15,7 @@ AgentOS v2 已经从简单的 "Agent 操作系统" 进化为真正的 **Cognitiv
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           USER INPUT                                     │
-│              "The guest wants a refund, full if possible"                │
+│              "The customer wants a refund, full if possible"                │
 └─────────────────────────────────────────┬───────────────────────────────┘
                                           │
                                           ▼

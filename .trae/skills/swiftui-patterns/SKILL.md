@@ -90,7 +90,7 @@ struct ProfileView: View {
     @Environment(AuthManager.self) private var auth
 
     var body: some View {
-        Text(auth.currentUser?.name ?? "Guest")
+        Text(auth.currentUser?.name ?? "customer")
     }
 }
 ```

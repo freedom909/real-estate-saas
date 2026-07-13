@@ -68,7 +68,7 @@ type Listing @key(fields: "id") {
   title: String! @shareable
   description: String! @shareable
   
-  hostId: ID! @shareable
+  ownerId: ID! @shareable
   price: Float! @shareable
   bookingsCount: Int! @shareable
   reviewsCount: Int! @shareable

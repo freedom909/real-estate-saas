@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
-import { GET_PAYMENTS_BY_GUEST } from "@/graphql/payments";
+import { GET_PAYMENTS_BY_customer } from "@/graphql/payments";
 import HeaderClient from "@/components/ui/HeaderClient";
 import HostNavigation from "@/components/HostNavigation";
 import Wallet from "@/components/Wallet";
@@ -13,12 +13,12 @@ export default function PaymentsPage() {
   const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState("payments");
 
-  const { data, loading, error } = useQuery(GET_PAYMENTS_BY_GUEST, {
-    variables: { guestId: session?.user?.id },
+  const { data, loading, error } = useQuery(GET_PAYMENTS_BY_customer, {
+    variables: { customerId: session?.user?.id },
     skip: !session?.user?.id
   });
 
-  const payments = data?.paymentsByGuest || [];
+  const payments = data?.paymentsBycustomer || [];
 
   if (status === "loading") {
     return (

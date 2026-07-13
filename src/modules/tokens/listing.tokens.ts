@@ -39,7 +39,7 @@ export const TOKENS_LISTING = {
   },
 
   adapters: {
-    hostAdapter: Symbol.for("Listing.adapters.hostAdapter"),
+    ownerAdapter: Symbol.for("Listing.adapters.ownerAdapter"),
     locationAdapter: Symbol.for("Listing.adapters.locationAdapter"),
     amenityAdapter: Symbol.for("Listing.adapters.AmenityAdapter"),
     categoryAdapter: Symbol.for("Listing.adapters.categoryAdapter"),

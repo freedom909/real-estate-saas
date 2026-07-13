@@ -8,6 +8,9 @@ import mongoose from "mongoose";
 import { TOKENS_USER } from "../../../modules/tokens/user.tokens.js";
 import verifyInternalRequest from "./verifyInternalRequest.js";
 import CreateOAuthUserUseCase from "../application/usecase/createOAuthUserUseCase.js";
+import { TenantACL } from "@/core/account/infra/tenant.acl.js";
+import { TOKENS_TENANT } from "@/modules/tokens/tenant.tokens.js";
+import { TOKENS_ACCOUNT } from "@/modules/tokens/account.token.js";
 
 
 interface ResolverContext {
@@ -66,6 +69,7 @@ User: {
     const user =await userService.findById(reference.id);
     return user;
   },
+
 },
   Query: {
     me: (_: any, __: any, ctx: any) => {

@@ -19,7 +19,7 @@ type Listing @key(fields: "id") {
   description: String!
 
   address: String!
-
+  owner: User!
   ownerId: ID!
   locationId: ID!
 
@@ -139,6 +139,10 @@ PENDING
 APPLIED
 REJECTED
 EXPIRED
+}
+
+extend type User @key(fields: "id") {
+id: ID! @external
 }
 
 # -----------------------------------

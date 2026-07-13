@@ -121,8 +121,8 @@ export class DecisionLogRepository implements IDecisionLogRepository {
                 tenantId:
                     doc.actor.tenantId,
 
-                hostId:
-                    doc.actor.hostId,
+                ownerId:
+                    doc.actor.ownerId,
 
                 role:
                     doc.actor.role,

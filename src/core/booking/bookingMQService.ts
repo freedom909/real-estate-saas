@@ -79,7 +79,7 @@ export class EventBusService {
       const notificationData = { ...bookingData, ...customData };
       await this.producer.sendOwnerNotificationMessage(notificationData, notificationType);
     } catch (error) {
-      console.error('❌ Error sending custom host notification:', error);
+      console.error('❌ Error sending custom owner notification:', error);
     }
   }
 }

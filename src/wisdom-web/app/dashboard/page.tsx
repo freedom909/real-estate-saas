@@ -147,7 +147,7 @@ export default function Dashboard() {
                 </h1>
                 <p className="text-gray-600">{session?.user?.email}</p>
                 <p className="text-sm text-blue-600 font-medium">
-                  {dashboardData?.user?.role || 'GUEST'}
+                  {dashboardData?.user?.role || 'customer'}
                 </p>
               </div>
             </div>
@@ -212,7 +212,7 @@ export default function Dashboard() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Account Type</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {dashboardData?.user?.role === 'HOST' ? 'Host' : 'Guest'}
+                    {dashboardData?.user?.role === 'HOST' ? 'Host' : 'customer'}
                   </p>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export default function Dashboard() {
               </a>
               {dashboardData?.user?.role !== 'HOST' && (
                 <a 
-                  become-host
+                  become-owner
                   className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-md text-center transition-colors"
                 >
                   🏠 Become a Host
@@ -350,7 +350,7 @@ export default function Dashboard() {
               )}
               {dashboardData?.user?.role === 'HOST' && (
                 <a 
-                  href="/host/listings" 
+                  href="/owner/listings" 
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-md text-center transition-colors"
                 >
                   🏠 Manage Listings
@@ -408,7 +408,7 @@ export default function Dashboard() {
                 </a>
                 {dashboardData?.user?.role === 'HOST' && (
                   <a 
-                    href="/host/bookings" 
+                    href="/owner/bookings" 
                     className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-md text-center transition-colors"
                   >
                     🏠 Host Bookings
@@ -425,7 +425,7 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold text-gray-900">🏠 Host Dashboard</h3>
                   <a 
-                    href="/host/dashboard" 
+                    href="/owner/dashboard" 
                     className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                   >
                     Full Dashboard →
@@ -439,7 +439,7 @@ export default function Dashboard() {
                     <div className="text-sm text-gray-600">Active Listings</div>
                   </div>
                   <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">{dashboardData?.hostPendingBookings || 0}</div>
+                    <div className="text-2xl font-bold text-green-600">{dashboardData?.ownerPendingBookings || 0}</div>
                     <div className="text-sm text-gray-600">Pending Bookings</div>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
@@ -457,13 +457,13 @@ export default function Dashboard() {
                     ➕ Add Listing
                   </a>
                   <a 
-                    href="/host/listings" 
+                    href="/hos/listings" 
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-md text-center transition-colors"
                   >
                     🏠 Manage Listings
                   </a>
                   <a 
-                    href="/host/bookings" 
+                    href="/owner/bookings" 
                     className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-md text-center transition-colors"
                   >
                     📅 Manage Bookings

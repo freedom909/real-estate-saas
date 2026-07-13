@@ -22,7 +22,7 @@ const kafka = new Kafka({
 const consumer = kafka.consumer({ groupId: 'my-group' });
 
 /**
- * Registers a host user.
+ * Registers a hoost user.
  * @param {string} email - User's email
  * @param {string} password - User's password
  * @param {string} name - User's name
