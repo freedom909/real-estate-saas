@@ -25,7 +25,7 @@ const QUEUE = "payment_queue";
 
 export const initializeConsumer = async () => {
   try {
-    const connection = await amqp.connect("amqp://127.0.0.1:5672");
+    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
 
     channel = await connection.createChannel(); // ✅ 必须有
 

@@ -10,7 +10,6 @@ export const registerEventBus = () => {
     InMemoryEventBus
   );
 
-
   console.log(
     "✅ EventBus Registered"
   );

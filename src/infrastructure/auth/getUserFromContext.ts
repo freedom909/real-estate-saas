@@ -1,16 +1,39 @@
+import jwt from "jsonwebtoken";
+
 async function getUserFromContext(req: any) {
-  const header = req.headers["x-user"];
-
-  if (!header) return null;
-
   try {
-    return JSON.parse(
-      Buffer.from(header, "base64").toString()
-    );
-  } catch (error) {
-    console.error("Error parsing user from context:", error);
-    return null;
-  }
+
+const authHeader = req.headers.authorization;
+
+if (!authHeader?.startsWith("Bearer ")) {
+
+return null;
+
+}
+
+const token = authHeader.replace("Bearer ", "");
+
+const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
+
+const decoded = jwt.verify(token, secret!) as any;
+
+return {
+
+userId: decoded.sub,
+
+sessionId: decoded.sessionId,
+
+type: decoded.type,
+
+};
+
+} catch (error) {
+
+console.error("JWT verify failed:", error);
+
+return null;
+
+}
 }
 
 export default getUserFromContext;

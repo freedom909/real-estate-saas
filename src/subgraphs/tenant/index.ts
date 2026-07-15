@@ -12,12 +12,12 @@ import { readFileSync } from "fs"
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
 import { buildSubgraphSchema } from "@apollo/subgraph"
-import { connectMongo } from "../../shared/db/mongo.js";
+import { connectMongo } from "../../shared/db/mongo";
 import mongoose from "mongoose"
 import { container } from "tsyringe"
-import { registerTenantDependencies } from "../../modules/container/tenant.container.js"
-import { resolvers } from "./resolvers/tenant.resolver.js"
-import getUserFromContext from "@/infrastructure/auth/getUserFromContext.js"
+import { registerTenantDependencies } from "../../modules/container/tenant.container"
+import { resolvers } from "./resolvers/tenant.resolver"
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 
 
 // 🔍 启动时验证 env

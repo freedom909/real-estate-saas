@@ -39,7 +39,6 @@ import { PaymentRegister } from "@/modules/container/payment.register";
 import { BookingMQEventBus } from "@/core/booking/interface/events/booking-event-bus";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
-import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { registerEventBus } from "@/modules/container/event.bus.register";
 
 
@@ -68,7 +67,10 @@ const startApolloServer = async () => {
     // ✅ MQ Initialize (inside startup to catch errors)
     PaymentRegister();
     registerEventBus();
- 
+   console.log(
+  "🐰 ENV RabbitMQ:",
+  process.env.RABBITMQ_URL
+);
     console.log("✅ RabbitMQ Event Bus initialized");
 
     // ✅ Apollo Server

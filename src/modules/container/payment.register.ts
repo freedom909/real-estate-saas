@@ -6,6 +6,7 @@ import { CancelPaymentUseCase } from "@/core/payment/application/usecase/cancel-
 import { ProcessPaymentUseCase } from "@/core/payment/application/usecase/process-payment.usecase";
 import { CreatePaymentUseCase } from "@/core/payment/application/usecase/create-payment.usecase";
 import { ConfirmPaymentUseCase } from "@/core/payment/application/usecase/confirm-payment.usecase";
+import { PaymentMQEventBus } from "@/core/payment/domain/event/payment.eventbus";
 
 //
 export const PaymentRegister = () => {
@@ -52,5 +53,10 @@ export const PaymentRegister = () => {
     }
   );
 
-
+  container.register(
+    TOKENS_PAYMENT.event.paymentMQEventBus,
+    {
+      useClass: PaymentMQEventBus,
+    }
+  );
 };

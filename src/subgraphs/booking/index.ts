@@ -117,26 +117,34 @@ const startApolloServer = async () => {
       express.json(),
       expressMiddleware(server, {
         context: async ({ req }) => {
+        const user = await getUserFromContext(req);
+console.log("SUBGRAPH AUTH HEADER =>", req.headers.authorization);
+console.log("SUBGRAPH USER =>", user);
 
-          const userId = req.headers["x-user-id"];
+return {
 
-          const tenantId = req.headers["x-tenant-id"];
+req,
 
-          console.log("FORWARDED USER:", userId);
+user,
+          // const userId = req.headers["x-user-id"];
 
-          console.log("FORWARDED TENANT:", tenantId);
+          // const tenantId = req.headers["x-tenant-id"];
 
-          return {
+          // console.log("FORWARDED USER:", userId);
 
-            user: userId
+          // console.log("FORWARDED TENANT:", tenantId);
 
-              ? { userId, sub: tenantId }
+          // return {
 
-              : null,
+          //   user: userId
 
-          };
+          //     ? { userId, sub: tenantId }
 
-        }
+          //     : null,
+
+          // };
+
+        }}
       }) // ✅ 关键
     );
 

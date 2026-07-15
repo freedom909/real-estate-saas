@@ -60,12 +60,6 @@ export default function Navbar() {
 
             </Link>
 
-            <Link href="/dashboard" className="hover:text-blue-600 transition">
-
-              Dashboard
-
-            </Link>
-
             <Link href="/campaign" className="hover:text-blue-600 transition">
 
               Campaign

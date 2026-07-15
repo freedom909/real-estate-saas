@@ -5,6 +5,7 @@ import cors from "cors"
 import { ApolloGateway, RemoteGraphQLDataSource, IntrospectAndCompose } from "@apollo/gateway"
 import jwt from "jsonwebtoken";
 import verifyJwt from "@/infrastructure/auth/verifyJwt"
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 async function start() {
   console.log("start gateway")
   const gateway = new ApolloGateway({
@@ -33,24 +34,17 @@ async function start() {
         url,
 
         willSendRequest({ request, context }) {
+        const auth = context?.authorization;
 
-          console.log("WILL SEND CONTEXT:", context);
+console.log("GATEWAY AUTH =>", auth);
 
-          if (context.user) {
+if (auth) {
 
-            request.http.headers.set(
+request.http.headers.set(
 
-              "x-user-id",
+"authorization",
 
-              context.user.sub
-
-            );
-
-            request.http.headers.set(
-
-              "x-tenant-id",
-
-              context.user.sub
+auth
 
             );
 
@@ -77,38 +71,23 @@ async function start() {
       credentials: true,
     }),
     express.json(),
+    async (req, res, next) => {
+
+console.log("SUBGRAPH AUTH =>", req.headers.authorization);
+
+(req as any).user = await getUserFromContext(req);
+
+console.log("SUBGRAPH USER =>", (req as any).user);
+
+next();
+
+},
     expressMiddleware(server, {
-      context: async ({ req }) => {
+context: async ({ req }) => ({
 
-        const authHeader = req.headers.authorization;
+authorization: req.headers.authorization,
 
-        let user = null;
-
-        try {
-
-          if (authHeader) {
-
-            const token = authHeader.replace("Bearer ", "");
-
-            console.log("AUTH HEADER:", authHeader);
-
-            console.log("CLEAN TOKEN:", token);
-
-            user = verifyJwt(token);
-
-            console.log("GATEWAY USER:", user);
-
-          }
-
-        } catch (err) {
-
-          console.error("JWT VERIFY ERROR:", err);
-
-        }
-
-        return { user };
-
-      }
+}),
     }))
 
   app.listen(4000, () => {

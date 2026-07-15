@@ -5,8 +5,10 @@ import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confi
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
 import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booking.usecase";
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
+import { requireAuth } from "@/infrastructure/auth/require.auth";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { container } from "tsyringe";
+
 
 
 export const resolvers = {
@@ -23,7 +25,9 @@ export const resolvers = {
       return repo.findByCustomerId(userId);
     },
     myBookings: async (_: any, __: any, context: any) => {
-      const userId = context.user.userId;
+      const user = await requireAuth(context);
+      console.log("MY BOOKINGS USER =>", user);
+      const userId = user.userId;
       return container.resolve<IBookingRepository>(
         TOKENS_BOOKING.repository.bookingRepository
       ).findByCustomerId(userId);
