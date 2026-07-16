@@ -10,10 +10,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function getUserFromToken(reqOrToken) {
-  const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
+  const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET!;
   const publicKey = process.env.JWT_PUBLIC_KEY;
   const fallbackSecret = 'minshuku_jwt_secret_key_2024_secure_random_string';
-  const keySource = process.env.ACCESS_TOKEN_SECRET ? 'ACCESS_TOKEN_SECRET' : (process.env.JWT_SECRET ? 'JWT_SECRET' : 'fallback');
+  const keySource = 'ACCESS_TOKEN_SECRET';
   const activeSecret = secret || fallbackSecret;
   if (!secret && !publicKey && process.env.NODE_ENV !== 'production') {
     console.warn("[JWT Warning] No secret or public key found in environment variables. Falling back to default string.");

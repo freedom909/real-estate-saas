@@ -5,17 +5,11 @@ export class PaymentMapper {
   static toDomain(
     row: any
   ): Payment {
-
     return Payment.rehydrate({
-
       id: row.id,
-
       bookingId: row.bookingId,
-
       customerId: row.customerId,
-
       tenantId: row.tenantId,
-
       dateRange: {
         checkInDate: row.checkInDate,
         checkOutDate: row.checkOutDate,
@@ -36,9 +30,7 @@ export class PaymentMapper {
       completedAt: row.completedAt,
 
       refundedAt: row.refundedAt,
-
-      cancelReason:
-        row.cancel_reason,
+      cancelReason: row.cancelReason,
     });
   }
 

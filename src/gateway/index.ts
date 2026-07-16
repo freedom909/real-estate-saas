@@ -1,10 +1,42 @@
+// Gateway
+
+import "reflect-metadata";
+
+import dotenv from "dotenv";
+
+import path from "path";
+
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
+
+// 加载根目录 .env
+
+dotenv.config({
+
+path: path.resolve(__dirname, "../../.env"),
+
+});
+
+// 企业级防御：缺少 secret 直接退出
+
+if (!process.env.ACCESS_TOKEN_SECRET) {
+
+console.error("❌ ACCESS_TOKEN_SECRET is missing");
+
+process.exit(1);
+
+}
+
+console.log("✅ GATEWAY SECRET loaded");
 import express from "express"
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
 import cors from "cors"
 import { ApolloGateway, RemoteGraphQLDataSource, IntrospectAndCompose } from "@apollo/gateway"
-import jwt from "jsonwebtoken";
-import verifyJwt from "@/infrastructure/auth/verifyJwt"
+
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 async function start() {
   console.log("start gateway")

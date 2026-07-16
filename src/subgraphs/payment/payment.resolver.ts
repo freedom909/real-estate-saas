@@ -6,18 +6,25 @@ import { ConfirmPaymentUseCase } from "@/core/payment/application/usecase/confir
 import { PaymentRepository } from "@/core/payment/infra/repository/payment.repositoy";
 import { TOKENS_PAYMENT } from "@/modules/tokens/payment.tokens";
 import { container } from "tsyringe";
+import { GetPaymentByBookingIdUseCase } from "@/core/payment/application/usecase/getPaymentByBookingId.usecase";
 
 
 const resolvers = {
   Query: {
+    paymentByBookingId: async (
+      _: any,
+      { bookingId }: any
+    ) => {
+      const useCase = container.resolve<GetPaymentByBookingIdUseCase>(TOKENS_PAYMENT.usecase.getPaymentByBookingIdUseCase);
+      return useCase.execute(bookingId);
+    },
 
     payment: async (
       _: any,
       { id }: any
     ) => {
 
-      const repo =
-        container.resolve<PaymentRepository>(
+      const repo = container.resolve<PaymentRepository>(
           TOKENS_PAYMENT.repos.paymentRepository
         );
 
@@ -39,12 +46,8 @@ const resolvers = {
         )
         .execute(input);
 
-      return {
-        code: 200,
-        success: true,
-        message: "Payment created successfully",
-        payment,
-      };
+      return payment
+   
     },
 
     processPayment: async (
@@ -78,7 +81,7 @@ const resolvers = {
         code: 200,
         success: true,
         message: "Payment refund initiated",
-        payment
+        refundAmount: payment.amount
       }
     },
 
@@ -90,12 +93,7 @@ const resolvers = {
         .resolve<CancelPaymentUseCase>(TOKENS_PAYMENT.usecase.cancelPaymentUseCase)
         .execute(paymentId, reason);
 
-      return {
-        code: 200,
-        success: true,
-        message: "Payment cancelled successfully",
-        payment,
-      };
+      return payment
     },
 
     confirmPayment: async (
@@ -124,13 +122,16 @@ const resolvers = {
     }
   },
 
-  // Added Payment type resolver to handle domain field mapping
-  Payment: {
-    checkInDate: (parent: any) => parent.checkInDate || parent.dateRange?.checkInDate,
-    checkOutDate: (parent: any) => parent.checkOutDate || parent.dateRange?.checkOutDate,
-    booking: (parent: any) => ({ __typename: "Booking", id: parent.bookingId }),
-    customer: (parent: any) => ({ __typename: "User", id: parent.customerId }),
-  }
+  Booking: {
+
+    payment: async (booking: any, _: any, context: any) => {
+      if (!booking.id) {
+        return;
+      }
+      const paymentUseCase = container.resolve<GetPaymentByBookingIdUseCase>(TOKENS_PAYMENT.usecase.getPaymentByBookingIdUseCase);
+      return paymentUseCase.execute(booking.id);
+    }
+  },
 };
 
 export default resolvers;

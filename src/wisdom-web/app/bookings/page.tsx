@@ -17,7 +17,57 @@ console.log("error =", error);
 console.log("data =", data);
 if (loading) return <div className="p-6">Loading...</div>;
 
-if (error) return <div className="p-6 text-red-500">Error: {error.message}</div>;
+if (error) {
+
+const isUnauthenticated = error.message.includes("Unauthenticated");
+
+if (isUnauthenticated) {
+
+return (
+
+<div className="flex min-h-[60vh] items-center justify-center">
+
+<div className="text-center">
+
+<h2 className="mb-2 text-2xl font-bold">Please login</h2>
+
+<p className="mb-6 text-gray-600">
+
+Please login to view your bookings.
+
+</p>
+
+<a
+
+href="/login"
+
+className="inline-block rounded-lg bg-black px-6 py-3 text-white"
+
+>
+
+Go to Login
+
+</a>
+
+</div>
+
+</div>
+
+);
+
+}
+
+return (
+
+<div className="p-6 text-red-600">
+
+Something went wrong: {error.message}
+
+</div>
+
+);
+
+}
 
 const bookings = data?.myBookings ?? [];
 

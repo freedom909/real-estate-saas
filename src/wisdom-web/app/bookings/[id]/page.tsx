@@ -42,7 +42,7 @@ className="h-72 w-full object-cover"
 
 <p className="text-sm text-gray-500">Payment Status</p>
 
-<PaymentStatusBadge status={booking.payment.status} />
+<PaymentStatusBadge status={booking?.payment?.status || "PENDING"} />
 
 </div>
 
@@ -52,7 +52,7 @@ className="h-72 w-full object-cover"
 
 <p className="text-2xl font-bold">
 
-¥{booking.payment.amount.toLocaleString()}
+¥{booking?.payment?.amount?.toLocaleString() || "0"}
 
 </p>
 

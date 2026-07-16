@@ -19,7 +19,8 @@ export const TOKENS_PAYMENT = {
             Symbol.for("CancelPaymentUseCase"),
         confirmPaymentUseCase:
             Symbol.for("ConfirmPaymentUseCase"),
-    
+        getPaymentByBookingIdUseCase:
+            Symbol.for("GetPaymentByBookingIdUseCase"),
     },
     event: {
         paymentMQEventBus: Symbol.for("PaymentMQEventBus")

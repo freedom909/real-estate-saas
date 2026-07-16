@@ -2,20 +2,15 @@ import jwt from "jsonwebtoken";
 
 async function getUserFromContext(req: any) {
   try {
+    const authHeader = req.headers.authorization;
 
-const authHeader = req.headers.authorization;
-
-if (!authHeader?.startsWith("Bearer ")) {
-
-return null;
-
-}
+if (!authHeader?.startsWith("Bearer ")) return null;
 
 const token = authHeader.replace("Bearer ", "");
 
-const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
+const secret = process.env.ACCESS_TOKEN_SECRET!;
 
-const decoded = jwt.verify(token, secret!) as any;
+const decoded = jwt.verify(token, secret) as any;
 
 return {
 
@@ -27,12 +22,11 @@ type: decoded.type,
 
 };
 
-} catch (error) {
+} catch (err) {
 
-console.error("JWT verify failed:", error);
+console.error("JWT verify failed:", err);
 
 return null;
-
 }
 }
 

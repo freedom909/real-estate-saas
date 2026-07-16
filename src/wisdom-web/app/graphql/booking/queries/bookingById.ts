@@ -24,7 +24,15 @@ title
 picture
 
 }
+payment {
 
+id
+
+status
+
+amount
+
+}
 }
 
 }`

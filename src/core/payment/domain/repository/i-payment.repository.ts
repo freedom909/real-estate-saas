@@ -5,14 +5,12 @@ import { Payment } from "../entity/payemnt.entity";
 
 
 export interface IPaymentRepository {
+  findByBookingId(bookingId: string): Promise<Payment | null>;
 
   findById(
     id: string
   ): Promise<Payment | null>;
 
-  findByBookingId(
-    bookingId: string
-  ): Promise<Payment | null>;
 
   findByCustomerId(
     customerId: string

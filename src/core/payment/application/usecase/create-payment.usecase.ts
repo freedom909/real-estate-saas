@@ -39,8 +39,7 @@ console.log(
     }
 
     const existing =
-      await this.paymentRepository
-        .findByBookingId(input.bookingId);
+      await this.paymentRepository.findByBookingId(input.bookingId);
 
     if (existing) {
       throw new Error(

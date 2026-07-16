@@ -13,7 +13,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 console.log("Payment Subgraph - Secret Check:", {
   hasAccessTokenSecret: !!process.env.ACCESS_TOKEN_SECRET,
-  hasJwtSecret: !!process.env.JWT_SECRET,
+  hasRefreshTokenSecret: !!process.env.REFRESH_TOKEN_SECRET,
   hasServiceToken: !!process.env.INTERNAL_SERVICE_TOKEN
 });
 
@@ -40,6 +40,7 @@ import { BookingMQEventBus } from "@/core/booking/interface/events/booking-event
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import { registerEventBus } from "@/modules/container/event.bus.register";
+import PaymentModel from "@/core/payment/infra/model/payment.model";
 
 
 const startApolloServer = async () => {
@@ -51,7 +52,10 @@ const startApolloServer = async () => {
     
  
     console.log("✅ Containers initialized");
-
+    await PaymentModel.sync();
+    console.log("✅ Payment Model synchronized");
+    
+    console.log("✅ Database connected");
     // ✅ Register UserClient for getUserFromToken to use
     container.register(TOKENS_USER.userClient, {
       useFactory: () =>

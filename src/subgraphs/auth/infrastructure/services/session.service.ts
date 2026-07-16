@@ -26,7 +26,7 @@ export class SessionService implements ISessionPort {
         sessionId,
         type: "access",
       },
-      process.env.JWT_SECRET!,
+      process.env.ACCESS_TOKEN_SECRET!,
       { expiresIn: "1125m" }
     );
 
@@ -36,7 +36,7 @@ export class SessionService implements ISessionPort {
         sessionId,
         type: "refresh",
       },
-      process.env.JWT_SECRET!,
+      process.env.ACCESS_TOKEN_SECRET!,
       { expiresIn: "7d" }
     );
 

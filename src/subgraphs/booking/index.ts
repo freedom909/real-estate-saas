@@ -13,7 +13,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 console.log("Booking Subgraph - Secret Check:", {
   hasAccessTokenSecret: !!process.env.ACCESS_TOKEN_SECRET,
-  hasJwtSecret: !!process.env.JWT_SECRET,
+  hasRefreshTokenSecret: !!process.env.REFRESH_TOKEN_SECRET,
   hasServiceToken: !!process.env.INTERNAL_SERVICE_TOKEN
 });
 
@@ -111,40 +111,27 @@ const startApolloServer = async () => {
     await server.start();
     console.log("✅ Apollo Server started");
 
-       app.use(
+    app.use(
       "/graphql",
       cors(),
       express.json(),
       expressMiddleware(server, {
         context: async ({ req }) => {
-        const user = await getUserFromContext(req);
-console.log("SUBGRAPH AUTH HEADER =>", req.headers.authorization);
-console.log("SUBGRAPH USER =>", user);
+          const user = await getUserFromContext(req);
+          console.log("SUBGRAPH AUTH HEADER =>", req.headers.authorization);
+          console.log("SUBGRAPH USER =>", user);
 
-return {
+          return {
 
-req,
+            req,
 
-user,
-          // const userId = req.headers["x-user-id"];
+            user,
+            // const userId = req.headers["x-user-id"];
 
-          // const tenantId = req.headers["x-tenant-id"];
+            // const tenantId = req.headers["x-tenant-id"]
 
-          // console.log("FORWARDED USER:", userId);
-
-          // console.log("FORWARDED TENANT:", tenantId);
-
-          // return {
-
-          //   user: userId
-
-          //     ? { userId, sub: tenantId }
-
-          //     : null,
-
-          // };
-
-        }}
+          }
+        }
       }) // ✅ 关键
     );
 

@@ -17,7 +17,7 @@ export function verifyToken(authHeader?: string) {
     : authHeader;
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!);
+    const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!);
 
     return payload;
   } catch (err) {

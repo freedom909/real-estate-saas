@@ -2,10 +2,32 @@
 
 // MQ/consumer/paymentConsumer.ts
 
+
+import { CreatePaymentUseCase } from "@/core/payment/application/usecase/create-payment.usecase";
+import { TOKENS_PAYMENT } from "@/modules/tokens/payment.tokens";
 import amqp from "amqplib";
+import { container } from "tsyringe";
 
 const RABBIT_URL = "amqp://localhost";
 const EXCHANGE_NAME = "payment_exchange";
+
+type BookingCreatedEvent = {
+
+type: "BookingCreated";
+
+payload: {
+
+bookingId: string;
+
+tenantId: string;
+
+customerId: string;
+
+amount: number;
+
+};
+
+};
 
 // routing keys（替代 Kafka topic）
 const ROUTING_KEYS = [
@@ -25,8 +47,9 @@ const QUEUE = "payment_queue";
 
 export const initializeConsumer = async () => {
   try {
-    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
 
+    const connection = await amqp.connect(process.env.RABBITMQ_URL!);
+   
     channel = await connection.createChannel(); // ✅ 必须有
 
     await channel.assertQueue(QUEUE, {
@@ -41,60 +64,64 @@ export const initializeConsumer = async () => {
 };
 
 // ✅ 处理消息
+
 const processPaymentEvent = async (msg: amqp.ConsumeMessage | null) => {
-  if (!msg) return;
 
-  try {
-    const event = JSON.parse(msg.content.toString());
+if (!msg) return;
 
-    console.log("📨 Received:", event);
+try {
 
-    const eventType = event.type || event.eventName;
+const rawEvent = JSON.parse(msg.content.toString());
 
-    switch (eventType) {
-      
-      case "PAYMENT_CREATED":
-      case "CREATED":
-        console.log("✅ payment created");
-        await handlePaymentCreated(event);
-        break;
+console.log("📨 Received:", rawEvent);
 
-      case "PAYMENT_CANCELLED":
-      case "CANCELLED":
-        console.log("❌ payment cancelled");
-        await handlePaymentCancelled(event);
-        break;
+const eventType = rawEvent.type || rawEvent.eventName;
 
-      case "PAYMENT_SUCCEEDED":
-      case "SUCCEEDED":
+switch (eventType) {
 
-        console.log("✅ payment succeeded");
+case "BookingCreated":
 
-        await handlePaymentSucceeded(event);
+await handleBookingCreated(rawEvent as BookingCreatedEvent);
 
-        // await sendEmailNotification.sendEmail({
-        //   to: event.customerId,
-        //   subject: "Payment Confirmed",
-        //   template: "Payment_confirmed",
-        //   data: event,
-        // });
+break;
 
-        console.log(
-          "✅ Payment succeeded handled"
-        );
+case "PAYMENT_CREATED":
 
-        break;  
+await handlePaymentCreated(rawEvent);
 
-      default:
-        console.warn("⚠️ Unknown event:", eventType);
-    }
+break;
 
-    channel.ack(msg); // ✅ 必须 ack
-  } catch (error) {
-    console.error("❌ Processing error:", error);
-    channel.nack(msg, false, false); // ❗ 防止死循环
-  }
-};
+case "PAYMENT_SUCCEEDED":
+
+await handlePaymentSucceeded(rawEvent);
+
+break;
+
+case "PAYMENT_CANCELLED":
+
+await handlePaymentCancelled(rawEvent);
+
+break;
+
+case "PAYMENT_REMINDER":
+
+await handlePaymentReminder(rawEvent);
+
+break;
+
+}
+
+channel.ack(msg);
+
+} catch (error) {
+
+console.error("❌ Processing error:", error);
+
+channel.nack(msg, false, false);
+
+}
+
+}
 
 // # 🚀 启动消费
 export const startConsuming = async () => {
@@ -201,3 +228,14 @@ export default {
   initializeConsumer,
   startConsuming,
 };
+
+async function handleBookingCreated(event: BookingCreatedEvent) {
+  console.log("✅ booking created");
+  const UseCase = container.resolve<CreatePaymentUseCase>(TOKENS_PAYMENT.usecase.createPaymentUseCase);
+  await UseCase.execute({
+    bookingId: event.payload.bookingId,// プロパティ 'payload' は型 'Event' に存在しません。
+    customerId: event.payload.customerId,
+    tenantId: event.payload.tenantId,
+    amount: event.payload.amount,
+  });
+}

@@ -16,7 +16,7 @@ interface JwtPayload {
 }
 
 const getVerifyKey = () => {
-  const key = process.env.JWT_PUBLIC_KEY || process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
+  const key = process.env.JWT_PUBLIC_KEY || process.env.ACCESS_TOKEN_SECRET!;
   if (!key) return null;
 
   if (key.includes('BEGIN PUBLIC KEY')) {

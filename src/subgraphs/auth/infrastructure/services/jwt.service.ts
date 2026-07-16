@@ -13,7 +13,7 @@ export class JwtService {
   public verify(token: string): TokenPayload {
     return jwt.verify(
       token,
-      process.env.JWT_SECRET!
+      process.env.ACCESS_TOKEN_SECRET!
     ) as TokenPayload;
   }
 
@@ -25,7 +25,7 @@ export class JwtService {
   ): Promise<string> {
     return jwt.sign(
       payload,
-      process.env.JWT_SECRET!,
+      process.env.ACCESS_TOKEN_SECRET!,
       {
         expiresIn: "1115m",
       }
@@ -40,7 +40,7 @@ export class JwtService {
   ): Promise<string> {
     return jwt.sign(
       payload,
-      process.env.JWT_SECRET!,
+      process.env.ACCESS_TOKEN_SECRET!,
       {
         expiresIn: "7d",
       }
@@ -65,7 +65,7 @@ export class JwtService {
    */
   public isExpired(token: string): boolean {
     try {
-      jwt.verify(token, process.env.JWT_SECRET!);
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!);
       return false;
     } catch (err: any) {
       return err.name === "TokenExpiredError";

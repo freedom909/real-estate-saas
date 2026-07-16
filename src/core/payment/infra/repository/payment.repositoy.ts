@@ -17,9 +17,7 @@ export class PaymentRepository implements IPaymentRepository {
     return PaymentMapper.toDomain(model);
   }
 
-  async save(
-    payment: Payment
-  ): Promise<void> {
+  async save(payment: Payment): Promise<void> {
 
     const data = PaymentMapper.toPersistence(payment);
 
@@ -29,26 +27,17 @@ export class PaymentRepository implements IPaymentRepository {
     });
   }
 
-  async findByBookingId(
-    bookingId: string
-  ): Promise<Payment | null> {
-
-    const model =
-      await PaymentModel.findOne({
+  async findByBookingId(bookingId: string): Promise<Payment | null> {
+    const model = await PaymentModel.findOne({
         where: { bookingId }
       });
-
     return model
       ? PaymentMapper.toDomain(model)
       : null;
   }
 
-  async findByCustomerId(
-    customerId: string
-  ): Promise<Payment[]> {
-
-    const models =
-      await PaymentModel.findAll({
+  async findByCustomerId(customerId: string): Promise<Payment[]> {
+    const models =await PaymentModel.findAll({
         where: { customerId }
       });
 
@@ -57,10 +46,7 @@ export class PaymentRepository implements IPaymentRepository {
     );
   }
 
-  async delete(
-    id: string
-  ): Promise<void> {
-
+  async delete(id: string): Promise<void> {
     await PaymentModel.destroy({
       where: { id }
     });

@@ -43,6 +43,7 @@ extend type Customer @key(fields: "id") {
 
 extend type Booking @key(fields: "id") {
   id: ID! @external
+  payment:Payment
 }
 
 # --------------------------
@@ -95,10 +96,8 @@ input RefundInput {
 type Query {
   payment(id: ID!): Payment @shareable
   paymentsByCustomer(customerId: ID!): [Payment!]! @shareable
-  paymentsByBooking(bookingId: ID!): [Payment!]! @shareable
-  
+  paymentByBooking(bookingId: ID!): Payment @shareable  
 }
-
 # --------------------------
 # MUTATIONS
 # --------------------------

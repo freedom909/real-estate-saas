@@ -8,8 +8,6 @@ import {
     Optional
 } from "sequelize";
 
-
-
 import { PaymentStatus }   from "../../domain/value-object/paymentt.status";
 import { sequelize } from "@/infrastructure/config/seq";
 
