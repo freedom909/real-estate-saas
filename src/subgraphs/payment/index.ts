@@ -41,6 +41,8 @@ import bookingConsumer from "@/MQ/consumer/bookingConsumer";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import { registerEventBus } from "@/modules/container/event.bus.register";
 import PaymentModel from "@/core/payment/infra/model/payment.model";
+import { initBookingModel } from "@/core/booking/infrastructure/models/booking.model";
+import { Sequelize } from "sequelize";
 
 
 const startApolloServer = async () => {
@@ -54,6 +56,13 @@ const startApolloServer = async () => {
     console.log("✅ Containers initialized");
     await PaymentModel.sync({ alter: true });
     console.log("✅ Payment Model synchronized");
+    
+    // Initialize booking model for CreatePaymentUseCase
+    const sequelize = new Sequelize(process.env.MYSQL_URI!, { logging: false });
+    initBookingModel(sequelize);
+    await sequelize.sync({ alter: true });
+    container.register("Sequelize", { useValue: sequelize });
+    console.log("✅ Booking Model initialized for payment subgraph");
     
     console.log("✅ Database connected");
     // ✅ Register UserClient for getUserFromToken to use
