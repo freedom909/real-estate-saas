@@ -120,12 +120,12 @@ async getTokenVersion(userId: string): Promise<number> {
   }
 
   create(data: UserCreationData): Promise<UserDocument> {
-    return this.UserModel.create({
-      email: data.email,
-      name: data.name,
-      avatar: data.avatar,
-      provider: data.provider,
-      providerSub: data.providerSub
-    });
+  return this.UserModel.create({
+    email: data.email,
+    name: data.name,
+    picture: data.avatar ?? "", // ✅ 用 picture
+    provider: data.provider,
+    providerSub: data.providerSub
+  });
   }
 }

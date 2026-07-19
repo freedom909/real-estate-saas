@@ -1,6 +1,6 @@
 // domain/repositories/i-payment.repository.ts
 
-import { Payment } from "../entity/payemnt.entity";
+import { Payment } from "../entity/payment.entity";
 
 
 

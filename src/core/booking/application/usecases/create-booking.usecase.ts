@@ -17,6 +17,7 @@ import { BookingCreatedEvent } from "@/core/booking/domain/events/booking-create
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 import { BookingPricingService } from "../../domain/service/booking-pricing.service";
 import { InMemoryEventBus } from "@/shared/eventbus/in-memory-event-bus";
+import { IListingGateway } from "../../domain/gateways/i-listing.gateway";
 
 @injectable()
 export class CreateBookingUseCase {
@@ -24,7 +25,9 @@ export class CreateBookingUseCase {
     @inject(TOKENS_BOOKING.repository.bookingRepository) 
     private repo: IBookingRepository, 
     @inject(TOKENS_EVENT_BUS.eventBus) 
-    private eventBus: InMemoryEventBus
+    private eventBus: InMemoryEventBus,
+    @inject(TOKENS_BOOKING.gateway.listingGateway)
+    private listingGateway: IListingGateway
   ) {}
 
   async execute(input: any) {
@@ -46,14 +49,6 @@ if (missing.length > 0) {
   );
 }
 
-const price =
-  input.price != null
-    ? Number(input.price)
-    : BookingPricingService.calculatePrice(
-        120,
-        new Date(input.checkInDate),
-        new Date(input.checkOutDate)
-      );
 const checkIn =
   new Date(input.checkInDate);
 
@@ -77,6 +72,9 @@ if (checkIn.getTime() >= checkOut.getTime()) {
     "checkInDate must be before checkOutDate"
   );
 }
+
+const nightlyPrice = await this.listingGateway.getListingPrice(input.listingId);
+const price = BookingPricingService.calculatePrice(nightlyPrice, checkIn, checkOut);
 const booking =
   Booking.create({
     id: uuidv4(),

@@ -103,34 +103,28 @@ const startApolloServer = async () => {
     await server.start();
     console.log("✅ Apollo Server started");
 
-app.use(
-  "/graphql",
-  express.json(),
-  (req, res, next) => {
-    (req as any).user = getUserFromContext(req);
-    next();
-  },
-  expressMiddleware(server, {
-    context: async ({ req }) => ({
-      req,
-      user: (req as any).user,
-    }),
-  })
-);
-    // ✅ 启动 HTTP
-    httpServer.listen({ port: 4050 }, async () => {
-      console.log("🚀 Server ready at http://localhost:4050/graphql");
+    app.use(
+      "/graphql",
+      express.json(),
+      async (req, _res, next) => {
+        (req as any).user = await getUserFromContext(req);
+        next();
+      },
+      expressMiddleware(server, {
+        context: async ({ req }) => ({
+          req,
+          user: (req as any).user,
+        }),
+      })
+    );
 
-      // ✅ MQ consumer
-      try {
-        await bookingConsumer.startConsuming();
-        console.log("✅ Payment MQ Consumer started");
-      } catch (error) {
-        console.error("❌ MQ Consumer error:", error);
-      }
+    const PORT = process.env.PAYMENT_PORT || 4050;
+    httpServer.listen({ port: PORT }, () => {
+      console.log(`💳 Payment subgraph running on http://localhost:${PORT}/graphql`);
     });
   } catch (error) {
-    console.error("❌ Server start error:", error);
+    console.error("❌ Failed to start Payment Subgraph:", error);
+    process.exit(1);
   }
 };
 

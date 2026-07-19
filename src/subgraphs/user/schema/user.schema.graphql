@@ -1,7 +1,7 @@
 schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.11"
-    import: ["@key", "@external"]
+    import: ["@key", "@external", "@shareable"]
   ) {
   query: Query
   mutation: Mutation
@@ -9,10 +9,10 @@ schema
 
 scalar DateTime
 
-extend type User @key(fields:"id") {
+type User @key(fields:"id") {
  id: ID!
- email: String!
-  role:Role!
+ email: String! @shareable
+ role: Role! @shareable
  profile: Profile!
  status: AccountStatus!
  createdAt: DateTime!
@@ -21,7 +21,7 @@ extend type User @key(fields:"id") {
 type Credential @key(fields: "id") {
   id: ID!
   user: User!
-  provider: AuthProvider!
+  provider: String!
   providerUserId: String!
   createdAt: DateTime!
 }
@@ -36,14 +36,6 @@ enum Role {
  OWNER
  AGENT
  CUSTOMER
-} 
-
-enum AuthProvider {
-  GOOGLE
-  APPLE
-  GITHUB
-  FACEBOOK
-  LINE
 }
 
 type Query {
@@ -54,32 +46,15 @@ type Query {
 
 type Mutation {
 
-  oauthLogin(
-    provider: AuthProvider!
-    accessToken: String!
-  ): AuthPayload!
-
  updateProfile(
    userId: ID!
    name: String
    avatar: String
  ): User!
 
-  logout: Boolean!
-
-  refreshToken(
-    token: String!
-  ): AuthPayload!
-
    deactivateUser(
    userId: ID!
  ): Boolean!
-}
-
-type AuthPayload {
-  accessToken: String!
-  refreshToken: String!
-  user: User!
 }
 
 enum AccountStatus {

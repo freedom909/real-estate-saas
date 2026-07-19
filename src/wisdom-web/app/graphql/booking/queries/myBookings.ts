@@ -9,21 +9,15 @@ query MyBookings {
 myBookings {
 
 id
-
 status
-
-price
-
 checkInDate
-
 checkOutDate
-
+price
 listing {
-
+id
 title
-
 picture
-
+price
 }
 
 }

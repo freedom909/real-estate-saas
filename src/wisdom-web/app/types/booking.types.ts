@@ -10,4 +10,6 @@ checkOut: string;
 
 customer: number;
 
+price?: number;
+
 }

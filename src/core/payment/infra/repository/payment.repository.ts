@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import { IPaymentRepository } from "../../domain/repository/i-payment.repository";
-import { Payment } from "../../domain/entity/payemnt.entity";
+import { Payment } from "../../domain/entity/payment.entity";
 import PaymentModel from "../model/payment.model";
 import { PaymentMapper } from "./payment.mapper";
 

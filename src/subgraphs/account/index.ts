@@ -34,6 +34,7 @@ registerAuthDependencies(container);
 registerUserDependencies(container);
 registerTenantDependencies(container);
 registerAccountDependencies();
+
 console.info("Account subgraph configuration loaded");
 
 const typeDefs = gql(
@@ -73,8 +74,8 @@ const startApolloServer = async () => {
     app.use(
       "/graphql",
       express.json(),
-      (req, _res, next) => {
-        (req as any).user = getUserFromContext(req);
+      async (req, _res, next) => {
+        (req as any).user = await getUserFromContext(req);
         next();
       },
       expressMiddleware(server, {

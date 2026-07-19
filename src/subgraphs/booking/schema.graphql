@@ -41,8 +41,24 @@ type Mutation {
   createBooking(input: CreateBookingInput!): CreateBookingResponse! @shareable
   cancelBooking(id: ID!, reason: String): CancelBookingResponse @shareable
   confirmBooking(id: ID!): Booking! @shareable
+  checkInBooking(id: ID!): Booking! @shareable
   completeBooking(id: ID!): Booking! @shareable
+  updateBooking(input: UpdateBookingInput!): UpdateBookingResponse! @shareable
   analyzeBookingFraud(bookingId: ID!): FraudAnalysisResponse!
+}
+
+input UpdateBookingInput {
+  id: ID!
+  checkInDate: DateTime
+  checkOutDate: DateTime
+  price: Float
+}
+
+type UpdateBookingResponse implements MutationResponse {
+  code: Int! @shareable
+  success: Boolean! @shareable
+  message: String! @shareable
+  booking: Booking! @shareable
 }
 
 type FraudAnalysisResponse {
@@ -60,6 +76,7 @@ type CreateBookingResponse {
 enum BookingStatus {
 PENDING
 CONFIRMED
+CHECKED_IN
 FAILED
 CANCELLED
 COMPLETED
@@ -76,17 +93,17 @@ id: ID!
 
 tenant: Tenant!
 
-listing: Listing!
+listing: Listing! @shareable
 
-customer: User!
+customer: User! @shareable
 
-checkInDate: DateTime!
+checkInDate: DateTime! @shareable
 
-checkOutDate: DateTime!
+checkOutDate: DateTime! @shareable
 
-price: Float!
+price: Float! @shareable
 
-status: BookingStatus!
+status: BookingStatus! @shareable
 
 lifecycleStatus: BookingLifecycleStatus!
 
@@ -118,6 +135,8 @@ interface MutationResponse {
 
 input CreateBookingInput {
   listingId: ID!
+  customerId: ID
   checkInDate: DateTime!
   checkOutDate: DateTime!
+  price: Float
 }

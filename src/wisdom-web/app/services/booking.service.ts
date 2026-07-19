@@ -32,7 +32,7 @@ export async function cancelBooking(bookingId: string) {
     const { data } = await client.mutate({
         mutation: CANCEL_BOOKING,
         variables: {
-            bookingId,
+            id: bookingId,
         },
     });
 

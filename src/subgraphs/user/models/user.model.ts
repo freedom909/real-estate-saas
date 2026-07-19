@@ -57,5 +57,5 @@ const userSchema = new mongoose.Schema({
 });
 userSchema.index({ email: 1 })
 
-const UserModel = mongoose.models.User || mongoose.model<IUserDB>("User", userSchema);
+const UserModel = (mongoose.models.User as mongoose.Model<IUserDB>)  || mongoose.model<IUserDB>("User", userSchema);
 export default UserModel;  // ✅ 确保默认导出

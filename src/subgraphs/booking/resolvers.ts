@@ -4,6 +4,8 @@ import { CompleteBookingUseCase } from "@/core/booking/application/usecases/comp
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
 import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booking.usecase";
+import { UpdateBookingUseCase } from "@/core/booking/application/usecases/update-booking.usecase";
+import { CheckInBookingUseCase } from "@/core/booking/application/usecases/check-in-booking.usecase";
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { requireAuth } from "@/infrastructure/auth/require.auth";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
@@ -51,7 +53,7 @@ export const resolvers = {
 
       // Fallback to input.tenantId if context user doesn't have it
 
-      const price = input.price !== undefined ? Number(input.price) : 0; // Default price to 0 if not provided
+      const price = input.price !== undefined ? Number(input.price) : undefined; // Let use case calculate from listing price
       const booking = await container
         .resolve<CreateBookingUseCase>(TOKENS_BOOKING.usecase.createBookingUseCase)
         .execute({
@@ -101,6 +103,22 @@ export const resolvers = {
       return container.resolve<CompleteBookingUseCase>(TOKENS_BOOKING.usecase.completeBookingUseCase).execute(id);
 
     },
+
+    checkInBooking: async (_: any, { id }: any) => {
+      return container.resolve<CheckInBookingUseCase>(TOKENS_BOOKING.usecase.checkInBookingUseCase).execute(id);
+    },
+
+    updateBooking: async (_: any, { input }: any) => {
+      const booking = await container
+        .resolve<UpdateBookingUseCase>(TOKENS_BOOKING.usecase.updateBookingUseCase)
+        .execute(input);
+      return {
+        code: 200,
+        success: true,
+        message: "Booking updated successfully",
+        booking,
+      };
+    },
   },
 
   Booking: {
@@ -114,7 +132,7 @@ export const resolvers = {
     // ✅ Handle potential snake_case from DB or missing fields
     checkInDate: (parent: any) => parent.checkInDate || parent.dateRange?.checkInDate || parent.check_in_date,
     checkOutDate: (parent: any) => parent.checkOutDate || parent.dateRange?.checkOutDate || parent.check_out_date,
-    price: (parent: any) => parent.price || parent.total_price || 0,
+    price: (parent: any) => parent.price ?? parent.total_price ?? 0,
     __resolveReference: async (reference: { id: string }) => {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(reference.id);
     },

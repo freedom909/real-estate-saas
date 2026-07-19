@@ -23,7 +23,7 @@ export const sequelize = new Sequelize(
   DB_PASSWORD,
   {
     host: DB_HOST || 'localhost',
-    port: Number(DB_PORT) || 3307,
+    port: Number(DB_PORT) || 3306,
     dialect: 'mysql',
 
     logging: NODE_ENV === 'development' ? console.log : false,

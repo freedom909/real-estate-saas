@@ -2,7 +2,7 @@ import { PaymentTransitionService }
   from "../service/paymentTransition.service";
 
 import { PaymentStatus }
-  from "../value-object/paymentt.status";
+  from "../value-object/payment.status";
 
 export interface PaymentProps {
 
@@ -34,6 +34,7 @@ export interface PaymentProps {
   refundedAt?: Date;
 
   cancelReason?: string;
+  paymentIntentId?: string;
 }
 
 export class Payment {
@@ -246,5 +247,9 @@ get checkOutDate() {
 
   get cancelReason() {
     return this.props.cancelReason;
+  }
+
+  get paymentIntentId() {
+    return this.props.paymentIntentId;
   }
 }

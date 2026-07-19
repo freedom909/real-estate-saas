@@ -1,7 +1,7 @@
-import { PaymentRepository } from "@/core/payment/infra/repository/payment.repositoy";
+import { PaymentRepository } from "@/core/payment/infra/repository/payment.repository";
 import { TOKENS_PAYMENT } from "@/modules/tokens/payment.tokens";
 import { inject, injectable } from "tsyringe";
-import { Payment } from "../../domain/entity/payemnt.entity";
+import { Payment } from "../../domain/entity/payment.entity";
 
 @injectable()
 

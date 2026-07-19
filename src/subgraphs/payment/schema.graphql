@@ -107,6 +107,7 @@ type Mutation {
   confirmPayment(paymentId: ID!): ProcessPaymentResponse! @shareable
   createPayment(input: CreatePaymentInput!): Payment! @shareable
   cancelPayment( paymentId: ID! reason: String): Payment! @shareable
+  failPayment(paymentId: ID!): ProcessPaymentResponse! @shareable
 }
 
 

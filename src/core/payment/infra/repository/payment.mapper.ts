@@ -1,4 +1,4 @@
-import { Payment } from "../../domain/entity/payemnt.entity";
+import { Payment } from "../../domain/entity/payment.entity";
 
 export class PaymentMapper {
 
@@ -31,6 +31,7 @@ export class PaymentMapper {
 
       refundedAt: row.refundedAt,
       cancelReason: row.cancelReason,
+      paymentIntentId: row.paymentIntentId,
     });
   }
 
@@ -53,6 +54,7 @@ export class PaymentMapper {
       completedAt: data.completedAt,
       refundedAt: data.refundedAt,
       cancelReason: data.cancelReason,
+      paymentIntentId: data.paymentIntentId,
     };
   }
 }

@@ -12,7 +12,7 @@ export interface CreateOAuthUserInput {
 
 email: string;
 
-name?: string;
+name: string;
 
 picture?: string;
 

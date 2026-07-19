@@ -25,7 +25,10 @@ return (
 
 <img
 
-src={booking.listing?.coverImage || "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop"}
+src={
+  booking.listing?.picture?.[0] || 
+  "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop"
+}
 
 alt={booking.listing?.title}
 
@@ -79,11 +82,12 @@ Booking ID: {booking.id.slice(0, 8)}...
 
 <div>
 
-<p className="text-xs text-gray-500">Total paid</p>
+<p className="text-xs text-gray-500">Per Night</p>
 
 <p className="text-2xl font-bold text-gray-900">
-
-¥{booking.price.toLocaleString()}
+{booking.listing?.price != null
+  ? `¥${booking.listing.price.toLocaleString()}`
+  : "-"}
 
 </p>
 

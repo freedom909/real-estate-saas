@@ -34,7 +34,9 @@ export class ListingRepository implements IListingRepository {
   async create(listing: Listing): Promise<Listing> {
     const persistence = ListingMapper.toPersistence(listing);
     const created = await this.model.create(persistence);
-    return ListingMapper.toDomain(created);
+    const record = ListingMapper.toDomain(created);
+    console.log('domain.price =', record.price);
+    return record;
   }
 
   async update(id: string, listing: Listing): Promise<boolean> {
@@ -49,9 +51,11 @@ export class ListingRepository implements IListingRepository {
   }
 
   async findById(id: string): Promise<Listing | null> {
+     console.log('findById id =', id);
     const listing = await this.model.findByPk(id);
-
+    console.log("listing++", listing);
     if (!listing) {
+      console.log('❌ findByPk returned null');
       return null;
     }
 
@@ -72,6 +76,7 @@ export class ListingRepository implements IListingRepository {
       categories,
       amenityIds,
     });
+    console.log('domain =', domain);
     return domain;
   }
 

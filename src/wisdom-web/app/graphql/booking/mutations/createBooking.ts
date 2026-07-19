@@ -5,6 +5,8 @@ mutation Mutation($input: CreateBookingInput!) {
   createBooking(input: $input) {
     success
     booking {
+      id
+      price
       checkInDate
       checkOutDate
     }

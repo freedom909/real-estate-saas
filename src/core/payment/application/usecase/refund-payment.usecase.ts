@@ -17,27 +17,13 @@ export class RefundPaymentUseCase {
   ) {}
 
   async execute(paymentId: string) {
-   console.log("REFUND START", paymentId);
     const payment =
       await this.paymentRepository.findById(paymentId);
-      console.log(
-    "FOUND PAYMENT",
-    payment?.toJSON?.()
-  );
     if (!payment) {
       throw new Error("Payment not found");
     }
-  console.log(
-    "STATUS BEFORE",
-    payment.status
-  );
     payment.refund();
-  console.log(
-    "STATUS AFTER",
-    payment.status
-  );
     await this.paymentRepository.save(payment);
- console.log("SAVE OK");
     await this.eventBus.publish(
       new PaymentRefundedEvent(
         payment.id,

@@ -1,4 +1,4 @@
-import { PaymentStatus } from "../value-object/paymentt.status";
+import { PaymentStatus } from "../value-object/payment.status";
 
 export class PaymentTransitionService {
 

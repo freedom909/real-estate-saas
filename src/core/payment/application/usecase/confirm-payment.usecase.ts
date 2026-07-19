@@ -4,7 +4,7 @@ import { IPaymentRepository } from "../../domain/repository/i-payment.repository
 import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { IEventBus } from "@/shared/eventbus/IEventBus";
 import { PaymentConfirmedEvent } from "../../domain/event/payment.confirm.event";
-import { PaymentStatus } from "../../domain/value-object/paymentt.status";
+import { PaymentStatus } from "../../domain/value-object/payment.status";
 
 @injectable()
 export class ConfirmPaymentUseCase {
@@ -33,11 +33,6 @@ async execute(paymentId: string) {
 
   payment.succeed();
 
-  console.log(
-    "STATUS AFTER:",
-    payment?.status
-  );
-
   await this.paymentRepository.save(payment!);
   await this.eventBus.publish(
     new PaymentConfirmedEvent(
@@ -47,8 +42,6 @@ async execute(paymentId: string) {
     payment.tenantId,
     payment.amount,
     payment.completedAt!,
-    payment.checkOutDate,
-    payment.refundedAt!
   )
 );
   return payment.toJSON();

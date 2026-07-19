@@ -18,6 +18,7 @@ enum AccountStatus {
 enum BookingStatus {
   PENDING
   CONFIRMED
+  CHECKED_IN
   FAILED
   CANCELLED
   COMPLETED

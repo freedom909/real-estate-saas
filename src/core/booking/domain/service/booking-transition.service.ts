@@ -8,9 +8,13 @@ const BOOKING_STATUS_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
     ],
 
     [BookingStatus.CONFIRMED]: [
+        BookingStatus.CHECKED_IN,
+        BookingStatus.CANCELLED,
+    ],
+
+    [BookingStatus.CHECKED_IN]: [
         BookingStatus.COMPLETED,
         BookingStatus.CANCELLED,
-        
     ],
 
     [BookingStatus.CANCELLED]: [],

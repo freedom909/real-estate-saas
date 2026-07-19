@@ -60,21 +60,21 @@ const startApolloServer = async () => {
     await server.start();
 
     // ✅ 统一 context（唯一正确入口）
-app.use(
-  "/graphql",
-  express.json(),
-  (req, res, next) => {
-    (req as any).user = getUserFromContext(req);
-    next();
-  },
-  expressMiddleware(server, {
-    context: async ({ req }) => ({
-      req,
-      user: (req as any).user,
-      container,
-    }),
-  })
-);
+    app.use(
+      "/graphql",
+      express.json(),
+      async (req, _res, next) => {
+        (req as any).user = await getUserFromContext(req);
+        next();
+      },
+      expressMiddleware(server, {
+        context: async ({ req }) => ({
+          req,
+          user: (req as any).user,
+          container,
+        }),
+      })
+    );
 
     // ✅ 启动 HTTP
     httpServer.listen({ port: 4040 }, async () => {

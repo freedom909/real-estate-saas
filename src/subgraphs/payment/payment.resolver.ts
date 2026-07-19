@@ -3,15 +3,17 @@ import { CreatePaymentUseCase } from "@/core/payment/application/usecase/create-
 import { ProcessPaymentUseCase } from "@/core/payment/application/usecase/process-payment.usecase";
 import { RefundPaymentUseCase } from "@/core/payment/application/usecase/refund-payment.usecase";
 import { ConfirmPaymentUseCase } from "@/core/payment/application/usecase/confirm-payment.usecase";
-import { PaymentRepository } from "@/core/payment/infra/repository/payment.repositoy";
+import { PaymentRepository } from "@/core/payment/infra/repository/payment.repository";
 import { TOKENS_PAYMENT } from "@/modules/tokens/payment.tokens";
 import { container } from "tsyringe";
 import { GetPaymentByBookingIdUseCase } from "@/core/payment/application/usecase/getPaymentByBookingId.usecase";
+import { GetPaymentsByCustomerUseCase } from "@/core/payment/application/usecase/getPaymentsByCustomer.usecase";
+import { FailPaymentUseCase } from "@/core/payment/application/usecase/fail-payment.usecase";
 
 
 const resolvers = {
   Query: {
-    paymentByBookingId: async (
+    paymentByBooking: async (
       _: any,
       { bookingId }: any
     ) => {
@@ -29,6 +31,16 @@ const resolvers = {
         );
 
       return repo.findById(id);
+    },
+
+    paymentsByCustomer: async (
+      _: any,
+      { customerId }: any
+    ) => {
+      const useCase = container.resolve<GetPaymentsByCustomerUseCase>(
+        TOKENS_PAYMENT.usecase.getPaymentsByCustomerUseCase
+      );
+      return useCase.execute(customerId);
     },
   },
 
@@ -100,12 +112,6 @@ const resolvers = {
       _: any,
       { paymentId }: any
     ) => {
-
-      console.log(
-        "CONFIRM PAYMENT RESOLVER",
-        paymentId
-      );
-
       const payment =
         await container
           .resolve<ConfirmPaymentUseCase>(
@@ -119,7 +125,25 @@ const resolvers = {
         message: "Payment confirmed",
         payment,
       };
-    }
+    },
+
+    failPayment: async (
+      _: any,
+      { paymentId }: any
+    ) => {
+      const payment = await container
+        .resolve<FailPaymentUseCase>(
+          TOKENS_PAYMENT.usecase.failPaymentUseCase
+        )
+        .execute(paymentId);
+
+      return {
+        code: 200,
+        success: true,
+        message: "Payment marked as failed",
+        payment,
+      };
+    },
   },
 
   Booking: {

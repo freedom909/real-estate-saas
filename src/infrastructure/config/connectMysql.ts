@@ -11,7 +11,7 @@ const connectMysql = async () => {
   if (!pool) {
     pool = mysql.createPool({
       host: '127.0.0.1',
-      port: 3307,
+      port: 3306,
       user: user,
       password: password,
       database: db,
@@ -19,7 +19,7 @@ const connectMysql = async () => {
       connectionLimit: 10,
       queueLimit: 0,
     });
-    console.log('Connected to the mysql database on port 3307');
+    console.log('Connected to the mysql database on port 3306');
   }
   return pool;
 };

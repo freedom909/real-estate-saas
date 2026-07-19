@@ -47,7 +47,6 @@ export default function ListingDetailPage({
     const { id } = use(params);
     const [checkInDate, setCheckInDate] = useState("");
     const [checkOutDate, setCheckOutDate] = useState("");
-    const [customers, setCustomers] = useState(1);
     const { data, loading, error } = useQuery(GET_LISTING, {
 
         variables: { id },
@@ -101,8 +100,6 @@ export default function ListingDetailPage({
                         checkInDate: checkInDate,
 
                         checkOutDate: checkOutDate,
-
-                   
 
                     },
 

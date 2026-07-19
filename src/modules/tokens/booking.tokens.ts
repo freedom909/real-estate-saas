@@ -2,6 +2,7 @@
 export const TOKENS_BOOKING = {
   gateway: {
     bookingGateway: Symbol.for("BookingGateway"),
+    listingGateway: Symbol.for("ListingGateway"),
   },
 
   acl: {
@@ -18,6 +19,8 @@ export const TOKENS_BOOKING = {
     createBookingUseCase: Symbol.for("CreateBookingUseCase"),
     completeBookingUseCase: Symbol.for("CompleteBookingUseCase"),
     getBookingsForCustomerUseCase: Symbol.for("GetBookingsForCustomerUseCase"),
+    updateBookingUseCase: Symbol.for("UpdateBookingUseCase"),
+    checkInBookingUseCase: Symbol.for("CheckInBookingUseCase"),
   },
   repository: {
     bookingRepository: Symbol.for("BookingRepository"),

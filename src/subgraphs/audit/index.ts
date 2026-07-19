@@ -3,17 +3,22 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { readFileSync } from 'fs';
-import path from 'path';
+
 import gql from 'graphql-tag';
+import dotenv from 'dotenv';
+dotenv.config();
 import mongoose from 'mongoose';
 
 import { resolvers } from './resolvers/audit.resolver';
 import { container } from 'tsyringe';
 import registerAuditDependencies from '@/modules/container/audit.register';
 
-async function bootstrap() {
-  await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nakano');
 
+
+async function bootstrap() {
+ console.log('MONGO_URI =', process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nakano');//
+ 
   registerAuditDependencies(container);
 
 const typeDefs = gql(

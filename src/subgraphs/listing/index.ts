@@ -12,7 +12,7 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import cors from 'cors';
 import { container } from "tsyringe";
 
-import { resolvers } from './resolvers/resolver';
+import { resolvers } from './resolvers/listing.resolver';
 import { sequelize } from "@/infrastructure/config/seq";
 import registerAuthDependencies from "../auth/registerAuthDependencies";
 import { registerUserDependencies } from "../user/registerUserDependencies";
@@ -76,8 +76,8 @@ console.info("MySQL connected");
 app.use(
   "/graphql",
   express.json(),
-  (req, res, next) => {
-    (req as any).user = getUserFromContext(req);
+  async (req, _res, next) => {
+    (req as any).user = await getUserFromContext(req);
     next();
   },
   expressMiddleware(server, {

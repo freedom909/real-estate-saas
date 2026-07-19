@@ -12,7 +12,7 @@ process.env.MYSQL_PASSWORD || "princess",
 
 host: process.env.MYSQL_HOST || "localhost",
 
-port: Number(process.env.MYSQL_PORT || 3307),
+port: Number(process.env.MYSQL_PORT || 3306),
 
 dialect: "mysql",
 

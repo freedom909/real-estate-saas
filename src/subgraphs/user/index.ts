@@ -79,8 +79,8 @@ app.use(
       next();
 
  },
-  (req, res, next) => {
-    (req as any).user = getUserFromContext(req);
+  async (req, _res, next) => {
+    (req as any).user = await getUserFromContext(req);
     next();
   },
   expressMiddleware(server, {

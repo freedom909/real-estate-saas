@@ -9,7 +9,11 @@ export function BookingStatusBadge({ status }: { status: string }) {
 
         CONFIRMED: "bg-green-100 text-green-700",
 
+        CHECKED_IN: "bg-indigo-100 text-indigo-700",
+
         CANCELLED: "bg-red-100 text-red-700",
+
+        COMPLETED: "bg-blue-100 text-blue-700",
 
     };
 

@@ -1,5 +1,3 @@
-//
-
 export const TOKENS_PAYMENT = {
     repos: {
         paymentRepository: Symbol.for("PaymentRepository")
@@ -21,6 +19,10 @@ export const TOKENS_PAYMENT = {
             Symbol.for("ConfirmPaymentUseCase"),
         getPaymentByBookingIdUseCase:
             Symbol.for("GetPaymentByBookingIdUseCase"),
+        getPaymentsByCustomerUseCase:
+            Symbol.for("GetPaymentsByCustomerUseCase"),
+        failPaymentUseCase:
+            Symbol.for("FailPaymentUseCase"),
     },
     event: {
         paymentMQEventBus: Symbol.for("PaymentMQEventBus")

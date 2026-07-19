@@ -22,6 +22,7 @@ listing {
 
 title
 picture
+price
 
 }
 payment {

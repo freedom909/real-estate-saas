@@ -1,7 +1,7 @@
 import { TOKENS_PAYMENT } from "@/modules/tokens/payment.tokens";
 import { inject, injectable } from "tsyringe";
 import { IPaymentRepository } from "../../domain/repository/i-payment.repository";
-import { Payment } from "../../domain/entity/payemnt.entity";
+import { Payment } from "../../domain/entity/payment.entity";
 import { v4 as uuidv4 } from "uuid";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
@@ -25,10 +25,6 @@ export class CreatePaymentUseCase {
     tenantId: string;
     amount: number;
   }): Promise<Payment> {
-console.log(
-  "PROCESS PAYMENT INPUT",
-  input
-);
     const booking =
       await this.bookingRepository.findById(
         input.bookingId

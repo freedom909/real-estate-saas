@@ -8,7 +8,7 @@ import {
     Optional
 } from "sequelize";
 
-import { PaymentStatus }   from "../../domain/value-object/paymentt.status";
+import { PaymentStatus }   from "../../domain/value-object/payment.status";
 import { sequelize } from "@/infrastructure/config/seq";
 
 export interface PaymentAttributes {
@@ -35,6 +35,7 @@ export interface PaymentAttributes {
     completedAt?: Date | null;
 
     refundedAt?: Date | null;
+    paymentIntentId?: string | null;
 
     createdAt: Date;
 
@@ -48,6 +49,7 @@ export interface PaymentCreationAttributes
         | "processedAt"
         | "completedAt"
         | "refundedAt"
+        | "paymentIntentId"
         | "createdAt"
         | "updatedAt" // These are handled by timestamps: true and underscored: true
         | "checkInDate"
@@ -82,6 +84,7 @@ export class PaymentModel
     public completedAt!: Date | null;
 
     public refundedAt!: Date | null;
+    public paymentIntentId!: string | null;
 
     public readonly createdAt!: Date;
 
@@ -179,6 +182,12 @@ PaymentModel.init(
             type: DataTypes.DATE,
             allowNull: true,
             field: 'refunded_at', // Explicitly map to snake_case
+        },
+
+        paymentIntentId: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            field: 'payment_intent_id',
         },
     },
 

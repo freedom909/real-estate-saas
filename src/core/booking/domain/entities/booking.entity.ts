@@ -12,7 +12,7 @@ export interface BookingProps {
   tenantId: string;
   price: number;
   status: BookingStatus;
-  createdAt: Date;  
+  createdAt: Date;
   confirmedAt?: Date;
   updatedAt?: Date;
   cancelReason?: string;
@@ -22,16 +22,15 @@ export interface BookingProps {
 
 export class Booking {
   private constructor(
-    private props: BookingProps)
-     {}
+    private props: BookingProps) { }
 
   static create(
     props: Omit<BookingProps, "status" | "createdAt">
   ): Booking {
     return new Booking({
       ...props,
-     status: BookingStatus.PENDING, 
-      
+      status: BookingStatus.PENDING,
+
       createdAt: new Date(),
       lifecycleStatus: BookingLifecycleStatus.UPCOMING,
     });
@@ -41,65 +40,100 @@ export class Booking {
     return new Booking(props);
   }
 
-cancel(reason: string): void {
+  update(fields: { checkInDate?: Date; checkOutDate?: Date; price?: number }): void {
+    if (this.props.status === BookingStatus.CANCELLED || this.props.status === BookingStatus.COMPLETED) {
+      throw new Error("Cannot modify a cancelled or completed booking");
+    }
 
-BookingTransitionService.ensureTransition(
-this.props.status,
-BookingStatus.CANCELLED
-);
+    if (fields.checkInDate && fields.checkOutDate) {
+      if (fields.checkInDate >= fields.checkOutDate) {
+        throw new Error("checkInDate must be before checkOutDate");
+      }
+      this.props.dateRange = new DateRange(fields.checkInDate, fields.checkOutDate);
+    } else if (fields.checkInDate || fields.checkOutDate) {
+      throw new Error("Both checkInDate and checkOutDate must be provided together");
+    }
 
-if (
-this.props.dateRange.checkInDate
-< new Date()
-) {
-throw new Error(
-"Cannot cancel after check-in"
-);
-}
+    if (fields.price !== undefined) {
+      this.props.price = fields.price;
+    }
 
-this.props.status =
-BookingStatus.CANCELLED;
+    this.props.updatedAt = new Date();
+  }
 
-this.props.updatedAt =new Date();
+  cancel(reason: string): void {
 
-this.props.cancelReason =reason;
-}
+    BookingTransitionService.ensureTransition(
+      this.props.status,
+      BookingStatus.CANCELLED
+    );
 
-complete(): void {
-BookingTransitionService.ensureTransition(this.props.status,BookingStatus.COMPLETED);
+    if (
+      this.props.dateRange.checkInDate
+      < new Date()
+    ) {
+      throw new Error(
+        "Cannot cancel after check-in"
+      );
+    }
 
-// 🔥 Safety Rule
-if (
-this.props.status !==BookingStatus.CONFIRMED
-) {
-throw new Error("Only confirmed bookings can be completed");
-}
+    this.props.status =
+      BookingStatus.CANCELLED;
 
-this.props.status = BookingStatus.COMPLETED;
+    this.props.updatedAt = new Date();
 
-this.props.completedAt =new Date();
+    this.props.cancelReason = reason;
+  }
 
-this.props.updatedAt = new Date();
-}
+  complete(): void {
+    BookingTransitionService.ensureTransition(this.props.status, BookingStatus.COMPLETED);
+
+    // 🔥 Safety Rule
+    if (
+      this.props.status !== BookingStatus.CHECKED_IN
+    ) {
+      throw new Error("Only checked-in bookings can be completed");
+    }
+
+    this.props.status = BookingStatus.COMPLETED;
+
+    this.props.completedAt = new Date();
+
+    this.props.updatedAt = new Date();
+  }
+
+  checkIn(): void {
+    BookingTransitionService.ensureTransition(this.props.status, BookingStatus.CHECKED_IN);
+
+    if (
+      this.props.status !== BookingStatus.CONFIRMED
+    ) {
+      throw new Error("Only confirmed bookings can be checked in");
+    }
+
+    this.props.status = BookingStatus.CHECKED_IN;
+
+    this.props.updatedAt = new Date();
+  }
 
 
-confirm(): void {
+  confirm(): void {
 
-BookingTransitionService.ensureTransition(this.props.status,BookingStatus.CONFIRMED)
+    BookingTransitionService.ensureTransition(this.props.status, BookingStatus.CONFIRMED)
 
-this.props.status =
-BookingStatus.CONFIRMED; // Use CONFIRMED from domain enum
+    this.props.status =
+      BookingStatus.CONFIRMED; // Use CONFIRMED from domain enum
 
-this.props.confirmedAt = new Date();
+    this.props.confirmedAt = new Date();
 
-this.props.updatedAt =new Date();
+    this.props.updatedAt = new Date();
 
-}
+  }
 
   toJSON() {
     return {
       ...this.props,
-      dateRange: this.props.dateRange 
+      dateRange: this.props.dateRange
         ? (typeof this.props.dateRange.toJSON === 'function' ? this.props.dateRange.toJSON() : this.props.dateRange)
         : undefined,
     };
@@ -118,6 +152,7 @@ this.props.updatedAt =new Date();
   }
 
   get listingId() {
+    console.log('listingId =', this.props.listingId);
     return this.props.listingId;
   }
 
@@ -146,7 +181,7 @@ this.props.updatedAt =new Date();
   }
 
   get completedAt() {
-return this.props.completedAt;
-}
+    return this.props.completedAt;
+  }
 
 }

@@ -34,8 +34,6 @@ const startServer = async () => {
     // 2. Connect Database
     console.info("Connecting to MySQL...");
     await sequelize.authenticate();
-    // In production, use migrations. For this setup:
-    // await sequelize.sync(); 
     console.info("MySQL connected.");
 
     // 3. Setup Apollo Server
@@ -51,20 +49,20 @@ const startServer = async () => {
     await server.start();
 
     // 4. Middlewares
-app.use(
-  "/graphql",
-  express.json(),
-  (req, res, next) => {
-    (req as any).user = getUserFromContext(req);
-    next();
-  },
-  expressMiddleware(server, {
-    context: async ({ req }) => ({
-      req,
-      user: (req as any).user,
-    }),
-  })
-);
+    app.use(
+      "/graphql",
+      express.json(),
+      async (req, _res, next) => {
+        (req as any).user = await getUserFromContext(req);
+        next();
+      },
+      expressMiddleware(server, {
+        context: async ({ req }) => ({
+          req,
+          user: (req as any).user,
+        }),
+      })
+    );
 
     const PORT = process.env.LOCATION_PORT || 4080;
     httpServer.listen(PORT, () => {

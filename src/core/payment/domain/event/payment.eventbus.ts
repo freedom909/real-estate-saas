@@ -3,8 +3,6 @@
 import * as amqp from "amqplib";
 import { injectable } from "tsyringe";
 
-console.log("RabbitMQ URL:", process.env.RABBITMQ_URL);
-
 @injectable()
 export class PaymentMQEventBus {
   
@@ -24,9 +22,7 @@ private connection!: amqp.ChannelModel;
         durable: true,
       });
 
-      console.log("✅ RabbitMQ EventBus initialized");
     } catch (err) {
-      console.error("❌ RabbitMQ init error:", err);
       throw err;
     }
   }
@@ -42,6 +38,5 @@ private connection!: amqp.ChannelModel;
       Buffer.from(JSON.stringify(event)),
       { persistent: true }
     );
-    console.log("📢 Event published:", event);
   }
 }
