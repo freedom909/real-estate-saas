@@ -88,9 +88,12 @@ export class ListingRepository implements IListingRepository {
   async search(query: SearchListingsQuery): Promise<Listing[]> {
     const where: any = {};
 
-    // Filter by location (address contains keyword)
+    // Filter by location (address OR title contains keyword)
     if (query.location) {
-      where.address = { [Op.like]: `%${query.location}%` };
+      where[Op.or] = [
+        { address: { [Op.like]: `%${query.location}%` } },
+        { title: { [Op.like]: `%${query.location}%` } },
+      ];
     }
 
     // Filter by customer count
