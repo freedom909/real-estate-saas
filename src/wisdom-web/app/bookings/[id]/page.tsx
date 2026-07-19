@@ -37,11 +37,14 @@ export default function BookingDetailPage() {
   const [confirming, setConfirming] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   const { data, loading, error, refetch } = useQuery<BookingQueryData>(BOOKING_BY_ID, {
     variables: { id: params.id },
+    context: { headers: { 'Authorization': token } },
   });
 
   const [cancelBooking] = useMutation(CANCEL_BOOKING, {
+    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setCancelling(false);
@@ -52,6 +55,7 @@ export default function BookingDetailPage() {
   });
 
   const [confirmBooking] = useMutation(CONFIRM_BOOKING, {
+    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setConfirming(false);
@@ -62,6 +66,7 @@ export default function BookingDetailPage() {
   });
 
   const [checkInBooking] = useMutation(CHECK_IN_BOOKING, {
+    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setCheckingIn(false);
@@ -72,6 +77,7 @@ export default function BookingDetailPage() {
   });
 
   const [completeBooking] = useMutation(COMPLETE_BOOKING, {
+    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setCompleting(false);
