@@ -10,8 +10,18 @@ import { GetPaymentByBookingIdUseCase } from "@/core/payment/application/usecase
 import { GetPaymentsByCustomerUseCase } from "@/core/payment/application/usecase/getPaymentsByCustomer.usecase";
 import { FailPaymentUseCase } from "@/core/payment/application/usecase/fail-payment.usecase";
 import { PaymentMQEventBus } from "@/core/payment/domain/event/payment.eventbus";
+import { TOKENS_BOOKING } from "../tokens/booking.tokens";
+import { SequelizeBookingRepository } from "@/core/booking/infrastructure/repos/sequelizeBookingRepository";
 
 export const PaymentRegister = () => {
+
+  // Register booking repository for CreatePaymentUseCase
+  container.register(
+    TOKENS_BOOKING.repository.bookingRepository,
+    {
+      useClass: SequelizeBookingRepository,
+    }
+  );
 
   container.register(
     TOKENS_PAYMENT.repos.paymentRepository,
