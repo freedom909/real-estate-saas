@@ -93,11 +93,11 @@ Booking ID: {booking.id.slice(0, 8)}...
 
 </div>
 
-<button className="rounded-xl border px-4 py-2 text-sm font-medium hover:bg-gray-50">
+<span className="rounded-xl border px-4 py-2 text-sm font-medium hover:bg-gray-50">
 
 View details
 
-</button>
+</span>
 
 </div>
 
