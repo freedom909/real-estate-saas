@@ -7,9 +7,7 @@ import Navbar from "app/components/navbar";
 
 export default function MyBookingsPage() {
 
-const token=typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-const { data, loading, error } = useQuery(MY_BOOKINGS, 
-    { skip: false, context: { headers: { 'Authorization': token } } });
+const { data, loading, error } = useQuery(MY_BOOKINGS);
     console.log("loading =", loading);
 
 console.log("error =", error);

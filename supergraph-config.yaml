@@ -48,3 +48,7 @@ subgraphs:
     routing_url: http://localhost:4103/graphql
     schema:
       file: src/subgraphs/cart/schema.graphql
+  wisdom:
+    routing_url: http://localhost:4200/graphql
+    schema:
+      file: src/wisdom/schemas/schema.graphql

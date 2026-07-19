@@ -9,6 +9,7 @@ export const WISDOM_TOKENS = {
   semanticStage: Symbol.for("wisdom.semanticStage"),
   normalizeIntentStage: Symbol.for("wisdom.normalizeIntentStage"),
   executionStage: Symbol.for("wisdom.executionStage"),
+  artifactMemoryStage: Symbol.for("wisdom.artifactMemoryStage"),
   responseStage: Symbol.for("wisdom.responseStage"),
   routingStage: Symbol.for("wisdom.routingStage"),
   routingScheduler: Symbol.for("wisdom.routingScheduler"),

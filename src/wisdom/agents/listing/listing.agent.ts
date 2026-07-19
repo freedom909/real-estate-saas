@@ -13,6 +13,41 @@ import { SearchListingUseCase } from "@/core/listing/application/usecase/searchL
 import { AgentAction } from "@/wisdom/shared/enums/action.enum";
 
 
+// Common Japanese location names → English (matches DB address values)
+const JP_LOCATION_MAP: Record<string, string> = {
+  "東京": "Tokyo",
+  "京都": "Kyoto",
+  "大阪": "Osaka",
+  "名古屋": "Nagoya",
+  "札幌": "Sapporo",
+  "福岡": "Fukuoka",
+  "横浜": "Yokohama",
+  "神戸": "Kobe",
+  "奈良": "Nara",
+  "沖縄": "Okinawa",
+  "鎌倉": "Kamakura",
+  "箱根": "Hakone",
+  "輕井澤": "Karuizawa",
+  "軽井沢": "Karuizawa",
+  "北海道": "Hokkaido",
+  "仙台": "Sendai",
+  "広島": "Hiroshima",
+  "金沢": "Kanazawa",
+  "長崎": "Nagasaki",
+  "熊本": "Kumamoto",
+  "那覇": "Naha",
+};
+
+function translateLocation(location: string): string {
+  // Try exact match first
+  if (JP_LOCATION_MAP[location]) return JP_LOCATION_MAP[location];
+  // Try partial match (e.g. "東京渋谷" → "Tokyo")
+  for (const [jp, en] of Object.entries(JP_LOCATION_MAP)) {
+    if (location.includes(jp)) return en;
+  }
+  return location;
+}
+
 @injectable()
 export class ListingAgent implements IDomainAgent {
   constructor(
@@ -94,6 +129,7 @@ export class ListingAgent implements IDomainAgent {
     action: AgentAction,
   ): Promise<WisdomResponse> {
     const location = semantic.entities.find((e) => e.type === EntityType.LOCATION)?.value;
+    const translatedLocation = location ? translateLocation(location as string) : undefined;
     const checkIn = semantic.entities.find((e) => e.type === EntityType.CHECK_IN_DATE)?.value;
     const checkOut = semantic.entities.find((e) => e.type === EntityType.CHECK_OUT_DATE)?.value;
     const dateRange = checkIn && checkOut ? `${checkIn} to ${checkOut}` : undefined;
@@ -109,13 +145,13 @@ export class ListingAgent implements IDomainAgent {
     }
 
     const searchResult = await this.searchListingUseCase.execute({
-      location: location as string,
-      dateRange: dateRange as string,
+      location: translatedLocation,
+      checkIn: checkIn as string | undefined,
+      checkOut: checkOut as string | undefined,
       customerCount: customerCount ? parseInt(customerCount as string) : undefined,
       minPrice,
       maxPrice,
     });
-console.log("searchResult++:", searchResult);
     return {
       success: true,
       domain: semantic.domain as any,

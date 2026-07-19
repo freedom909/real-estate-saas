@@ -14,6 +14,7 @@ import { ExecutionStage } from "./stage/execution.stage";
 import { KnowledgeStage } from "./stage/knowledge.stage";
 import { SummaryStage } from "./stage/summary.stage";
 import { ResponseStage } from "./stage/response.stage";
+import { ArtifactMemoryStage } from "./stage/artifactMemory.stage";
 import { SemanticExtractor } from "../semantic/semantic-extractor";
 
 @injectable()
@@ -42,6 +43,9 @@ export class WisdomPipeline {
 
         @inject(WISDOM_TOKENS.responseStage)
         private readonly responseStage: ResponseStage,
+
+        @inject(WISDOM_TOKENS.artifactMemoryStage)
+        private readonly artifactMemoryStage: ArtifactMemoryStage,
     ) {}
 
     async run(ctx: WisdomPipelineContext) {
@@ -50,6 +54,7 @@ export class WisdomPipeline {
         ctx = await this.normalizeIntentStage.execute(ctx);
         ctx = await this.routingStage.execute(ctx);
         ctx = await this.executionStage.execute(ctx);
+        ctx = await this.artifactMemoryStage.execute(ctx);
         ctx = await this.knowledgeStage.execute(ctx);
         ctx = await this.summaryStage.execute(ctx);
         ctx = await this.responseStage.execute(ctx);

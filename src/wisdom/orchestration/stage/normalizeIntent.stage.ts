@@ -9,33 +9,33 @@ import { SemanticContext } from "../../semantic/semantic-context";
 
 @injectable()
 export class NormalizeIntentStage implements IPipelineStage {
-async execute(ctx: WisdomPipelineContext): Promise<WisdomPipelineContext> {
+  async execute(ctx: WisdomPipelineContext): Promise<WisdomPipelineContext> {
     const semantic = ctx.resolvedSemantic;
     if (!semantic) return ctx;
 
     const raw = semantic.rawInput.toLowerCase();
 
     const hasBookingIntent =
-        /\b(book|reserve|confirm)\b/.test(raw) &&
-        !/\b(cancel|delete)\b/.test(raw);
+      /\b(book|reserve|confirm)\b/.test(raw) &&
+      !/\b(cancel|delete)\b/.test(raw);
 
     if (
-        hasBookingIntent &&
-        !semantic.hasAction(AgentAction.CREATE_BOOKING)
+      hasBookingIntent &&
+      !semantic.hasAction(AgentAction.CREATE_BOOKING)
     ) {
-        ctx.resolvedSemantic = new SemanticContext(
-            semantic.rawInput,
-            semantic.entities,
-            {
-                type: AgentAction.CREATE_BOOKING,
-                confidence: 0.7,
-            },
-            semantic.confidence,
-            semantic.domain,
-            semantic.isRuleMatched
-        );
+      ctx.resolvedSemantic = new SemanticContext(
+        semantic.rawInput,
+        semantic.entities,
+        {
+          type: AgentAction.CREATE_BOOKING,
+          confidence: 0.7,
+        },
+        semantic.confidence,
+        semantic.domain,
+        semantic.isRuleMatched
+      );
     }
 
     return ctx;
-}
+  }
 }

@@ -15,6 +15,9 @@ import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confi
 import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
 import { GetLatestBookingForCustomerUseCase } from "@/core/booking/application/usecases/getLatestBookingForCustomer.useCase";
 import { GetBookingsForCustomerUseCase } from "@/core/booking/application/usecases/getBookingsForCustomer.useCase";
+import { WISDOM_TOKENS } from "@/wisdom/container/tokens/wisdom.tokens";
+import { MemorySessionStore } from "@/wisdom/memory/session/session-memory.store";
+import { getCachedSearchResults } from "@/wisdom/memory/search-results-cache";
 
 
 
@@ -36,6 +39,9 @@ export class BookingAgent implements IDomainAgent {
 
     @inject(delay(() => GetLatestBookingForCustomerUseCase))
     private getLatestBookingForCustomerUseCase: GetLatestBookingForCustomerUseCase,//it was not used
+
+    @inject(WISDOM_TOKENS.memory.sessionStore)
+    private sessionStore: MemorySessionStore,
   ) {}
 
   async execute(semantic: SemanticContext, context: AIContext): Promise<WisdomResponse> {
@@ -86,12 +92,22 @@ export class BookingAgent implements IDomainAgent {
   ): Promise<WisdomResponse> {
     // Resolve listingId from searchResults if ordinal was used
     let resolvedListingId = listingId;
-    if (!resolvedListingId && context.resources?.searchResults?.length) {
-      const ordinal = this.extractEntity(semantic, ["ORDINAL"]);
-      const index = this.parseOrdinal(ordinal);
-      const match = context.resources.searchResults[index];
-      if (match) {
-        resolvedListingId = match.id;
+
+    // If no listing ID, try to reload search results from cache
+    if (!resolvedListingId) {
+      let searchResults = context.resources?.searchResults;
+      if (!searchResults || searchResults.length === 0) {
+        const sessionId = context.runtime?.sessionId ?? "default";
+        searchResults = getCachedSearchResults(sessionId);
+        console.log("[BookingAgent] Reloaded searchResults from cache:", searchResults.length);
+      }
+      if (searchResults?.length) {
+        const ordinal = this.extractEntity(semantic, ["ORDINAL"]);
+        const index = this.parseOrdinal(ordinal);
+        const match = searchResults[index];
+        if (match) {
+          resolvedListingId = match.id;
+        }
       }
     }
 
@@ -141,7 +157,7 @@ export class BookingAgent implements IDomainAgent {
       };
     }
 
-    const customerCount = parseInt(this.extractEntity(semantic, ["Customer_COUNT", "gues_count"]) ?? "1");
+    const customerCount = parseInt(this.extractEntity(semantic, ["CUSTOMER_COUNT", "customer_count", "guest_count"]) ?? "1");
 
     const result = await this.createBookingUseCase.execute({
       listingId: resolvedListingId,
@@ -322,6 +338,30 @@ export class BookingAgent implements IDomainAgent {
 
   private resolveDateRange(dateRange: string): { checkInDate: Date; checkOutDate: Date } {
     const now = new Date();
+
+    // Try "YYYY-MM-DD to YYYY-MM-DD" or "MM-DD to MM-DD"
+    const dashMatch = dateRange.match(/(\d{1,4}[-/]\d{1,2}[-/]?\d{0,2})\s*(?:to|～|~)\s*(\d{1,4}[-/]\d{1,2}[-/]?\d{0,2})/i);
+    if (dashMatch) {
+      const checkInDate = new Date(dashMatch[1]);
+      const checkOutDate = new Date(dashMatch[2]);
+      if (!isNaN(checkInDate.getTime()) && !isNaN(checkOutDate.getTime())) {
+        return { checkInDate, checkOutDate };
+      }
+    }
+
+    // Try "Month Day" format (e.g., "July 5")
+    const monthDayMatch = dateRange.match(/([A-Za-z]+)\s+(\d{1,2})/i);
+    if (monthDayMatch) {
+      const date = new Date(`${monthDayMatch[1]} ${monthDayMatch[2]}, ${now.getFullYear()}`);
+      if (!isNaN(date.getTime())) {
+        const checkInDate = date;
+        const checkOutDate = new Date(date);
+        checkOutDate.setDate(date.getDate() + 1);
+        return { checkInDate, checkOutDate };
+      }
+    }
+
+    // Fallback: tomorrow to day after
     const checkInDate = new Date(now);
     checkInDate.setDate(now.getDate() + 1);
     const checkOutDate = new Date(checkInDate);

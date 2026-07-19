@@ -10,7 +10,7 @@ schema
 scalar DateTime
 scalar JSON
 type Query {
-  _empty: String
+  _empty: String @shareable
 }
 
 input ChatInput {
@@ -48,4 +48,9 @@ enum ArtifactType {
   LISTING
   LISTING_SEARCH_RESULT
   AVAILABILITY_CHECK
+  BOOKING_CREATED
+  BOOKING_CANCELLED
+  BOOKING_CONFIRMED
+  BOOKING_COMPLETED
+  BOOKING_GET
 }

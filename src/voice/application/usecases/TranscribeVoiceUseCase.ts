@@ -1,17 +1,19 @@
-// src/wisdom/voice/application/usecases/TranscribeVoiceUseCase.ts
 import { inject, injectable } from "tsyringe";
-
+import { IVoiceRepository } from "../../infra/IVoice.repository";
 import { WISDOM_VOICE_TOKENS } from "../../container/tokens/wisdom.tokens";
-import { IVoiceRecognizer } from "../../contracts/IVoice.recognizer";
 
 @injectable()
 export class TranscribeVoiceUseCase {
   constructor(
-    @inject(WISDOM_VOICE_TOKENS.recognizer)
-    private readonly recognizer: IVoiceRecognizer,
+    @inject(WISDOM_VOICE_TOKENS.repository)
+    private readonly repository: IVoiceRepository
   ) {}
-  
-  async execute(audio: Buffer): Promise<string> {
-    return await this.recognizer.recognize(audio);
+
+  async execute(audio: Buffer, language: string = "ja"): Promise<string> {
+    if (!audio || audio.length === 0) {
+      throw new Error("Audio buffer is empty");
+    }
+
+    return this.repository.speechToText(audio, language);
   }
 }

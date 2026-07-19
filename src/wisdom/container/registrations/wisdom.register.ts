@@ -73,6 +73,7 @@ import { NormalizeIntentStage } from "@/wisdom/orchestration/stage/normalizeInte
 import { KnowledgeStage } from "@/wisdom/orchestration/stage/knowledge.stage";
 import { SummaryStage } from "@/wisdom/orchestration/stage/summary.stage";
 import { ReferenceStage } from "@/wisdom/orchestration/stage/reference.stage";
+import { ArtifactMemoryStage } from "@/wisdom/orchestration/stage/artifactMemory.stage";
 import { CustomerExtractor } from "@/wisdom/semantic/extractors/customer.extractor";
 
 export function registerWisdom() {
@@ -120,6 +121,7 @@ export function registerWisdom() {
   container.register(WISDOM_TOKENS.normalizeIntentStage, { useClass: NormalizeIntentStage });
   container.register(WISDOM_TOKENS.knowledgeStage, { useClass: KnowledgeStage });
   container.register(WISDOM_TOKENS.summaryStage, { useClass: SummaryStage });
+  container.register(WISDOM_TOKENS.artifactMemoryStage, { useClass: ArtifactMemoryStage });
   //Resolver
 container.register(WISDOM_TOKENS.referenceResolver, { useClass: ReferenceResolver });
  

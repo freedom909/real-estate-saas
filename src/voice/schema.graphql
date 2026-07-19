@@ -9,14 +9,43 @@ schema
 
 scalar DateTime
 scalar JSON
+
 type Query {
-  _empty: String
+  _empty: String @shareable
+}
+
+input TextToSpeechInput {
+  text: String!
+  language: String
+  voice: String
+}
+
+input SpeechToTextInput {
+  audio: String!
+  language: String
+}
+
+input VoiceChatInput {
+  audio: String!
+  language: String
+  voice: String
+}
+
+type VoiceAudio {
+  success: Boolean!
+  audio: String
+  format: String
+}
+
+type VoiceChatResponse {
+  success: Boolean!
+  transcript: String
+  response: String
+  audio: String
 }
 
 type Mutation {
-
-    textToSpeech(
-        input: TextToSpeechInput!
-    ): VoiceAudio!
-
+  textToSpeech(input: TextToSpeechInput!): VoiceAudio!
+  speechToText(input: SpeechToTextInput!): VoiceAudio!
+  voiceChat(input: VoiceChatInput!): VoiceChatResponse!
 }

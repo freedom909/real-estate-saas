@@ -6,8 +6,6 @@ import { Title } from "../../domain/value-objects/Title";
 export class ListingMapper {
 
 static toDomain(raw: any): Listing {
- console.log("RAW LISTING++", raw)
-  
   return new Listing({
     rawTitle: raw.title,
 
