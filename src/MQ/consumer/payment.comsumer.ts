@@ -43,7 +43,7 @@ const ROUTING_KEYS = [
 let connection: amqp.Connection;
 let channel: amqp.Channel;
 
-const QUEUE = "payment_queue";
+const QUEUE = "booking_queue";
 
 export const initializeConsumer = async () => {
   try {
@@ -79,6 +79,7 @@ const eventType = rawEvent.type || rawEvent.eventName;
 
 switch (eventType) {
 
+case "BOOKING_CREATED":
 case "BookingCreated":
 
 await handleBookingCreated(rawEvent as BookingCreatedEvent);
@@ -229,13 +230,13 @@ export default {
   startConsuming,
 };
 
-async function handleBookingCreated(event: BookingCreatedEvent) {
-  console.log("✅ booking created");
+async function handleBookingCreated(event: any) {
+  console.log("✅ booking created", event);
   const UseCase = container.resolve<CreatePaymentUseCase>(TOKENS_PAYMENT.usecase.createPaymentUseCase);
   await UseCase.execute({
-    bookingId: event.payload.bookingId,// プロパティ 'payload' は型 'Event' に存在しません。
-    customerId: event.payload.customerId,
-    tenantId: event.payload.tenantId,
-    amount: event.payload.amount,
+    bookingId: event.bookingId,
+    customerId: event.customerId,
+    tenantId: event.tenantId,
+    amount: event.price,
   });
 }

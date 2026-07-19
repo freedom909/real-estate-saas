@@ -71,6 +71,15 @@ const startApolloServer = async () => {
     // ✅ MQ Initialize (inside startup to catch errors)
     PaymentRegister();
     registerEventBus();
+
+    // Start payment MQ consumer
+    try {
+      const paymentConsumer = await import("@/MQ/consumer/payment.comsumer");
+      await paymentConsumer.startConsuming();
+      console.log("✅ Payment MQ Consumer started");
+    } catch (error) {
+      console.error("⚠️ Payment MQ Consumer failed to start:", error);
+    }
    console.log(
   "🐰 ENV RabbitMQ:",
   process.env.RABBITMQ_URL
