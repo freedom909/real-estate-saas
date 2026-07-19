@@ -52,7 +52,7 @@ const startApolloServer = async () => {
     
  
     console.log("✅ Containers initialized");
-    await PaymentModel.sync();
+    await PaymentModel.sync({ alter: true });
     console.log("✅ Payment Model synchronized");
     
     console.log("✅ Database connected");
