@@ -1,6 +1,9 @@
 // src/wisdom-web/app/components/ListingCard.tsx
 
+import Link from "next/link";
+
 type ListingCardProps = {
+  id: string;
   title: string;
   address: string;
   price: number;
@@ -8,6 +11,7 @@ type ListingCardProps = {
 };
 
 export default function ListingCard({
+  id,
   title,
   address,
   price,
@@ -46,7 +50,8 @@ export default function ListingCard({
             ¥{price}
           </span>
 
-          <button
+          <Link
+            href={`/listing/${id}`}
             className="
               rounded-xl
               bg-blue-600
@@ -59,7 +64,7 @@ export default function ListingCard({
             "
           >
             View
-          </button>
+          </Link>
         </div>
       </div>
     </div>

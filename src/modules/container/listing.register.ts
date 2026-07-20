@@ -20,6 +20,7 @@ import ListingAmenities from '@/core/listing/infrastructure/models/listingAmenit
 import ListingCategories from '@/core/listing/infrastructure/models/listingCategories.model';
 import { ListingAISuggestionRepository } from '@/core/listing/infrastructure/persistence/listing.ai.suggestion.repository';
 import GetListingByIdUseCase from '@/core/listing/application/usecase/getListingById.usecase.ts';
+import GetFeaturedListingsUseCase from '@/core/listing/application/usecase/getFeaturedListings.usecase';
 
 
 export default function registerListingDependencies() {
@@ -37,6 +38,10 @@ export default function registerListingDependencies() {
 
   container.register(TOKENS_LISTING.usecase.getListingByIdUseCase, {
     useClass: GetListingByIdUseCase,
+  });
+
+  container.register(TOKENS_LISTING.usecase.getFeaturedListingsUseCase, {
+    useClass: GetFeaturedListingsUseCase,
   });
 
   container.register(TOKENS_LISTING.usecase.searchListingUseCase, {

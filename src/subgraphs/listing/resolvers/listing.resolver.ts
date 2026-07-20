@@ -6,6 +6,7 @@ import { IListingRepository } from "@/core/listing/domain/entities/IListingRepos
 
 import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
 import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase.ts";
+import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
 
 export const resolvers = {
   Query: {
@@ -32,6 +33,18 @@ export const resolvers = {
         );
 
       return useCase.execute(id);
+    },
+
+    featuredListings: async (
+      _: any,
+      { limit }: { limit?: number }
+    ) => {
+      const useCase =
+        container.resolve<GetFeaturedListingsUseCase>(
+          TOKENS_LISTING.usecase.getFeaturedListingsUseCase
+        );
+
+      return useCase.execute(limit);
     },
 
 

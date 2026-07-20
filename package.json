@@ -23,8 +23,9 @@
     "dev:voice": "tsx watch src/voice/index.ts",
     "dev:cart": "tsx watch src/subgraphs/cart/index.ts",
     "dev:account": "tsx watch src/subgraphs/account/index.ts",
+   
     "dev:service0": "npm-run-all --parallel dev:audit dev:user dev:tenant dev:location dev:amenity dev:listing",
-    "dev:service1": "npm-run-all --parallel dev:auth dev:account dev:booking dev:payment dev:review dev:ai",
+    "dev:service1": "npm-run-all --parallel dev:auth dev:account dev:booking dev:payment dev:review dev:ai dev:voice",
     "dev:all": "npm-run-all --parallel dev:services dev:gateway"
   },
   "keywords": [],

@@ -34,8 +34,7 @@ export class CreatePaymentUseCase {
       throw new Error("Booking not found");
     }
 
-    const existing =
-      await this.paymentRepository.findByBookingId(input.bookingId);
+    const existing = await this.paymentRepository.findByBookingId(input.bookingId);
 
     if (existing) {
       throw new Error(

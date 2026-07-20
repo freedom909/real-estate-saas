@@ -1,108 +1,21 @@
 extend schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.8"
-    import: ["@key", "@shareable", "@external", "@requires", "@provides", "@override", "@inaccessible"]
+    import: ["@key", "@shareable", "@external"]
   )
 
 scalar DateTime
 
-enum Role {
-  ADMIN
-  CUSTOMER
-  HOST
-  USER
-  PENDING_HOST
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CHECKED_IN
-  FAILED
-  CANCELLED
-  COMPLETED
-}
-
-extend type User @key(fields: "id") {
-  id: ID! @external
-  email: String! @shareable
-  name: String! @shareable
-  role: Role! @shareable
-  bookings: [Booking!]! @shareable
-}
-
-extend type Tenant @key(fields: "id") {
-  id: ID! @external
-}
-
-extend type Booking @key(fields: "id") {
-  id: ID! @external
-  bookingNumber: String! @shareable
-  isFeatured: Boolean! @shareable
-  reservedDate: DateTime! @shareable
-  listing: Listing! @shareable
-  customer: User! @shareable
-  review: Review @shareable
-  checkInDate: DateTime! @shareable
-  checkOutDate: DateTime! @shareable
-  price: Float! @shareable
-  status: BookingStatus! @shareable
-  cancelledAt: DateTime @shareable
-  confirmedAt: DateTime @shareable
-}
-
-extend type Listing @key(fields: "id") {
-  id: ID! @external
-  bookings: [Booking!]! @shareable
-  title: String! @shareable
-  description: String! @shareable
-  ownerId: ID! @shareable
-  price: Float! @shareable
-  bookingsCount: Int! @shareable
-  reviewsCount: Int! @shareable
-  checkInDate: String! @shareable
-  checkOutDate: String! @shareable
-  numOfCustomers: Int! @shareable
-  numOfBeds: Int! @shareable
-  averageRating: Float! @shareable
-  saleAmount: Float! @shareable
-}
-
-extend type Review @key(fields: "id") {
-  id: ID! @external
-}
-
-interface MutationResponse {
-  code: Int!
-  success: Boolean!
-  message: String!
-}
-
-type CreateBookingResponse implements MutationResponse {
-  code: Int! @shareable
-  success: Boolean! @shareable
-  message: String! @shareable
-  booking: Booking @shareable
-}
-
-input CreateBookingInput {
-  listingId: ID!
-  bookingNumber: String
-  isFeatured: Boolean
-  reservedDate: DateTime
-  checkInDate: DateTime!
-  checkOutDate: DateTime!
+# -----------------------------------
+# Cart Entity
+# -----------------------------------
+type Cart @key(fields: "id") {
+  id: ID!
   customerId: ID!
-}
-
-type Query {
-  bookings: [Booking!]! @shareable
-  getBookingsByUser(userId: ID!): [Booking] @shareable
-  getBookingById(id: ID!): Booking @shareable
-}
-
-type Mutation {
-  createBooking(input: CreateBookingInput!): CreateBookingResponse! @shareable
+  checkInDate: DateTime
+  checkOutDate: DateTime
+  price: Float!
+  cartItems: [CartItem!]!
 }
 
 type CartItem {
@@ -115,13 +28,24 @@ type CartItem {
   checkOutDate: DateTime
 }
 
-type Cart {
-  id: ID!
-  customerId: ID!
-  checkInDate: DateTime
-  checkOutDate: DateTime
-  price: Float!
-  cartItems: [CartItem!]!
+# -----------------------------------
+# Federation References
+# -----------------------------------
+extend type User @key(fields: "id") {
+  id: ID! @external
+}
+
+extend type Listing @key(fields: "id") {
+  id: ID! @external
+}
+
+# -----------------------------------
+# Response Types
+# -----------------------------------
+interface MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
 }
 
 type CartResponse implements MutationResponse {
@@ -131,6 +55,9 @@ type CartResponse implements MutationResponse {
   cart: Cart
 }
 
+# -----------------------------------
+# Inputs
+# -----------------------------------
 input AddToCartInput {
   cartId: ID!
   customerId: ID!
@@ -153,13 +80,19 @@ input RemoveFromCartInput {
   itemId: ID!
 }
 
-extend type Query {
-  getCart(cartId: ID!): Cart @shareable
-  getCartsByCustomer(customerId: ID!): [Cart!]! @shareable
+# -----------------------------------
+# Queries
+# -----------------------------------
+type Query {
+  getCart(cartId: ID!): Cart
+  getCartsByCustomer(customerId: ID!): [Cart!]!
 }
 
-extend type Mutation {
-  addToCart(input: AddToCartInput!): CartResponse! @shareable
-  updateCartItem(input: UpdateCartItemInput!): CartResponse! @shareable
-  removeFromCart(input: RemoveFromCartInput!): CartResponse! @shareable
+# -----------------------------------
+# Mutations
+# -----------------------------------
+type Mutation {
+  addToCart(input: AddToCartInput!): CartResponse!
+  updateCartItem(input: UpdateCartItemInput!): CartResponse!
+  removeFromCart(input: RemoveFromCartInput!): CartResponse!
 }

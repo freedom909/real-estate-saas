@@ -18,6 +18,7 @@ export interface IListingRepository {
   findAll(): Promise<Listing[]>;
   findById(id: string): Promise<Listing | null>;
   findByOwnerId(ownerId: string): Promise<Listing[]>;
+  findFeatured(limit?: number): Promise<Listing[]>;
   search(query: SearchListingsQuery): Promise<Listing[]>;
   update(id: string, listing: Listing): Promise<boolean>;
   delete(id: string): Promise<boolean>;

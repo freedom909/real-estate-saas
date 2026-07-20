@@ -93,7 +93,7 @@ id: ID!
 
 tenant: Tenant!
 
-listing: Listing! @shareable
+listing: Listing @shareable
 
 customer: User! @shareable
 

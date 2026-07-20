@@ -79,6 +79,34 @@ export class ListingRepository implements IListingRepository {
     return records.map(record => ListingMapper.toDomain(record));
   }
 
+  async findFeatured(limit: number = 6): Promise<Listing[]> {
+    const records = await this.model.findAll({
+      where: { isFeatured: true },
+      limit,
+      order: [["createdAt", "DESC"]],
+    });
+
+    const listingIds = records.map((r: any) => r.id);
+    const categoryRows = listingIds.length > 0
+      ? await this.listingCategoryModel.findAll({ where: { listingId: listingIds } })
+      : [];
+    const categoryMap = new Map<string, string[]>();
+    for (const row of categoryRows as any[]) {
+      const list = categoryMap.get(row.listingId) || [];
+      list.push(row.categoryId);
+      categoryMap.set(row.listingId, list);
+    }
+
+    return records.map(record => {
+      const json = record.toJSON();
+      return ListingMapper.toDomain({
+        ...json,
+        categories: categoryMap.get(json.id) ?? [],
+        amenityIds: json.amenityIds ?? [],
+      });
+    });
+  }
+
   async search(query: SearchListingsQuery): Promise<Listing[]> {
     const where: any = {};
 

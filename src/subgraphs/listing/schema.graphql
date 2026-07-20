@@ -32,7 +32,7 @@ type Listing @key(fields: "id") {
   numOfRooms: Int!
 
   price: Float! @shareable
-
+  pricePerNight: Float! 
   picture: [String!]
 
   isFeatured: Boolean!
@@ -89,7 +89,7 @@ input CreateListingInput {
   numOfRooms: Int
 
   price: Float
-
+  pricePerNight: Float! 
   picture: [String!]
 
   isFeatured: Boolean
@@ -115,6 +115,7 @@ type Query {
   listing(id: ID!): Listing
   listingAISuggestions(listingId: ID!): [ListingAISuggestion!]!
   listings: [Listing!]!
+  featuredListings(limit: Int): [Listing!]!
   listingsByOwner(ownerId: ID!): [Listing!]!
 }
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Hero from "./components/Hero";
 import SearchBar from "./components/SearchBar";
 import ChatWindow from "./components/ChatWindow";
-import ListingCard from "./components/ListingCard";
+import FeaturedListings from "./components/FeaturedListings";
 import CategorySection from "./components/CategorySection";
 import AIBanner from "./components/AIBanner";
 import Footer from "./components/Footer";
@@ -24,7 +24,7 @@ export default function Home() {
       <Navbar />
       <Hero onSearchResults={setSearchResult} />
       <ChatWindow result={searchResult} />
-      <ListingCard title={""} address={""} price={0} />
+      <FeaturedListings />
       <CategorySection />
       <AIBanner />
       <Footer />

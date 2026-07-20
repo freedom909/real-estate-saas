@@ -167,13 +167,13 @@ export default function BookingDetailPage() {
                 <p className="text-sm text-gray-500">Price per night</p>
                 <p className="text-2xl font-bold">
                   {(() => {
-                    const nights = booking?.checkInDate && booking?.checkOutDate
-                      ? Math.ceil((new Date(booking.checkOutDate).getTime() - new Date(booking.checkInDate).getTime()) / (1000 * 60 * 60 * 24))
-                      : null;
+                    const nights = 
+                       Math.ceil((new Date(booking.checkOutDate).getTime() - new Date(booking.checkInDate).getTime()) / (1000 * 60 * 60 * 24))
+                     const pricePerNight =booking.price / nights;
                     if (nights && nights > 0 && booking?.price != null) {
-                      return `¥${(booking.price / nights).toLocaleString()}`;
+                      return `¥${pricePerNight.toLocaleString()}`;
                     }
-                    return booking?.listing?.price != null
+                    return booking?.listing?.price != null 
                       ? `¥${booking.listing.price.toLocaleString()}`
                       : "-";
                   })()}
