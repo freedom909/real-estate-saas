@@ -5,7 +5,7 @@ import { RiskDecision } from "../types";
 console.log("ENV:", process.env.NODE_ENV)
 export class DecisionEngine {
   decide(score: number, ctx?: RiskContext): RiskDecision {
-    if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "dev" || !process.env.NODE_ENV) {
+    if ((process.env.NODE_ENV as string) === "development" || (process.env.NODE_ENV as string) === "dev" || !process.env.NODE_ENV) {
       return "ALLOW";
     }
 

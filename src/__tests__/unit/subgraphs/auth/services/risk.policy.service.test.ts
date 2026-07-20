@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
-import RiskPolicyService from "../../../../../subgraphs/auth/services/risk/risk.policy.service";
+import RiskPolicyService from "@/security/risk.policy.service";
 
 describe("RiskPolicyService", () => {
   let service: RiskPolicyService;
