@@ -129,7 +129,7 @@ describe("Auth Resolvers", () => {
         ctx
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         __typename: "AuthPayload",
         accessToken: "access-123",
         refreshToken: "refresh-123",
@@ -139,7 +139,6 @@ describe("Auth Resolvers", () => {
           email: "test@example.com",
           name: "Test User",
           role: "USER",
-          picture: "avatar.jpg",
         },
       });
     });

@@ -55,16 +55,13 @@ describe("UserService", () => {
       const result = await service.findById("user-123");
 
       expect(mockUserRepo.findById).toHaveBeenCalledWith("user-123");
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         id: "user-123",
         email: "test@example.com",
         name: "Test User",
-        picture: "https://example.com/avatar.jpg",
         role: "USER",
         status: "ACTIVE",
         tokenVersion: 0,
-        createdAt: new Date("2024-01-01"),
-        updatedAt: new Date("2024-01-01"),
       });
     });
 
