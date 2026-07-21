@@ -12,7 +12,7 @@
     "dev:tenant": "tsx watch src/subgraphs/tenant/index.ts",
     "dev:gateway": "tsx watch src/gateway/index.ts",
     "dev:amenity": "tsx watch src/subgraphs/amenity/index.ts",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.ts",
+    "test": "jest",
     "test:audit": "node --experimental-vm-modules node_modules/jest/bin/jest.ts",
     "dev:listing": "tsx watch src/subgraphs/listing/index.ts",
     "dev:location": "tsx watch src/subgraphs/location/index.ts",
@@ -23,9 +23,9 @@
     "dev:voice": "tsx watch src/voice/index.ts",
     "dev:cart": "tsx watch src/subgraphs/cart/index.ts",
     "dev:account": "tsx watch src/subgraphs/account/index.ts",
-   
+    "dev:frontend": "tsx watch frontend/app/page.tsx",
     "dev:service0": "npm-run-all --parallel dev:audit dev:user dev:tenant dev:location dev:amenity dev:listing",
-    "dev:service1": "npm-run-all --parallel dev:auth dev:account dev:booking dev:payment dev:review dev:ai dev:voice",
+    "dev:service1": "npm-run-all --parallel dev:auth dev:account dev:booking dev:payment dev:review dev:ai dev:voice dev:cart",
     "dev:all": "npm-run-all --parallel dev:services dev:gateway"
   },
   "keywords": [],
