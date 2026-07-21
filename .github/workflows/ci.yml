@@ -28,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        run: npx jest --testPathPatterns="src/__tests__/unit" --ci --coverage
+        run: node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns="src/__tests__/unit" --ci --coverage
 
       - name: Upload coverage reports
         if: matrix.node-version == 20
