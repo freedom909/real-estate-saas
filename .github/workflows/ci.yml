@@ -25,7 +25,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Run unit tests
         run: npx jest --config jest.config.cjs --testPathPatterns="src/__tests__/unit" --ci --coverage --forceExit
