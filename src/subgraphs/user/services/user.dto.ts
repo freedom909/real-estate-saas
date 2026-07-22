@@ -11,7 +11,7 @@ export interface UserResponse {
 
  name:string;
 
- avatar:string;
+ picture:string;
 
  role:Role;
 

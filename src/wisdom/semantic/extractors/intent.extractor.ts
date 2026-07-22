@@ -85,7 +85,10 @@ export class IntentExtractor {
     if (lower.includes("search") || lower.includes("find") || lower.includes("show") ||
         lower.includes("look") || lower.includes("list") ||
         lower.includes("探") || lower.includes("検索") || lower.includes("探し") ||
-        lower.includes("表示") || lower.includes("一覧") || lower.includes("見つけて")) {
+        lower.includes("表示") || lower.includes("一覧") || lower.includes("見つけて") ||
+        lower.includes("ご紹介") || lower.includes("お勧め") || lower.includes("おすすめ") ||
+        lower.includes("教えて") || lower.includes("見せて") || lower.includes("泊まりたい") ||
+        lower.includes("泊まり") || lower.includes("滞在")) {
       return { action: AgentAction.SEARCH_LISTING, confidence: 0.80, domain: AIDomain.LISTING };
     }
 

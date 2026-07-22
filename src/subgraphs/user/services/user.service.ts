@@ -38,7 +38,7 @@ class UserService {
       id: user._id.toString(),
       email: user.email,
       name: user.name,
-      avatar: user.avatar,
+      picture: user.picture,
       role: user.role,
       status: user.status,
       tokenVersion: user.tokenVersion,
@@ -51,11 +51,54 @@ class UserService {
     console.log("email++",email)
      const user = await this.userRepository.userByEmail(email);
      if(!user) return null
-     
+
     console.log(JSON.stringify(user, null, 2))
     return {
       id: user._id.toString(),
       ...user
+    };
+  }
+
+  async findAll(limit: number = 50, offset: number = 0): Promise<any[]> {
+    const users = await this.userRepository.findAll(limit, offset);
+    return users.map((u: any) => ({
+      id: u._id.toString(),
+      email: u.email,
+      name: u.name,
+      picture: u.picture,
+      role: u.role,
+      status: u.status,
+      createdAt: u.createdAt,
+      updatedAt: u.updatedAt,
+    }));
+  }
+
+  async count(): Promise<number> {
+    return this.userRepository.count();
+  }
+
+  async create(input: { email: string; name: string; role?: string; password: string }): Promise<any> {
+    const existing = await this.userRepository.userByEmail(input.email);
+    if (existing) {
+      throw new Error("User with this email already exists");
+    }
+
+    const user = await this.userRepository.create({
+      email: input.email,
+      name: input.name,
+      role: input.role || "CUSTOMER",
+      status: "ACTIVE",
+      picture: "",
+      tokenVersion: 0,
+    });
+
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      status: user.status,
+      createdAt: user.createdAt,
     };
   }
 }

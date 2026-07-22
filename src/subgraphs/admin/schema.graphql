@@ -1,0 +1,227 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@external", "@shareable"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+
+# =====================
+# Admin User
+# =====================
+type AdminUser {
+  id: ID!
+  email: String!
+  name: String!
+  role: AdminRole!
+  avatar: String
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+  MODERATOR
+}
+
+# =====================
+# Audit Log (admin-specific)
+# =====================
+type AdminAuditLog {
+  id: ID!
+  adminId: ID!
+  action: String!
+  target: String!
+  targetId: String
+  details: String
+  ip: String
+  createdAt: DateTime!
+}
+
+# =====================
+# Dashboard Stats
+# =====================
+type AdminDashboard {
+  totalUsers: Int!
+  totalListings: Int!
+  totalBookings: Int!
+  recentAuditLogs: [AdminAuditLog!]!
+}
+
+type DashboardStats {
+  totalUsers: Int!
+  totalListings: Int!
+  totalBookings: Int!
+  activeAdmins: Int!
+  recentActivity: [AdminAuditLog!]!
+  userGrowth: [GrowthDataPoint!]!
+  activityByAction: [ActionCount!]!
+  systemHealth: SystemHealth!
+}
+
+type GrowthDataPoint {
+  date: String!
+  count: Int!
+}
+
+type ActionCount {
+  action: String!
+  count: Int!
+}
+
+type SystemHealth {
+  status: String!
+  uptime: String!
+  databaseStatus: String!
+  lastChecked: DateTime!
+}
+
+# =====================
+# System Settings
+# =====================
+type SystemSetting {
+  id: ID!
+  key: String!
+  value: String!
+  category: String!
+  description: String
+  updatedBy: String
+  updatedAt: DateTime!
+  createdAt: DateTime!
+}
+
+# =====================
+# Permissions
+# =====================
+type AdminPermissions {
+  role: AdminRole!
+  permissions: [String!]!
+}
+
+# =====================
+# Notifications
+# =====================
+type Notification {
+  id: ID!
+  adminId: ID!
+  type: NotificationType!
+  title: String!
+  message: String!
+  target: String
+  targetId: String
+  isRead: Boolean!
+  createdAt: DateTime!
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
+
+type NotificationPayload {
+  notifications: [Notification!]!
+  unreadCount: Int!
+}
+
+input CreateNotificationInput {
+  adminId: ID!
+  type: NotificationType!
+  title: String!
+  message: String!
+  target: String
+  targetId: String
+}
+
+# =====================
+# Inputs
+# =====================
+input CreateAdminUserInput {
+  id: ID
+  email: String!
+  name: String!
+  role: AdminRole
+  avatar: String
+}
+
+input UpdateAdminUserInput {
+  name: String
+  role: AdminRole
+  avatar: String
+  isActive: Boolean
+}
+
+input CreateAuditLogInput {
+  adminId: ID!
+  action: String!
+  target: String!
+  targetId: String
+  details: String
+  ip: String
+}
+
+input UpdateProfileInput {
+  name: String
+  avatar: String
+}
+
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword: String!
+}
+
+input AuditLogFilter {
+  adminId: ID
+  action: String
+  target: String
+  startDate: DateTime
+  endDate: DateTime
+}
+
+input UpdateSystemSettingInput {
+  key: String!
+  value: String!
+  category: String
+  description: String
+}
+
+# =====================
+# Query
+# =====================
+type Query {
+  adminUsers: [AdminUser!]!
+  adminUser(id: ID!): AdminUser
+  adminAuditLogs(limit: Int, filter: AuditLogFilter): [AdminAuditLog!]!
+  adminAuditLogCount(filter: AuditLogFilter): Int!
+  adminDashboard: AdminDashboard!
+  dashboardStats: DashboardStats!
+  systemSettings(category: String): [SystemSetting!]!
+  myPermissions: AdminPermissions!
+  notifications(limit: Int): NotificationPayload!
+  unreadNotificationCount: Int!
+}
+
+# =====================
+# Mutation
+# =====================
+type Mutation {
+  createAdminUser(input: CreateAdminUserInput!): AdminUser!
+  updateAdminUser(id: ID!, input: UpdateAdminUserInput!): AdminUser!
+  deleteAdminUser(id: ID!): Boolean!
+  createAdminAuditLog(input: CreateAuditLogInput!): AdminAuditLog!
+  updateProfile(input: UpdateProfileInput!): AdminUser!
+  changePassword(input: ChangePasswordInput!): Boolean!
+  updateSystemSetting(input: UpdateSystemSettingInput!): SystemSetting!
+  deleteSystemSetting(key: String!): Boolean!
+  createNotification(input: CreateNotificationInput!): Notification!
+  markNotificationRead(id: ID!): Boolean!
+  markAllNotificationsRead: Boolean!
+  deleteNotification(id: ID!): Boolean!
+}

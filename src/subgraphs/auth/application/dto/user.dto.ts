@@ -3,6 +3,9 @@
 export interface UserDTO {
   id: string;
   email?: string | null;
+  name?: string | null;
+  picture?: string | null;
+  role?: string | null;
 
   // 风控相关
   riskLevel?: "LOW" | "MEDIUM" | "HIGH";

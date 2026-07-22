@@ -44,6 +44,7 @@ export const TOKENS_AUTH = {
     oauthService: Symbol.for("auth.services.oauthService"),
     sessionService: Symbol.for("auth.services.sessionService"),
     otpService: Symbol.for("auth.services.otpService"),
+    tokenBindingService: Symbol.for("auth.services.tokenBindingService"),
 
     // loginRiskService: Symbol.for("auth.services.loginRiskService"),
     mergeAccountService: Symbol.for("auth.services.mergeAccountService"),

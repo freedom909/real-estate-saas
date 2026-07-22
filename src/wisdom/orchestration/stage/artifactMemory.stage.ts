@@ -12,7 +12,7 @@ import { cacheBookingState } from "../../memory/booking-cache";
 export class ArtifactMemoryStage implements IPipelineStage {
   constructor(
     @inject(WISDOM_TOKENS.memory.bookingStateUpdater)
-    private bookingStateUpdater: BookingStateUpdater
+    private bookingStateUpdater: BookingStateUpdater,
   ) {}
 
   async execute(ctx: WisdomPipelineContext) {

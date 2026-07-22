@@ -43,24 +43,29 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
   // 1️⃣ provider verify
   const provider = this.registry.get(cmd.provider.toLowerCase());
   const profile = await provider.verify(cmd.idToken);
+  console.log("[login] Provider profile:", JSON.stringify({ provider: profile.provider, providerId: profile.providerId, email: profile.email }));
 
   // 2️⃣ 查 identity（核心！！！）
   let identity = await this.identityRepo.findByProvider(
     profile.provider,
     profile.providerId
   );
+  console.log("[login] Identity found:", !!identity);
 
   let user;
 
   // 3️⃣ 已存在 → 登录
   if (identity) {
-
-    user = await this.userGateway.findById(identity.userId);// it should not have the uerRepo, how to instead of it?
+    console.log("[login] Finding user by ID:", identity.userId);
+    user = await this.userGateway.findById(identity.userId);
+    console.log("[login] User by ID:", !!user);
   } else {
 
     // 4️⃣ 尝试 email merge（高级策略）
     if (profile.email) {
+      console.log("[login] Finding user by email:", profile.email);
       const existingUser = await this.userGateway.findByEmail(profile.email);
+      console.log("[login] User by email:", !!existingUser);
 
       if (existingUser) {
         user = existingUser;
@@ -69,16 +74,26 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
 
     // 5️⃣ 不存在 → 创建用户
     if (!user) {
-      user = await this.userGateway.createFromOAuth(profile);
+      console.log("[login] Creating user from OAuth...");
+      try {
+        user = await this.userGateway.createFromOAuth(profile);
+        console.log("[login] Created user:", !!user, user?.id);
+      } catch (createErr: any) {
+        console.error("[login] Create user failed:", createErr.message);
+        throw createErr;
+      }
     }
 
     // 6️⃣ 创建 identity（关键）
-    await this.identityRepo.create({
-      userId: user.id,
-      provider: profile.provider,
-      providerId: profile.providerId,
-      email: profile.email ?? null
-    });
+    if (user) {
+      console.log("[login] Creating identity for user:", user.id);
+      await this.identityRepo.create({
+        userId: user.id,
+        provider: profile.provider,
+        providerId: profile.providerId,
+        email: profile.email ?? null
+      });
+    }
   }
 
   if (!user) {

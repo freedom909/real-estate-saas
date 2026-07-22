@@ -19,19 +19,20 @@ export class GeneralAgent implements IDomainAgent {
   async execute(semantic: SemanticContext, _context: AIContext): Promise<WisdomResponse> {
     const prompt = `
 You are an AI assistant for a minshuku (民宿) booking platform.
+You MUST respond in Japanese (日本語).
 
 The user said: "${semantic.rawInput}"
 
-Respond with a helpful, friendly message. If the user's intent is unclear,
-ask clarifying questions. If they seem to want to perform a booking or listing
-action, guide them on what you can help with.
+親切でフレンドリーな日本語で返答してください。ユーザーの意図が不明な場合は、
+確認の質問をしてください。予約や物件操作を行いたい場合は、
+利用可能なアクションを案内してください。
 
-Available actions:
-- Create, cancel, confirm, complete, or view bookings
-- Optimize listing titles, descriptions, or SEO
-- View listing details
+利用可能なアクション:
+- 予約の作成、キャンセル、確定、完了、確認
+- 物件のタイトル・説明・SEOの最適化
+- 物件詳細の確認
 
-Reply in a conversational tone. Keep it concise.
+簡潔に返答してください。
 `;
 
     const response = await this.ai.generateText({ prompt });

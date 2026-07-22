@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({
 
-path: path.resolve(__dirname, "../../.env"),
+  path: path.resolve(__dirname, "../../.env"),
 
 });
 
@@ -24,9 +24,9 @@ path: path.resolve(__dirname, "../../.env"),
 
 if (!process.env.ACCESS_TOKEN_SECRET) {
 
-console.error("❌ ACCESS_TOKEN_SECRET is missing");
+  console.error("❌ ACCESS_TOKEN_SECRET is missing");
 
-process.exit(1);
+  process.exit(1);
 
 }
 
@@ -42,6 +42,7 @@ async function start() {
   console.log("start gateway")
   const gateway = new ApolloGateway({
     supergraphSdl: new IntrospectAndCompose({
+      pollIntervalInMs: 10000,
       subgraphs: [
         { name: "auth", url: "http://localhost:4010/graphql" },
         { name: "user", url: "http://localhost:4020/graphql" },
@@ -52,12 +53,13 @@ async function start() {
         { name: "audit", url: "http://localhost:4070/graphql" },
         { name: "location", url: "http://localhost:4080/graphql" },
         { name: "amenity", url: "http://localhost:4090/graphql" },
+       
         { name: "listing", url: "http://localhost:4101/graphql" },
         { name: "account", url: "http://localhost:4102/graphql" },
         { name: "cart", url: "http://localhost:4103/graphql" },
+        { name: "admin", url: "http://localhost:4104/graphql" },
         { name: "wisdom", url: "http://localhost:4200/graphql" },
         { name: "voice", url: "http://localhost:4300/graphql" },
-
       ]
     }),
     buildService({ url }) {
@@ -67,17 +69,17 @@ async function start() {
         url,
 
         willSendRequest({ request, context }) {
-        const auth = context?.authorization;
+          const auth = context?.authorization;
 
-console.log("GATEWAY AUTH =>", auth);
+          console.log("GATEWAY AUTH =>", auth);
 
-if (auth) {
+          if (auth) {
 
-request.http.headers.set(
+            request.http.headers.set(
 
-"authorization",
+              "authorization",
 
-auth
+              auth
 
             );
 
@@ -106,21 +108,21 @@ auth
     express.json(),
     async (req, res, next) => {
 
-console.log("SUBGRAPH AUTH =>", req.headers.authorization);
+      console.log("SUBGRAPH AUTH =>", req.headers.authorization);
 
-(req as any).user = await getUserFromContext(req);
+      (req as any).user = await getUserFromContext(req);
 
-console.log("SUBGRAPH USER =>", (req as any).user);
+      console.log("SUBGRAPH USER =>", (req as any).user);
 
-next();
+      next();
 
-},
+    },
     expressMiddleware(server, {
-context: async ({ req }) => ({
+      context: async ({ req }) => ({
 
-authorization: req.headers.authorization,
+        authorization: req.headers.authorization,
 
-}),
+      }),
     }))
 
   app.listen(4000, () => {

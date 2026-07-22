@@ -8,5 +8,6 @@ export class AuthUserResponseDTO {
     public readonly email?: string,
     public readonly name?: string,
     public readonly role?: string,
+    public readonly picture?: string,
   ) {}
 }

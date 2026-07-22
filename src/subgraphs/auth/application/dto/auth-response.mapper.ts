@@ -11,7 +11,8 @@ export class AuthResponseMapper {
       user.id?.toString?.()|| user._id?.toString?.(),
       user.email,
       user.name,
-      user.role
+      user.role,
+      user.picture,
     );
   }
 }

@@ -33,6 +33,7 @@ async function getUserFromContext(req: any) {
       userId: decoded.sub,
       sessionId: decoded.sessionId,
       type: decoded.type,
+      email: decoded.email,
     };
   } catch (err: any) {
     // Provide actionable diagnostic info

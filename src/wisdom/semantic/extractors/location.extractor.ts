@@ -48,13 +48,34 @@ export class LocationExtractor implements ISemanticEntityExtractor {
     }
 
     // Pattern J4: "Locationに" (e.g. "京都に行きたい", "東京に泊まりたい")
-    const jpNiMatch = message.match(/([\u3000-\u9fff\w]{2,10})に(?:行|来|泊|訪|滞|遊)/);
+    const jpNiMatch = message.match(/([\u3000-\u9fff]{2,10})に(?:行|来|泊|訪|滞|遊)/);
     if (jpNiMatch) {
-      entities.push({
-        type: EntityType.LOCATION,
-        value: jpNiMatch[1].trim(),
-        confidence: 0.85,
-      });
+      // Strip leading time words that got captured along with the location
+      // e.g. "明日東京" → strip "明日" → "東京"
+      let value = jpNiMatch[1].trim();
+      value = value.replace(/^(明日|今日|明後日|来週|今週|来月|今月|来年|今年)/, "");
+      if (value.length >= 2) {
+        entities.push({
+          type: EntityType.LOCATION,
+          value,
+          confidence: 0.85,
+        });
+      }
+    }
+
+    // Pattern J4b: "Locationの部屋" (e.g. "渋谷の部屋", "京都の部屋を")
+    const jpNoHeyaMatch = message.match(/([^\s、。,]{2,10}?)の部屋/);
+    if (jpNoHeyaMatch) {
+      let value = jpNoHeyaMatch[1].trim();
+      value = value.replace(/^(明日|今日|明後日|来週|今週|来月|今月|来年|今年)/, "");
+      value = value.replace(/^[、。,\s]+/, "");
+      if (value.length >= 2) {
+        entities.push({
+          type: EntityType.LOCATION,
+          value,
+          confidence: 0.80,
+        });
+      }
     }
 
     // Pattern J5: "ロケーション: Location" or "場所: Location"
