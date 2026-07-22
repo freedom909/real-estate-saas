@@ -29,6 +29,7 @@ import { registerVoice } from "./container/voice.container"
 
 import { registerEventBus } from "@/modules/container/event.bus.register"
 import voiceRoutes from "./presentation/routes/voice.routes"
+import { setupVoiceWebSocket } from "./presentation/websocket/voice.websocket"
 
 // ⭐ 注册 DI
 registerAuditDependencies(container)
@@ -75,6 +76,9 @@ await server.start()
 
 const app = express()
 const httpServer = http.createServer(app)
+
+// ⭐ WebSocket for real-time voice chat
+setupVoiceWebSocket(httpServer)
 
 // ⭐ REST routes for voice
 app.use("/api", voiceRoutes)
@@ -124,4 +128,5 @@ app.use(
 httpServer.listen(4300, () => {
   console.log("🎙️ Voice subgraph running at http://localhost:4300/graphql")
   console.log("🎙️ Voice REST API running at http://localhost:4300/api/voice")
+  console.log("🎙️ Voice WebSocket running at ws://localhost:4300/ws/voice")
 })

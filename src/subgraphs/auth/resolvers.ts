@@ -1,6 +1,7 @@
 
 
 import { container, DependencyContainer } from "tsyringe";
+import jwt from "jsonwebtoken";
 
 import { ForbiddenError } from "../../infrastructure/utils/errors";
 import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
@@ -154,38 +155,66 @@ export default {
           refreshToken: result.refreshToken,
 
           user: {
-            __typename: "User",
+            __typename: "AuthUser",
             id: result.user.id,
             email: result.user.email,
             name: result.user.name,
-            role: result.user.role,
+            picture: result.user.picture,
           },
         };
       }
     },
 
-    // refreshToken: async (
-    //   _: unknown,
-    //   { refreshToken }: { refreshToken: string },
-    //   ctx: Context
-    // ) => {
-    //   const service = ctx.container.resolve(
-    //     TOKENS_AUTH.services.refreshTokenService
-    //   );
+    // ── Refresh Token ──────────────────────────────────────────
+    refreshToken: async (
+      _: unknown,
+      { refreshToken }: { refreshToken: string },
+      ctx: Context
+    ) => {
+      const sessionService = ctx.container.resolve(
+        TOKENS_AUTH.ports.sessionPort
+      );
 
-    //   return (service as RefreshTokenService).refresh(refreshToken, ctx.userClient);
-    // },
+      try {
+        // 1️⃣ Verify the refresh token
+        const decoded = jwt.verify(
+          refreshToken,
+          process.env.ACCESS_TOKEN_SECRET!
+        ) as { sub: string; sessionId: string; type: string };
 
-    // logout: async (_: unknown, __: unknown, ctx: Context) => {
-    //   if (!ctx.user) throw new Error("Unauthorized");
+        if (decoded.type !== "refresh") {
+          throw new Error("Invalid token type");
+        }
 
-    //   const service = ctx.container.resolve(
-    //     TOKENS_AUTH.services.refreshTokenService
-    //   );
+        // 2️⃣ Create new token pair
+        const tokens = await sessionService.createSession({
+          userId: decoded.sub,
+        });
 
-    //   await service.revokeAll(ctx.user.userId);
-    //   return true;
-    // },
+        return {
+          __typename: "AuthTokens",
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        };
+      } catch (err) {
+        throw new Error("Invalid or expired refresh token");
+      }
+    },
+
+    // ── Logout ─────────────────────────────────────────────────
+    logout: async (_: unknown, __: unknown, ctx: Context) => {
+      if (!ctx.user) throw new Error("Unauthorized");
+
+      const sessionService = ctx.container.resolve(
+        TOKENS_AUTH.ports.sessionPort
+      );
+
+      // Revoke current session (if sessionId is in the token)
+      // In production, also revoke all user sessions
+      await sessionService.revokeSession(ctx.user.userId);
+
+      return true;
+    },
 
     // revokeSession: async (
     //   _: unknown,
@@ -323,10 +352,10 @@ export default {
   AuthPayload: {
     user: (parent: any) => {
       if (parent.user) {
-        return { __typename: "User", ...parent.user };
+        return { __typename: "AuthUser", ...parent.user };
       }
       return parent.userId ? {
-        __typename: "User",
+        __typename: "AuthUser",
         id: parent.userId,
       } : null;
     },

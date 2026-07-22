@@ -81,7 +81,7 @@ export class ListingAgent implements IDomainAgent {
         success: false,
         domain: semantic.domain as any,
         primaryAction: { name: action ?? "UNKNOWN", confidence: semantic.confidence ?? 0 },
-        summary: "Listing ID not found. Please specify which listing you want to work with.",
+        summary: "物件IDが見つかりません。どの物件を操作したいか教えてください。",
         artifacts: [],
       };
     }
@@ -94,7 +94,7 @@ export class ListingAgent implements IDomainAgent {
           success: true,
           domain: semantic.domain as any,
           primaryAction: { name: action, confidence: semantic.confidence ?? 0 },
-          summary: result?.summary ?? "Optimization complete.",
+          summary: result?.summary ?? "最適化が完了しました。",
           artifacts: result?.artifacts ?? [],
         };
       }
@@ -105,7 +105,7 @@ export class ListingAgent implements IDomainAgent {
           success: true,
           domain: semantic.domain as any,
           primaryAction: { name: action, confidence: semantic.confidence ?? 0 },
-          summary: `Found listing: ${listing.title}`,
+          summary: `物件が見つかりました: ${listing.title}`,
           artifacts: [{
             type: ArtifactType.LISTING_SELECTED,
             content: listing as unknown as Record<string, unknown>,
@@ -118,7 +118,7 @@ export class ListingAgent implements IDomainAgent {
           success: false,
           domain: semantic.domain as any,
           primaryAction: { name: action ?? "UNKNOWN", confidence: semantic.confidence ?? 0 },
-          summary: `Unsupported listing action: ${action}`,
+          summary: `対応していない物件操作です: ${action}`,
           artifacts: [],
         };
     }
@@ -156,7 +156,7 @@ export class ListingAgent implements IDomainAgent {
       success: true,
       domain: semantic.domain as any,
       primaryAction: { name: action, confidence: semantic.confidence ?? 0 },
-      summary: `Found ${searchResult.total} listings.`,
+      summary: `${searchResult.total}件の物件が見つかりました。`,
       artifacts: [{
         type: ArtifactType.LISTING_SEARCH_RESULT,
         content: searchResult as unknown as Record<string, unknown>,

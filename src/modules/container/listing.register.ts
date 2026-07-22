@@ -8,7 +8,7 @@ import { GenerateListingAIOptimizationUseCase } from '@/wisdom/agents/listing/ge
 import ListingModel from '@/core/listing/infrastructure/models/listing.model';
 import { ListingRepository } from '@/core/listing/infrastructure/persistence/listing.repository';
 import CreateListingUseCase from '@/core/listing/application/usecase/createListing.usecase';
-import GetListingUseCase from '@/core/listing/application/usecase/getListingUseCase';
+
 import { SearchListingUseCase } from '@/core/listing/application/usecase/searchListingUseCase';
 import { RunListingAgentUseCase } from '@/core/listing/application/usecase/runListingAgentUseCase';
 import AmenityAdapter from '@/core/listing/application/adapters/amenity.adapter';
@@ -19,7 +19,7 @@ import ListingLocations from '@/core/listing/infrastructure/models/listingLocati
 import ListingAmenities from '@/core/listing/infrastructure/models/listingAmenities.model';
 import ListingCategories from '@/core/listing/infrastructure/models/listingCategories.model';
 import { ListingAISuggestionRepository } from '@/core/listing/infrastructure/persistence/listing.ai.suggestion.repository';
-import GetListingByIdUseCase from '@/core/listing/application/usecase/getListingById.usecase.ts';
+import GetListingByIdUseCase from '@/core/listing/application/usecase/getListingById.usecase';
 import GetFeaturedListingsUseCase from '@/core/listing/application/usecase/getFeaturedListings.usecase';
 
 

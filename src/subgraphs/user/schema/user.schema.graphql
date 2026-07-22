@@ -42,6 +42,17 @@ type Query {
   user(id: ID!): User
 
  userByEmail(email: String!): User
+
+ # Admin queries
+ users(limit: Int, offset: Int): [User!]!
+ userCount: Int!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String!
+  role: Role
+  password: String!
 }
 
 type Mutation {
@@ -55,6 +66,8 @@ type Mutation {
    deactivateUser(
    userId: ID!
  ): Boolean!
+
+ createUser(input: CreateUserInput!): User!
 }
 
 enum AccountStatus {

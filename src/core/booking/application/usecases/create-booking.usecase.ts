@@ -4,6 +4,7 @@
 import { injectable, inject } from "tsyringe";
 
 import { v4 as uuidv4 } from "uuid";
+import * as amqp from "amqplib";
 
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 
@@ -22,13 +23,27 @@ import { IListingGateway } from "../../domain/gateways/i-listing.gateway";
 @injectable()
 export class CreateBookingUseCase {
   constructor(
-    @inject(TOKENS_BOOKING.repository.bookingRepository) 
-    private repo: IBookingRepository, 
-    @inject(TOKENS_EVENT_BUS.eventBus) 
+    @inject(TOKENS_BOOKING.repository.bookingRepository)
+    private repo: IBookingRepository,
+    @inject(TOKENS_EVENT_BUS.eventBus)
     private eventBus: InMemoryEventBus,
     @inject(TOKENS_BOOKING.gateway.listingGateway)
     private listingGateway: IListingGateway
   ) {}
+
+  private async publishToRabbitMQ(event: any) {
+    try {
+      const connection = await amqp.connect(process.env.RABBITMQ_URL!);
+      const channel = await connection.createChannel();
+      await channel.assertQueue("booking_queue", { durable: true });
+      channel.sendToQueue("booking_queue", Buffer.from(JSON.stringify(event)), { persistent: true });
+      console.log("📢 BOOKING_CREATED published to RabbitMQ:", event);
+      await channel.close();
+      await connection.close();
+    } catch (err) {
+      console.error("❌ Failed to publish to RabbitMQ:", err);
+    }
+  }
 
   async execute(input: any) {
     // Validate input to ensure all required fields are present
@@ -103,6 +118,18 @@ const booking =
       booking.dateRange.checkInDate,
       booking.dateRange.checkOutDate
     ));
+
+    // ✅ Publish to RabbitMQ so payment consumer receives it
+    await this.publishToRabbitMQ({
+      type: "BOOKING_CREATED",
+      bookingId: booking.id,
+      customerId: booking.customerId,
+      tenantId: booking.tenantId,
+      listingId: booking.listingId,
+      price: booking.price,
+      checkInDate: booking.dateRange.checkInDate,
+      checkOutDate: booking.dateRange.checkOutDate,
+    });
 
     return booking.toJSON();
   }

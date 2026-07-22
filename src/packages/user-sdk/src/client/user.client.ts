@@ -4,14 +4,16 @@ export class UserClient {
   constructor(
     private url: string,
     private serviceToken?: string
-  ) {}
+  ) {
+    console.log("[UserClient] Initialized with URL:", url, "token present:", !!serviceToken);
+  }
 
   private get client() {
-    return new GraphQLClient(this.url, {
-      headers: this.serviceToken 
-        ? { "x-service-token": this.serviceToken } 
-        : {},
-    });
+    const headers: Record<string, string> = this.serviceToken
+      ? { "x-service-token": this.serviceToken }
+      : {};
+    console.log("[UserClient] Making request to:", this.url, "headers:", headers);
+    return new GraphQLClient(this.url, { headers });
   }
 
   // ✅ 1. findByEmail
@@ -22,14 +24,20 @@ export class UserClient {
           id
           email
           picture
-       
           name
         }
       }
     `;
 
-    const data = await this.client.request(query, { email });
-    return data.userByEmail;
+    console.log("[UserClient] findByEmail:", email, "url:", this.url);
+    try {
+      const data = await this.client.request(query, { email });
+      console.log("[UserClient] findByEmail result:", JSON.stringify(data));
+      return data.userByEmail;
+    } catch (err: any) {
+      console.error("[UserClient] findByEmail error:", err.message);
+      throw err;
+    }
   }
 
   // ✅ 2. findById
@@ -41,13 +49,19 @@ export class UserClient {
           email
           name
           picture
-         
         }
       }
     `;
 
-    const data = await this.client.request(query, { id: userId });
-    return data.user;
+    console.log("[UserClient] findById:", userId);
+    try {
+      const data = await this.client.request(query, { id: userId });
+      console.log("[UserClient] findById result:", JSON.stringify(data));
+      return data.user;
+    } catch (err: any) {
+      console.error("[UserClient] findById error:", err.message);
+      throw err;
+    }
   }
 
   // ✅ 3. createUserFromOAuth
@@ -69,11 +83,13 @@ export class UserClient {
         createOAuthUser(input: $input) {
           id
           email
+          name
+          picture
         }
       }
     `;
 
-    const data = await this.client.request(mutation, {
+    const variables = {
       input: {
         email: profile.email,
         provider: normalizeProvider(profile.provider),
@@ -83,8 +99,17 @@ export class UserClient {
           avatar: profile.avatar,
         },
       },
-    });
+    };
 
-    return data.createOAuthUser;
+    console.log("[UserClient] createUserFromOAuth input:", JSON.stringify(variables));
+    console.log("[UserClient] createUserFromOAuth url:", this.url);
+    try {
+      const data = await this.client.request(mutation, variables);
+      console.log("[UserClient] createUserFromOAuth result:", JSON.stringify(data));
+      return data.createOAuthUser;
+    } catch (err: any) {
+      console.error("[UserClient] createUserFromOAuth error:", err.message);
+      throw err;
+    }
   }
 }

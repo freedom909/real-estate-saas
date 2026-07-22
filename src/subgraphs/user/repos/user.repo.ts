@@ -13,7 +13,7 @@ export interface IUserDBObject {
 
  name:string;
 
- avatar:string;
+ picture:string;
 
  role:string;
 
@@ -74,5 +74,17 @@ async updateLastLogin(userId: string, lastLoginAt: Date) {
     { _id: userId },
     { lastLoginAt: new Date() }
   );
+}
+
+async findAll(limit: number = 50, offset: number = 0): Promise<IUserDBObject[]> {
+  return this.UserModel.find()
+    .sort({ createdAt: -1 })
+    .skip(offset)
+    .limit(limit)
+    .lean<IUserDBObject[]>();
+}
+
+async count(): Promise<number> {
+  return this.UserModel.countDocuments();
 }
 }

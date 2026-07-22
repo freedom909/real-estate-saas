@@ -41,14 +41,15 @@ export const resolvers = {
         console.log("chatUseCase", chatUseCase);
         const result = await chatUseCase.execute(aiRequest);
         return result;
-      } catch (error) {
-        console.error("❌ CHAT RESOLVER ERROR:", error);
+      } catch (error: any) {
+        console.error("❌ CHAT RESOLVER ERROR:", error?.message || error);
+        console.error("❌ CHAT RESOLVER STACK:", error?.stack);
 
         // Return a valid ChatResponse instead of null
         // (prevents "Cannot return null for non-nullable field Mutation.chat")
         return {
           success: false,
-          summary: "An error occurred while processing your request. Please try again.",
+          summary: `Error: ${error?.message || "Unknown error"}. Please try again.`,
           artifacts: [],
         };
       }

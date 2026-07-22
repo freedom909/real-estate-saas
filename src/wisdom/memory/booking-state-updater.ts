@@ -51,14 +51,20 @@ export class BookingStateUpdater {
     }
 
     // ── 2. Side-effect: cache search results in session ──
+    let sessionChanged = false;
     if (artifact.type === "LISTING_SEARCH_RESULT") {
       session.searchResults = artifact.content.listings ?? [];
+      sessionChanged = true;
     }
 
     // ── 3. Map artifact → domain event ──
     const event = this.mapper.map(artifact);
     if (!event) {
-      return; // artifact doesn't affect booking state
+      // Artifact doesn't affect booking state, but persist if session data changed
+      if (sessionChanged) {
+        this.sessionStore.save(ctx, session as SessionMemory);
+      }
+      return;
     }
 
     // ── 4. Reduce: compute new booking state ──

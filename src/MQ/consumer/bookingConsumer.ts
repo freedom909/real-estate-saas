@@ -20,7 +20,7 @@ const ROUTING_KEYS = [
 let connection: amqp.Connection;
 let channel: amqp.Channel;
 
-const QUEUE = "booking_queue";
+const QUEUE = "booking_notification_queue";
 
 export const initializeConsumer = async () => {
   try {
@@ -32,7 +32,7 @@ export const initializeConsumer = async () => {
       durable: true,
     });
 
-    console.log("✅ RabbitMQ connected & channel created");
+    console.log("✅ RabbitMQ connected & channel created (booking notifications)");
   } catch (error) {
     console.error("❌ RabbitMQ init error:", error);
     throw error;

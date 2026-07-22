@@ -46,7 +46,7 @@ console.log({
         success: false,
         domain: AIDomain.GENERAL,
         primaryAction: { name: "unknown", confidence: 0 },
-        summary: "Sorry, I couldn't process your request.",
+        summary: "申し訳ありません。リクエストを処理できませんでした。もう一度お試しください。",
         artifacts: [],
       };
     }

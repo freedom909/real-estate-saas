@@ -89,25 +89,31 @@ User: {
       return user
     },
 
-    internalUserByEmail: async (
+    // Admin: list all users
+    users: async (_: unknown, { limit = 50, offset = 0 }: { limit?: number; offset?: number }) => {
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      return userService.findAll(limit, offset);
+    },
+
+    // Admin: count all users
+    userCount: async () => {
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      return userService.count();
+    },
+
+    userByEmail: async (
       _: unknown,
       { email }: { email: string },
-      { req }: ResolverContext // Ensure req is always present in context
+      { req }: ResolverContext
     ) => {
       if (!req) {
         console.error("CRITICAL: Request object missing from context.");
-        // This should ideally not happen if context is set up correctly in index.ts
         throw new Error("Internal Server Error: Context setup failure");
       }
 
-      // Use req.get() for reliable, case-insensitive header retrieval
-      const token = req.get ? req.get("x-service-token") : req.headers["x-service-token"];
-      console.log("Incoming x-service-token:", token);// undefined
-
-      const userService = container.resolve<UserService>(TOKENS_USER.services.userService); 
-
       verifyInternalRequest(req);
 
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.userByEmail(email);
     }
   },
@@ -119,6 +125,11 @@ User: {
     ) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.deactivate(userId);
+    },
+
+    createUser: async (_: any, { input }: any) => {
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      return userService.create(input);
     },
 
 createOAuthUser: async (_: any, { input }: any) => {

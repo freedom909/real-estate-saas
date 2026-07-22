@@ -77,7 +77,7 @@ export class BookingAgent implements IDomainAgent {
           success: false,
           domain: semantic.domain as any,
           primaryAction: { name: action ?? "UNKNOWN", confidence: semantic.confidence ?? 0 },
-          summary: `Unsupported booking action: ${action}`,
+          summary: `対応していない予約操作です: ${action}`,
           artifacts: [],
         };
     }
@@ -102,11 +102,20 @@ export class BookingAgent implements IDomainAgent {
         console.log("[BookingAgent] Reloaded searchResults from cache:", searchResults.length);
       }
       if (searchResults?.length) {
+        // Try ordinal first
         const ordinal = this.extractEntity(semantic, ["ORDINAL"]);
         const index = this.parseOrdinal(ordinal);
         const match = searchResults[index];
         if (match) {
           resolvedListingId = match.id;
+        }
+
+        // Try title-based matching if still no match
+        if (!resolvedListingId) {
+          const titleMatch = this.matchByTitle(semantic.rawInput, searchResults);
+          if (titleMatch) {
+            resolvedListingId = titleMatch.id;
+          }
         }
       }
     }
@@ -116,7 +125,7 @@ export class BookingAgent implements IDomainAgent {
         success: true,
         domain: semantic.domain as any,
         primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
-        summary: "Which listing would you like to book? Please search for listings first or provide a listing ID.",
+        summary: "予約したい物件はどれですか？まず物件を検索するか、物件IDを教えてください。",
         artifacts: [],
       };
     }
@@ -144,7 +153,7 @@ export class BookingAgent implements IDomainAgent {
         success: true,
         domain: semantic.domain as any,
         primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
-        summary: `Great choice! You want to book "${listingTitle}". When would you like to check in and check out? Please provide dates like "July 5-10".`,
+        summary: `「${listingTitle}」を選びましたね。チェックインとチェックアウトの日程を教えてください。例：「7月25日から7月27日まで」`,
         artifacts:[
         {
             type: ArtifactType.LISTING_SELECTED,
@@ -159,24 +168,46 @@ export class BookingAgent implements IDomainAgent {
 
     const customerCount = parseInt(this.extractEntity(semantic, ["CUSTOMER_COUNT", "customer_count", "guest_count"]) ?? "1");
 
-    const result = await this.createBookingUseCase.execute({
-      listingId: resolvedListingId,
-      customerId: context.identity.user?.id ?? "",
-      checkInDate: new Date(resolvedCheckIn),
-      checkOutDate: new Date(resolvedCheckOut),
-      customerCount,
-    });
+    const customerId = context.identity.user?.id;
+    if (!customerId) {
+      return {
+        success: false,
+        domain: semantic.domain as any,
+        primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
+        summary: "予約をするにはログインが必要です。",
+        artifacts: [],
+      };
+    }
 
-    return {
-      success: true,
-      domain: semantic.domain as any,
-      primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
-      summary: `Booking confirmed! Your booking ID is ${result.id}. Check-in: ${resolvedCheckIn}, Check-out: ${resolvedCheckOut}.`,
-      artifacts: [{
-        type: ArtifactType.BOOKING_CREATED,
-        content: result as unknown as Record<string, unknown>,
-      }],
-    };
+    try {
+      const result = await this.createBookingUseCase.execute({
+        listingId: resolvedListingId,
+        customerId,
+        checkInDate: new Date(resolvedCheckIn),
+        checkOutDate: new Date(resolvedCheckOut),
+        customerCount,
+      });
+
+      return {
+        success: true,
+        domain: semantic.domain as any,
+        primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
+        summary: `ご予約を確認しました！予約ID: ${result.id}。チェックイン: ${resolvedCheckIn}、チェックアウト: ${resolvedCheckOut}。`,
+        artifacts: [{
+          type: ArtifactType.BOOKING_CREATED,
+          content: result as unknown as Record<string, unknown>,
+        }],
+      };
+    } catch (error: any) {
+      console.error("[BookingAgent] Create booking error:", error?.message);
+      return {
+        success: false,
+        domain: semantic.domain as any,
+        primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
+        summary: `予約の作成に失敗しました: ${error?.message || "不明なエラー"}。もう一度お試しください。`,
+        artifacts: [],
+      };
+    }
   }
 
   // ─── CANCEL BOOKING ──────────────────────────────────────────
@@ -187,7 +218,7 @@ export class BookingAgent implements IDomainAgent {
         success: true,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.CANCEL_BOOKING, confidence: 0.9 },
-        summary: "Which booking would you like to cancel? Please provide the booking ID.",
+        summary: "どの予約をキャンセルしますか？予約IDを教えてください。",
         artifacts: [],
       };
     }
@@ -197,7 +228,7 @@ export class BookingAgent implements IDomainAgent {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.CANCEL_BOOKING, confidence: 0.95 },
-      summary: `Booking ${bookingId} has been cancelled.`,
+      summary: `予約 ${bookingId} をキャンセルしました。`,
       artifacts: [{
         type: ArtifactType.BOOKING_CANCELLED,
         content: result as unknown as Record<string, unknown>,
@@ -213,7 +244,7 @@ export class BookingAgent implements IDomainAgent {
         success: true,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.GET_BOOKING, confidence: 0.9 },
-        summary: "Which booking would you like to view? Please provide the booking ID.",
+        summary: "どの予約を確認しますか？予約IDを教えてください。",
         artifacts: [],
       };
     }
@@ -223,7 +254,7 @@ export class BookingAgent implements IDomainAgent {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.GET_BOOKING, confidence: 0.95 },
-      summary: `Booking ${bookingId}: status=${result.status}.`,
+      summary: `予約 ${bookingId} のステータス: ${result.status}。`,
       artifacts: [{
         type: ArtifactType.BOOKING_GET,
         content: result as unknown as Record<string, unknown>,
@@ -240,7 +271,7 @@ export class BookingAgent implements IDomainAgent {
         success: false,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.GET_MY_BOOKINGS, confidence: 0.9 },
-        summary: "Please log in to view your bookings.",
+        summary: "予約を確認するにはログインが必要です。",
         artifacts: [],
       };
     }
@@ -250,7 +281,7 @@ export class BookingAgent implements IDomainAgent {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.GET_MY_BOOKINGS, confidence: 0.95 },
-      summary: `You have ${result.length} booking(s).`,
+      summary: `${result.length}件の予約があります。`,
       artifacts: [{
         type: ArtifactType.BOOKING_GET,
         content: { bookings: result } as Record<string, unknown>,
@@ -266,7 +297,7 @@ export class BookingAgent implements IDomainAgent {
         success: true,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.CONFIRM_BOOKING, confidence: 0.9 },
-        summary: "Which booking would you like to confirm? Please provide the booking ID.",
+        summary: "どの予約を確定しますか？予約IDを教えてください。",
         artifacts: [],
       };
     }
@@ -276,7 +307,7 @@ export class BookingAgent implements IDomainAgent {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.CONFIRM_BOOKING, confidence: 0.95 },
-      summary: `Booking ${bookingId} has been confirmed.`,
+      summary: `予約 ${bookingId} を確定しました。`,
       artifacts: [{
         type: ArtifactType.BOOKING_CONFIRMED,
         content: result as unknown as Record<string, unknown>,
@@ -292,7 +323,7 @@ export class BookingAgent implements IDomainAgent {
         success: true,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.COMPLETE_BOOKING, confidence: 0.9 },
-        summary: "Which booking would you like to complete? Please provide the booking ID.",
+        summary: "どの予約を完了しますか？予約IDを教えてください。",
         artifacts: [],
       };
     }
@@ -302,7 +333,7 @@ export class BookingAgent implements IDomainAgent {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.COMPLETE_BOOKING, confidence: 0.95 },
-      summary: `Booking ${bookingId} has been completed.`,
+      summary: `予約 ${bookingId} を完了しました。`,
       artifacts: [{
         type: ArtifactType.BOOKING_COMPLETED,
         content: result as unknown as Record<string, unknown>,
@@ -312,6 +343,49 @@ export class BookingAgent implements IDomainAgent {
 
 
   // ─── HELPERS ─────────────────────────────────────────────────
+
+  private matchByTitle(
+    message: string,
+    searchResults: any[],
+  ): { id: string } | null {
+    const description = message
+      .toLowerCase()
+      .replace(/\b(book|reserve|booked|reserving|i(?:'d| would) like|please|the|a|an|one|room|want|to)\b/gi, "")
+      .replace(/(予約する|予約|して|ください|の|を|が|へ|に|で|は|も)/g, "")
+      .trim();
+
+    if (!description) return null;
+
+    const keywords = description.split(/\s+/).filter((w) => w.length >= 2);
+    if (keywords.length === 0) return null;
+
+    let bestMatch: { id: string } | null = null;
+    let bestScore = 0;
+
+    for (const listing of searchResults) {
+      const title = (listing.title ?? "").toLowerCase();
+      const address = (listing.address ?? "").toLowerCase();
+      const description = (listing.description ?? "").toLowerCase();
+      const searchable = `${title} ${address} ${description}`;
+
+      let matchCount = 0;
+      for (const keyword of keywords) {
+        if (searchable.includes(keyword)) {
+          matchCount++;
+        }
+      }
+
+      if (matchCount > 0) {
+        const score = matchCount / keywords.length;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = { id: listing.id };
+        }
+      }
+    }
+
+    return bestMatch;
+  }
 
   private extractBookingId(semantic: SemanticContext, context: AIContext): string | undefined {
     return (

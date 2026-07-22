@@ -15,9 +15,17 @@ export class NormalizeIntentStage implements IPipelineStage {
 
     const raw = semantic.rawInput.toLowerCase();
 
-    const hasBookingIntent =
+    // English booking intent
+    const hasEnglishBookingIntent =
       /\b(book|reserve|confirm)\b/.test(raw) &&
       !/\b(cancel|delete)\b/.test(raw);
+
+    // Japanese booking intent (予約 = reservation/booking)
+    const hasJapaneseBookingIntent =
+      /予約|予約する|予約します|予約したい|ご予約/.test(raw) &&
+      !/キャンセル|取消/.test(raw);
+
+    const hasBookingIntent = hasEnglishBookingIntent || hasJapaneseBookingIntent;
 
     if (
       hasBookingIntent &&

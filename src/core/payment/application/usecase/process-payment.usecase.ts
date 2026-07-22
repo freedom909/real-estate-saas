@@ -20,7 +20,6 @@ export class ProcessPaymentUseCase {
   ) {}
 
   async execute(paymentId: string) {
-
     const payment =
       await this.paymentRepository.findById(paymentId);
 
@@ -41,7 +40,7 @@ export class ProcessPaymentUseCase {
         payment.amount,
         payment.checkInDate,
         payment.checkOutDate,
-        payment.processedAt 
+        payment.processedAt
       )
     );
 

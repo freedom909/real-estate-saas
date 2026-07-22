@@ -150,7 +150,7 @@ const resolvers = {
 
     payment: async (booking: any, _: any, context: any) => {
       if (!booking.id) {
-        return;
+        return null;
       }
       const paymentUseCase = container.resolve<GetPaymentByBookingIdUseCase>(TOKENS_PAYMENT.usecase.getPaymentByBookingIdUseCase);
       return paymentUseCase.execute(booking.id);

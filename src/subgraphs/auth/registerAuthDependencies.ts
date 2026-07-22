@@ -34,6 +34,8 @@ import TrustedDeviceModel from "@/security/infrastructure/models/trusted.device.
 import { UserClient } from "@/packages/user-sdk/src/client/user.client";
 import { ProviderRegistry } from "./infrastructure/oauth/provider.registry";
 import { GoogleProvider } from "./infrastructure/oauth/google.provider";
+import { GitHubProvider } from "./infrastructure/oauth/github.provider";
+import { FacebookProvider } from "./infrastructure/oauth/facebook.provider";
 
 import { UserGateway } from "./infrastructure/gateways/user.gateway.impl";
 import EvaluateRiskUseCase from "@/security/application/evaluateRisk.usecase";
@@ -41,6 +43,7 @@ import { ChallengeModel } from "./infrastructure/models/challenge.model";
 import ChallengeRepo from "./infrastructure/repos/challenge.repo";
 import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
 import { SessionService } from "./infrastructure/services/session.service";
+import { TokenBindingService } from "./infrastructure/services/token-binding.service";
 import { IdentityRepository } from "./infrastructure/repos/identity.repo";
 import { IdentityModel } from "./infrastructure/models/identity.model";
 import { JwtService } from "./infrastructure/services/jwt.service";
@@ -77,9 +80,19 @@ export default function registerAuthDependencies(container: DependencyContainer)
     useClass: GoogleProvider
   });
 
+  container.register("GitHubProvider", {
+    useClass: GitHubProvider
+  });
+
+  container.register("FacebookProvider", {
+    useClass: FacebookProvider
+  });
+
   container.register(TOKENS_AUTH.usecases.providerRegistry, {
     useFactory: (c) => new ProviderRegistry({
-      google: c.resolve("GoogleProvider")
+      google: c.resolve("GoogleProvider"),
+      github: c.resolve("GitHubProvider"),
+      facebook: c.resolve("FacebookProvider")
     })
   });
 
@@ -161,5 +174,9 @@ container.registerSingleton(
   TOKENS_AUTH.services.jwtService,
   JwtService
 );
+
+container.register(TOKENS_AUTH.services.tokenBindingService, {
+  useClass: TokenBindingService
+});
   return container;
 }
