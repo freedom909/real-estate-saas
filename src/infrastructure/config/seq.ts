@@ -6,21 +6,21 @@ dotenv.config();
 const {
   DB_NAME,
   DB_USER,
-  DB_PASSWORD,
+ 
   DB_HOST,
   DB_PORT,
   NODE_ENV
 } = process.env;
 
 // ❗ 强制校验（很重要）
-if (!DB_NAME || !DB_USER || !DB_PASSWORD) {
+if (!DB_NAME || !DB_USER ) {
   throw new Error("❌ Missing DB environment variables");
 }
 
 export const sequelize = new Sequelize(
   DB_NAME,
   DB_USER,
-  DB_PASSWORD,
+ 
   {
     host: DB_HOST || 'localhost',
     port: Number(DB_PORT) || 3306,

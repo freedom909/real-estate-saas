@@ -31,7 +31,7 @@ export type Permission =
   // Profile
   | "profile:view"
   | "profile:update"
-  | "profile:change_password";
+ 
 
 const ROLE_HIERARCHY: Record<AdminRole, number> = {
   MODERATOR: 1,
@@ -46,7 +46,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     "audit_logs:view",
     "profile:view",
     "profile:update",
-    "profile:change_password",
+    
   ],
   ADMIN: [
     // Inherits MODERATOR permissions plus:
