@@ -12,23 +12,10 @@ scalar DateTime
 # =====================
 # Admin User
 # =====================
-type AdminUser {
-  id: ID!
-  email: String!
-  name: String!
-  role: AdminRole!
-  avatar: String
-  isActive: Boolean!
-  lastLoginAt: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
+extend type User @key(fields: "id") {
+  id: ID! @external
 }
 
-enum AdminRole {
-  ADMIN
-  SUPER_ADMIN
-  MODERATOR
-}
 
 # =====================
 # Audit Log (admin-specific)
@@ -100,7 +87,7 @@ type SystemSetting {
 # Permissions
 # =====================
 type AdminPermissions {
-  role: AdminRole!
+  role: UserRole!
   permissions: [String!]!
 }
 
@@ -147,13 +134,13 @@ input CreateAdminUserInput {
   id: ID
   email: String!
   name: String!
-  role: AdminRole
+  role: UserRole
   avatar: String
 }
 
 input UpdateAdminUserInput {
   name: String
-  role: AdminRole
+  role: UserRole
   avatar: String
   isActive: Boolean
 }
@@ -167,7 +154,7 @@ input CreateAuditLogInput {
   ip: String
 }
 
-input UpdateProfileInput {
+input UpdateAccountInput {
   name: String
   avatar: String
 }
@@ -192,12 +179,19 @@ input UpdateSystemSettingInput {
   description: String
 }
 
+enum UserRole {
+  SUPER_ADMIN
+  TENANT_ADMIN
+  STAFF
+  AGENT
+  CUSTOMER
+}
 # =====================
 # Query
 # =====================
 type Query {
-  adminUsers: [AdminUser!]!
-  adminUser(id: ID!): AdminUser
+  adminUsers: [User!]!
+  adminUser(id: ID!): User
   adminAuditLogs(limit: Int, filter: AuditLogFilter): [AdminAuditLog!]!
   adminAuditLogCount(filter: AuditLogFilter): Int!
   adminDashboard: AdminDashboard!
@@ -212,12 +206,12 @@ type Query {
 # Mutation
 # =====================
 type Mutation {
-  createAdminUser(input: CreateAdminUserInput!): AdminUser!
-  updateAdminUser(id: ID!, input: UpdateAdminUserInput!): AdminUser!
+  createAdminUser(input: CreateAdminUserInput!): User!
+  updateAdminUser(id: ID!, input: UpdateAdminUserInput!): User!
   deleteAdminUser(id: ID!): Boolean!
   createAdminAuditLog(input: CreateAuditLogInput!): AdminAuditLog!
-  updateProfile(input: UpdateProfileInput!): AdminUser!
-  changePassword(input: ChangePasswordInput!): Boolean!
+  updateAdminAccount(input: UpdateAccountInput!): User!
+  resetUserPassword(userId:ID!):Boolean!
   updateSystemSetting(input: UpdateSystemSettingInput!): SystemSetting!
   deleteSystemSetting(key: String!): Boolean!
   createNotification(input: CreateNotificationInput!): Notification!

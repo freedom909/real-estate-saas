@@ -74,6 +74,9 @@ async function exchangeGoogleCode(code: string): Promise<string> {
 }
 
 async function exchangeFacebookCode(code: string): Promise<string> {
+  console.log("[facebook] Exchanging code, client_id:", process.env.FACEBOOK_CLIENT_ID);
+  console.log("[facebook] client_secret:", process.env.FACEBOOK_CLIENT_SECRET);
+  console.log("[facebook] redirect_uri:", process.env.NEXT_PUBLIC_FACEBOOK_REDIRECT_URI);
   const res = await fetch("https://graph.facebook.com/v19.0/oauth/access_token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

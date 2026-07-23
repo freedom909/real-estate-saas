@@ -20,7 +20,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 import { connectMongo } from "../../shared/db/mongo";
 import { registerUserDependencies } from "./registerUserDependencies";
 import   resolvers  from "./resolvers/user.resolver";
-import UserService from "./services/user.service";
+
 import { container } from "tsyringe";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import userRegister from "@/modules/container/user.register";
