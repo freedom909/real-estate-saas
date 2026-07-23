@@ -77,7 +77,7 @@ class UserService {
     return this.userRepository.count();
   }
 
-  async create(input: { email: string; name: string; role?: string; password: string }): Promise<any> {
+  async create(input: { email: string; name: string; role?: string; picture?: string }): Promise<any> {
     const existing = await this.userRepository.userByEmail(input.email);
     if (existing) {
       throw new Error("User with this email already exists");

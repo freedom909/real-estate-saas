@@ -33,7 +33,7 @@ export default class CredentialRepo {
   /**
    * Find local credential by email
    */
-  async findPasswordByEmail(
+  async findByEmail(
     email: string,
     { session }: SessionOption = {}
   ): Promise<CredentialDocument | null> {

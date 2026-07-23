@@ -159,11 +159,6 @@ input UpdateAccountInput {
   avatar: String
 }
 
-input ChangePasswordInput {
-  currentPassword: String!
-  newPassword: String!
-}
-
 input AuditLogFilter {
   adminId: ID
   action: String
@@ -211,7 +206,7 @@ type Mutation {
   deleteAdminUser(id: ID!): Boolean!
   createAdminAuditLog(input: CreateAuditLogInput!): AdminAuditLog!
   updateAdminAccount(input: UpdateAccountInput!): User!
-  resetUserPassword(userId:ID!):Boolean!
+  
   updateSystemSetting(input: UpdateSystemSettingInput!): SystemSetting!
   deleteSystemSetting(key: String!): Boolean!
   createNotification(input: CreateNotificationInput!): Notification!

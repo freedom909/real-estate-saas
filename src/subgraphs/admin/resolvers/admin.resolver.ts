@@ -18,13 +18,13 @@ import GetNotificationsUseCase from "@/core/admin/application/usecase/getNotific
 import CreateNotificationUseCase from "@/core/admin/application/usecase/createNotification.usecase";
 import MarkNotificationReadUseCase from "@/core/admin/application/usecase/markNotificationRead.usecase";
 import DeleteNotificationUseCase from "@/core/admin/application/usecase/deleteNotification.usecase";
-import UpdateProfileUseCase from "@/core/admin/application/usecase/updateProfile.usecase";
-import ChangePasswordUseCase from "@/core/admin/application/usecase/changePassword.usecase";
+
 import { IAdminUserRepository } from "@/core/admin/domain/entities/IAdminUserRepository";
 import { IAuditLogRepository } from "@/core/admin/domain/entities/IAuditLogRepository";
 import { requireAdminRole, requirePermission } from "../guards/adminRole.guard";
 import { Permission, getPermissions } from "../guards/adminPermissions";
 import { logAuditAction, withAuditLog } from "../guards/auditLogger";
+import UpdateAdminAccountUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
 
 // Helper: wrap resolver with permission guard
 function withPermission(resolver: Function, permission: Permission) {
@@ -199,10 +199,10 @@ export const resolvers = {
     }, "audit_logs:create"),
 
     // Profile — with audit logging
-    updateProfile: withPermission(withAuditLog(
+    updateAdminAccount: withPermission(withAuditLog(
       async (_: any, { input }: any, context: any) => {
-        const useCase = container.resolve<UpdateProfileUseCase>(
-          TOKENS_ADMIN.usecase.updateProfileUseCase
+        const useCase = container.resolve<UpdateAdminAccountUseCase>(
+          TOKENS_ADMIN.usecase.updateAdminAccountUseCase
         );
         return useCase.execute(context.user.userId, input);
       },
@@ -213,21 +213,6 @@ export const resolvers = {
         details: `Updated profile: ${JSON.stringify(_args.input)}`,
       })
     ), "profile:update"),
-
-    changePassword: withPermission(withAuditLog(
-      async (_: any, { input }: any, context: any) => {
-        const useCase = container.resolve<ChangePasswordUseCase>(
-          TOKENS_ADMIN.usecase.changePasswordUseCase
-        );
-        return useCase.execute(context.user.userId, input);
-      },
-      (_result, _args, context) => ({
-        action: "CHANGE_PASSWORD",
-        target: "admin_user",
-        targetId: context.user.userId,
-        details: "Password changed",
-      })
-    ), "profile:change_password"),
 
     // Settings — with audit logging
     updateSystemSetting: withPermission(withAuditLog(

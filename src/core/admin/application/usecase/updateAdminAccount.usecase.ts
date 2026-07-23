@@ -1,22 +1,22 @@
-// src/core/admin/application/usecase/updateProfile.usecase.ts
+// src/core/admin/application/usecase/updateAdminAccount.usecase.ts
 
 import { injectable, inject } from "tsyringe";
 import { IAdminUserRepository } from "../../domain/entities/IAdminUserRepository";
 import { TOKENS_ADMIN } from "@/modules/tokens/admin.tokens";
 
-export interface UpdateProfileInput {
+export interface UpdateAdminAccountInput {
   name?: string;
   avatar?: string;
 }
 
 @injectable()
-export default class UpdateProfileUseCase {
+export default class UpdateAdminAccountUseCase {
   constructor(
     @inject(TOKENS_ADMIN.repos.adminUserRepository)
     private adminRepo: IAdminUserRepository
   ) {}
 
-  async execute(adminId: string, input: UpdateProfileInput) {
+  async execute(adminId: string, input: UpdateAdminAccountInput) {
     const admin = await this.adminRepo.findById(adminId);
     if (!admin) throw new Error("Admin not found");
 

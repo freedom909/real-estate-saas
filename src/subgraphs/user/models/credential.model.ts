@@ -29,7 +29,7 @@ const CredentialSchema = new mongoose.Schema(
     provider: {
       type: String,
       enum: [
-        "PASSWORD",
+        
         "GOOGLE",
         "GITHUB",
         "FACEBOOK",

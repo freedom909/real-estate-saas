@@ -26,8 +26,9 @@ import GetNotificationsUseCase from "@/core/admin/application/usecase/getNotific
 import CreateNotificationUseCase from "@/core/admin/application/usecase/createNotification.usecase";
 import MarkNotificationReadUseCase from "@/core/admin/application/usecase/markNotificationRead.usecase";
 import DeleteNotificationUseCase from "@/core/admin/application/usecase/deleteNotification.usecase";
-import UpdateProfileUseCase from "@/core/admin/application/usecase/updateProfile.usecase";
-import ChangePasswordUseCase from "@/core/admin/application/usecase/changePassword.usecase";
+import UpdateProfileUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
+
+import UpdateAdminAccountUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
 
 export default function registerAdminDependencies() {
   // Models
@@ -125,11 +126,9 @@ export default function registerAdminDependencies() {
     useClass: DeleteNotificationUseCase,
   });
 
-  container.register(TOKENS_ADMIN.usecase.updateProfileUseCase, {
-    useClass: UpdateProfileUseCase,
+  container.register(TOKENS_ADMIN.usecase.updateAdminAccountUseCase, {
+    useClass: UpdateAdminAccountUseCase,
   });
 
-  container.register(TOKENS_ADMIN.usecase.changePasswordUseCase, {
-    useClass: ChangePasswordUseCase,
-  });
+
 }

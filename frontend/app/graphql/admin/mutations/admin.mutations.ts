@@ -65,11 +65,6 @@ export const UPDATE_PROFILE = gql`
   }
 `;
 
-export const CHANGE_PASSWORD = gql`
-  mutation ChangePassword($input: ChangePasswordInput!) {
-    changePassword(input: $input)
-  }
-`;
 
 export const UPDATE_SYSTEM_SETTING = gql`
   mutation UpdateSystemSetting($input: UpdateSystemSettingInput!) {

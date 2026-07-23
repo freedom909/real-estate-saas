@@ -31,7 +31,7 @@ export const TOKENS_ADMIN = {
     createNotificationUseCase: Symbol.for("CreateNotificationUseCase"),
     markNotificationReadUseCase: Symbol.for("MarkNotificationReadUseCase"),
     deleteNotificationUseCase: Symbol.for("DeleteNotificationUseCase"),
-    updateProfileUseCase: Symbol.for("UpdateProfileUseCase"),
-    changePasswordUseCase: Symbol.for("ChangePasswordUseCase"),
+    updateAdminAccountUseCase: Symbol.for("UpdateAdminAccountUseCase"),
+ 
   },
 } as const;
