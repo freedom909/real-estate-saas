@@ -31,8 +31,9 @@ extend type Booking @key(fields: "id") {
 
 type User @key(fields: "id") {
   id: ID!
-
- email: String! @shareable
+  email: String!
+  name: String
+  picture: String
  role: UserRole! @shareable
   status: AccountStatus! @shareable
 
