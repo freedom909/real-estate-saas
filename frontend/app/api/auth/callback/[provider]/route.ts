@@ -74,21 +74,18 @@ async function exchangeGoogleCode(code: string): Promise<string> {
 }
 
 async function exchangeFacebookCode(code: string): Promise<string> {
-  console.log("[facebook] Exchanging code, client_id:", process.env.FACEBOOK_CLIENT_ID);
-  console.log("[facebook] client_secret:", process.env.FACEBOOK_CLIENT_SECRET);
-  console.log("[facebook] redirect_uri:", process.env.NEXT_PUBLIC_FACEBOOK_REDIRECT_URI);
-  const res = await fetch("https://graph.facebook.com/v19.0/oauth/access_token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      code,
-      client_id: process.env.FACEBOOK_CLIENT_ID,
-      client_secret: process.env.FACEBOOK_CLIENT_SECRET,
-      redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/auth/callback/facebook`,
-    }),
-  });
+  const params = new URLSearchParams({
+  client_id: process.env.FACEBOOK_CLIENT_ID!,
+  client_secret: process.env.FACEBOOK_CLIENT_SECRET!,
+  redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/auth/callback/facebook`,
+  code,
+});
 
-  const data = await res.json();
+const res = await fetch(
+  `https://graph.facebook.com/v25.0/oauth/access_token?${params.toString()}`
+);
+
+const data = await res.json();
 
   if (data.error) {
     throw new Error(`Facebook token exchange failed: ${data.error.message}`);

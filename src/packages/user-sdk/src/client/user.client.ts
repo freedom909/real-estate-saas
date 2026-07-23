@@ -23,8 +23,10 @@ export class UserClient {
         userByEmail(email: $email) {
           id
           email
-          picture
-          name
+          profile {
+      name
+      avatar
+    }
         }
       }
     `;
