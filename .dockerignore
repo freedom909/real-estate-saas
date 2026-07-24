@@ -1,0 +1,17 @@
+node_modules
+dist
+.next
+.git
+.env
+.env.*
+keys
+*.pem
+*.key
+*.log
+.vscode
+.codebuddy
+.trae
+.mimocode
+__tests__
+**/*.test.ts
+**/*.spec.ts
