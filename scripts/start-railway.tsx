@@ -40,4 +40,4 @@ console.log("⏳ Waiting 15s for subgraphs to initialize...");
 await new Promise((r) => setTimeout(r, 15000));
 
 // Launch gateway on Railway's assigned PORT (foreground)
-import("./src/gateway/index.ts");
+import("../src/gateway/index.ts");
