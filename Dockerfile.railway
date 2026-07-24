@@ -2,17 +2,16 @@ FROM node:20-slim
 
 WORKDIR /app
 
+# Cache bust - force rebuild everything
+ENV CACHE_DATE=2026-07-24T17:00:00Z
+
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (including dev for tsx/ts-node at build)
+# Install dependencies
 RUN npm install --no-audit --no-fund
 
-# Copy source code - use build arg to bust cache
-ARG CACHE_BUST=1
+# Copy source code
 COPY . .
-
-# Railway assigns PORT dynamically - no EXPOSE needed
-# Subgraphs run internally on fixed ports, gateway on $PORT
 
 CMD ["bash", "scripts/start-railway.sh"]
