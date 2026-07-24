@@ -10,7 +10,7 @@ import { handleGitHubLogin } from "@/app/components/login/handleGitHub.login";
 import { handleFacebookLogin } from "@/app/components/login/handleFacebook.login";
 
 export default function LoginPage() {
-
+    console.log(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID, process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET)
     const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
 
     const initialized = useRef(false);
