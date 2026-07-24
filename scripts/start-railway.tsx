@@ -40,11 +40,16 @@ console.log("⏳ Waiting 15s for subgraphs to initialize...");
 await new Promise((r) => setTimeout(r, 15000));
 
 // Launch gateway on Railway's assigned PORT (foreground)
-import path from "path";
-import { fileURLToPath } from "url";
+const gateway = spawn("npx", ["tsx", "src/gateway/index.ts"], {
+  stdio: "inherit",
+  shell: true,
+});
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+gateway.on("error", (err) => {
+  console.error("❌ Gateway failed to start:", err.message);
+});
 
-const gatewayPath = path.resolve(__dirname, "../src/gateway/index.ts");
-await import(gatewayPath);
+gateway.on("exit", (code) => {
+  console.log(`Gateway exited with code ${code}`);
+  process.exit(code ?? 1);
+});
