@@ -122,13 +122,18 @@ async function start() {
 
   // CORS for all routes
   app.use(cors({
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
     credentials: true,
   }))
   app.use(express.json())
 
   // REST API routes
   app.use("/api/tenants", tenantRouter)
+
+  // Health check endpoint
+  app.get("/health", (req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  })
 
   // GraphQL endpoint
   app.use("/graphql",
@@ -151,8 +156,9 @@ async function start() {
       }),
     }))
 
-  app.listen(4000, () => {
-    console.log("🚀 Gateway running at http://localhost:4000/graphql")
+  const PORT = parseInt(process.env.PORT || "4000", 10);
+  app.listen(PORT, () => {
+    console.log(`🚀 Gateway running at http://localhost:${PORT}/graphql`)
   })
 }
 

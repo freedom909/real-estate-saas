@@ -1,11 +1,14 @@
 import type { NextConfig } from "next";
 
+const backendUrl = process.env.BACKEND_URL || "http://localhost:4000";
+
 const nextConfig: NextConfig = {
+  output: "standalone",
   async rewrites() {
     return [
       {
         source: "/api/voice/:path*",
-        destination: "http://localhost:4300/api/voice/:path*",
+        destination: `${backendUrl}/api/voice/:path*`,
       },
     ];
   },

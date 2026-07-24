@@ -14,6 +14,7 @@ import { TOKENS_CATEGORY } from '@/modules/tokens/category.tokens';
 import { inject, injectable } from 'tsyringe';
 import { GenerateTitleResult } from '../ports/generateTitleResult';
 import { IAmenityAdapter } from '../adapters/IAmenity.adapter';
+import { generateListingImages } from '@/services/imageGeneration.service';
 
 export interface CreateListingInput {
   title: string;
@@ -79,6 +80,20 @@ export default class CreateListingUseCase {
     if (invalidAmenities.length > 0) {
       throw new Error(`Invalid amenity IDs: ${invalidAmenities.join(", ")}`);
     }
+    // Auto-generate images if none provided
+    let pictures = input.picture || [];
+    if (pictures.length === 0) {
+      try {
+        pictures = await generateListingImages({
+          title: input.title,
+          description: input.description,
+          address: input.address,
+        });
+      } catch (e) {
+        console.error("Auto-image generation failed:", e);
+      }
+    }
+
     // Production logic: Any cross-domain validation would happen here via adapters
     const listing = new Listing({
       address: input.address,
@@ -102,7 +117,7 @@ export default class CreateListingUseCase {
 
       price: input.price || 1,
 
-      picture: input.picture || [],
+      picture: pictures,
 
       isFeatured: input.isFeatured || false,
     });
