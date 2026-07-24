@@ -4,9 +4,9 @@ import { container } from "tsyringe";
 import { TOKENS_ADMIN } from "@/modules/tokens/admin.tokens";
 
 import CreateAdminUserUseCase from "@/core/admin/application/usecase/createAdminUser.usecase";
-import GetAdminUserByIdUseCase from "@/core/admin/application/usecase/getAdminUserById.usecase";
+import GetAdminUserByIdUseCase from "@/core/admin/application/usecase/getUserById.usecase";
 import UpdateAdminUserUseCase from "@/core/admin/application/usecase/updateAdminUser.usecase";
-import DeleteAdminUserUseCase from "@/core/admin/application/usecase/deleteAdminUser.usecase";
+import DeleteAdminUserUseCase from "@/core/admin/application/usecase/deleteUser.usecase";
 import CreateAuditLogUseCase from "@/core/admin/application/usecase/createAuditLog.usecase";
 import GetAuditLogsUseCase from "@/core/admin/application/usecase/getAuditLogs.usecase";
 import GetAuditLogCountUseCase from "@/core/admin/application/usecase/getAuditLogCount.usecase";
@@ -25,6 +25,7 @@ import { requireAdminRole, requirePermission } from "../guards/adminRole.guard";
 import { Permission, getPermissions } from "../guards/adminPermissions";
 import { logAuditAction, withAuditLog } from "../guards/auditLogger";
 import UpdateAdminAccountUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
+import { Role } from "@/core/shared/domain/role";
 
 // Helper: wrap resolver with permission guard
 function withPermission(resolver: Function, permission: Permission) {
@@ -36,7 +37,7 @@ function withPermission(resolver: Function, permission: Permission) {
 }
 
 // Helper: wrap resolver with role guard (legacy support)
-function withRole(resolver: Function, minRole: "ADMIN" | "SUPER_ADMIN" | "MODERATOR" = "ADMIN") {
+function withRole(resolver: Function, minRole: Role = Role.ADMIN) {
   return async (parent: any, args: any, context: any, info: any) => {
     const guard = requireAdminRole(minRole);
     await guard(parent, args, context, () => {});

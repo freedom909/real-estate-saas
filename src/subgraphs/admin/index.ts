@@ -39,13 +39,8 @@ const typeDefs = gql(
 const startApolloServer = async () => {
   try {
     console.info("Connecting to MySQL...");
-
-    await AdminUserModel.sync();
-    await AuditLogModel.sync();
-    await SystemSettingsModel.sync();
-    await NotificationModel.sync();
     await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
 
     console.info("MySQL connected");
 

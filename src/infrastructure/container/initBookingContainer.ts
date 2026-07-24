@@ -9,6 +9,7 @@ import { BookingRegister } from "@/modules/container/booking.register";
 export async function initializeBookingContainer() {
   const sequelize = new Sequelize(process.env.MYSQL_URI!, {
     logging: false,
+    
   });
 
   initBookingModel(sequelize);

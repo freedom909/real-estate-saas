@@ -7,14 +7,14 @@ import AdminUserModel from "@/core/admin/infrastructure/models/adminUser.model";
 import AuditLogModel from "@/core/admin/infrastructure/models/auditLog.model";
 import SystemSettingsModel from "@/core/admin/infrastructure/models/systemSettings.model";
 import NotificationModel from "@/core/admin/infrastructure/models/notification.model";
-import { AdminUserRepository } from "@/core/admin/infrastructure/persistence/adminUser.repository";
+import { AdminUserRepository } from "@/core/admin/infrastructure/persistence/adminRole.repository";
 import { AuditLogRepository } from "@/core/admin/infrastructure/persistence/auditLog.repository";
 import { SystemSettingsRepository } from "@/core/admin/infrastructure/persistence/systemSettings.repository";
 import { NotificationRepository } from "@/core/admin/infrastructure/persistence/notification.repository";
-import CreateAdminUserUseCase from "@/core/admin/application/usecase/createAdminUser.usecase";
-import GetAdminUserByIdUseCase from "@/core/admin/application/usecase/getAdminUserById.usecase";
+
+import GetAdminUserByIdUseCase from "@/core/admin/application/usecase/getUserById.usecase";
 import UpdateAdminUserUseCase from "@/core/admin/application/usecase/updateAdminUser.usecase";
-import DeleteAdminUserUseCase from "@/core/admin/application/usecase/deleteAdminUser.usecase";
+import DeleteAdminUserUseCase from "@/core/admin/application/usecase/deleteUser.usecase";
 import CreateAuditLogUseCase from "@/core/admin/application/usecase/createAuditLog.usecase";
 import GetAuditLogsUseCase from "@/core/admin/application/usecase/getAuditLogs.usecase";
 import GetAuditLogCountUseCase from "@/core/admin/application/usecase/getAuditLogCount.usecase";
@@ -29,6 +29,13 @@ import DeleteNotificationUseCase from "@/core/admin/application/usecase/deleteNo
 import UpdateProfileUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
 
 import UpdateAdminAccountUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
+import PromoteUserToAdminUseCase from "@/core/admin/application/usecase/promoteUserToAdmin.usecase";
+import DemoteAdminToUserUseCase from "@/core/admin/application/usecase/demoteAdminToUser.usecase";
+import DeleteAdminUseCase from "@/core/admin/application/usecase/deleteAdmin.usecase";  
+import UpdateAdminUseCase from "@/core/admin/application/usecase/updateAdmin.usecase";
+import ListAdminsUseCase from "@/core/admin/application/usecase/listAdmins.usecase";
+import GetAdminByIdUseCase from "@/core/admin/application/usecase/getAdminById.usecase";
+import GetAllAdminsUseCase from "@/core/admin/application/usecase/getAllAdmins.usecase";
 
 export default function registerAdminDependencies() {
   // Models
@@ -66,8 +73,32 @@ export default function registerAdminDependencies() {
   });
 
   // Use Cases
-  container.register(TOKENS_ADMIN.usecase.createAdminUserUseCase, {
-    useClass: CreateAdminUserUseCase,
+  container.register(TOKENS_ADMIN.usecase.promoteUserToAdminUseCase, {
+    useClass: PromoteUserToAdminUseCase,
+  });
+
+  container.register(TOKENS_ADMIN.usecase.demoteAdminToUserUseCase, {
+    useClass: DemoteAdminToUserUseCase,
+  });
+
+  container.register(TOKENS_ADMIN.usecase.deleteAdminUseCase, {
+    useClass: DeleteAdminUseCase,
+  });
+
+  container.register(TOKENS_ADMIN.usecase.updateAdminUseCase, {
+    useClass: UpdateAdminUseCase,
+  });
+
+  container.register(TOKENS_ADMIN.usecase.listAdminsUseCase, {
+    useClass: ListAdminsUseCase,
+  });
+
+  container.register(TOKENS_ADMIN.usecase.getAdminByIdUseCase, {
+    useClass: GetAdminByIdUseCase,
+  });
+
+  container.register(TOKENS_ADMIN.usecase.getAllAdminsUseCase, {
+    useClass: GetAllAdminsUseCase,
   });
 
   container.register(TOKENS_ADMIN.usecase.getAdminUserByIdUseCase, {

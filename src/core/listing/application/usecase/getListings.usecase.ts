@@ -3,7 +3,7 @@ import { IListingRepository } from "../../domain/entities/IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
 @injectable()
-class GetListingUseCase {
+class GetListingsUseCase {
   constructor(
     @inject(TOKENS_LISTING.repos.listingRepository)
     private readonly repo: IListingRepository
@@ -34,4 +34,4 @@ class GetListingUseCase {
   }
 }
 
-export default GetListingUseCase;
+export default GetListingsUseCase;

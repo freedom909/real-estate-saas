@@ -1,6 +1,5 @@
 import { injectable, inject } from "tsyringe";
 import { TOKENS_USER} from "../../../modules/tokens/user.tokens";
-import { normalizeRole } from "@/core/user/domain/entities/normalize.role";
 import { UserResponse } from "./user.dto";
 
 type User = {

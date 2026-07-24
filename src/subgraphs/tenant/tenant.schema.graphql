@@ -105,4 +105,11 @@ updateTenant(id: ID!, name: String!): Tenant!
 
 suspendTenant(id: ID!): Tenant!
 
+switchTenant(tenantId: ID!): SwitchTenantPayload!
+
+}
+
+type SwitchTenantPayload {
+  tenant: Tenant!
+  activeTenantId: ID!
 }

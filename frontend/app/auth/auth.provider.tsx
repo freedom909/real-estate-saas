@@ -5,6 +5,7 @@ import { ApolloProvider } from "@apollo/client/react";
 import { client } from "../lib/apolloClient";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/auth.store";
+import TenantSync from "./tenant-sync";
 
 function getCookie(name: string): string | null {
   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
@@ -62,6 +63,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ApolloProvider client={client}>
       <SyncAuthFromCookies />
+      <TenantSync />
       {children}
     </ApolloProvider>
   );

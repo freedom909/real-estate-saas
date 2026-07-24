@@ -1,30 +1,26 @@
 /// src/MQ/consumer/audit.consumer.ts
 
 import { injectable, inject } from "tsyringe";
-
-
-import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
+import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { AuditRepository } from "@/subgraphs/audit/repos/audit.repository";
 import { IEventBus } from "@/shared/eventbus/IEventBus";
-
+import { AuditEvent } from "@/modules/audit/domain/event/audit.event";
 
 @injectable()
 export class AuditConsumer {
-
   constructor(
-    @inject(TOKENS_AUDIT.eventBus) private bus: IEventBus,
-    @inject(TOKENS_AUDIT.repos.auditRepo) private repo: AuditRepository
+    @inject(TOKENS_EVENT_BUS.eventBus) private bus: IEventBus,
+    @inject(AuditRepository) private repo: AuditRepository
   ) {
-    this.bus.on("audit.event", this.handle.bind(this));
+    this.bus.on("audit.created", this.handle.bind(this));
   }
 
-  async handle(event: any) {
+  async handle(event: AuditEvent) {
     await this.repo.create({
-      action: event.type,
+      action: event.action,
       userId: event.userId,
-      resourceId: event.resourceId,
-      metadata: event.metadata,
-      timestamp: event.timestamp,
+      resourceId: event.userId,
+      timestamp: event.occurredOn,
     });
   }
 }

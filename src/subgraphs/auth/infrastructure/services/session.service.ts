@@ -4,6 +4,7 @@ import { injectable } from "tsyringe";
 import { ISessionPort } from "../../domain/ports/session.port";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
+import SessionModel from "../models/session.model";
 
 @injectable()
 export class SessionService implements ISessionPort {
@@ -48,5 +49,17 @@ export class SessionService implements ISessionPort {
 
   async revokeSession(sessionId: string): Promise<void> {
     // 👉 可以写 blacklist / DB revoke
+  }
+
+  async updateActiveTenant(sessionId: string, tenantId: string): Promise<void> {
+    await SessionModel.findOneAndUpdate(
+      { id: sessionId },
+      { activeTenantId: tenantId },
+      { upsert: false }
+    );
+  }
+
+  async findSessionById(sessionId: string): Promise<{ activeTenantId?: string | null } | null> {
+    return SessionModel.findOne({ id: sessionId }).lean();
   }
 }

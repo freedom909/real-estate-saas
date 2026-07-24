@@ -175,11 +175,15 @@ input UpdateSystemSettingInput {
 }
 
 enum UserRole {
+  GUEST
+  CUSTOMER
+  STAFF
+  MODERATOR
+  AGENT
+  OWNER
+  ADMIN
   SUPER_ADMIN
   TENANT_ADMIN
-  STAFF
-  AGENT
-  CUSTOMER
 }
 # =====================
 # Query

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { ME } from "../../graphql/auth/auth.queries";
-
+import { UPDATE_ADMIN_ACCOUNT } from "../../graphql/admin/mutations/update.admin.account";
 import AdminLayout from "../../components/admin/AdminLayout";
 import AdminGuard from "../../components/admin/AdminGuard";
 
@@ -14,6 +14,8 @@ export default function AdminProfilePage() {
     </AdminGuard>
   );
 }
+
+
 
 function AdminProfileContent() {
   const { data, loading, error, refetch } = useQuery(ME);

@@ -4,6 +4,7 @@ import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { SetContextLink } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { useAuthStore } from "../store/auth.store";
+import { useTenantStore } from "../store/tenant.store";
 import { refreshToken } from "../services/auth.service";
 
 const httpLink = new HttpLink({
@@ -12,9 +13,11 @@ const httpLink = new HttpLink({
 
 const authLink = new SetContextLink((operation) => {
   const token = useAuthStore.getState().accessToken;
+  const tenantId = useTenantStore.getState().activeTenantId;
   return {
     headers: {
       authorization: token ? `Bearer ${token}` : "",
+      ...(tenantId ? { "x-tenant-id": tenantId } : {}),
     },
   };
 });

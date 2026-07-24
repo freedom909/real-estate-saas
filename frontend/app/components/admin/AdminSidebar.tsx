@@ -13,6 +13,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: "📊", permission: "dashboard:view" },
+  { href: "/admin/analytics", label: "Analytics", icon: "📈", permission: "dashboard:view" },
+  { href: "/admin/reports", label: "Reports", icon: "📝", permission: "dashboard:view" },
+  { href: "/admin/roles", label: "Roles", icon: "🔐", permission: "admin_users:view" },
   { href: "/admin/users", label: "Admin Users", icon: "🛡️", permission: "admin_users:view" },
   { href: "/admin/manage-users", label: "Users", icon: "👥", permission: "users:view" },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: "📋", permission: "audit_logs:view" },

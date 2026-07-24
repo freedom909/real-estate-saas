@@ -2,16 +2,13 @@
 
 import { injectable, inject } from "tsyringe";
 import { v4 as uuidv4 } from "uuid";
-import { AdminUser } from "../../domain/entities/adminUser";
 import { IAdminUserRepository } from "../../domain/entities/IAdminUserRepository";
 import { TOKENS_ADMIN } from "@/modules/tokens/admin.tokens";
-import { Email } from "../../domain/value-objects/email";
 
 export interface CreateAdminUserInput {
-  id?: string;
   email: string;
   name: string;
-  role?: "ADMIN" | "SUPER_ADMIN" | "MODERATOR";
+  role?: string;
   avatar?: string;
 }
 
@@ -22,23 +19,23 @@ export default class CreateAdminUserUseCase {
     private adminRepo: IAdminUserRepository
   ) {}
 
-  async execute(input: CreateAdminUserInput): Promise<AdminUser> {
-    const existing = await this.adminRepo.findByEmail(input.email);
-    if (existing) {
-      throw new Error(`Admin with email ${input.email} already exists`);
-    }
+  async execute(input: CreateAdminUserInput) {
+    const id = uuidv4();
+    const now = new Date();
 
-    const admin = new AdminUser({
-      id: input.id ?? uuidv4(),
-      email: new Email(input.email),
+    const admin = {
+      id,
+      email: input.email,
       name: input.name,
       role: input.role || "ADMIN",
       avatar: input.avatar,
       isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+      immutable: false,
+      lastLoginAt: undefined,
+      createdAt: now,
+      updatedAt: now,
+    };
 
-    return this.adminRepo.create(admin);
+    return this.adminRepo.create(admin as any);
   }
 }

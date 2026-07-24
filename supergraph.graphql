@@ -1,0 +1,1412 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.5", for: EXECUTION)
+{
+  query: Query
+  mutation: Mutation
+}
+
+directive @join__directive(graphs: [join__Graph!], name: String!, args: join__DirectiveArguments) repeatable on SCHEMA | OBJECT | INTERFACE | FIELD_DEFINITION
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean, overrideLabel: String, contextArguments: [join__ContextArgument!]) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+type AccountDashboard
+  @join__type(graph: ACCOUNT)
+{
+  bookings: [Booking!]!
+  listings: [Listing!]!
+  reviews: [Review!]!
+}
+
+enum AccountStatus
+  @join__type(graph: ACCOUNT)
+  @join__type(graph: USER)
+{
+  ACTIVE @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: USER)
+  INACTIVE @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: USER)
+  SUSPENDED @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: USER)
+  BANNED @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: USER)
+  DELETED @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: USER)
+}
+
+input AddToCartInput
+  @join__type(graph: CART)
+{
+  cartId: ID!
+  customerId: ID!
+  listingId: ID!
+  quantity: Int
+  price: Float
+  checkInDate: DateTime
+  checkOutDate: DateTime
+}
+
+type Amenity
+  @join__type(graph: AMENITY, key: "id")
+  @join__type(graph: LISTING, key: "id", extension: true)
+{
+  id: ID!
+  name: String! @join__field(graph: AMENITY)
+  category: AmenityCategory! @join__field(graph: AMENITY)
+  type: String @join__field(graph: LISTING)
+}
+
+enum AmenityCategory
+  @join__type(graph: AMENITY)
+{
+  ACCOMMODATION_DETAILS @join__enumValue(graph: AMENITY)
+  SPACE_SURVIVAL @join__enumValue(graph: AMENITY)
+  OUTDOORS @join__enumValue(graph: AMENITY)
+  UNKNOWN @join__enumValue(graph: AMENITY)
+}
+
+type ApplyDescriptionResponse
+  @join__type(graph: LISTING)
+{
+  listingId: ID!
+  description: String!
+}
+
+type ApplyTitleResponse
+  @join__type(graph: LISTING)
+{
+  listingId: ID!
+  title: String!
+}
+
+type Artifact
+  @join__type(graph: WISDOM)
+{
+  type: ArtifactType!
+  content: JSON!
+}
+
+enum ArtifactType
+  @join__type(graph: WISDOM)
+{
+  LISTING_SEARCH_RESULT @join__enumValue(graph: WISDOM)
+  LISTING_SELECTED @join__enumValue(graph: WISDOM)
+  DATES_SELECTED @join__enumValue(graph: WISDOM)
+  CUSTOMER_COUNT_SELECTED @join__enumValue(graph: WISDOM)
+  CONTACT_SET @join__enumValue(graph: WISDOM)
+  SPECIAL_REQUEST_SET @join__enumValue(graph: WISDOM)
+  BOOKING_GET @join__enumValue(graph: WISDOM)
+  BOOKING_COMPLETED @join__enumValue(graph: WISDOM)
+  BOOKING_CREATED @join__enumValue(graph: WISDOM)
+  BOOKING_CONFIRMED @join__enumValue(graph: WISDOM)
+  BOOKING_CANCELLED @join__enumValue(graph: WISDOM)
+  TITLE @join__enumValue(graph: WISDOM)
+  DESCRIPTION @join__enumValue(graph: WISDOM)
+  PRICE @join__enumValue(graph: WISDOM)
+  SEO @join__enumValue(graph: WISDOM)
+  TIPS @join__enumValue(graph: WISDOM)
+  REVIEW @join__enumValue(graph: WISDOM)
+  BOOKING @join__enumValue(graph: WISDOM)
+  AVAILABILITY_CHECK @join__enumValue(graph: WISDOM)
+  LISTING @join__enumValue(graph: WISDOM)
+}
+
+type AuditLog
+  @join__type(graph: AUDIT, key: "id")
+{
+  id: ID!
+  action: String!
+  userId: ID!
+  resourceId: ID!
+  metadata: String
+  timestamp: String!
+}
+
+type AuthPayload
+  @join__type(graph: AUTH)
+{
+  accessToken: String!
+  refreshToken: String!
+  user: AuthUser!
+}
+
+type AuthTokens
+  @join__type(graph: AUTH)
+{
+  accessToken: String!
+}
+
+type AuthUser
+  @join__type(graph: AUTH)
+{
+  id: ID!
+  email: String
+  name: String
+  picture: String
+}
+
+type Booking
+  @join__type(graph: ACCOUNT, key: "id", extension: true)
+  @join__type(graph: BOOKING, key: "id")
+  @join__type(graph: LOCATION, key: "id")
+  @join__type(graph: PAYMENT, key: "id", extension: true)
+  @join__type(graph: REVIEW, key: "id")
+  @join__type(graph: USER, key: "id", extension: true)
+{
+  id: ID!
+  tenant: Tenant! @join__field(graph: BOOKING)
+  listing: Listing @join__field(graph: BOOKING)
+  customer: User! @join__field(graph: BOOKING)
+  checkInDate: DateTime! @join__field(graph: BOOKING)
+  checkOutDate: DateTime! @join__field(graph: BOOKING)
+  price: Float! @join__field(graph: BOOKING)
+  status: BookingStatus! @join__field(graph: BOOKING)
+  lifecycleStatus: BookingLifecycleStatus! @join__field(graph: BOOKING)
+  createdAt: DateTime! @join__field(graph: BOOKING)
+  updatedAt: DateTime @join__field(graph: BOOKING)
+  payment: Payment @join__field(graph: PAYMENT)
+}
+
+enum BookingLifecycleStatus
+  @join__type(graph: BOOKING)
+{
+  UPCOMING @join__enumValue(graph: BOOKING)
+  CURRENT @join__enumValue(graph: BOOKING)
+  PAST @join__enumValue(graph: BOOKING)
+}
+
+enum BookingStatus
+  @join__type(graph: ACCOUNT)
+  @join__type(graph: BOOKING)
+{
+  PENDING @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: BOOKING)
+  CONFIRMED @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: BOOKING)
+  CHECKED_IN @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: BOOKING)
+  FAILED @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: BOOKING)
+  CANCELLED @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: BOOKING)
+  COMPLETED @join__enumValue(graph: ACCOUNT) @join__enumValue(graph: BOOKING)
+}
+
+type BookingValidationResult
+  @join__type(graph: ACCOUNT)
+{
+  results: [RuleCheck!]!
+  allPassed: Boolean!
+}
+
+type CancelBookingResponse implements MutationResponse
+  @join__implements(graph: BOOKING, interface: "MutationResponse")
+  @join__type(graph: BOOKING)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  booking: Booking!
+}
+
+type CancellationPolicyResult
+  @join__type(graph: ACCOUNT)
+{
+  passed: Boolean!
+  ruleName: String!
+  message: String!
+}
+
+type CancelWithPolicyResponse
+  @join__type(graph: ACCOUNT)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  refundEligible: Boolean!
+  refundAmount: Float!
+  cancellationPolicy: CancellationPolicyResult!
+}
+
+type Cart
+  @join__type(graph: CART, key: "id")
+{
+  id: ID!
+  customerId: ID!
+  checkInDate: DateTime
+  checkOutDate: DateTime
+  price: Float!
+  cartItems: [CartItem!]!
+}
+
+type CartItem
+  @join__type(graph: CART)
+{
+  id: ID!
+  cartId: ID!
+  listingId: ID!
+  quantity: Int!
+  price: Float!
+  checkInDate: DateTime
+  checkOutDate: DateTime
+}
+
+type CartResponse implements MutationResponse
+  @join__implements(graph: CART, interface: "MutationResponse")
+  @join__type(graph: CART)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  cart: Cart
+}
+
+type Category
+  @join__type(graph: LISTING)
+{
+  id: ID!
+  name: String!
+}
+
+input ChatInput
+  @join__type(graph: WISDOM)
+{
+  message: String!
+}
+
+type ChatResponse
+  @join__type(graph: WISDOM)
+{
+  success: Boolean!
+  summary: String
+  artifacts: [Artifact!]!
+}
+
+input CheckCancellationPolicyInput
+  @join__type(graph: ACCOUNT)
+{
+  bookingId: ID!
+  checkInDate: DateTime!
+}
+
+input CheckOccupancyInput
+  @join__type(graph: ACCOUNT)
+{
+  listingId: ID!
+  checkInDate: DateTime!
+  customerCount: Int!
+  maxOccupancy: Int!
+}
+
+input CheckRefundInput
+  @join__type(graph: ACCOUNT)
+{
+  bookingId: ID!
+  totalPrice: Float!
+  amountPaid: Float!
+  checkInDate: DateTime!
+  cancelledAt: DateTime!
+  status: String!
+}
+
+input CleaningFeeInput
+  @join__type(graph: ACCOUNT)
+{
+  listingId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  nightlyPrice: Float!
+  customerCount: Int!
+  numRooms: Int
+}
+
+type CleaningFeeResult
+  @join__type(graph: ACCOUNT)
+{
+  passed: Boolean!
+  ruleName: String!
+  message: String!
+  cleaningFee: Float!
+}
+
+type Comment
+  @join__type(graph: REVIEW)
+{
+  id: ID!
+  content: String!
+  author: User!
+  review: Review
+  createdAt: String!
+  updatedAt: String!
+}
+
+input CommentInput
+  @join__type(graph: REVIEW)
+{
+  content: String!
+}
+
+type CouponValidationResult
+  @join__type(graph: ACCOUNT)
+{
+  valid: Boolean!
+  discountType: String!
+  discountValue: Float!
+  finalPrice: Float!
+  reason: String!
+}
+
+input CreateAmenityInput
+  @join__type(graph: AMENITY)
+{
+  name: String!
+  category: AmenityCategory!
+}
+
+type CreateAmenityResponse implements Response
+  @join__implements(graph: AMENITY, interface: "Response")
+  @join__type(graph: AMENITY)
+{
+  success: Boolean!
+  code: Int!
+  message: String!
+  amenity: Amenity
+}
+
+input CreateBookingInput
+  @join__type(graph: BOOKING)
+{
+  listingId: ID!
+  customerId: ID
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  price: Float
+}
+
+type CreateBookingResponse
+  @join__type(graph: BOOKING)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  booking: Booking!
+}
+
+input CreateListingInput
+  @join__type(graph: LISTING)
+{
+  title: String!
+  description: String!
+  address: String!
+  ownerId: ID!
+  locationId: ID!
+  categories: [ID!]!
+  amenityIds: [ID!]
+  numOfBeds: Int
+  numOfCustomers: Int
+  numOfBathrooms: Int
+  numOfRooms: Int
+  price: Float
+  pricePerNight: Float!
+  picture: [String!]
+  isFeatured: Boolean
+}
+
+input CreateLocationInput
+  @join__type(graph: LOCATION)
+{
+  name: String!
+  latitude: Float!
+  radius: Int!
+  longitude: Float!
+  address: String!
+  city: String!
+  state: String!
+  country: String!
+  zip: String!
+  units: String!
+}
+
+type CreateLocationResponse implements Response
+  @join__implements(graph: LOCATION, interface: "Response")
+  @join__type(graph: LOCATION)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  location: Location!
+}
+
+input CreateOAuthUserInput
+  @join__type(graph: USER)
+{
+  email: String
+  profile: ProfileInput
+  provider: OAuthProvider!
+}
+
+input CreatePaymentInput
+  @join__type(graph: PAYMENT)
+{
+  bookingId: ID!
+  amount: Float!
+  customerId: ID!
+  tenantId: ID!
+}
+
+input CreateTenantInput
+  @join__type(graph: TENANT)
+{
+  name: String!
+  slug: String!
+  ownerUserId: ID!
+}
+
+input CreateUserInput
+  @join__type(graph: USER)
+{
+  email: String!
+  name: String!
+  role: UserRole = CUSTOMER
+}
+
+type Credential
+  @join__type(graph: USER, key: "id")
+{
+  id: ID!
+  user: User!
+  provider: OAuthProvider!
+  providerUserId: String!
+  createdAt: DateTime!
+}
+
+type Customer
+  @join__type(graph: LOCATION, key: "id", extension: true)
+  @join__type(graph: PAYMENT, key: "id", extension: true)
+  @join__type(graph: REVIEW, key: "id")
+{
+  id: ID!
+  overallRating: Float @join__field(graph: LOCATION) @join__field(graph: REVIEW)
+  bookings: [Booking!] @join__field(graph: LOCATION) @join__field(graph: REVIEW)
+  listings: [Listing!] @join__field(graph: LOCATION) @join__field(graph: REVIEW)
+  name: String! @join__field(graph: REVIEW)
+  picture: String! @join__field(graph: REVIEW)
+  role: Role @join__field(graph: REVIEW)
+}
+
+scalar DateTime
+  @join__type(graph: ACCOUNT)
+  @join__type(graph: AUTH)
+  @join__type(graph: BOOKING)
+  @join__type(graph: CART)
+  @join__type(graph: LISTING)
+  @join__type(graph: LOCATION)
+  @join__type(graph: PAYMENT)
+  @join__type(graph: TENANT)
+  @join__type(graph: USER)
+  @join__type(graph: WISDOM)
+
+type FraudAnalysisResponse
+  @join__type(graph: BOOKING)
+{
+  agentName: String!
+  assessment: JSON!
+}
+
+input HolidayPricingInput
+  @join__type(graph: ACCOUNT)
+{
+  listingId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  nightlyPrice: Float!
+  customerCount: Int
+  numRooms: Int
+}
+
+type HolidayPricingResult
+  @join__type(graph: ACCOUNT)
+{
+  nights: Int!
+  holidayNights: Int!
+  weekendNights: Int!
+  surcharge: Float!
+  nightPrices: [NightPrice!]!
+}
+
+type Identity
+  @join__type(graph: AUTH)
+{
+  id: ID!
+  provider: String!
+  email: String
+}
+
+input join__ContextArgument {
+  name: String!
+  type: String!
+  context: String!
+  selection: join__FieldValue!
+}
+
+scalar join__DirectiveArguments
+
+scalar join__FieldSet
+
+scalar join__FieldValue
+
+enum join__Graph {
+  ACCOUNT @join__graph(name: "account", url: "http://localhost:4102/graphql")
+  AMENITY @join__graph(name: "amenity", url: "http://localhost:4090/graphql")
+  AUDIT @join__graph(name: "audit", url: "http://localhost:4070/graphql")
+  AUTH @join__graph(name: "auth", url: "http://localhost:4010/graphql")
+  BOOKING @join__graph(name: "booking", url: "http://localhost:4030/graphql")
+  CART @join__graph(name: "cart", url: "http://localhost:4103/graphql")
+  LISTING @join__graph(name: "listing", url: "http://localhost:4101/graphql")
+  LOCATION @join__graph(name: "location", url: "http://localhost:4080/graphql")
+  PAYMENT @join__graph(name: "payment", url: "http://localhost:4050/graphql")
+  REVIEW @join__graph(name: "review", url: "http://localhost:4040/graphql")
+  TENANT @join__graph(name: "tenant", url: "http://localhost:4060/graphql")
+  USER @join__graph(name: "user", url: "http://localhost:4020/graphql")
+  WISDOM @join__graph(name: "wisdom", url: "http://localhost:4200/graphql")
+}
+
+scalar JSON
+  @join__type(graph: ACCOUNT)
+  @join__type(graph: AUTH)
+  @join__type(graph: BOOKING)
+  @join__type(graph: WISDOM)
+
+type Like
+  @join__type(graph: REVIEW)
+{
+  id: ID!
+  userId: ID!
+  reviewId: ID!
+  createdAt: String!
+  updatedAt: String!
+  isPositive: Boolean!
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+type Listing
+  @join__type(graph: ACCOUNT, key: "id", extension: true)
+  @join__type(graph: BOOKING, key: "id", extension: true)
+  @join__type(graph: CART, key: "id", extension: true)
+  @join__type(graph: LISTING, key: "id")
+  @join__type(graph: LOCATION, key: "id")
+  @join__type(graph: REVIEW, key: "id")
+  @join__type(graph: USER, key: "id", extension: true)
+{
+  id: ID!
+  bookings: [Booking!]! @join__field(graph: BOOKING)
+  title: String! @join__field(graph: LISTING)
+  description: String! @join__field(graph: LISTING)
+  address: String! @join__field(graph: LISTING)
+  owner: User! @join__field(graph: LISTING)
+  ownerId: ID! @join__field(graph: LISTING)
+  locationId: ID! @join__field(graph: LISTING)
+  categories: [Category!]! @join__field(graph: LISTING)
+  amenityIds: [Amenity!]! @join__field(graph: LISTING)
+  numOfBeds: Int! @join__field(graph: LISTING)
+  numOfCustomers: Int! @join__field(graph: LISTING)
+  numOfBathrooms: Int! @join__field(graph: LISTING)
+  numOfRooms: Int! @join__field(graph: LISTING)
+  price: Float! @join__field(graph: LISTING)
+  pricePerNight: Float! @join__field(graph: LISTING)
+  picture: [String!] @join__field(graph: LISTING)
+  isFeatured: Boolean! @join__field(graph: LISTING)
+  createdAt: DateTime! @join__field(graph: LISTING)
+  updatedAt: DateTime @join__field(graph: LISTING)
+}
+
+type ListingAISuggestion
+  @join__type(graph: LISTING)
+{
+  id: ID!
+  listingId: ID!
+  type: String!
+  prompt: String!
+  suggestion: SuggestionStatus!
+  model: String
+  createdAt: String!
+}
+
+enum ListingStatus
+  @join__type(graph: ACCOUNT)
+{
+  PENDING @join__enumValue(graph: ACCOUNT)
+  PUBLISH @join__enumValue(graph: ACCOUNT)
+}
+
+type Location
+  @join__type(graph: LOCATION, key: "id")
+  @join__type(graph: REVIEW, key: "id")
+{
+  id: ID!
+  name: String!
+  country: String! @join__field(graph: LOCATION)
+  zip: String! @join__field(graph: LOCATION)
+  city: String! @join__field(graph: LOCATION)
+  state: String! @join__field(graph: LOCATION)
+  address: String! @join__field(graph: LOCATION)
+  latitude: Float! @join__field(graph: LOCATION)
+  longitude: Float! @join__field(graph: LOCATION)
+  radius: Int! @join__field(graph: LOCATION)
+  units: String! @join__field(graph: LOCATION)
+}
+
+input MultiRoomInput
+  @join__type(graph: ACCOUNT)
+{
+  listingId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  numRooms: Int!
+  totalRooms: Int!
+  existingBookings: Int!
+}
+
+type MultiRoomInventoryResult
+  @join__type(graph: ACCOUNT)
+{
+  passed: Boolean!
+  available: Boolean!
+  existingBookings: Int!
+  totalRooms: Int!
+  requestedRooms: Int!
+  reason: String!
+}
+
+type Mutation
+  @join__type(graph: ACCOUNT)
+  @join__type(graph: AMENITY)
+  @join__type(graph: AUDIT)
+  @join__type(graph: AUTH)
+  @join__type(graph: BOOKING)
+  @join__type(graph: CART)
+  @join__type(graph: LISTING)
+  @join__type(graph: LOCATION)
+  @join__type(graph: PAYMENT)
+  @join__type(graph: REVIEW)
+  @join__type(graph: TENANT)
+  @join__type(graph: USER)
+  @join__type(graph: WISDOM)
+{
+  cancelBookingWithPolicy(bookingId: ID!, checkInDate: DateTime!, totalPrice: Float!, amountPaid: Float!): CancelWithPolicyResponse! @join__field(graph: ACCOUNT)
+  createAmenity(input: CreateAmenityInput!): CreateAmenityResponse @join__field(graph: AMENITY)
+  updateAmenity(input: UpdateAmenityInput!): CreateAmenityResponse @join__field(graph: AMENITY)
+  deleteAmenity(id: ID!): CreateAmenityResponse @join__field(graph: AMENITY)
+  recordAuditLog(action: String!, userId: ID!, resourceId: ID, metadata: String): AuditLog! @join__field(graph: AUDIT)
+  refreshToken(refreshToken: String!): AuthTokens! @join__field(graph: AUTH)
+  logout: Boolean! @join__field(graph: AUTH)
+  revokeSession(sessionId: ID!): Boolean! @join__field(graph: AUTH)
+  verifyOtp(challengeId: ID!, code: String!): AuthPayload @join__field(graph: AUTH)
+  bindOAuthAccount(provider: OAuthProvider!, idToken: String!): Boolean! @join__field(graph: AUTH)
+  unbindOAuthAccount(provider: OAuthProvider!): Boolean! @join__field(graph: AUTH)
+  oauthLogin(provider: OAuthProvider!, idToken: String!): AuthPayload! @join__field(graph: AUTH)
+  bindOAuth(provider: OAuthProvider!, idToken: String!): Boolean! @join__field(graph: AUTH)
+  unbindOAuth(provider: OAuthProvider!): Boolean! @join__field(graph: AUTH)
+  createBooking(input: CreateBookingInput!): CreateBookingResponse! @join__field(graph: BOOKING)
+  cancelBooking(id: ID!, reason: String): CancelBookingResponse @join__field(graph: BOOKING)
+  confirmBooking(id: ID!): Booking! @join__field(graph: BOOKING)
+  checkInBooking(id: ID!): Booking! @join__field(graph: BOOKING)
+  completeBooking(id: ID!): Booking! @join__field(graph: BOOKING)
+  updateBooking(input: UpdateBookingInput!): UpdateBookingResponse! @join__field(graph: BOOKING)
+  analyzeBookingFraud(bookingId: ID!): FraudAnalysisResponse! @join__field(graph: BOOKING)
+  addToCart(input: AddToCartInput!): CartResponse! @join__field(graph: CART)
+  updateCartItem(input: UpdateCartItemInput!): CartResponse! @join__field(graph: CART)
+  removeFromCart(input: RemoveFromCartInput!): CartResponse! @join__field(graph: CART)
+  createListing(input: CreateListingInput!): Listing! @join__field(graph: LISTING)
+  generateTitleSuggestion(listingId: ID!): String! @join__field(graph: LISTING)
+  generateDescriptionSuggestion(listingId: ID!): String! @join__field(graph: LISTING)
+  applyAISuggestion(suggestionId: ID!): Listing! @join__field(graph: LISTING)
+  createLocation(input: CreateLocationInput!): CreateLocationResponse! @join__field(graph: LOCATION)
+  updateLocation(locationId: ID!, location: UpdateLocationInput): UpdateLocationResponse! @join__field(graph: LOCATION)
+  deleteLocation(locationId: ID!): Boolean! @join__field(graph: LOCATION)
+  processPayment(paymentId: ID!): ProcessPaymentResponse! @join__field(graph: PAYMENT)
+  processRefund(input: RefundInput!): RefundResponse! @join__field(graph: PAYMENT)
+  confirmPayment(paymentId: ID!): ProcessPaymentResponse! @join__field(graph: PAYMENT)
+  createPayment(input: CreatePaymentInput!): Payment! @join__field(graph: PAYMENT)
+  cancelPayment(paymentId: ID!, reason: String): Payment! @join__field(graph: PAYMENT)
+  failPayment(paymentId: ID!): ProcessPaymentResponse! @join__field(graph: PAYMENT)
+  submitCustomerReview(customerReview: ReviewInput!, bookingId: ID!): SubmitCustomerReviewResponse! @join__field(graph: REVIEW)
+  submitOwnerReplyToCustomerReview(bookingId: ID!, hostReview: ReviewInput!, customerReviewID: ID!, comment: CommentInput!): SubmitOwnerReplyToCustomerReviewResponse! @join__field(graph: REVIEW)
+  createTenant(input: CreateTenantInput!): Tenant! @join__field(graph: TENANT)
+  updateTenant(id: ID!, name: String!): Tenant! @join__field(graph: TENANT)
+  suspendTenant(id: ID!): Tenant! @join__field(graph: TENANT)
+  switchTenant(tenantId: ID!): SwitchTenantPayload! @join__field(graph: TENANT)
+  createUser(input: CreateUserInput!): User! @join__field(graph: USER)
+  createOAuthUser(input: CreateOAuthUserInput!): User! @join__field(graph: USER)
+  updateProfile(userId: ID!, name: String, avatar: String): User! @join__field(graph: USER)
+  updateLastLogin(userId: ID!): Boolean! @join__field(graph: USER)
+  deactivateUser(userId: ID!): Boolean! @join__field(graph: USER)
+  chat(input: ChatInput!): ChatResponse! @join__field(graph: WISDOM)
+}
+
+interface MutationResponse
+  @join__type(graph: BOOKING)
+  @join__type(graph: CART)
+  @join__type(graph: REVIEW)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+type NightPrice
+  @join__type(graph: ACCOUNT)
+{
+  date: DateTime!
+  basePrice: Float!
+  surcharge: Float!
+  finalPrice: Float!
+}
+
+type OAuthAccount
+  @join__type(graph: AUTH)
+{
+  id: ID!
+  userId: ID!
+  provider: OAuthProvider!
+  createdAt: DateTime!
+}
+
+type OAuthLoginResponse
+  @join__type(graph: AUTH)
+{
+  accessToken: String
+  refreshToken: String
+  requiresChallenge: Boolean
+}
+
+enum OAuthProvider
+  @join__type(graph: AUTH)
+  @join__type(graph: USER)
+{
+  GOOGLE @join__enumValue(graph: AUTH) @join__enumValue(graph: USER)
+  FACEBOOK @join__enumValue(graph: AUTH) @join__enumValue(graph: USER)
+  GITHUB @join__enumValue(graph: AUTH) @join__enumValue(graph: USER)
+  APPLE @join__enumValue(graph: AUTH) @join__enumValue(graph: USER)
+  LINE @join__enumValue(graph: AUTH) @join__enumValue(graph: USER)
+}
+
+type OccupancyResult
+  @join__type(graph: ACCOUNT)
+{
+  passed: Boolean!
+  ruleName: String!
+  message: String!
+}
+
+input OversaleCheckInput
+  @join__type(graph: ACCOUNT)
+{
+  listingId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  numRooms: Int
+  totalRooms: Int!
+  existingBookings: Int!
+}
+
+type OversaleCheckResult
+  @join__type(graph: ACCOUNT)
+{
+  passed: Boolean!
+  available: Boolean!
+  existingBookings: Int!
+  totalRooms: Int!
+  requestedRooms: Int!
+  reason: String!
+}
+
+type Owner
+  @join__type(graph: LISTING, key: "id", extension: true)
+  @join__type(graph: LOCATION, key: "id", extension: true)
+  @join__type(graph: REVIEW, key: "id")
+{
+  id: ID!
+  listings: [Listing!]
+  role: Role @join__field(graph: REVIEW)
+  name: String! @join__field(graph: REVIEW)
+  overallRating: Float @join__field(graph: REVIEW)
+  picture: String! @join__field(graph: REVIEW)
+  bookings: [Booking!] @join__field(graph: REVIEW)
+}
+
+type PageInfo
+  @join__type(graph: TENANT)
+{
+  total: Int!
+  hasNextPage: Boolean!
+}
+
+type Payment
+  @join__type(graph: PAYMENT, key: "id")
+{
+  id: ID!
+  tenantId: ID!
+  bookingId: ID!
+  customerId: ID!
+  amount: Float!
+  status: PaymentStatus!
+  paymentIntentId: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum PaymentStatus
+  @join__type(graph: PAYMENT)
+{
+  PENDING @join__enumValue(graph: PAYMENT)
+  PROCESSING @join__enumValue(graph: PAYMENT)
+  SUCCEEDED @join__enumValue(graph: PAYMENT)
+  FAILED @join__enumValue(graph: PAYMENT)
+  REFUNDED @join__enumValue(graph: PAYMENT)
+  CANCELLED @join__enumValue(graph: PAYMENT)
+}
+
+type PriceBreakdown
+  @join__type(graph: ACCOUNT)
+{
+  basePrice: Float!
+  cleaningFee: Float!
+  holidaySurcharge: Float!
+  couponDiscount: Float!
+  totalPrice: Float!
+}
+
+input ProcessPaymentInput
+  @join__type(graph: PAYMENT)
+{
+  bookingId: ID!
+  paymentIntentId: String!
+  amount: Float!
+}
+
+type ProcessPaymentResponse implements Response
+  @join__implements(graph: PAYMENT, interface: "Response")
+  @join__type(graph: PAYMENT)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  payment: Payment
+}
+
+type Profile
+  @join__type(graph: USER)
+{
+  name: String
+  avatar: String
+  email: String
+}
+
+input ProfileInput
+  @join__type(graph: USER)
+{
+  email: String
+  name: String
+  avatar: String
+}
+
+type Query
+  @join__type(graph: ACCOUNT)
+  @join__type(graph: AMENITY)
+  @join__type(graph: AUDIT)
+  @join__type(graph: AUTH)
+  @join__type(graph: BOOKING)
+  @join__type(graph: CART)
+  @join__type(graph: LISTING)
+  @join__type(graph: LOCATION)
+  @join__type(graph: PAYMENT)
+  @join__type(graph: REVIEW)
+  @join__type(graph: TENANT)
+  @join__type(graph: USER)
+  @join__type(graph: WISDOM)
+{
+  myDashboard: AccountDashboard! @join__field(graph: ACCOUNT)
+  checkCancellationPolicy(input: CheckCancellationPolicyInput!): CancellationPolicyResult! @join__field(graph: ACCOUNT)
+  calculateHolidayPricing(input: HolidayPricingInput!): HolidayPricingResult! @join__field(graph: ACCOUNT)
+  calculateCleaningFee(input: CleaningFeeInput!): CleaningFeeResult! @join__field(graph: ACCOUNT)
+  checkOversale(input: OversaleCheckInput!): OversaleCheckResult! @join__field(graph: ACCOUNT)
+  checkMultiRoomInventory(input: MultiRoomInput!): MultiRoomInventoryResult! @join__field(graph: ACCOUNT)
+  validateCoupon(input: ValidateCouponInput!): CouponValidationResult! @join__field(graph: ACCOUNT)
+  checkRefund(input: CheckRefundInput!): RefundResult! @join__field(graph: ACCOUNT)
+  checkOccupancy(input: CheckOccupancyInput!): OccupancyResult! @join__field(graph: ACCOUNT)
+  validateBooking(input: ValidateBookingInput!): BookingValidationResult! @join__field(graph: ACCOUNT)
+  amenities: [Amenity!]! @join__field(graph: AMENITY)
+  amenity(id: ID!): Amenity @join__field(graph: AMENITY)
+  amenitiesByIds(ids: [ID!]!): [Amenity!]! @join__field(graph: AMENITY)
+  getAuditLog(userId: ID!): AuditLog @join__field(graph: AUDIT)
+  getAuditLogsByResource(resourceId: ID!): [AuditLog!]! @join__field(graph: AUDIT)
+  listOAuthAccounts: [OAuthAccount!]! @join__field(graph: AUTH)
+  me: User @join__field(graph: AUTH)
+  _authHealth: Boolean @join__field(graph: AUTH)
+  mySessions: [Session!]! @join__field(graph: AUTH)
+  mySecurityEvents(limit: Int = 20): [RiskEvent!]! @join__field(graph: AUTH)
+  myIdentities: [Identity!]! @join__field(graph: AUTH)
+  bookingsForTenant(listingId: ID!, status: BookingStatus): [Booking!]! @join__field(graph: BOOKING)
+  bookingsForCustomer(userId: ID!): [Booking!] @join__field(graph: BOOKING)
+  myBookings: [Booking!]! @join__field(graph: BOOKING)
+  currentCustomerBooking: Booking @join__field(graph: BOOKING)
+  upcomingCustomerBookings: [Booking!]! @join__field(graph: BOOKING)
+  pastCustomerBookings: [Booking!]! @join__field(graph: BOOKING)
+  customerBookings: [Booking!]! @join__field(graph: BOOKING)
+  booking(id: ID!): Booking @join__field(graph: BOOKING)
+  getCart(cartId: ID!): Cart @join__field(graph: CART)
+  getCartsByCustomer(customerId: ID!): [Cart!]! @join__field(graph: CART)
+  listing(id: ID!): Listing @join__field(graph: LISTING)
+  listingAISuggestions(listingId: ID!): [ListingAISuggestion!]! @join__field(graph: LISTING)
+  listings: [Listing!]! @join__field(graph: LISTING)
+  featuredListings(limit: Int): [Listing!]! @join__field(graph: LISTING)
+  listingsByOwner(ownerId: ID!): [Listing!]! @join__field(graph: LISTING)
+  locations(locationId: ID): [Location!]! @join__field(graph: LOCATION)
+  payment(id: ID!): Payment @join__field(graph: PAYMENT)
+  paymentsByCustomer(customerId: ID!): [Payment!]! @join__field(graph: PAYMENT)
+  paymentByBooking(bookingId: ID!): Payment @join__field(graph: PAYMENT)
+
+  """Returns a list of reviews for a given listing"""
+  searchReviews(input: SearchReviewsInput!): [Review] @join__field(graph: REVIEW)
+  reviewsForListing(listingId: ID!): [Review] @join__field(graph: REVIEW)
+  review(id: ID!): Review @join__field(graph: REVIEW)
+
+  """Returns all reviews in the system"""
+  allReviews: [Review] @join__field(graph: REVIEW)
+  getTenant(id: ID!): Tenant @join__field(graph: TENANT)
+  getTenants(filter: TenantFilterInput): TenantConnection! @join__field(graph: TENANT)
+  user(id: ID!): User @join__field(graph: USER)
+  userByEmail(email: String!): User @join__field(graph: USER)
+  users(limit: Int, offset: Int): [User!]! @join__field(graph: USER)
+  userCount: Int! @join__field(graph: USER)
+  tenantsByUser(userId: ID!): [Tenant!]! @join__field(graph: USER)
+  _empty: String @join__field(graph: WISDOM)
+}
+
+input RefundInput
+  @join__type(graph: PAYMENT)
+{
+  paymentId: ID!
+  amount: Float!
+}
+
+type RefundResponse implements Response
+  @join__implements(graph: PAYMENT, interface: "Response")
+  @join__type(graph: PAYMENT)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  refundAmount: Float!
+}
+
+type RefundResult
+  @join__type(graph: ACCOUNT)
+{
+  eligible: Boolean!
+  refundAmount: Float!
+  reason: String!
+}
+
+input RemoveFromCartInput
+  @join__type(graph: CART)
+{
+  cartId: ID!
+  itemId: ID!
+}
+
+type ReservedDate
+  @join__type(graph: BOOKING)
+{
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+}
+
+interface Response
+  @join__type(graph: AMENITY)
+  @join__type(graph: LOCATION)
+  @join__type(graph: PAYMENT)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+type Review
+  @join__type(graph: ACCOUNT, key: "id", extension: true)
+  @join__type(graph: BOOKING, key: "id")
+  @join__type(graph: LOCATION, key: "id")
+  @join__type(graph: REVIEW, key: "id")
+{
+  id: ID!
+  content: String! @join__field(graph: REVIEW)
+  rating: Float! @join__field(graph: REVIEW)
+  author: User! @join__field(graph: REVIEW)
+  booking: Booking! @join__field(graph: REVIEW)
+  location: Location @join__field(graph: REVIEW)
+  customer: Customer @join__field(graph: REVIEW)
+  host: Owner @join__field(graph: REVIEW)
+  likes: [Like!] @join__field(graph: REVIEW)
+  dislikes: [Like!] @join__field(graph: REVIEW)
+  comments: [Comment!] @join__field(graph: REVIEW)
+  round: Int! @join__field(graph: REVIEW)
+  isPinned: Boolean! @join__field(graph: REVIEW)
+  isRecommended: Boolean! @join__field(graph: REVIEW)
+  createdAt: String! @join__field(graph: REVIEW)
+  updatedAt: String! @join__field(graph: REVIEW)
+}
+
+input ReviewInput
+  @join__type(graph: REVIEW)
+{
+  content: String!
+  rating: Float!
+  locationId: ID
+  customerId: ID
+  bookingId: ID
+  round: Int!
+  ownerId: ID
+}
+
+enum ReviewSortField
+  @join__type(graph: REVIEW)
+{
+  RATING @join__enumValue(graph: REVIEW)
+  CREATED_AT @join__enumValue(graph: REVIEW)
+  UPDATED_AT @join__enumValue(graph: REVIEW)
+}
+
+enum ReviewStatus
+  @join__type(graph: ACCOUNT)
+{
+  PENDING @join__enumValue(graph: ACCOUNT)
+  PUBLISH @join__enumValue(graph: ACCOUNT)
+}
+
+type RiskEvent
+  @join__type(graph: AUTH)
+{
+  id: ID!
+  userId: ID!
+  tenantId: ID
+  type: RiskEventType!
+  provider: OAuthProvider
+  ip: String
+  deviceId: String
+  userAgent: String
+  severity: RiskLevel
+  metadata: JSON
+  createdAt: DateTime
+}
+
+enum RiskEventType
+  @join__type(graph: AUTH)
+{
+  LOGIN_SUCCESS @join__enumValue(graph: AUTH)
+  LOGIN_FAILED @join__enumValue(graph: AUTH)
+  OAUTH_BIND @join__enumValue(graph: AUTH)
+  OAUTH_UNBIND @join__enumValue(graph: AUTH)
+  SESSION_REVOKED @join__enumValue(graph: AUTH)
+  REFRESH_REUSE_DETECTED @join__enumValue(graph: AUTH)
+  TOKEN_REUSE @join__enumValue(graph: AUTH)
+}
+
+enum RiskLevel
+  @join__type(graph: AUTH)
+{
+  LOW @join__enumValue(graph: AUTH)
+  MEDIUM @join__enumValue(graph: AUTH)
+  HIGH @join__enumValue(graph: AUTH)
+}
+
+enum Role
+  @join__type(graph: AUTH)
+  @join__type(graph: REVIEW)
+{
+  ADMIN @join__enumValue(graph: AUTH) @join__enumValue(graph: REVIEW)
+  OWNER @join__enumValue(graph: AUTH) @join__enumValue(graph: REVIEW)
+  AGENT @join__enumValue(graph: AUTH) @join__enumValue(graph: REVIEW)
+  CUSTOMER @join__enumValue(graph: AUTH) @join__enumValue(graph: REVIEW)
+  HOST @join__enumValue(graph: AUTH) @join__enumValue(graph: REVIEW)
+  USER @join__enumValue(graph: AUTH) @join__enumValue(graph: REVIEW)
+  PENDING_HOST @join__enumValue(graph: AUTH) @join__enumValue(graph: REVIEW)
+}
+
+type RuleCheck
+  @join__type(graph: ACCOUNT)
+{
+  passed: Boolean!
+  ruleName: String!
+  message: String!
+  details: JSON
+}
+
+input SearchReviewsInput
+  @join__type(graph: REVIEW)
+{
+  id: ID
+  customerId: ID
+  authorId: ID
+  listingId: ID
+  ownerId: ID
+  targetType: String
+  content: String
+  rating: Float
+  round: Int
+  isPinned: Boolean
+  isRecommended: Boolean
+  limit: Int
+  offset: Int
+  sortBy: ReviewSortField
+  sortOrder: SortOrder
+}
+
+type Session
+  @join__type(graph: AUTH)
+{
+  id: ID!
+  userId: ID!
+  deviceId: String
+  ip: String
+  userAgent: String
+  createdAt: DateTime
+  lastSeenAt: DateTime
+}
+
+enum SortOrder
+  @join__type(graph: REVIEW)
+{
+  ASC @join__enumValue(graph: REVIEW)
+  DESC @join__enumValue(graph: REVIEW)
+}
+
+type SubmitCustomerReviewResponse implements MutationResponse
+  @join__implements(graph: REVIEW, interface: "MutationResponse")
+  @join__type(graph: REVIEW)
+{
+  bookingId: ID!
+  customerReview: String
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+type SubmitOwnerReplyToCustomerReviewResponse implements MutationResponse
+  @join__implements(graph: REVIEW, interface: "MutationResponse")
+  @join__type(graph: REVIEW)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  customerReviewID: ID
+  ownerReview: Review!
+  locationReview: Review
+}
+
+enum SuggestionStatus
+  @join__type(graph: LISTING)
+{
+  PENDING @join__enumValue(graph: LISTING)
+  APPLIED @join__enumValue(graph: LISTING)
+  REJECTED @join__enumValue(graph: LISTING)
+  EXPIRED @join__enumValue(graph: LISTING)
+}
+
+type SwitchTenantPayload
+  @join__type(graph: TENANT)
+{
+  tenant: Tenant!
+  activeTenantId: ID!
+}
+
+type Tenant
+  @join__type(graph: ACCOUNT, key: "id", extension: true)
+  @join__type(graph: AUTH, key: "id", extension: true)
+  @join__type(graph: BOOKING, key: "id", extension: true)
+  @join__type(graph: TENANT, key: "id")
+  @join__type(graph: USER, key: "id", extension: true)
+{
+  id: ID!
+  listings: [Listing!]! @join__field(graph: BOOKING)
+  bookings: [Booking!]! @join__field(graph: BOOKING)
+  name: String! @join__field(graph: TENANT)
+  slug: String! @join__field(graph: TENANT)
+  status: TenantStatus! @join__field(graph: TENANT)
+  owner: User! @join__field(graph: TENANT)
+  createdAt: DateTime @join__field(graph: TENANT)
+  updatedAt: DateTime @join__field(graph: TENANT)
+}
+
+type TenantConnection
+  @join__type(graph: TENANT)
+{
+  items: [Tenant!]!
+  pageInfo: PageInfo!
+}
+
+input TenantFilterInput
+  @join__type(graph: TENANT)
+{
+  keyword: String
+  status: TenantStatus
+  limit: Int
+  offset: Int
+}
+
+enum TenantStatus
+  @join__type(graph: TENANT)
+{
+  ACTIVE @join__enumValue(graph: TENANT)
+  SUSPENDED @join__enumValue(graph: TENANT)
+  DELETED @join__enumValue(graph: TENANT)
+}
+
+input UpdateAmenityInput
+  @join__type(graph: AMENITY)
+{
+  id: ID!
+  name: String
+  category: AmenityCategory
+}
+
+input UpdateBookingInput
+  @join__type(graph: BOOKING)
+{
+  id: ID!
+  checkInDate: DateTime
+  checkOutDate: DateTime
+  price: Float
+}
+
+type UpdateBookingResponse implements MutationResponse
+  @join__implements(graph: BOOKING, interface: "MutationResponse")
+  @join__type(graph: BOOKING)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  booking: Booking!
+}
+
+input UpdateCartItemInput
+  @join__type(graph: CART)
+{
+  cartId: ID!
+  itemId: ID!
+  quantity: Int
+  price: Float
+}
+
+input UpdateLocationInput
+  @join__type(graph: LOCATION)
+{
+  id: ID!
+  name: String
+  latitude: Float
+  longitude: Float
+  radius: Int
+  address: String
+  city: String
+  state: String
+  country: String
+  zip: String
+  units: String
+}
+
+type UpdateLocationResponse implements Response
+  @join__implements(graph: LOCATION, interface: "Response")
+  @join__type(graph: LOCATION)
+{
+  code: Int!
+  success: Boolean!
+  message: String!
+  location: Location
+}
+
+type User
+  @join__type(graph: ACCOUNT, key: "id", extension: true)
+  @join__type(graph: AUTH, key: "id", extension: true)
+  @join__type(graph: BOOKING, key: "id", extension: true)
+  @join__type(graph: CART, key: "id", extension: true)
+  @join__type(graph: LISTING, key: "id", extension: true)
+  @join__type(graph: LOCATION, key: "id", extension: true)
+  @join__type(graph: REVIEW, key: "id", extension: true)
+  @join__type(graph: TENANT, key: "id", extension: true)
+  @join__type(graph: USER, key: "id")
+{
+  id: ID!
+  myBookings: [Booking!]! @join__field(graph: ACCOUNT)
+  myListings: [Listing!]! @join__field(graph: ACCOUNT)
+  myReviews: [Review!]! @join__field(graph: ACCOUNT)
+  tenant: Tenant @join__field(graph: ACCOUNT) @join__field(graph: USER)
+  bookings: [Booking!]! @join__field(graph: BOOKING) @join__field(graph: USER)
+  listings: [Listing!]! @join__field(graph: BOOKING)
+  email: String! @join__field(graph: USER)
+  name: String @join__field(graph: USER)
+  picture: String @join__field(graph: USER)
+  role: UserRole! @join__field(graph: USER)
+  status: AccountStatus! @join__field(graph: USER)
+  immutable: Boolean! @join__field(graph: USER)
+  lastLoginAt: DateTime @join__field(graph: USER)
+  isActive: Boolean! @join__field(graph: USER)
+  profile: Profile! @join__field(graph: USER)
+  createdAt: DateTime! @join__field(graph: USER)
+  updatedAt: DateTime! @join__field(graph: USER)
+}
+
+enum UserRole
+  @join__type(graph: USER)
+{
+  GUEST @join__enumValue(graph: USER)
+  CUSTOMER @join__enumValue(graph: USER)
+  STAFF @join__enumValue(graph: USER)
+  MODERATOR @join__enumValue(graph: USER)
+  AGENT @join__enumValue(graph: USER)
+  OWNER @join__enumValue(graph: USER)
+  ADMIN @join__enumValue(graph: USER)
+  SUPER_ADMIN @join__enumValue(graph: USER)
+  TENANT_ADMIN @join__enumValue(graph: USER)
+}
+
+input ValidateBookingInput
+  @join__type(graph: ACCOUNT)
+{
+  listingId: ID!
+  customerId: ID!
+  tenantId: ID
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  nightlyPrice: Float!
+  totalPrice: Float!
+  customerCount: Int!
+  status: String
+  dailyBookingCount: Int
+  maxDailyBookings: Int
+}
+
+input ValidateCouponInput
+  @join__type(graph: ACCOUNT)
+{
+  couponCode: String!
+  listingId: ID!
+  totalPrice: Float!
+  customerId: ID!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+}

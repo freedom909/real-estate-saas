@@ -14,6 +14,8 @@ export interface ISessionPort {
   }>;
 
   revokeSession(sessionId: string): Promise<void>;
+  updateActiveTenant(sessionId: string, tenantId: string): Promise<void>;
+  findSessionById(sessionId: string): Promise<{ activeTenantId?: string | null } | null>;
 }
 
   export default class SessionPort implements ISessionPort {
@@ -30,6 +32,12 @@ export interface ISessionPort {
     accessToken: string;
     refreshToken: string;
   }> {
+    throw new Error("Method not implemented.");
+  }
+  updateActiveTenant(_sessionId: string, _tenantId: string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+  findSessionById(_sessionId: string): Promise<{ activeTenantId?: string | null } | null> {
     throw new Error("Method not implemented.");
   }
 }

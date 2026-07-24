@@ -5,6 +5,8 @@ import { SubmitOwnerReplyToCustomerReviewUseCase } from "@/core/review/applicati
 import { IReviewRepository } from "@/core/review/domain/entities/repos/IReviewRepository";
 import { TOKENS_REVIEW } from "@/modules/tokens/review.tokens";
 import { container } from "tsyringe";
+import { withAuthorization } from "@/infrastructure/auth/withAuthorization";
+import { Action, Resource } from "@/core/user/domain/entities/types";
 
 
 export const reviewResolvers = {
@@ -19,26 +21,34 @@ export const reviewResolvers = {
     }
   },
   Mutation: {
-    submitCustomerReview: async (_: any, { input }: any, context: any) => {
+    submitCustomerReview: withAuthorization(Action.CREATE, Resource.REVIEW, async (_: any, { input }: any, context: any) => {
       console.log("input++:", input);
       const useCase = container.resolve<SubmitCustomerReviewUseCase>(TOKENS_REVIEW.usecase.submitCustomerReview);
       return useCase.execute({ ...input, customerId: context.user.id });
-    },
+    }),
 
-    submitOwnerReplyToCustomerReview: async (_: any, { input }: any, context: any) => {
+    submitOwnerReplyToCustomerReview: withAuthorization(Action.CREATE, Resource.REVIEW, async (_: any, { input }: any, context: any) => {
       console.log("input+++:", input);
       const useCase = container.resolve<SubmitOwnerReplyToCustomerReviewUseCase>(TOKENS_REVIEW.usecase.submitOwnerReplyToCustomerReview);
       return useCase.execute({ ...input, ownerId: context.user.id });
-    },
-    updateReview: async (_: any, { id, input }: any) => {
+    }),
+
+    updateReview: withAuthorization(Action.UPDATE, Resource.REVIEW, async (_: any, { id, input }: any) => {
         const useCase = container.resolve(TOKENS_REVIEW.usecase.updateReview) as any;
         return useCase.execute(id, input);
-    },
-    deleteReview: async (_: any, { id }: any) => {
+    }, {
+      resolveOwnerId: async (_ctx, { id }) => {
+        const repo = container.resolve<IReviewRepository>(TOKENS_REVIEW.repository.reviewRepository);
+        const review = await repo.findById(id);
+        return review?.customerId ?? null;
+      },
+    }),
+
+    deleteReview: withAuthorization(Action.DELETE, Resource.REVIEW, async (_: any, { id }: any) => {
         const useCase = container.resolve(TOKENS_REVIEW.usecase.deleteReview) as any;
         await useCase.execute(id);
         return true;
-    },
+    }),
   },
   Review: {
     author: (review: any) => ({ __typename: "Customer", id: review.customerId }),

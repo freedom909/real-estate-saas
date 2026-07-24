@@ -12,6 +12,8 @@ import mongoose from 'mongoose';
 import { resolvers } from './resolvers/audit.resolver';
 import { container } from 'tsyringe';
 import registerAuditDependencies from '@/modules/container/audit.register';
+import { registerEventBus } from '@/modules/container/event.bus.register';
+import { AuditConsumer } from '@/MQ/consumer/audit.consumer';
 
 
 
@@ -20,6 +22,10 @@ async function bootstrap() {
   await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nakano');//
  
   registerAuditDependencies(container);
+  registerEventBus();
+
+  // Start the audit consumer to listen for audit events
+  container.resolve(AuditConsumer);
 
 const typeDefs = gql(
   readFileSync(

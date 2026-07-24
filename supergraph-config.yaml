@@ -7,7 +7,7 @@ subgraphs:
   user:
     routing_url: http://localhost:4020/graphql
     schema:
-      file: src/subgraphs/user/schema/user.schema.graphql
+      file: src/subgraphs/user/user.schema.graphql
   booking:
     routing_url: http://localhost:4030/graphql
     schema:

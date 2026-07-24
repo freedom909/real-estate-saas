@@ -11,4 +11,5 @@ export interface Session {
   lastSeenAt?: Date
   expiresAt?: Date
   status?: "ACTIVE" | "REVOKED"
+  activeTenantId?: string | null
 }

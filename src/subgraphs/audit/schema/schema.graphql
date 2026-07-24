@@ -8,6 +8,7 @@ type AuditLog @key(fields: "id") {
   action: String!
   userId: ID!
   resourceId: ID!
+  metadata: String
   timestamp: String!
 }
 

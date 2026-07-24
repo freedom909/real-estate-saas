@@ -15,5 +15,10 @@ export class MembershipRepository {
 
     async findByUserId(userId: string): Promise<MembershipDocument[]> {
     return this.model.find({ userId }).exec();
-  } 
+  }
+
+    async findByUserAndTenant(userId: string, tenantId: string): Promise<MembershipDocument | null> {
+    // tenantId in membership is the ownerId (tenant owner's user ID)
+    return this.model.findOne({ userId, ownerId: tenantId }).exec();
+  }
 }

@@ -9,6 +9,8 @@ import { container } from "tsyringe";
 import { GetPaymentByBookingIdUseCase } from "@/core/payment/application/usecase/getPaymentByBookingId.usecase";
 import { GetPaymentsByCustomerUseCase } from "@/core/payment/application/usecase/getPaymentsByCustomer.usecase";
 import { FailPaymentUseCase } from "@/core/payment/application/usecase/fail-payment.usecase";
+import { withAuthorization } from "@/infrastructure/auth/withAuthorization";
+import { Action, Resource } from "@/core/user/domain/entities/types";
 
 
 const resolvers = {
@@ -46,7 +48,7 @@ const resolvers = {
 
   Mutation: {
 
-    createPayment: async (
+    createPayment: withAuthorization(Action.CREATE, Resource.PAYMENT, async (
       _: any,
       { input }: any
     ) => {
@@ -60,9 +62,9 @@ const resolvers = {
 
       return payment
    
-    },
+    }),
 
-    processPayment: async (
+    processPayment: withAuthorization(Action.UPDATE, Resource.PAYMENT, async (
       _: any,
       { paymentId }: any
     ) => {
@@ -76,9 +78,9 @@ const resolvers = {
         message: "Payment processing initiated",
         payment,
       };
-    },
+    }),
 
-    processRefund: async (
+    processRefund: withAuthorization(Action.UPDATE, Resource.PAYMENT, async (
       _: any,
       { input: { paymentId } }: any
     ) => {
@@ -95,9 +97,9 @@ const resolvers = {
         message: "Payment refund initiated",
         refundAmount: payment.amount
       }
-    },
+    }),
 
-    cancelPayment: async (
+    cancelPayment: withAuthorization(Action.UPDATE, Resource.PAYMENT, async (
       _: any,
       { paymentId, reason }: any,
     ) => {
@@ -106,9 +108,9 @@ const resolvers = {
         .execute(paymentId, reason);
 
       return payment
-    },
+    }),
 
-    confirmPayment: async (
+    confirmPayment: withAuthorization(Action.UPDATE, Resource.PAYMENT, async (
       _: any,
       { paymentId }: any
     ) => {
@@ -125,9 +127,9 @@ const resolvers = {
         message: "Payment confirmed",
         payment,
       };
-    },
+    }),
 
-    failPayment: async (
+    failPayment: withAuthorization(Action.UPDATE, Resource.PAYMENT, async (
       _: any,
       { paymentId }: any
     ) => {
@@ -143,7 +145,7 @@ const resolvers = {
         message: "Payment marked as failed",
         payment,
       };
-    },
+    }),
   },
 
   Booking: {

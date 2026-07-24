@@ -1,11 +1,4 @@
 // member.ship.role.ts
-// tenant.infrastructure.models.member.ship.role.ts
+// Re-exports from unified Role enum for backwards compatibility.
 
-export enum MembershipRole {
-
- OWNER="OWNER",
- ADMIN="ADMIN",
- AGENT="AGENT",
- MEMBER="MEMBER"
-
-}
+export { Role as MembershipRole } from "@/core/shared/domain/role";

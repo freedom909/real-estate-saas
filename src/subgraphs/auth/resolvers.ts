@@ -6,7 +6,6 @@ import jwt from "jsonwebtoken";
 import { ForbiddenError } from "../../infrastructure/utils/errors";
 import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
 
-import withSecurity from "@/security/infrastructure/withSecurity";
 import { VerifyOtpUseCase } from "./application/usecases/verifyOtp.usecase";
 import { subgraphAuthGuard } from "./guards/subgraphAuthGuard";
 
