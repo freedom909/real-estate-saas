@@ -18,8 +18,8 @@ export class AuditService {
     return this.repo.findByResourceId(resourceId);
   }
 
-  async createLog(action: string, userId: string, resourceId: string): Promise<AuditLogDocument> {
-    return this.repo.create({ action, userId, resourceId });
+  async createLog(action: string, userId: string, resourceId?: string, metadata?: string): Promise<AuditLogDocument> {
+    return this.repo.create({ action, userId, resourceId, metadata });
   }
   async record(event: AuditLogEvent) {
   return this.repo.create({

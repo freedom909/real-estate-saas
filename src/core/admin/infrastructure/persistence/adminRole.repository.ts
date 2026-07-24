@@ -6,6 +6,7 @@ import { TOKENS_ADMIN } from "@/modules/tokens/admin.tokens";
 import { IAdminUserRepository } from "../../domain/entities/IAdminUserRepository";
 import { AdminUser } from "../../domain/entities/adminUser";
 import AdminUserModel from "../models/adminUser.model";
+import { AdminRole } from "../../domain/entities/adminRole";
 
 @injectable()
 export class AdminUserRepository implements IAdminUserRepository {
@@ -13,6 +14,17 @@ export class AdminUserRepository implements IAdminUserRepository {
     @inject(TOKENS_ADMIN.models.adminUserModel)
     private model: typeof AdminUserModel
   ) {}
+  async promoteUserToAdmin(userId: string): Promise<void> {
+    await this.model.update({ role: AdminRole.ADMIN }, { where: { id: userId } });
+  }
+  async demoteAdminToUser(userId: string): Promise<void> {
+    await this.model.update({ role: AdminRole.CUSTOMER }, { where: { id: userId } });
+  }
+  async countByRole(role: AdminRole): Promise<number> {
+    return await this.model.count({
+        where: { role }
+    });
+  }
 
   async create(admin: AdminUser): Promise<AdminUser> {
     const persistence = AdminUserMapper.toPersistence(admin);

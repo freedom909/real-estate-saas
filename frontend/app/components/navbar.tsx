@@ -8,6 +8,8 @@ import { useAuthStore } from "@/app/store/auth.store";
 
 import { logout as authLogout } from "@/app/services/auth.service";
 
+import TenantSwitcher from "./TenantSwitcher";
+
 export default function Navbar() {
 
   const user = useAuthStore((s) => s.user);
@@ -78,6 +80,8 @@ export default function Navbar() {
           {user ? (
 
             <>
+
+              <TenantSwitcher />
 
               <div className="flex items-center gap-3">
 

@@ -9,8 +9,8 @@ import { EventHandler } from "./event.handler";
 @injectable()
 export class InMemoryEventBus
   implements IEventBus {
-  emit<T extends DomainEvent>(event: T): Promise<void> {
-      throw new Error("Method not implemented.");
+  async emit<T extends DomainEvent>(event: T): Promise<void> {
+      return this.publish(event);
   }
   on(eventName: string, handler: EventHandler<any>): void {
       this.subscribe(eventName, handler);

@@ -6,7 +6,10 @@
  * SUPER_ADMIN inherits all permissions from ADMIN and MODERATOR.
  */
 
-export type AdminRole = "ADMIN" | "SUPER_ADMIN" | "MODERATOR";
+import { Role, hasMinRole, ROLE_HIERARCHY } from "@/core/shared/domain/role";
+
+export type AdminRole = Role;
+export { hasMinRole };
 
 export type Permission =
   // Dashboard
@@ -31,25 +34,16 @@ export type Permission =
   // Profile
   | "profile:view"
   | "profile:update"
- 
 
-const ROLE_HIERARCHY: Record<AdminRole, number> = {
-  MODERATOR: 1,
-  ADMIN: 2,
-  SUPER_ADMIN: 3,
-};
-
-const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
-  MODERATOR: [
+const ROLE_PERMISSIONS: Record<string, Permission[]> = {
+  [Role.MODERATOR]: [
     "dashboard:view",
     "users:view",
     "audit_logs:view",
     "profile:view",
     "profile:update",
-    
   ],
-  ADMIN: [
-    // Inherits MODERATOR permissions plus:
+  [Role.ADMIN]: [
     "admin_users:view",
     "admin_users:create",
     "admin_users:update",
@@ -60,8 +54,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     "settings:view",
     "settings:update",
   ],
-  SUPER_ADMIN: [
-    // Inherits ADMIN permissions plus:
+  [Role.SUPER_ADMIN]: [
     "admin_users:delete",
     "settings:delete",
   ],
@@ -76,7 +69,7 @@ export function hasPermission(role: AdminRole, permission: Permission): boolean 
   // Check all roles at or below the user's level
   for (const [roleName, level] of Object.entries(ROLE_HIERARCHY)) {
     if (level <= roleLevel) {
-      const perms = ROLE_PERMISSIONS[roleName as AdminRole] ?? [];
+      const perms = ROLE_PERMISSIONS[roleName] ?? [];
       if (perms.includes(permission)) return true;
     }
   }
@@ -93,7 +86,7 @@ export function getPermissions(role: AdminRole): Permission[] {
 
   for (const [roleName, level] of Object.entries(ROLE_HIERARCHY)) {
     if (level <= roleLevel) {
-      allPermissions.push(...(ROLE_PERMISSIONS[roleName as AdminRole] ?? []));
+      allPermissions.push(...(ROLE_PERMISSIONS[roleName] ?? []));
     }
   }
 

@@ -60,7 +60,7 @@ describe("Auth Resolvers", () => {
       const result = (authResolvers as any).AuthPayload.user(parent);
 
       expect(result).toEqual({
-        __typename: "User",
+        __typename: "AuthUser",
         id: "user-1",
         email: "test@example.com",
         name: "Test User",
@@ -77,7 +77,7 @@ describe("Auth Resolvers", () => {
       const result = (authResolvers as any).AuthPayload.user(parent);
 
       expect(result).toEqual({
-        __typename: "User",
+        __typename: "AuthUser",
         id: "user-1",
       });
     });
@@ -134,11 +134,10 @@ describe("Auth Resolvers", () => {
         accessToken: "access-123",
         refreshToken: "refresh-123",
         user: {
-          __typename: "User",
+          __typename: "AuthUser",
           id: "user-1",
           email: "test@example.com",
           name: "Test User",
-          role: "USER",
         },
       });
     });

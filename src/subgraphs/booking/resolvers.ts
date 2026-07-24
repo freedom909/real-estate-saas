@@ -8,6 +8,8 @@ import { UpdateBookingUseCase } from "@/core/booking/application/usecases/update
 import { CheckInBookingUseCase } from "@/core/booking/application/usecases/check-in-booking.usecase";
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { requireAuth } from "@/infrastructure/auth/require.auth";
+import { withAuthorization } from "@/infrastructure/auth/withAuthorization";
+import { Action, Resource } from "@/core/user/domain/entities/types";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { container } from "tsyringe";
 
@@ -36,7 +38,7 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createBooking: async (_: any, { input }: any, context: any) => {
+    createBooking: withAuthorization(Action.CREATE, Resource.BOOKING, async (_: any, { input }: any, context: any) => {
       console.log("FULL CONTEXT:", context);
 
       console.log("CONTEXT USER:", context.user);
@@ -73,9 +75,9 @@ export const resolvers = {
         message: "Your booking has been successfully created",
         booking,
       };
-    },
+    }),
 
-    cancelBooking: async (_: any, { id, reason }: any) => {
+    cancelBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { id, reason }: any) => {
       const usecase = container.resolve<CancelBookingUseCase>(TOKENS_BOOKING.usecase.cancelBookingUseCase);
 
       const booking = await usecase.execute(id, reason || "No reason provided");
@@ -86,29 +88,29 @@ export const resolvers = {
         message: "Booking cancelled",
         booking,
       };
-    },
+    }, {
+      resolveOwnerId: async (_ctx, { id }) => {
+        const repo = container.resolve<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository);
+        const booking = await repo.findById(id);
+        return booking?.customerId ?? null;
+      },
+    }),
 
-    confirmBooking: async (_: any, { id }: any, { user }: any) => {
-      const userId = user?.id || user?.userId;
-      if (!userId) {
-        throw new Error("Unauthenticated: Please log in to confirm a booking.");
-      }
-
+    confirmBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { id }: any) => {
       return container
         .resolve<ConfirmBookingUseCase>(TOKENS_BOOKING.usecase.confirmBookingUseCase)
         .execute(id);
-    },
+    }),
 
-    completeBooking: async (_: any, { id }: any) => {
+    completeBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { id }: any) => {
       return container.resolve<CompleteBookingUseCase>(TOKENS_BOOKING.usecase.completeBookingUseCase).execute(id);
+    }),
 
-    },
-
-    checkInBooking: async (_: any, { id }: any) => {
+    checkInBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { id }: any) => {
       return container.resolve<CheckInBookingUseCase>(TOKENS_BOOKING.usecase.checkInBookingUseCase).execute(id);
-    },
+    }),
 
-    updateBooking: async (_: any, { input }: any) => {
+    updateBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { input }: any) => {
       const booking = await container
         .resolve<UpdateBookingUseCase>(TOKENS_BOOKING.usecase.updateBookingUseCase)
         .execute(input);
@@ -118,7 +120,13 @@ export const resolvers = {
         message: "Booking updated successfully",
         booking,
       };
-    },
+    }, {
+      resolveOwnerId: async (_ctx, { input }) => {
+        const repo = container.resolve<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository);
+        const booking = await repo.findById(input.id);
+        return booking?.customerId ?? null;
+      },
+    }),
   },
 
   Booking: {

@@ -29,6 +29,7 @@ export const TOKENS_TENANT = {
     suspendTenant: Symbol.for("suspendTenantUseCase"),
     getTenant: Symbol.for("getTenantUseCase"),
     listTenants: Symbol.for("listTenantsUseCase"),
+    switchTenant: Symbol.for("switchTenantUseCase"),
   },
 } as const;
 

@@ -36,7 +36,7 @@ type User @key(fields: "id") {
   picture: String
  role: UserRole! @shareable
   status: AccountStatus! @shareable
-
+  immutable: Boolean!   # 默认 false，只有极少数账号为 true
   lastLoginAt: DateTime @shareable
   isActive: Boolean! @shareable
 
@@ -79,11 +79,15 @@ type Profile @shareable {
 # ======================
 
 enum UserRole {
+  GUEST
+  CUSTOMER
+  STAFF
+  MODERATOR
+  AGENT
+  OWNER
+  ADMIN
   SUPER_ADMIN
   TENANT_ADMIN
-  STAFF
-  AGENT
-  CUSTOMER
 }
 
 # ======================
@@ -92,6 +96,7 @@ enum UserRole {
 
 enum AccountStatus {
   ACTIVE
+  INACTIVE
   SUSPENDED
   BANNED
   DELETED

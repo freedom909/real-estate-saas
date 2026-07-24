@@ -4,21 +4,16 @@ import { GraphQLError } from "graphql";
 import { container } from "tsyringe";
 import { TOKENS_ADMIN } from "@/modules/tokens/admin.tokens";
 import { IAdminUserRepository } from "@/core/admin/domain/entities/IAdminUserRepository";
-import { AdminRole, hasPermission, Permission, getPermissions } from "./adminPermissions";
+import { Role, hasMinRole } from "@/core/shared/domain/role";
+import { hasPermission, Permission, getPermissions } from "./adminPermissions";
 
-export type { AdminRole, Permission };
-
-const ROLE_HIERARCHY: Record<AdminRole, number> = {
-  MODERATOR: 1,
-  ADMIN: 2,
-  SUPER_ADMIN: 3,
-};
+export type { Permission };
 
 /**
  * GraphQL resolver guard — checks if the authenticated user is an admin
  * with at least the required role level.
  */
-export function requireAdminRole(minRole: AdminRole = "ADMIN") {
+export function requireAdminRole(minRole: Role = Role.ADMIN) {
   return async (
     _: any,
     __: any,
@@ -28,7 +23,7 @@ export function requireAdminRole(minRole: AdminRole = "ADMIN") {
     const user = context.user;
 
     if (!user?.userId) {
-      throw new GraphQLError("UNAUTHORIZED", { extensions: { code: "UNAUTHORIZED" } });
+      throw new GraphQLError("Unauthenticated", { extensions: { code: "UNAUTHENTICATED" } });
     }
 
     const adminRepo = container.resolve<IAdminUserRepository>(
@@ -38,23 +33,22 @@ export function requireAdminRole(minRole: AdminRole = "ADMIN") {
     const admin = await adminRepo.findById(user.userId);
 
     if (!admin) {
-      throw new GraphQLError("FORBIDDEN: Admin access required", {
+      throw new GraphQLError("Forbidden: Admin access required", {
         extensions: { code: "FORBIDDEN" },
       });
     }
 
-    if (!(admin as any).isActive) {
-      throw new GraphQLError("FORBIDDEN: Admin account is inactive", {
-        extensions: { code: "FORBIDDEN" },
-      });
-    }
-
-    const userLevel = ROLE_HIERARCHY[(admin as any).role] ?? 0;
-    const requiredLevel = ROLE_HIERARCHY[minRole] ?? 0;
-
-    if (userLevel < requiredLevel) {
+    if ((admin as any).status !== "ACTIVE") {
       throw new GraphQLError(
-        `FORBIDDEN: Requires ${minRole} role or higher`,
+        `Account is ${(admin as any).status}`,
+        { extensions: { code: "FORBIDDEN" } }
+      );
+    }
+
+    const adminRole = (admin as any).role as Role;
+    if (!hasMinRole(adminRole, minRole)) {
+      throw new GraphQLError(
+        `Forbidden: Requires ${minRole} role or higher`,
         { extensions: { code: "FORBIDDEN" } }
       );
     }
@@ -62,9 +56,9 @@ export function requireAdminRole(minRole: AdminRole = "ADMIN") {
     // Attach admin info to context for downstream resolvers
     context.admin = {
       id: admin.id,
-      role: (admin as any).role,
+      role: adminRole,
       email: admin.email,
-      permissions: getPermissions((admin as any).role),
+      permissions: getPermissions(adminRole),
     };
 
     return next();
@@ -84,7 +78,7 @@ export function requirePermission(permission: Permission) {
     const user = context.user;
 
     if (!user?.userId) {
-      throw new GraphQLError("UNAUTHORIZED", { extensions: { code: "UNAUTHORIZED" } });
+      throw new GraphQLError("Unauthenticated", { extensions: { code: "UNAUTHENTICATED" } });
     }
 
     const adminRepo = container.resolve<IAdminUserRepository>(
@@ -94,22 +88,22 @@ export function requirePermission(permission: Permission) {
     const admin = await adminRepo.findById(user.userId);
 
     if (!admin) {
-      throw new GraphQLError("FORBIDDEN: Admin access required", {
+      throw new GraphQLError("Forbidden: Admin access required", {
         extensions: { code: "FORBIDDEN" },
       });
     }
 
     if (!(admin as any).isActive) {
-      throw new GraphQLError("FORBIDDEN: Admin account is inactive", {
+      throw new GraphQLError("Forbidden: Admin account is inactive", {
         extensions: { code: "FORBIDDEN" },
       });
     }
 
-    const role = (admin as any).role as AdminRole;
+    const role = (admin as any).role as Role;
 
     if (!hasPermission(role, permission)) {
       throw new GraphQLError(
-        `FORBIDDEN: Missing permission "${permission}"`,
+        `Forbidden: Missing permission "${permission}"`,
         { extensions: { code: "FORBIDDEN", required: permission } }
       );
     }

@@ -8,7 +8,7 @@ import { ArtifactType } from "../../shared/enums/artifact-type.enum";
 import { AIContext } from "../../contracts/ai-context";
 import { WisdomResponse } from "../../contracts/response";
 import { GenerateListingAIOptimizationUseCase } from "@/wisdom/agents/listing/generateListingAIOptimization.usecase";
-import GetListingUseCase from "@/core/listing/application/usecase/getListingUseCase";
+import GetListingUseCase from "@/core/listing/application/usecase/getListings.usecase";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
 import { AgentAction } from "@/wisdom/shared/enums/action.enum";
 
@@ -100,12 +100,12 @@ export class ListingAgent implements IDomainAgent {
       }
 
       case AgentAction.GET_LISTING: {
-        const listing = await this.getListingUseCase.execute(listingId as string);
+        const listing = await this.getListingUseCase.execute();
         return {
           success: true,
           domain: semantic.domain as any,
           primaryAction: { name: action, confidence: semantic.confidence ?? 0 },
-          summary: `物件が見つかりました: ${listing.title}`,
+          summary: `物件が見つかりました: ${listing.length}`,
           artifacts: [{
             type: ArtifactType.LISTING_SELECTED,
             content: listing as unknown as Record<string, unknown>,

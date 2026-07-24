@@ -36,6 +36,9 @@ enum Role {
   OWNER
   AGENT
   CUSTOMER
+  HOST
+  USER
+  PENDING_HOST
 }
 
 # =====================

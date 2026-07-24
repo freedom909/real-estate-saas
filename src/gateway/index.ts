@@ -36,6 +36,8 @@ import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
 import cors from "cors"
 import { ApolloGateway, RemoteGraphQLDataSource, IntrospectAndCompose } from "@apollo/gateway"
+import { createAuthPlugin } from "@/gateway/plugins/auth.plugin"
+import tenantRouter from "@/gateway/routes/tenantRouter"
 
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 async function start() {
@@ -85,6 +87,22 @@ async function start() {
 
           }
 
+          // Forward decoded user from auth plugin to subgraphs
+          if (context?.user) {
+            request.http.headers.set(
+              "x-gateway-user",
+              JSON.stringify(context.user)
+            );
+          }
+
+          // Forward active tenant ID to subgraphs
+          if (context?.tenantId) {
+            request.http.headers.set(
+              "x-tenant-id",
+              context.tenantId
+            );
+          }
+
         },
 
       });
@@ -93,19 +111,27 @@ async function start() {
   });
 
   console.log("gateway:", gateway)
+  const enableAuth = process.env.ENABLE_GATEWAY_AUTH !== "false";
   const server = new ApolloServer({
-    gateway
+    gateway,
+    plugins: enableAuth ? [createAuthPlugin()] : [],
   })
 
   await server.start()
   const app = express()
 
+  // CORS for all routes
+  app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }))
+  app.use(express.json())
+
+  // REST API routes
+  app.use("/api/tenants", tenantRouter)
+
+  // GraphQL endpoint
   app.use("/graphql",
-    cors({
-      origin: "http://localhost:3000",
-      credentials: true,
-    }),
-    express.json(),
     async (req, res, next) => {
 
       console.log("SUBGRAPH AUTH =>", req.headers.authorization);

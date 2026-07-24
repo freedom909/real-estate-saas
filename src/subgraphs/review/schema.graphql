@@ -68,9 +68,11 @@ enum ReviewSortField {
 
 
 enum Role {
-  HOST
-  CUSTOMER
   ADMIN
+  OWNER
+  AGENT
+  CUSTOMER
+  HOST
   USER
   PENDING_HOST
 }

@@ -11,6 +11,7 @@ import CreateOAuthUserUseCase from "../application/usecase/createOAuthUserUseCas
 import { TenantACL } from "@/core/account/infra/tenant.acl.js";
 import { TOKENS_TENANT } from "@/modules/tokens/tenant.tokens.js";
 import { TOKENS_ACCOUNT } from "@/modules/tokens/account.token.js";
+import { TenantService } from "@/core/tenant/domain/services/tenant.service.js";
 
 
 interface ResolverContext {
@@ -115,7 +116,12 @@ User: {
 
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.userByEmail(email);
-    }
+    },
+
+    tenantsByUser: async (_: unknown, { userId }: { userId: string }) => {
+      const tenantService = container.resolve<TenantService>(TOKENS_TENANT.services.tenantService);
+      return tenantService.getTenantsForUser(userId);
+    },
   },
 
   Mutation: {

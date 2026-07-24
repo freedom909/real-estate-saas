@@ -1,8 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/seq';
 
-
-
 class LocationModel extends Model {}
 
 LocationModel.init(

@@ -34,6 +34,11 @@ AdminUserModel.init(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    immutable: {
+  type: DataTypes.BOOLEAN,
+  allowNull: false,
+  defaultValue: false,
+},
     lastLoginAt: {
       type: DataTypes.DATE,
       allowNull: true,

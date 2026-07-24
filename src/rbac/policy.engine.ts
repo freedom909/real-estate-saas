@@ -1,13 +1,14 @@
-// src/security/policy.engine.ts
+// src/rbac/policy.engine.ts
 
-import { IPolicy, PolicyContext } from "@/domain/user/types/policyContext";
-import { Action, Resource } from "@/domain/user/types/types";
-import { Role } from "@/domain/user/types/role";
+import { IPolicy, PolicyContext } from "@/core/user/domain/entities/policyContext";
+import { Action, Resource } from "@/core/user/domain/entities/types";
+import { Role, hasMinRole } from "@/core/shared/domain/role";
 
 type PolicyHandler = (context: PolicyContext) => boolean;
 
 export default class PolicyEngine implements IPolicy {
   private policies: Record<string, PolicyHandler>;
+
   constructor() {
     this.policies = {
       // -------------------
@@ -16,43 +17,35 @@ export default class PolicyEngine implements IPolicy {
 
       [`${Action.READ}_${Resource.USER}`]: (ctx) => {
         if (!ctx.user) return false;
-
-        if (ctx.user.role === Role.ADMIN) return true;
-
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
         return ctx.user.id === ctx.resourceOwnerId;
       },
 
       [`${Action.UPDATE}_${Resource.USER}`]: (ctx) => {
         if (!ctx.user) return false;
-
-        if (ctx.user.role === Role.ADMIN) return true;
-
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
         return ctx.user.id === ctx.resourceOwnerId;
       },
 
       [`${Action.DELETE}_${Resource.USER}`]: (ctx) => {
         if (!ctx.user) return false;
-
-        return ctx.user.role === Role.ADMIN;
+        return hasMinRole(ctx.user.role, Role.SUPER_ADMIN);
       },
 
       // -------------------
       // LISTING 资源规则
       // -------------------
 
-      [`${Action.READ}_${Resource.LISTING}`]: (ctx) => {
+      [`${Action.READ}_${Resource.LISTING}`]: () => true,
+
+      [`${Action.CREATE}_${Resource.LISTING}`]: (ctx) => {
         if (!ctx.user) return false;
-
-        if (ctx.user.role === Role.ADMIN) return true;
-
-        return true; // 所有人都可读 listing
+        return hasMinRole(ctx.user.role, Role.AGENT);
       },
 
       [`${Action.UPDATE}_${Resource.LISTING}`]: (ctx) => {
         if (!ctx.user) return false;
-
-        if (ctx.user.role === Role.ADMIN) return true;
-
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
         return ctx.user.id === ctx.resourceOwnerId;
       },
 
@@ -60,42 +53,82 @@ export default class PolicyEngine implements IPolicy {
       // BOOKING 资源规则
       // -------------------
 
-      [`${Action.CREATE}_${Resource.BOOKING}`]: (ctx) => {
+      [`${Action.READ}_${Resource.BOOKING}`]: (ctx) => {
         if (!ctx.user) return false;
-        return ctx.user.role === Role.CUSTOMER;
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        return ctx.user.id === ctx.resourceOwnerId;
       },
 
+      [`${Action.CREATE}_${Resource.BOOKING}`]: (ctx) => {
+        if (!ctx.user) return false;
+        return hasMinRole(ctx.user.role, Role.CUSTOMER);
+      },
+
+      [`${Action.UPDATE}_${Resource.BOOKING}`]: (ctx) => {
+        if (!ctx.user) return false;
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        return ctx.user.id === ctx.resourceOwnerId;
+      },
+
+      // -------------------
+      // PAYMENT 资源规则
+      // -------------------
+
+      [`${Action.READ}_${Resource.PAYMENT}`]: (ctx) => {
+        if (!ctx.user) return false;
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        return ctx.user.id === ctx.resourceOwnerId;
+      },
+
+      [`${Action.CREATE}_${Resource.PAYMENT}`]: (ctx) => {
+        if (!ctx.user) return false;
+        return hasMinRole(ctx.user.role, Role.CUSTOMER);
+      },
+
+      [`${Action.UPDATE}_${Resource.PAYMENT}`]: (ctx) => {
+        if (!ctx.user) return false;
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        return ctx.user.id === ctx.resourceOwnerId;
+      },
+
+      // -------------------
+      // REVIEW 资源规则
+      // -------------------
+
+      [`${Action.READ}_${Resource.REVIEW}`]: () => true,
+
+      [`${Action.CREATE}_${Resource.REVIEW}`]: (ctx) => {
+        if (!ctx.user) return false;
+        return hasMinRole(ctx.user.role, Role.CUSTOMER);
+      },
+
+      [`${Action.UPDATE}_${Resource.REVIEW}`]: (ctx) => {
+        if (!ctx.user) return false;
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        return ctx.user.id === ctx.resourceOwnerId;
+      },
+
+      [`${Action.DELETE}_${Resource.REVIEW}`]: (ctx) => {
+        if (!ctx.user) return false;
+        return hasMinRole(ctx.user.role, Role.ADMIN);
+      },
     };
   }
 
-  can(
-    action: Action,
-    resource: Resource,
-    context: PolicyContext
-  ): boolean {
-
+  can(action: Action, resource: Resource, context: PolicyContext): boolean {
     const { user, resourceOwnerId } = context;
 
-    if (!user) {
-      return false;
-    }
+    if (!user) return false;
 
-    // 1️⃣ 超级管理员
-    if (user.role === Role.ADMIN) {
-      return true;
-    }
+    // Super admin bypass
+    if (user.role === Role.SUPER_ADMIN) return true;
 
-    // 2️⃣ 资源所有者访问
-    if (
-      action === Action.READ &&
-      resourceOwnerId &&
-      user.id === resourceOwnerId
-    ) {
-      return true;
-    }
+    // Check specific policy
+    const key = `${action}_${resource}`;
+    const handler = this.policies[key];
+    if (handler) return handler(context);
 
+    // Default: deny
     return false;
   }
 }
-
-

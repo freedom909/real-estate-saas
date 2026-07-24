@@ -1,4 +1,4 @@
-import { Role } from "./normalize.role";
+import { Role } from "@/core/shared/domain/role";
 import { Resource, Action } from "./types";
 
 

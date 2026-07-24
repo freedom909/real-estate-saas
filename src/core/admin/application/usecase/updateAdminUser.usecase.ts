@@ -6,7 +6,7 @@ import { TOKENS_ADMIN } from "@/modules/tokens/admin.tokens";
 
 export interface UpdateAdminUserInput {
   name?: string;
-  role?: "ADMIN" | "SUPER_ADMIN" | "MODERATOR";
+  role?: "ADMIN" | "SUPER_ADMIN" | "STAFF" | "AGENT" | "CUSTOMER";
   avatar?: string;
   isActive?: boolean;
 }

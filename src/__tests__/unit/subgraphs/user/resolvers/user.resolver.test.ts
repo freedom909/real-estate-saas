@@ -176,7 +176,7 @@ describe("User Resolvers", () => {
     });
   });
 
-  describe("Query.internalUserByEmail", () => {
+  describe("Query.userByEmail", () => {
     it("should return user when valid internal request", async () => {
       const mockUser = { id: "user-1", email: "user@example.com" };
       mockResolve.mockReturnValue(mockUserService);
@@ -189,7 +189,7 @@ describe("User Resolvers", () => {
 
       process.env.INTERNAL_SERVICE_TOKEN = "valid-token";
 
-      const result = await (resolvers as any).Query.internalUserByEmail(
+      const result = await (resolvers as any).Query.userByEmail(
         null,
         { email: "user@example.com" },
         { req: mockReq }
@@ -201,7 +201,7 @@ describe("User Resolvers", () => {
 
     it("should throw when request object is missing", async () => {
       await expect(
-        (resolvers as any).Query.internalUserByEmail(
+        (resolvers as any).Query.userByEmail(
           null,
           { email: "user@example.com" },
           {}
@@ -224,7 +224,7 @@ describe("User Resolvers", () => {
       });
 
       await expect(
-        (resolvers as any).Query.internalUserByEmail(
+        (resolvers as any).Query.userByEmail(
           null,
           { email: "user@example.com" },
           { req: mockReq }

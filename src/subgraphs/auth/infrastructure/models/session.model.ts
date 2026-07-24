@@ -14,7 +14,8 @@ const sessionSchema = new Schema<Session>(
     revokedAt: Date,
     lastSeenAt: Date,
     expiresAt: Date,
-    status: { type: String, default: "ACTIVE" }
+    status: { type: String, default: "ACTIVE" },
+    activeTenantId: { type: String, default: null }
   },
   { timestamps: true }
 )

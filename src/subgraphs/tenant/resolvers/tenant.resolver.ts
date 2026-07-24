@@ -1,6 +1,7 @@
 
 import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 import { DependencyContainer } from 'tsyringe';
+import { SessionService } from '@/subgraphs/auth/infrastructure/services/session.service';
 
 type TenantParent = {
 
@@ -115,6 +116,38 @@ export const resolvers = {
       );
 
       return useCase.execute(id);
+
+    },
+
+    switchTenant: async (
+
+      _: unknown,
+
+      { tenantId }: { tenantId: string },
+
+      { user, container }: { user: any; container: DependencyContainer }
+
+    ) => {
+
+      if (!user?.userId) {
+        throw new Error("Unauthenticated");
+      }
+
+      const useCase = container.resolve<any>(
+
+        TOKENS_TENANT.useCases.switchTenant
+
+      );
+
+      const result = await useCase.execute({ userId: user.userId, tenantId });
+
+      // Update the session with the new active tenant
+      if (user?.sessionId) {
+        const sessionService = new SessionService();
+        await sessionService.updateActiveTenant(user.sessionId, tenantId);
+      }
+
+      return result;
 
     },
 

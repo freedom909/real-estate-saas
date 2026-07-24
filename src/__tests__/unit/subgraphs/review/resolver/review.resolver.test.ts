@@ -119,7 +119,7 @@ describe("Review Resolvers", () => {
         content: "Nice!",
       };
 
-      const context = { user: { id: "customer-1" } };
+      const context = { user: { id: "customer-1", userId: "customer-1" } };
 
       const result = await (reviewResolvers as any).Mutation.submitCustomerReview(
         null,
@@ -147,7 +147,7 @@ describe("Review Resolvers", () => {
         comment: { content: "Appreciate it!" },
       };
 
-      const context = { user: { id: "owner-1" } };
+      const context = { user: { id: "owner-1", userId: "owner-1" } };
 
       const result = await (reviewResolvers as any).Mutation.submitOwnerReplyToCustomerReview(
         null,
@@ -167,10 +167,14 @@ describe("Review Resolvers", () => {
     it("should update a review", async () => {
       const mockUpdated = { id: "review-1", content: "Updated!" };
       mockUpdateUseCase.execute.mockResolvedValue(mockUpdated);
+      mockRepo.findById.mockResolvedValue({ id: "review-1", customerId: "customer-1" });
+
+      const context = { user: { id: "customer-1", userId: "customer-1" } };
 
       const result = await (reviewResolvers as any).Mutation.updateReview(
         null,
-        { id: "review-1", input: { content: "Updated!" } }
+        { id: "review-1", input: { content: "Updated!" } },
+        context
       );
 
       expect(mockUpdateUseCase.execute).toHaveBeenCalledWith("review-1", { content: "Updated!" });
@@ -182,9 +186,12 @@ describe("Review Resolvers", () => {
     it("should delete a review and return true", async () => {
       mockDeleteUseCase.execute.mockResolvedValue(undefined);
 
+      const context = { user: { id: "admin-1", userId: "admin-1", role: "SUPER_ADMIN" } };
+
       const result = await (reviewResolvers as any).Mutation.deleteReview(
         null,
-        { id: "review-1" }
+        { id: "review-1" },
+        context
       );
 
       expect(mockDeleteUseCase.execute).toHaveBeenCalledWith("review-1");

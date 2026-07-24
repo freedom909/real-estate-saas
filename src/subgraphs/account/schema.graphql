@@ -13,6 +13,9 @@ scalar DateTime
 enum AccountStatus {
   ACTIVE
   INACTIVE
+  SUSPENDED
+  BANNED
+  DELETED
 }
 
 enum BookingStatus {
@@ -43,7 +46,7 @@ extend type User @key(fields: "id") {
   myBookings: [Booking!]! @shareable
   myListings: [Listing!]! @shareable
   myReviews: [Review!]! @shareable
-  tenant: Tenant! @shareable
+  tenant: Tenant @shareable
 }
 
 extend type Tenant @key(fields: "id") {
