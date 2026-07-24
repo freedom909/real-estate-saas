@@ -40,4 +40,11 @@ console.log("⏳ Waiting 15s for subgraphs to initialize...");
 await new Promise((r) => setTimeout(r, 15000));
 
 // Launch gateway on Railway's assigned PORT (foreground)
-import("../src/gateway/index.ts");
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const gatewayPath = path.resolve(__dirname, "../src/gateway/index.ts");
+await import(gatewayPath);
