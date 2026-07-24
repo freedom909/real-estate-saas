@@ -1,29 +1,28 @@
 #!/bin/bash
-# Railway monolith startup: launch all subgraphs in background, then gateway
-
 set -e
 
-echo "🚀 Starting Railway monolith deployment..."
+echo "Starting Railway monolith deployment..."
+echo "Working directory: $(pwd)"
 
-# Launch all subgraphs in background
-node dist/subgraphs/auth/index.js &
-node dist/subgraphs/user/index.js &
-node dist/subgraphs/booking/index.js &
-node dist/subgraphs/review/index.js &
-node dist/subgraphs/payment/index.js &
-node dist/subgraphs/tenant/index.js &
-node dist/subgraphs/audit/index.js &
-node dist/subgraphs/location/index.js &
-node dist/subgraphs/amenity/index.js &
-node dist/subgraphs/listing/index.js &
-node dist/subgraphs/account/index.js &
-node dist/subgraphs/cart/index.js &
-node dist/subgraphs/admin/index.js &
-node dist/wisdom/index.js &
-node dist/voice/index.js &
+# Start all subgraphs in background
+npx tsx src/subgraphs/auth/index.ts &
+npx tsx src/subgraphs/user/index.ts &
+npx tsx src/subgraphs/booking/index.ts &
+npx tsx src/subgraphs/review/index.ts &
+npx tsx src/subgraphs/payment/index.ts &
+npx tsx src/subgraphs/tenant/index.ts &
+npx tsx src/subgraphs/audit/index.ts &
+npx tsx src/subgraphs/location/index.ts &
+npx tsx src/subgraphs/amenity/index.ts &
+npx tsx src/subgraphs/listing/index.ts &
+npx tsx src/subgraphs/account/index.ts &
+npx tsx src/subgraphs/cart/index.ts &
+npx tsx src/subgraphs/admin/index.ts &
+npx tsx src/wisdom/index.ts &
+npx tsx src/voice/index.ts &
 
-echo "⏳ Waiting for subgraphs to start..."
-sleep 5
+echo "Waiting 15s for subgraphs to initialize..."
+sleep 15
 
-# Launch gateway on Railway's assigned PORT (foreground)
-exec node dist/gateway/index.js
+echo "Starting gateway..."
+exec npx tsx src/gateway/index.ts

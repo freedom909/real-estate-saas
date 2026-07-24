@@ -1,4 +1,6 @@
-import { spawn } from "child_process";
+import { spawn, execSync } from "child_process";
+import { existsSync } from "fs";
+import path from "path";
 
 const services = [
   { name: "auth", path: "src/subgraphs/auth/index.ts", port: 4010 },
@@ -18,38 +20,49 @@ const services = [
   { name: "voice", path: "src/voice/index.ts", port: 4300 },
 ];
 
-console.log("🚀 Starting Railway monolith deployment...");
+console.log("Starting Railway monolith deployment...");
+console.log("Working directory:", process.cwd());
+
+// Verify gateway file exists
+const gatewayFile = path.resolve(process.cwd(), "src/gateway/index.ts");
+console.log("Gateway file exists:", existsSync(gatewayFile));
+console.log("Gateway path:", gatewayFile);
 
 // Launch all subgraphs in background
 for (const svc of services) {
+  const filePath = path.resolve(process.cwd(), svc.path);
+  console.log(`Starting ${svc.name} from ${filePath}...`);
   const child = spawn("npx", ["tsx", svc.path], {
     stdio: "inherit",
     shell: true,
+    cwd: process.cwd(),
   });
   child.on("error", (err) => {
-    console.error(`❌ ${svc.name} failed to start:`, err.message);
+    console.error(`  ${svc.name} failed to start:`, err.message);
   });
   child.on("exit", (code) => {
-    if (code !== 0) {
-      console.error(`⚠️ ${svc.name} exited with code ${code}`);
+    if (code !== null && code !== 0) {
+      console.error(`  ${svc.name} exited with code ${code}`);
     }
   });
 }
 
-console.log("⏳ Waiting 15s for subgraphs to initialize...");
+console.log("Waiting 15s for subgraphs to initialize...");
 await new Promise((r) => setTimeout(r, 15000));
 
-// Launch gateway on Railway's assigned PORT (foreground)
-const gateway = spawn("npx", ["tsx", "src/gateway/index.ts"], {
+// Launch gateway as child process (NOT dynamic import)
+console.log("Starting gateway...");
+const gatewayProcess = spawn("npx", ["tsx", "src/gateway/index.ts"], {
   stdio: "inherit",
   shell: true,
+  cwd: process.cwd(),
 });
 
-gateway.on("error", (err) => {
-  console.error("❌ Gateway failed to start:", err.message);
+gatewayProcess.on("error", (err) => {
+  console.error("Gateway failed to start:", err.message);
 });
 
-gateway.on("exit", (code) => {
+gatewayProcess.on("exit", (code) => {
   console.log(`Gateway exited with code ${code}`);
   process.exit(code ?? 1);
 });
