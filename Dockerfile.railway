@@ -15,4 +15,4 @@ COPY . .
 # Railway assigns PORT dynamically - no EXPOSE needed
 # Subgraphs run internally on fixed ports, gateway on $PORT
 
-CMD ["npx", "tsx", "scripts/start-railway.tsx"]
+CMD ["bash", "scripts/start-railway.sh"]
