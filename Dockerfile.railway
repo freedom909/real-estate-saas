@@ -8,7 +8,8 @@ COPY package*.json ./
 # Install dependencies (including dev for tsx/ts-node at build)
 RUN npm install --no-audit --no-fund
 
-# Copy source code
+# Copy source code - use build arg to bust cache
+ARG CACHE_BUST=1
 COPY . .
 
 # Railway assigns PORT dynamically - no EXPOSE needed
