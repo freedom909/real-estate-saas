@@ -65,6 +65,9 @@ done
 
 # Kill health server so gateway can bind to the same port
 kill $HEALTH_PID 2>/dev/null || true
+sleep 3
+# Force kill if still alive
+kill -9 $HEALTH_PID 2>/dev/null || true
 sleep 1
 
 echo "Starting gateway..."
