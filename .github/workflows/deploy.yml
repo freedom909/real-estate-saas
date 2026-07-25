@@ -18,7 +18,12 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
+      - name: Link Railway project
+        run: railway link --project minshuku
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
       - name: Deploy to Railway
-        run: railway up --service ${{ vars.RAILWAY_SERVICE }}
+        run: railway up
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
