@@ -19,7 +19,7 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Link Railway project
-        run: railway link c420b168-0b6f-460d-82c2-7b6e8a9e3d1a
+        run: railway link -p c420b168-0b6f-460d-82c2-7b6e8a9e3d1a
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
