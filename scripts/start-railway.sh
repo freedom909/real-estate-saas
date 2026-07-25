@@ -29,6 +29,8 @@ server.listen(process.env.PORT || 4000, () => {
 });
 " &
 HEALTH_PID=$!
+sleep 1
+echo "Health server PID: $HEALTH_PID"
 
 # Start all subgraphs in background
 npx tsx src/subgraphs/auth/index.ts &
@@ -64,11 +66,19 @@ for port in 4010 4020 4030 4040 4050 4060 4090 4101 4102 4103 4104; do
 done
 
 # Kill health server so gateway can bind to the same port
+echo "Killing health server (PID $HEALTH_PID)..."
 kill $HEALTH_PID 2>/dev/null || true
-sleep 3
-# Force kill if still alive
-kill -9 $HEALTH_PID 2>/dev/null || true
+sleep 2
+# Also kill any child processes
+pkill -f "node -e.*Health server" 2>/dev/null || true
 sleep 1
+# Verify port is free
+echo "Checking port $PORT is free..."
+if curl -sf "http://localhost:$PORT/health" > /dev/null 2>&1; then
+  echo "Port $PORT still in use, force killing..."
+  fuser -k $PORT/tcp 2>/dev/null || true
+  sleep 1
+fi
 
 echo "Starting gateway..."
 exec npx tsx src/gateway/index.ts
