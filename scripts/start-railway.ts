@@ -37,7 +37,7 @@ function startService(svc: (typeof services)[number]) {
   child.on("exit", (code, signal) => {
     children.delete(svc.name);
 
-    if (signal === "SIGTERM" || signal === "SIGKILL") return; // intentional shutdown
+    if (signal === "SIGTERM" || signal === "SIGKILL") return;
 
     const count = (restarted.get(svc.name) || 0) + 1;
     restarted.set(svc.name, count);
@@ -89,13 +89,27 @@ function waitForService(name: string, port: number, timeoutMs = 120_000): Promis
 
 // ── Main ─────────────────────────────────────────────────────────────
 async function main() {
-  console.log("Starting all subgraphs...");
+  // Immediate health server so Railway healthcheck passes while subgraphs boot
+  const PORT = parseInt(process.env.PORT || "4000", 10);
+  const healthServer = http.createServer((_req, res) => {
+    if (_req.url === "/health") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ status: "ok", phase: "booting" }));
+    } else {
+      res.writeHead(404);
+      res.end();
+    }
+  });
+  await new Promise<void>((resolve) => healthServer.listen(PORT, resolve));
+  console.log(`🏥 Health server on :${PORT} (temporary)`);
 
+  // Start all subgraphs
+  console.log("Starting all subgraphs...");
   for (const svc of services) {
     startService(svc);
   }
 
-  // Give processes a moment to bind ports
+  // Wait for subgraphs to bind ports
   await new Promise((r) => setTimeout(r, 3000));
 
   console.log("Waiting for all subgraphs to be ready...");
@@ -115,8 +129,11 @@ async function main() {
     console.log("🎉 All subgraphs ready!");
   }
 
+  // Close health server so gateway can bind to the same port
+  await new Promise<void>((resolve) => healthServer.close(() => resolve()));
+  console.log("🏥 Health server closed, starting gateway...");
+
   // Start gateway
-  console.log("Starting gateway...");
   const gateway = spawn("npx", ["tsx", "src/gateway/index.ts"], {
     stdio: "inherit",
     env: process.env,

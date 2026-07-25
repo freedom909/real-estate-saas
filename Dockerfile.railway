@@ -3,7 +3,7 @@ FROM node:20-slim
 WORKDIR /app
 
 # Cache bust - force rebuild everything
-ENV CACHE_DATE=2026-07-25T20:00:00Z
+ENV CACHE_DATE=2026-07-26T00:00:00Z
 
 # Copy package files
 COPY package*.json ./
@@ -16,5 +16,8 @@ COPY . .
 
 # Make scripts executable
 RUN chmod +x scripts/*.sh scripts/*.cjs
+
+ENV PORT=4000
+EXPOSE 4000
 
 CMD ["bash", "scripts/start-railway.sh"]
