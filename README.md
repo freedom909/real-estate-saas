@@ -1,5 +1,7 @@
 # AI Real Estate SaaS Platform
 
+[![CI](https://github.com/freedom909/real-estate-saas/actions/workflows/ci.yml/badge.svg)](https://github.com/freedom909/real-estate-saas/actions/workflows/ci.yml)
+
 ## Overview
 
 A real-estate SaaS platform built with:
