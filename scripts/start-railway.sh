@@ -4,15 +4,20 @@ set -e
 echo "Starting Railway monolith deployment..."
 echo "Working directory: $(pwd)"
 
-# Generate RSA keys if they don't exist
+# Generate RSA keys if they don't exist using Node.js
 mkdir -p keys
 if [ ! -f keys/private.pem ] || [ ! -f keys/public.pem ]; then
   echo "Generating RSA keys..."
-  openssl genrsa -out keys/private.pem 2048
-  openssl rsa -in keys/private.pem -pubout -out keys/public.pem
-  openssl genrsa -out keys/refresh_private.pem 2048
-  openssl rsa -in keys/refresh_private.pem -pubout -out keys/refresh_public.pem
-  echo "RSA keys generated."
+  node -e "
+    const crypto = require('crypto');
+    const fs = require('fs');
+    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
+    fs.writeFileSync('keys/private.pem', privateKey.export({ type: 'pkcs8', format: 'pem' }));
+    fs.writeFileSync('keys/public.pem', publicKey.export({ type: 'spki', format: 'pem' }));
+    fs.writeFileSync('keys/refresh_private.pem', privateKey.export({ type: 'pkcs8', format: 'pem' }));
+    fs.writeFileSync('keys/refresh_public.pem', publicKey.export({ type: 'spki', format: 'pem' }));
+    console.log('RSA keys generated.');
+  "
 fi
 
 export PRIVATE_PATH=./keys/private.pem
