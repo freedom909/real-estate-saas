@@ -2,6 +2,12 @@ import { CartModel } from "@/core/cart/infrastructure/models/cart.model";
 import { CartItemModel } from "@/core/cart/infrastructure/models/cartItem.model";
 import { requireAuth } from "@/infrastructure/auth/require.auth";
 
+async function recalculateCartPrice(cartId: string) {
+  const items = await CartItemModel.findAll({ where: { cartId } });
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  await CartModel.update({ price: total }, { where: { id: cartId } });
+}
+
 export const resolvers = {
   Query: {
     getCart: async (_: any, { cartId }: { cartId: string }) => {
@@ -16,6 +22,17 @@ export const resolvers = {
   },
 
   Mutation: {
+    createCart: async (_: any, { input }: any, context: any) => {
+      const user = await requireAuth(context);
+      const cart = await CartModel.create({
+        customerId: input.customerId,
+        checkInDate: input.checkInDate,
+        checkOutDate: input.checkOutDate,
+        price: 0,
+      });
+      return { code: 200, success: true, message: "Cart created", cart };
+    },
+
     addToCart: async (_: any, { input }: any, context: any) => {
       const user = await requireAuth(context);
       const cart = await CartModel.findByPk(input.cartId, { include: [CartItemModel] });
@@ -52,6 +69,7 @@ export const resolvers = {
       if (input.price !== undefined) item.price = input.price;
       await item.save();
 
+      await recalculateCartPrice(input.cartId);
       const cart = await CartModel.findByPk(input.cartId, { include: [CartItemModel] });
       return { code: 200, success: true, message: "Item updated", cart };
     },
@@ -61,8 +79,21 @@ export const resolvers = {
       if (!item) throw new Error("Cart item not found");
 
       await item.destroy();
+      await recalculateCartPrice(input.cartId);
       const cart = await CartModel.findByPk(input.cartId, { include: [CartItemModel] });
       return { code: 200, success: true, message: "Item removed", cart };
+    },
+
+    clearCart: async (_: any, { cartId }: { cartId: string }, context: any) => {
+      const user = await requireAuth(context);
+      const cart = await CartModel.findByPk(cartId);
+      if (!cart) throw new Error("Cart not found");
+
+      await CartItemModel.destroy({ where: { cartId } });
+      cart.price = 0;
+      await cart.save();
+
+      return { code: 200, success: true, message: "Cart cleared", cart };
     },
   },
 

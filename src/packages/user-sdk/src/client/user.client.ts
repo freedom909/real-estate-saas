@@ -1,3 +1,4 @@
+// src/packages/user-sdk/src/client/user.client.ts
 import { GraphQLClient } from "graphql-request";
 
 export class UserClient {

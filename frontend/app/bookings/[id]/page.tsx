@@ -8,6 +8,7 @@ import { CONFIRM_BOOKING } from "@/app/graphql/booking/mutations/confirmBooking"
 import { CHECK_IN_BOOKING } from "@/app/graphql/booking/mutations/checkInBooking";
 import { COMPLETE_BOOKING } from "@/app/graphql/booking/mutations/completeBooking";
 import { PROCESS_PAYMENT } from "@/app/graphql/payment/mutations/processPayment";
+import { CREATE_PAYMENT } from "@/app/graphql/payment/mutations/payment";
 import PaymentStatusBadge from "@/app/payments/paymentStatus.badge";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -19,6 +20,12 @@ interface BookingQueryData {
     status: string;
     checkInDate: string;
     checkOutDate: string;
+    tenant: {
+      id: string;
+    };
+    customer: {
+      id: string;
+    };
     listing: {
       price: number;
       title: string;
@@ -39,14 +46,12 @@ export default function BookingDetailPage() {
   const [checkingIn, setCheckingIn] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  const [creatingPayment, setCreatingPayment] = useState(false);
   const { data, loading, error, refetch } = useQuery<BookingQueryData>(BOOKING_BY_ID, {
     variables: { id: params.id },
-    context: { headers: { 'Authorization': token } },
   });
 
   const [cancelBooking] = useMutation(CANCEL_BOOKING, {
-    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setCancelling(false);
@@ -57,7 +62,6 @@ export default function BookingDetailPage() {
   });
 
   const [confirmBooking] = useMutation(CONFIRM_BOOKING, {
-    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setConfirming(false);
@@ -68,7 +72,6 @@ export default function BookingDetailPage() {
   });
 
   const [checkInBooking] = useMutation(CHECK_IN_BOOKING, {
-    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setCheckingIn(false);
@@ -79,7 +82,6 @@ export default function BookingDetailPage() {
   });
 
   const [completeBooking] = useMutation(COMPLETE_BOOKING, {
-    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setCompleting(false);
@@ -90,13 +92,27 @@ export default function BookingDetailPage() {
   });
 
   const [processPayment] = useMutation(PROCESS_PAYMENT, {
-    context: { headers: { 'Authorization': token } },
-    onCompleted: () => {
-      refetch();
+    onCompleted: (data) => {
+      const paymentId = data?.processPayment?.payment?.id;
+      if (paymentId) {
+        window.location.href = `/payments/confirm?paymentId=${paymentId}&bookingId=${params.id}`;
+      } else {
+        refetch();
+      }
       setProcessingPayment(false);
     },
     onError: () => {
       setProcessingPayment(false);
+    },
+  });
+
+  const [createPayment] = useMutation(CREATE_PAYMENT, {
+    onCompleted: () => {
+      refetch();
+      setCreatingPayment(false);
+    },
+    onError: () => {
+      setCreatingPayment(false);
     },
   });
 
@@ -128,15 +144,33 @@ export default function BookingDetailPage() {
   };
 
   const handleProcessPayment = async () => {
-    if (!booking?.payment?.id || processingPayment) return;
-    setProcessingPayment(true);
-    try {
-      await processPayment({ variables: { paymentId: booking.payment.id } });
-    } catch (err) {
-      console.error("Process Payment error:", err);
-    } finally {
-      setProcessingPayment(false);
+    if (!booking || processingPayment || creatingPayment) return;
+
+    if (!booking.payment?.id) {
+      setCreatingPayment(true);
+      try {
+        const result = await createPayment({
+          variables: {
+            input: {
+              bookingId: booking.id,
+              amount: booking.price,
+              customerId: booking.customer.id,
+              tenantId: booking.tenant.id,
+            },
+          },
+        });
+        const newPaymentId = result.data?.createPayment?.id;
+        if (newPaymentId) {
+          window.location.href = `/payments/pay?paymentId=${newPaymentId}&bookingId=${booking.id}`;
+        }
+      } catch (err) {
+        console.error("Create Payment error:", err);
+        setCreatingPayment(false);
+      }
+      return;
     }
+
+    window.location.href = `/payments/pay?paymentId=${booking.payment.id}&bookingId=${booking.id}`;
   };
 
   if (loading) {
@@ -255,13 +289,13 @@ export default function BookingDetailPage() {
                     {confirming ? "Confirming..." : "Confirm Booking"}
                   </button>
                 )}
-                {booking?.payment?.status === "PENDING" && (
+                {(booking?.payment?.status === "PENDING" || (!booking?.payment && booking?.status === "PENDING")) && (
                   <button
                     onClick={handleProcessPayment}
-                    disabled={processingPayment}
+                    disabled={processingPayment || creatingPayment}
                     className="flex-1 rounded-xl bg-blue-600 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {processingPayment ? "Processing..." : "Process Payment"}
+                    {creatingPayment ? "Creating payment..." : processingPayment ? "Processing..." : booking?.payment ? "Process Payment" : "Pay Now"}
                   </button>
                 )}
                 {booking?.status === "CONFIRMED" && (

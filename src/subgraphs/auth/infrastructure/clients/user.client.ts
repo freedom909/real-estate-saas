@@ -1,0 +1,1 @@
+// src/subgraphs/auth/infrastructure/clients/user.client.ts

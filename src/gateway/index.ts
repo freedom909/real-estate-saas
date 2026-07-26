@@ -41,6 +41,12 @@ import tenantRouter from "@/gateway/routes/tenantRouter"
 
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 async function start() {
+  // Connect to MongoDB for REST routes (tenant API)
+  const { default: mongoose } = await import("mongoose");
+  const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/nakano";
+  await mongoose.connect(mongoUri);
+  console.log("✅ MongoDB connected for gateway");
+
   console.log("start gateway")
   const gateway = new ApolloGateway({
     supergraphSdl: new IntrospectAndCompose({

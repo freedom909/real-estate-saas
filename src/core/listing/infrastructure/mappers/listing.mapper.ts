@@ -45,6 +45,9 @@ amenityIds:
     price:
       Number(raw.price ?? 1),
 
+    pricePerNight:
+      raw.pricePerNight != null ? Number(raw.pricePerNight) : undefined,
+
     picture:
       raw.picture ?? [],
 
@@ -114,6 +117,7 @@ description: listing.description,
     numOfRooms: listing.numOfRooms,
 
     price: listing.price,
+    pricePerNight: listing.pricePerNight,
 
     picture: listing.picture,
 

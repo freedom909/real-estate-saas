@@ -77,7 +77,7 @@ async function seed() {
   // Users
   await UserModel.deleteMany({});
   for (const u of USERS) {
-    await UserModel.create({ ...u, tokenVersion: 0 });
+    await UserModel.create({ ...u, tokenVersion: 0, status: "ACTIVE" });
     console.log(`  User:   ${u.email} (${u.role})`);
   }
   console.log(`Seeded ${USERS.length} users`);

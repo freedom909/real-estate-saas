@@ -134,6 +134,9 @@ User: {
     },
 
     createUser: async (_: any, { input }: any) => {
+        console.log("========== USER QUERY ==========");
+        console.log(input);
+      
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.create(input);
     },

@@ -25,6 +25,7 @@ export interface ListingProps {
   numOfRooms: number;
 
   price: number;
+  pricePerNight?: number;
 
   picture: string[];
 
@@ -63,6 +64,7 @@ export class Listing {
   get numOfBathrooms() { return this.props.numOfBathrooms; }
   get numOfRooms() { return this.props.numOfRooms; }
   get price() { return this.props.price; }
+  get pricePerNight() { return this.props.pricePerNight ?? this.props.price; }
   get picture() { return this.props.picture; }
   get isFeatured() { return this.props.isFeatured; }
   get rawTitle() { return this.props.rawTitle; }
@@ -114,7 +116,7 @@ export class Listing {
   }
 
   private validate(props: ListingProps) {
-    if (!props.ownerId) throw new Error("ownerId required");//ownerId required
+    if (!props.ownerId) throw new Error("ownerId required");
     if (!props.locationId) throw new Error("locationId required");
     // categories may be empty when loaded from DB (join table may have no rows)
   }

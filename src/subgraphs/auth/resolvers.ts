@@ -1,4 +1,4 @@
-
+// src/subgraphs/auth/resolvers/index.ts
 
 import { container, DependencyContainer } from "tsyringe";
 import jwt from "jsonwebtoken";
@@ -12,6 +12,7 @@ import { subgraphAuthGuard } from "./guards/subgraphAuthGuard";
 import Blacklist from "@/security/blacklist/blacklist";
 import { IdentityRepository } from "./infrastructure/repos/identity.repo";
 import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
+import { ISessionPort } from "./domain/ports/session.port";
 
 type User = {
   userId: string;
@@ -170,7 +171,7 @@ export default {
       { refreshToken }: { refreshToken: string },
       ctx: Context
     ) => {
-      const sessionService = ctx.container.resolve(
+      const sessionService = ctx.container.resolve<ISessionPort>(
         TOKENS_AUTH.ports.sessionPort
       );
 
@@ -204,7 +205,7 @@ export default {
     logout: async (_: unknown, __: unknown, ctx: Context) => {
       if (!ctx.user) throw new Error("Unauthorized");
 
-      const sessionService = ctx.container.resolve(
+      const sessionService = ctx.container.resolve<ISessionPort>(
         TOKENS_AUTH.ports.sessionPort
       );
 

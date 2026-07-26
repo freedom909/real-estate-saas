@@ -4,6 +4,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "db:sync": "npx prisma migrate dev",
+    "db:reset": "npx prisma migrate reset",
+    "seed:listings": "tsx src/seeds/seed-listings.ts",
     "build": "tsc --project tsconfig.build.json",
     "dev:user": "tsx watch src/subgraphs/user/index.ts",
     "dev:audit": "tsx watch src/subgraphs/audit/index.ts",
@@ -11,7 +14,7 @@
     "dev:host": "tsx watch src/subgraphs/host/index.ts",
     "dev:tenant": "tsx watch src/subgraphs/tenant/index.ts",
     "dev:gateway": "tsx watch src/gateway/index.ts",
-    "dev:amenity": "tsx watch src/subgraphs/amenity/index.ts",    
+    "dev:amenity": "tsx watch src/subgraphs/amenity/index.ts",        
     "test": "jest",
     "test:e2e": "jest --runInBand --testMatch \"**/e2e/**/*.{test,spec}.ts\"",
     "test:integration": "jest --runInBand --testMatch \"**/integration/**/*.{test,spec}.ts\"",

@@ -58,6 +58,12 @@ type CartResponse implements MutationResponse {
 # -----------------------------------
 # Inputs
 # -----------------------------------
+input CreateCartInput {
+  customerId: ID!
+  checkInDate: DateTime
+  checkOutDate: DateTime
+}
+
 input AddToCartInput {
   cartId: ID!
   customerId: ID!
@@ -92,7 +98,9 @@ type Query {
 # Mutations
 # -----------------------------------
 type Mutation {
+  createCart(input: CreateCartInput!): CartResponse!
   addToCart(input: AddToCartInput!): CartResponse!
   updateCartItem(input: UpdateCartItemInput!): CartResponse!
   removeFromCart(input: RemoveFromCartInput!): CartResponse!
+  clearCart(cartId: ID!): CartResponse!
 }

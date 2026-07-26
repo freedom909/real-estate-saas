@@ -37,10 +37,10 @@ export default function Dashboard() {
           ) : (
             /* Quick Actions Grid */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/listing" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+              <Link href="/admin/listings" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <div className="text-3xl mb-3">🏠</div>
-                <h3 className="font-semibold text-gray-900">Browse Listings</h3>
-                <p className="text-sm text-gray-500 mt-1">Find your next vacation rental</p>
+                <h3 className="font-semibold text-gray-900">Property Listings</h3>
+                <p className="text-sm text-gray-500 mt-1">Manage all property listings</p>
               </Link>
 
               <Link href="/bookings" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
@@ -71,6 +71,36 @@ export default function Dashboard() {
                 <div className="text-3xl mb-3">🎯</div>
                 <h3 className="font-semibold text-gray-900">Campaigns</h3>
                 <p className="text-sm text-gray-500 mt-1">View available deals and promotions</p>
+              </Link>
+
+                <Link href="/admin/manage-users" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <div className="text-3xl mb-3">👤</div>
+                <h3 className="font-semibold text-gray-900">Customer Management</h3>
+                <p className="text-sm text-gray-500 mt-1">Manage customer accounts and preferences</p>
+              </Link>
+
+                 <Link href="/admin/users" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <div className="text-3xl mb-3">🏢</div>
+                <h3 className="font-semibold text-gray-900">Tenant Management</h3>
+                <p className="text-sm text-gray-500 mt-1">Manage tenant accounts and preferences</p>
+              </Link>
+
+                   <Link href="/admin/analytics" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <div className="text-3xl mb-3">📊</div>
+                <h3 className="font-semibold text-gray-900">Analytics Dashboard</h3>
+                <p className="text-sm text-gray-500 mt-1">View user activity and performance metrics</p>
+              </Link>
+
+                 <Link href="/admin/audit-logs" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <div className="text-3xl mb-3">📜</div>
+                <h3 className="font-semibold text-gray-900">Audit Logs</h3>
+                <p className="text-sm text-gray-500 mt-1">View system activity and actions</p>
+              </Link>
+
+                <Link href="/admin/reports" className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <div className="text-3xl mb-3">📋</div>
+                <h3 className="font-semibold text-gray-900">Reports</h3>
+                <p className="text-sm text-gray-500 mt-1">View system reports and analytics</p>
               </Link>
             </div>
           )}

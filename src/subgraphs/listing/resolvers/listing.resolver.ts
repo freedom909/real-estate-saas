@@ -5,8 +5,10 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
 
 import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
-import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase.ts";
+import UpdateListingUseCase from "@/core/listing/application/usecase/updateListing.usecase";
+
 import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
+import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase";
 
 export const resolvers = {
   Query: {
@@ -60,8 +62,6 @@ export const resolvers = {
 
       return repo.findByOwnerId(ownerId);
     },
-
-
   },
 
 
@@ -79,6 +79,30 @@ export const resolvers = {
 
       return useCase.execute(input);
 
+    },
+
+    updateListing: async (
+      _: any,
+      { id, input }: { id: string; input: any }
+    ) => {
+      const useCase =
+        container.resolve<UpdateListingUseCase>(
+          TOKENS_LISTING.usecase.updateListingUseCase
+        );
+
+      return useCase.execute(id, input);
+    },
+
+    deleteListing: async (
+      _: any,
+      { id }: { id: string }
+    ) => {
+      const repo =
+        container.resolve<IListingRepository>(
+          TOKENS_LISTING.repos.listingRepository
+        );
+
+      return repo.delete(id);
     },
 
   },

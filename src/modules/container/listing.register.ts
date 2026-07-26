@@ -8,6 +8,7 @@ import { GenerateListingAIOptimizationUseCase } from '@/wisdom/agents/listing/ge
 import ListingModel from '@/core/listing/infrastructure/models/listing.model';
 import { ListingRepository } from '@/core/listing/infrastructure/persistence/listing.repository';
 import CreateListingUseCase from '@/core/listing/application/usecase/createListing.usecase';
+import UpdateListingUseCase from '@/core/listing/application/usecase/updateListing.usecase';
 
 import { SearchListingUseCase } from '@/core/listing/application/usecase/searchListingUseCase';
 import { RunListingAgentUseCase } from '@/core/listing/application/usecase/runListingAgentUseCase';
@@ -24,16 +25,16 @@ import GetFeaturedListingsUseCase from '@/core/listing/application/usecase/getFe
 
 
 export default function registerListingDependencies() {
-  container.register(TOKENS_LISTING.models.listingCategoriesModel, {
-    useValue: ListingModel,
-  });
-
   container.register(TOKENS_LISTING.repos.listingRepository, {
     useClass: ListingRepository,
   });
 
   container.register(TOKENS_LISTING.usecase.createListingUseCase, {
     useClass: CreateListingUseCase,
+  });
+
+  container.register(TOKENS_LISTING.usecase.updateListingUseCase, {
+    useClass: UpdateListingUseCase,
   });
 
   container.register(TOKENS_LISTING.usecase.getListingByIdUseCase, {

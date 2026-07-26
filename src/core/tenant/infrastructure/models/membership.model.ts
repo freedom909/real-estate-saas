@@ -53,9 +53,8 @@ const membershipSchema = new Schema<MembershipDocument>(
   }
 )
 
-const MembershipModel = mongoose.model<MembershipDocument>(
-  "Membership",
-  membershipSchema
-)
+const MembershipModel =
+  mongoose.models.Membership ||
+  mongoose.model<MembershipDocument>("Membership", membershipSchema)
 
 export default MembershipModel

@@ -2,7 +2,7 @@
 
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { SetContextLink } from "@apollo/client/link/context";
-import { onError } from "@apollo/client/link/error";
+import { ErrorLink, onError } from "@apollo/client/link/error";
 import { useAuthStore } from "../store/auth.store";
 import { useTenantStore } from "../store/tenant.store";
 import { refreshToken } from "../services/auth.service";
@@ -25,11 +25,11 @@ const authLink = new SetContextLink((operation) => {
 // Error link — auto-refresh on token expiration
 let isRefreshing = false;
 
-const errorLink = onError(({ graphQLErrors, operation, forward }) => {
+const errorLink = new ErrorLink(({ graphQLErrors, operation, forward }) => {
   if (!graphQLErrors) return;
 
   const authError = graphQLErrors.find(
-    (e) =>
+    (e: any) =>
       e.message?.includes("UNAUTHORIZED") ||
       e.message?.includes("TOKEN_EXPIRED") ||
       e.message?.includes("Invalid or expired token") ||

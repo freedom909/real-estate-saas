@@ -40,7 +40,7 @@ export default function AnalyticsPage() {
 }
 
 function AnalyticsContent() {
-  const { data, loading, error } = useQuery(DASHBOARD_STATS);
+  const { data, loading, error } = useQuery<{ dashboardStats: any }>(DASHBOARD_STATS);
 
   const analytics = useMemo(() => {
     if (!data?.dashboardStats) return null;
