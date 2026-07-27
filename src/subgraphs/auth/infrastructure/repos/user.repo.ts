@@ -4,6 +4,7 @@ import { Redis } from 'ioredis';
 import { HydratedDocument } from "mongoose";
 import { createRedis } from '@/infrastructure/redis/redis';
 import { UserDocument } from '@/subgraphs/user/models/user.model.js';
+import { UserRole } from '@/core/user/domain/userRole';
 
 
 interface UserRepoOptions {
@@ -123,6 +124,7 @@ async getTokenVersion(userId: string): Promise<number> {
   return this.UserModel.create({
     email: data.email,
     name: data.name,
+    role: UserRole.CUSTOMER,
     picture: data.avatar ?? "", // ✅ 用 picture
     provider: data.provider,
     providerSub: data.providerSub

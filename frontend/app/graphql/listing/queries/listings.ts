@@ -3,18 +3,31 @@
 import { gql } from "@apollo/client";
 
 export const GET_LISTINGS = gql`
+
 query GetListings {
-  listings {
-    id
-    title
-    description
-    address
-    ownerId
-    price
-    picture
-    numOfBeds
-    numOfCustomers
-    isFeatured
-  }
+
+listings {
+
+id
+
+title
+
+description
+
+address
+
+price
+
+picture
+
+numOfBeds
+
+numOfCustomers
+
+isFeatured
+
 }
+
+}
+
 `;

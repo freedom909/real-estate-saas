@@ -89,26 +89,9 @@ input CreateListingInput {
   numOfRooms: Int
 
   price: Float
-  pricePerNight: Float!
+  pricePerNight: Float! 
   picture: [String!]
 
-  isFeatured: Boolean
-}
-
-input UpdateListingInput {
-  title: String
-  description: String
-  address: String
-  locationId: ID
-  categories: [ID!]
-  amenityIds: [ID!]
-  numOfBeds: Int
-  numOfCustomers: Int
-  numOfBathrooms: Int
-  numOfRooms: Int
-  price: Float
-  pricePerNight: Float
-  picture: [String!]
   isFeatured: Boolean
 }
 
@@ -168,8 +151,6 @@ id: ID! @external
 # -----------------------------------
 type Mutation {
   createListing(input: CreateListingInput!): Listing!
-  updateListing(id: ID!, input: UpdateListingInput!): Listing!
-  deleteListing(id: ID!): Boolean!
   generateTitleSuggestion(
     listingId: ID!
   ): String!

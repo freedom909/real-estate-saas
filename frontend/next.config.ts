@@ -4,14 +4,6 @@ const backendUrl = process.env.BACKEND_URL || "http://localhost:4000";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-      },
-    ],
-  },
   async rewrites() {
     return [
       {

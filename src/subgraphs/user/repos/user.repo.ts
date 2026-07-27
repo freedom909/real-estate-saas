@@ -51,8 +51,10 @@ userByEmail(email: string) {
   return user;
 }
 
-findById(id: string) {
-  return this.UserModel.findById(id).lean<IUserDBObject>();
+async findById(id: string) {
+  const user = await this.UserModel.findById(id);
+if (!user) return null;
+  return user.toObject();
 }
 
 async create(data: Partial<IUserDBObject>) {

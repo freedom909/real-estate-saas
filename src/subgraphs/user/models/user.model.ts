@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   lowercase: true,
   trim: true,
   },
-  
+  role: { type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER },
   name: { type: String, required: true },
   picture: { type: String, default: "" },
   status: { type: String, enum: ["ACTIVE", "SUSPENDED", "BANNED","DELETED"], default: "ACTIVE" },

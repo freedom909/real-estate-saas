@@ -1,5 +1,8 @@
+// src/wisdom-web/app/auth/auth.provider.tsx
+
 "use client";
 import { ApolloProvider } from "@apollo/client/react";
+import { SessionProvider } from "next-auth/react";
 import { client } from "../lib/apolloClient";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/auth.store";
@@ -59,10 +62,12 @@ function SyncAuthFromCookies() {
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ApolloProvider client={client}>
-      <SyncAuthFromCookies />
-      <TenantSync />
-      {children}
-    </ApolloProvider>
+    <SessionProvider>
+      <ApolloProvider client={client}>
+        <SyncAuthFromCookies />
+        <TenantSync />
+        {children}
+      </ApolloProvider>
+    </SessionProvider>
   );
 }

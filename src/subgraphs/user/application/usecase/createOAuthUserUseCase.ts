@@ -4,9 +4,11 @@ import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { inject, injectable } from "tsyringe";
 
 import { CreateOAuthUserInput, IUserRepository } from "@/subgraphs/user/domain/entities/IRepo";
+import { UserRole } from "@/core/user/domain/userRole";
 
 interface GraphQLOAuthInput {
   email: string;
+  
   provider: string;
   profile: {
     name: string;
@@ -26,6 +28,7 @@ async execute(input: GraphQLOAuthInput) {
   const payload: CreateOAuthUserInput = {
     email: input.email,
     name: input.profile.name,
+    role: UserRole.CUSTOMER,
     picture: input.profile.avatar ?? "",
     provider: input.provider,
   };

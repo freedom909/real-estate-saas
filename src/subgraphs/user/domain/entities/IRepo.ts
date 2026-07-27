@@ -1,4 +1,5 @@
 
+import { UserRole } from "@/core/user/domain/userRole";
 import UserModel from "@/subgraphs/user/models/user.model";
 
 export interface IUserRepository {
@@ -11,7 +12,7 @@ export interface IUserRepository {
 export interface CreateOAuthUserInput {
 
 email: string;
-
+role: UserRole;
 name: string;
 
 picture?: string;

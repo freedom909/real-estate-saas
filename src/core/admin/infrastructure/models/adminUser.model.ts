@@ -4,7 +4,11 @@ import "reflect-metadata";
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "@/infrastructure/config/seq";
 
-class AdminUserModel extends Model {}
+class AdminUserModel extends Model {
+   async findById(id: string) {
+    return await this.findByPk(id);//
+  }
+}
 
 AdminUserModel.init(
   {

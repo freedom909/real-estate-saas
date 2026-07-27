@@ -34,7 +34,7 @@ type User @key(fields: "id") {
   email: String!
   name: String
   picture: String
- role: UserRole! @shareable
+  role: UserRole! @shareable
   status: AccountStatus! @shareable
   immutable: Boolean!   # 默认 false，只有极少数账号为 true
   lastLoginAt: DateTime @shareable
@@ -164,9 +164,11 @@ input CreateUserInput {
 }
 
 input CreateOAuthUserInput {
-  email: String
-  profile: ProfileInput
+  email: String!
+  role: UserRole = CUSTOMER
   provider: OAuthProvider!
+  profile: ProfileInput
+  
 }
 
 input ProfileInput {

@@ -23,7 +23,9 @@ export class UserClient {
       query ($email: String!) {
         userByEmail(email: $email) {
           id
+          role
           email
+          
           profile {
       name
       avatar
@@ -49,6 +51,7 @@ export class UserClient {
       query ($id: ID!) {
         user(id: $id) {
           id
+          role
           email
           name
           picture
@@ -85,6 +88,7 @@ export class UserClient {
       mutation ($input: CreateOAuthUserInput!) {
         createOAuthUser(input: $input) {
           id
+          role
           email
           name
           picture

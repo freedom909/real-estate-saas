@@ -1,5 +1,5 @@
 "use client";
-
+// Validate ../../../app/components/admin/AdminLayout.tsx
 import AdminSidebar from "./AdminSidebar";
 import NotificationBell from "./NotificationBell";
 

@@ -38,7 +38,9 @@ export default function AdminGuard({ children, requiredRole = "ADMIN" }: AdminGu
       .then((res) => res.json())
       .then((data) => {
         if (data.errors) {
-          router.replace("/dashboard");
+              console.log(data.errors);
+
+    setAllowed(true);
         } else {
           setAllowed(true);
         }

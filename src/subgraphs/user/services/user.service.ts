@@ -33,6 +33,7 @@ class UserService {
       ? await this.userRepository.userByEmail(id)
       : await this.userRepository.findById(id);
     if (!user) return null;
+    console.log("Repository user =", user); //no output
     return {
       id: user._id.toString(),
       email: user.email,

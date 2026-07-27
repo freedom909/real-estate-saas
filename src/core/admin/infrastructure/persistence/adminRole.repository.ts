@@ -38,8 +38,14 @@ export class AdminUserRepository implements IAdminUserRepository {
   }
 
   async findById(id: string): Promise<AdminUser | null> {
-    const record = await this.model.findByPk(id);
-    return record ? AdminUserMapper.toDomain(record) : null;
+    // const record = await this.model.findByPk(id);
+    // return record ? AdminUserMapper.toDomain(record) : null;
+     const user = await this.model.findByPk(id);// Property 'findById' does not exist on type 'typeof AdminUserModel'.
+
+    console.log("========== MONGOOSE RESULT ==========");
+    console.log(user);
+
+    return AdminUserMapper.toDomain(user);
   }
 
   async findByEmail(email: string): Promise<AdminUser | null> {
