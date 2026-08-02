@@ -1,11 +1,26 @@
-// src/wisdom-web/app/types/listing.ts
-export interface Listing {
-  id: number;
-  tenantId: number;
-  name: string;
-  description: string;
-  ownerId: number;
-  price: number;
-  status: "active" | "inactive";
-  createdAt: Date;
-}
+export type Picture = {
+  objectKey: string;
+  type: string;
+  sortOrder: number;
+};
+
+
+export type Listing = {
+  id:string;
+
+  title:string;
+
+  description:string;
+
+  address:string;
+
+  price:number;
+
+  pictures: Picture[];
+
+  numOfBeds:number;
+
+  numOfCustomers:number;
+
+  isFeatured:boolean;
+};

@@ -1,4 +1,4 @@
-const IMAGE_API_URL = process.env.NEXT_PUBLIC_IMAGE_API_URL || "http://localhost:8000";
+const IMAGE_API_URL = process.env.NEXT_PUBLIC_IMAGE_API_URL || process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:4000";
 
 export interface TextToImageParams {
   prompt: string;

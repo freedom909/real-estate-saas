@@ -1,7 +1,7 @@
 // src/rbac/policy.engine.ts
 
-import { IPolicy, PolicyContext } from "@/core/user/domain/entities/policyContext";
-import { Action, Resource } from "@/core/user/domain/entities/types";
+import { IPolicy, PolicyContext } from "@/subgraphs/user/domain/entities/policyContext";
+import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
 import { Role, hasMinRole } from "@/core/shared/domain/role";
 
 type PolicyHandler = (context: PolicyContext) => boolean;

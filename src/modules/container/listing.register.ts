@@ -22,6 +22,7 @@ import ListingCategories from '@/core/listing/infrastructure/models/listingCateg
 import { ListingAISuggestionRepository } from '@/core/listing/infrastructure/persistence/listing.ai.suggestion.repository';
 import GetListingByIdUseCase from '@/core/listing/application/usecase/getListingById.usecase';
 import GetFeaturedListingsUseCase from '@/core/listing/application/usecase/getFeaturedListings.usecase';
+import { TOKENS_PICTURE } from '../tokens/picture.tokens';
 
 
 export default function registerListingDependencies() {
@@ -53,6 +54,9 @@ export default function registerListingDependencies() {
     useValue: ListingCategories,
   });
 
+  container.register(TOKENS_PICTURE.models.pictureModel, {
+    useValue: sequelize.models.Picture,
+  });
   container.register(TOKENS_LISTING.models.listingAmenityModel, {
     useValue: ListingAmenities,
   });

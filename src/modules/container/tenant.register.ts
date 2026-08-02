@@ -2,10 +2,10 @@
 
 import { DependencyContainer } from 'tsyringe';
 
-import  UserModel  from '../../subgraphs/user/models/user.model';
-import UserRepository from '../../subgraphs/user/repos/user.repo';
+import  UserModel  from '../../subgraphs/user/infra/models/user.model';
+import UserRepository from '../../subgraphs/user/infra/repos/user.repo';
 import { TOKENS_USER } from '@/modules/tokens/user.tokens';
-import MembershipModel from '@/subgraphs/user/models/membership.model';
+import MembershipModel from '@/subgraphs/user/infra/models/membership.model';
 
 
 import { TOKENS_TENANT } from '../tokens/tenant.tokens';

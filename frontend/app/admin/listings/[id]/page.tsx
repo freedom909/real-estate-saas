@@ -16,7 +16,7 @@ type Listing = {
   address: string;
   price: number;
   pricePerNight: number;
-  picture: string[];
+  pictures: { objectKey: string; sortOrder: number }[];
   numOfBeds: number;
   numOfBathrooms: number;
   numOfRooms: number;
@@ -148,6 +148,10 @@ function AdminListingDetailContent({
             numOfRooms: parseInt(form.numOfRooms) || 1,
             numOfCustomers: parseInt(form.numOfCustomers) || 2,
             locationId: form.locationId || "default-location",
+            pictures: listing.pictures?.map((p) => ({
+              objectKey: p.objectKey,
+              sortOrder: p.sortOrder,
+            })) ?? [],
             isFeatured: form.isFeatured,
             categories: listing.categories?.map((c) => c.id) ?? [],
           },
@@ -348,12 +352,12 @@ function AdminListingDetailContent({
           {/* Images */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h3 className="font-semibold mb-3">Images</h3>
-            {listing.picture && listing.picture.length > 0 ? (
+            {listing.pictures && listing.pictures.length > 0 ? (
               <div className="space-y-2">
-                {listing.picture.map((url, i) => (
+                {listing.pictures.map((p, i) => (
                   <img
                     key={i}
-                    src={url}
+                    src={p.objectKey}
                     alt={`${listing.title} ${i + 1}`}
                     className="w-full h-32 object-cover rounded-lg border"
                   />

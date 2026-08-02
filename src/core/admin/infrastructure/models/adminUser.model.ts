@@ -6,7 +6,7 @@ import { sequelize } from "@/infrastructure/config/seq";
 
 class AdminUserModel extends Model {
    async findById(id: string) {
-    return await this.findByPk(id);//
+    return await AdminUserModel.findByPk(id);
   }
 }
 

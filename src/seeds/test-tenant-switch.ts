@@ -9,9 +9,9 @@
 import "reflect-metadata";
 import "dotenv/config";
 import mongoose from "mongoose";
-import UserModel from "@/subgraphs/user/models/user.model";
+import UserModel from "@/subgraphs/user/infra/models/user.model";
 import { TenantModel } from "@/core/tenant/infrastructure/models/tenant.model";
-import MembershipModel from "@/subgraphs/user/models/membership.model";
+import MembershipModel from "@/subgraphs/user/infra/models/membership.model";
 import SessionModel from "@/subgraphs/auth/infrastructure/models/session.model";
 import { SwitchTenantUseCase } from "@/core/tenant/application/usecase/switch-tenant.use-case";
 import { MembershipRepository } from "@/core/tenant/infrastructure/repos/membership.repo";

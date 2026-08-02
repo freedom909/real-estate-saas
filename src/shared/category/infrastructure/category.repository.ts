@@ -7,6 +7,10 @@ import { Op } from 'sequelize';
 
 @injectable()
 export class CategoryRepository {
+  async findAll() {
+    return CategoryModel.findAll();
+  }
+
   async findByIds(ids: string[]) {
     console.log(ids); //no output in the terminal
     return CategoryModel.findAll({

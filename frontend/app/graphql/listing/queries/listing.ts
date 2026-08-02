@@ -18,7 +18,10 @@ address
 
 price
 
-picture
+pictures {
+    objectKey
+    sortOrder
+}
 
 numOfBeds
 

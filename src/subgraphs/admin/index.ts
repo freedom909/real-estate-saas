@@ -39,9 +39,10 @@ const typeDefs = gql(
 const startApolloServer = async () => {
   try {
     console.info("Connecting to MySQL...");
-    await sequelize.authenticate();
-    await sequelize.sync({ force: true });
-
+if (process.env.NODE_ENV === "development") {
+    await sequelize.sync({ alter: true });
+}
+await sequelize.authenticate();
     console.info("MySQL connected");
 
     const app = express();

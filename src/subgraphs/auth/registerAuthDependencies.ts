@@ -25,7 +25,7 @@ import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 import { VerifyOtpUseCase } from "./application/usecases/verifyOtp.usecase";
 
 import { RiskEventRepo } from "./infrastructure/repos/risk.event.repo";
-import CredentialRepo from "../user/repos/credential.repo";
+import CredentialRepo from "../user/infra/repos/credential.repo";
 import SessionRepository from "./infrastructure/repos/session.repo";
 // import TrustedDeviceRepository from "./infrastructure/repos/trusted-device.repo";
 import UserRepo from "./infrastructure/repos/user.repo";

@@ -38,6 +38,8 @@ import cors from "cors"
 import { ApolloGateway, RemoteGraphQLDataSource, IntrospectAndCompose } from "@apollo/gateway"
 import { createAuthPlugin } from "@/gateway/plugins/auth.plugin"
 import tenantRouter from "@/gateway/routes/tenantRouter"
+import uploadRouter from "@/gateway/routes/uploadRouter"
+import imageRouter from "@/gateway/routes/imageRouter"
 
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 async function start() {
@@ -78,9 +80,10 @@ async function start() {
 
         willSendRequest({ request, context }) {
           const auth = context?.authorization;
-
+            console.log("Gateway context =", context);
           console.log("GATEWAY AUTH =>", auth);
-
+           console.log("Gateway auth =", context.authorization);
+           console.log("Gateway user =", context.user);
           if (auth) {
 
             request.http.headers.set(
@@ -109,8 +112,8 @@ async function start() {
             );
           }
 
+   
         },
-
       });
 
     }
@@ -135,6 +138,11 @@ async function start() {
 
   // REST API routes
   app.use("/api/tenants", tenantRouter)
+  app.use("/api/upload", uploadRouter)
+  app.use("/api/images", imageRouter)
+
+  // Serve uploaded files as static assets
+  app.use("/uploads", express.static(path.resolve(__dirname, "../../uploads")))
 
   // Health check endpoint
   app.get("/health", (req, res) => {
@@ -155,11 +163,11 @@ async function start() {
 
     },
     expressMiddleware(server, {
-      context: async ({ req }) => ({
-
-        authorization: req.headers.authorization,
-
-      }),
+context: async ({ req }) => ({
+    authorization: req.headers.authorization,
+    user: (req as any).user,
+    tenantId: (req as any).user?.tenantId,
+}),
     }))
 
   const PORT = parseInt(process.env.PORT || "4000", 10);
@@ -167,5 +175,4 @@ async function start() {
     console.log(`🚀 Gateway running at http://localhost:${PORT}/graphql`)
   })
 }
-
 start()

@@ -32,15 +32,23 @@ type Listing @key(fields: "id") {
   numOfRooms: Int!
 
   price: Float! @shareable
-  pricePerNight: Float! 
-  picture: [String!]
+  pricePerNight: Float!
+  pictures: [Picture!]!
 
   isFeatured: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime
 }
-
+type Picture{
+  id: ID!
+  listingId: ID!
+  objectKey: String!
+  type: String!
+  sortOrder: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
 # -----------------------------------
 # Owner Federation Extension
 # -----------------------------------
@@ -62,7 +70,7 @@ type Category {
 # Amenity
 # -----------------------------------
 extend type Amenity @key(fields: "id") {
-  id: ID! @external 
+  id: ID! @external
   type: String
 }
 
@@ -74,8 +82,6 @@ input CreateListingInput {
   description: String!
 
   address: String!
-
-
   ownerId: ID!
 
   locationId: ID!
@@ -89,10 +95,9 @@ input CreateListingInput {
   numOfRooms: Int
 
   price: Float
-  pricePerNight: Float! 
-  picture: [String!]
+  pricePerNight: Float!
 
-  isFeatured: Boolean
+  pictures: [ID!]!
 }
 
 # -----------------------------------
@@ -115,6 +120,7 @@ type Query {
   listing(id: ID!): Listing
   listingAISuggestions(listingId: ID!): [ListingAISuggestion!]!
   listings: [Listing!]!
+  categories: [Category!]!
   featuredListings(limit: Int): [Listing!]!
   listingsByOwner(ownerId: ID!): [Listing!]!
 }

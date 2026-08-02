@@ -1,9 +1,6 @@
 import { Role } from "@/core/shared/domain/role";
 import { Resource, Action } from "./types";
 
-
-
-
 export interface PolicyContext {
   user: PolicyUser | null;
   resourceOwnerId?: string;

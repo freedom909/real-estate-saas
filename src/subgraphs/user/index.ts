@@ -17,13 +17,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
-import { connectMongo } from "../../shared/db/mongo";
+import mongoose, { connectMongo } from "../../shared/db/mongo";
 import { registerUserDependencies } from "./registerUserDependencies";
 import   resolvers  from "./resolvers/user.resolver";
 
 import { container } from "tsyringe";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import userRegister from "@/modules/container/user.register";
+import UserModel from "./infra/models/user.model";
 
 // 🔍 启动时验证 env
 userRegister();
@@ -32,10 +33,19 @@ console.log(
   process.env.USER_SUBGRAPH_URL
 );
 // 🥭 1️⃣ Mongo
-await connectMongo(
-  process.env.MONGO_URI ||
-  "mongodb://localhost:27017/nakano"
-);
+await connectMongo(process.env.MONGO_URI ||"mongodb://localhost:27017/nakano");
+console.log("MongoDB connected",process.env.MONGO_URI);
+const collections = await mongoose.connection.db.listCollections().toArray();
+console.log("Connected DB =", mongoose.connection.name);
+console.log("Host =", mongoose.connection.host);
+console.log("Port =", mongoose.connection.port);
+console.log(collections);
+const docs = await mongoose.connection.db
+  .collection("users")
+  .find({})
+  .toArray();
+
+console.log("USERS =", docs);
 
 // 🧰 2️⃣ Container
 const userContainer = registerUserDependencies(container);
@@ -92,7 +102,11 @@ app.use(
     }),
   })
 );
-
+console.log(
+  "USERS =",
+  __filename,
+  await UserModel.find()
+);
 httpServer.listen(4020, () => {
   console.log(
     "👤 User 🔥🔥🔥 WHICH FILE IS THIS 🔥🔥🔥at http://localhost:4020/graphql"

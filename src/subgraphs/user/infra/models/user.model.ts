@@ -1,6 +1,6 @@
 // user.model.ts
 
-import { IProfile } from "@/core/user/domain/entities/user";
+import { IProfile } from "@/core/user/domain/user";
 import { UserRole } from "@/core/user/domain/userRole";
 import mongoose, { HydratedDocument, Types } from "mongoose";
 

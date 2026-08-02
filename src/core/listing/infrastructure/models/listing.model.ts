@@ -1,10 +1,45 @@
 // src/subgraphs/listing/infrastructure/models/listing.model.ts
 
 import "reflect-metadata";
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, InferAttributes, InferCreationAttributes } from 'sequelize';
 import { sequelize } from "@/infrastructure/config/seq";
+import type PictureModel from "./picture.model";
 
-class ListingModel extends Model {}
+
+class ListingModel extends Model<InferAttributes<ListingModel>,
+  InferCreationAttributes<ListingModel>
+>{
+  declare id:string;
+
+  declare title:string;
+
+  declare description:string;
+
+  declare ownerId:string;
+
+  declare locationId:string;
+  declare amenityIds?:string[];
+
+  declare address:string;
+
+  declare numOfBeds:number;
+
+  declare numOfCustomers:number;
+
+  declare numOfBathrooms:number;
+
+
+  declare numOfRooms:number;
+
+  declare price:number;
+
+  declare isFeatured:boolean;
+
+
+  // ⭐ 加这里
+  declare pictures?: PictureModel[];
+
+}
 
 ListingModel.init(
   {
@@ -18,6 +53,10 @@ ListingModel.init(
       allowNull: false,
     },
 
+    amenityIds: {
+      type: DataTypes.JSON(),
+      allowNull: true,
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -63,27 +102,11 @@ ListingModel.init(
       defaultValue: 1.0,
     },
 
-    picture: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-
     isFeatured: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
 
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    // Sequelize will manage createdAt and updatedAt automatically when timestamps is true
   },
   {
     sequelize,

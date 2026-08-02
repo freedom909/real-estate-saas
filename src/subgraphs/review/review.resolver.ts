@@ -6,7 +6,7 @@ import { IReviewRepository } from "@/core/review/domain/entities/repos/IReviewRe
 import { TOKENS_REVIEW } from "@/modules/tokens/review.tokens";
 import { container } from "tsyringe";
 import { withAuthorization } from "@/infrastructure/auth/withAuthorization";
-import { Action, Resource } from "@/core/user/domain/entities/types";
+import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
 
 
 export const reviewResolvers = {

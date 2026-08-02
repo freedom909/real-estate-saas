@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import { Action, Resource } from "@/core/user/domain/entities/types";
+import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
 import PolicyEngine from "@/rbac/policy.engine";
 import { Role } from "@/core/shared/domain/role";
 

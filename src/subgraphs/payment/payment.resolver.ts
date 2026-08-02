@@ -10,7 +10,7 @@ import { GetPaymentByBookingIdUseCase } from "@/core/payment/application/usecase
 import { GetPaymentsByCustomerUseCase } from "@/core/payment/application/usecase/getPaymentsByCustomer.usecase";
 import { FailPaymentUseCase } from "@/core/payment/application/usecase/fail-payment.usecase";
 import { withAuthorization } from "@/infrastructure/auth/withAuthorization";
-import { Action, Resource } from "@/core/user/domain/entities/types";
+import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
 
 
 const resolvers = {

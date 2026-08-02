@@ -3,8 +3,9 @@ import { Model } from 'mongoose';
 import { Redis } from 'ioredis';
 import { HydratedDocument } from "mongoose";
 import { createRedis } from '@/infrastructure/redis/redis';
-import { UserDocument } from '@/subgraphs/user/models/user.model.js';
+import { UserDocument } from '@/subgraphs/user/infra/models/user.model.js';
 import { UserRole } from '@/core/user/domain/userRole';
+
 
 
 interface UserRepoOptions {

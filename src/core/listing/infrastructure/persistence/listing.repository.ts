@@ -13,6 +13,7 @@ import { Op } from 'sequelize';
 import Category from '../models/category.model';
 import CategoryModel from '@/shared/category/infrastructure/category.model';
 import { Listing } from '../../domain/entities/listing';
+import PictureModel from '../models/picture.model';
 
 @injectable()
 export class ListingRepository implements IListingRepository {
@@ -27,13 +28,40 @@ export class ListingRepository implements IListingRepository {
     private sequelize: Sequelize,
   ) {}
 
-  findAll(): Promise<Listing[]> {
-    return this.model.findAll().then(records => records.map(record => ListingMapper.toDomain(record)));
+  async findAll(): Promise<Listing[]> {
+    const records = await this.model.findAll({
+              include: [
+            {
+                model: PictureModel,
+                as: "pictures",
+            },
+        ],
+    })
+console.log(
+  "ALL PICTURES =",
+  JSON.stringify(
+    records.flatMap(
+      record => record.pictures ?? []
+    ),
+    null,
+    2
+  )
+);
+console.log(
+  "ALL PICTURES =",
+  JSON.stringify(records.flatMap(record => record.pictures), null, 2)//Property 'pictures' does not exist on type 'ListingModel'.
+);
+  return records.map(record =>
+    ListingMapper.toDomain(record)
+  );
   }
-
+  
+  findAllWithPictures(): Promise<Listing[]> {
+    return this.model.findAll({ include: PictureModel }).then(records => records.map(record => ListingMapper.toDomain(record)));
+  }
   async create(listing: Listing): Promise<Listing> {
     const persistence = ListingMapper.toPersistence(listing);
-    const created = await this.model.create(persistence);
+    const created = await this.model.create(persistence);//
     return ListingMapper.toDomain(created);
   }
 
@@ -49,11 +77,21 @@ export class ListingRepository implements IListingRepository {
   }
 
   async findById(id: string): Promise<Listing | null> {
-    const listing = await this.model.findByPk(id);
+    const listing = await this.model.findByPk(id,{
+    include:[
+        {
+            model:PictureModel,
+            as:"pictures"
+        }
+    ]
+});
     if (!listing) {
       return null;
     }
-
+console.log(
+ "PICTURES=",
+ JSON.stringify(listing.toJSON(),null,2)
+);
     const categoryRows = await this.listingCategoryModel.findAll({
       where: { listingId: id }
     });
@@ -220,7 +258,36 @@ export class ListingRepository implements IListingRepository {
           { transaction }
         );
       }
+await PictureModel.destroy({
+    where:{
+        listingId:listing.id
+    },
+    transaction
+});
 
+if(listing.pictures.length>0){
+
+    await PictureModel.bulkCreate(
+
+        listing.pictures.map(pic=>({
+
+            id:pic.id,
+
+            listingId:listing.id,
+
+            objectKey:pic.objectKey,
+
+            type:pic.type,
+
+            sortOrder:pic.sortOrder,
+
+        })),
+
+        {transaction}
+
+    );
+
+}
       await transaction.commit();
       return listing;
 

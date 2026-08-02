@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import Link from "next/link";
 import { GET_PAYMENTS_BY_customer } from "@/graphql/payments";
 import HeaderClient from "@/components/ui/HeaderClient";

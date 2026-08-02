@@ -1,14 +1,17 @@
 import { container } from "tsyringe";
 
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
+import { ICategoryRepository } from "@/shared/category/domain/ICategoryRepository";
 
 import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
 import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase";
 import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
 
 export const resolvers = {
+
   Query: {
 
     listings: async () => {
@@ -18,7 +21,48 @@ export const resolvers = {
           TOKENS_LISTING.repos.listingRepository
         );
 
-      return repo.findAll();
+      const listings =
+        await repo.findAll();
+      return listings.map(listing => ({
+
+        id: listing.id,
+        ownerId: listing.ownerId,
+        title:
+          listing.title,
+
+
+        description:
+          listing.description,
+
+
+        address: listing.address,
+
+
+        price: listing.price,
+
+
+        numOfBeds: listing.numOfBeds,
+
+
+        numOfCustomers: listing.numOfCustomers,
+
+
+        numOfBathrooms: listing.numOfBathrooms,
+
+
+        numOfRooms: listing.numOfRooms,
+
+
+        isFeatured: listing.isFeatured,
+
+
+        pictures:
+          listing.pictures.map(pic =>
+            pic.toJson()
+          )
+
+      }));
+
     },
 
 
@@ -32,52 +76,8 @@ export const resolvers = {
           TOKENS_LISTING.usecase.getListingByIdUseCase
         );
 
+
       return useCase.execute(id);
-    },
-
-    featuredListings: async (
-      _: any,
-      { limit }: { limit?: number }
-    ) => {
-      const useCase =
-        container.resolve<GetFeaturedListingsUseCase>(
-          TOKENS_LISTING.usecase.getFeaturedListingsUseCase
-        );
-
-      return useCase.execute(limit);
-    },
-
-
-    listingsByOwner: async (
-      _: any,
-      { ownerId }: { ownerId:string }
-    ) => {
-
-      const repo =
-        container.resolve<IListingRepository>(
-          TOKENS_LISTING.repos.listingRepository
-        );
-
-      return repo.findByOwnerId(ownerId);
-    },
-
-
-  },
-
-
-  Mutation: {
-
-    createListing: async (
-      _: any,
-      {input}:any
-    ) => {
-
-      const useCase =
-        container.resolve<CreateListingUseCase>(
-          TOKENS_LISTING.usecase.createListingUseCase
-        );
-
-      return useCase.execute(input);
 
     },
 
@@ -85,67 +85,28 @@ export const resolvers = {
 
 
   Listing: {
-__resolveReference: async (ref: { id: string }) => {
-  const useCase = container.resolve<GetListingByIdUseCase>(
-    TOKENS_LISTING.usecase.getListingByIdUseCase
-  );
-
-  try {
-    return await useCase.execute(ref.id);
-  } catch {
-    console.warn('⚠️ Missing listing:', ref.id);
-    return null;
-  }
-},
-    owner:
-      (parent:any)=>({
-
-        __typename:"User",
-
-        id:parent.ownerId,
-
-      }),
+    owner: (parent: any) => ({
+      __typename: "User",
+      id: parent.ownerId
+    }),
 
 
-    categories:
-      (parent:any)=>
-        parent.categories?.map(
-          (id:string)=>({
-            __typename:"Category",
-            id
-          })
-        ) || [],
+    categories: (parent: any) =>
+      parent.categories?.map(
+        (id: string) => ({
+          __typename: "Category",
+          id
+        })
+      ) ?? [],
 
 
-
-    amenities:
-      (parent:any)=>
-        parent.amenityIds?.map(
-          (id:string)=>({
-            __typename:"Amenity",
-            id
-          })
-        ) || [],
-
-  },
-
-
-
-  Owner: {
-
-    listings:
-      async(parent:{id:string})=>{
-
-        const repo =
-          container.resolve<IListingRepository>(
-            TOKENS_LISTING.repos.listingRepository
-          );
-
-        return repo.findByOwnerId(parent.id);
-
-      }
-
+    amenities: (parent: any) =>
+      parent.amenityIds?.map(
+        (id: string) => ({
+          __typename: "Amenity",
+          id
+        })
+      ) ?? [],
   }
 
-
-};
+}

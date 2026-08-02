@@ -3,6 +3,16 @@ import type { NextConfig } from "next";
 const backendUrl = process.env.BACKEND_URL || "http://localhost:4000";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "9000",
+        pathname: "/omaesama/**",
+      },
+    ],
+  },
   output: "standalone",
   async rewrites() {
     return [

@@ -2,7 +2,7 @@
 
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { SetContextLink } from "@apollo/client/link/context";
-import { onError } from "@apollo/client/link/error";
+import { ErrorLink } from "@apollo/client/link/error";
 import { useAuthStore } from "../store/auth.store";
 import { useTenantStore } from "../store/tenant.store";
 import { refreshToken } from "../services/auth.service";
@@ -25,21 +25,12 @@ const authLink = new SetContextLink((operation) => {
 // Error link — auto-refresh on token expiration
 let isRefreshing = false;
 
-const errorLink = onError(({ graphQLErrors, operation, forward }) => {
+const errorLink = new ErrorLink(((({ operation, forward }) => {
+const graphQLErrors = operation.getContext().errors;
+
   if (!graphQLErrors) return;
 
-  const authError = graphQLErrors.find(
-    (e) =>
-      e.message?.includes("UNAUTHORIZED") ||
-      e.message?.includes("TOKEN_EXPIRED") ||
-      e.message?.includes("Invalid or expired token") ||
-      e.message?.includes("jwt expired")
-  );
-
-  if (authError && !isRefreshing) {
-    isRefreshing = true;
-
-    return new Observable((observer) => {
+  return new Observable((observer) => {
       refreshToken()
         .then((success) => {
           if (success) {
@@ -70,7 +61,7 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
         });
     });
   }
-});
+)))
 
 import { Observable } from "@apollo/client/core";
 

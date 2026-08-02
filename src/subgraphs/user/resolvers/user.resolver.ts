@@ -1,6 +1,6 @@
 // src/subgraphs/user/resolvers/index.ts
 
-import UserModel, { IUserDB } from "../models/user.model.js";
+import UserModel, { IUserDB } from "../infra/models/user.model.js";
 import { container } from "tsyringe";
 
 import UserService from "../services/user.service.js";

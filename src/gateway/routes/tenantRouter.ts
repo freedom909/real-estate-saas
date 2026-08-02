@@ -125,7 +125,7 @@ router.get("/available", async (req, res) => {
 
     const { default: mongoose } = await import("mongoose");
     const { default: MembershipModel } = await import(
-      "@/subgraphs/user/models/membership.model"
+      "@/subgraphs/user/infra/models/membership.model"
     );
     const { TenantModel } = await import(
       "@/core/tenant/infrastructure/models/tenant.model"

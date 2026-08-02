@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import UserRepo from "../../../../../subgraphs/user/repos/user.repo";
+import UserRepo from "../../../../../subgraphs/user/infra/repos/user.repo";
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 function createMockLeanQuery(returnValue: any) {

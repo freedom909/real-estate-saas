@@ -1,6 +1,7 @@
 import { Listing } from "../../domain/entities/listing";
 import { Description } from "../../domain/value-objects/description";
 import { Title } from "../../domain/value-objects/Title";
+import PictureMapper from "./picture.mapper";
 
 
 export class ListingMapper {
@@ -48,8 +49,9 @@ amenityIds:
     pricePerNight:
       raw.pricePerNight != null ? Number(raw.pricePerNight) : undefined,
 
-    picture:
-      raw.picture ?? [],
+    pictures:raw.pictures?.map((p:any)=>
+        PictureMapper.toDomain(p)
+    ) ?? [],
 
     isFeatured:
       raw.isFeatured ?? false,
@@ -58,46 +60,12 @@ amenityIds:
       raw.createdAt,
 
     updatedAt:
-      raw.updatedAt,
-
-      
+      raw.updatedAt,   
   });
   
 }
 
-  // DB → Domain
-// static toDomain(raw: any): Listing {
-//   return new Listing({
-//     id: raw.id,
-
-//     ownerId: raw.ownerId,
-//     locationId: raw.locationId,
-
-//     title: new Title(raw.title),
-
-//     description: new Description(raw.description),
-
-//     address: raw.address,
-
-//     categories: raw.categories || [],
-//     amenityIds: raw.amenityIds || [],
-
-//     numOfBeds: raw.numOfBeds || 1,
-//     numOfCustomers: raw.numOfCustomers || 1,
-//     numOfBathrooms: raw.numOfBathrooms || 1,
-//     numOfRooms: raw.numOfRooms || 1,
-
-//     price: Number(raw.price || 1),
-
-//     picture: raw.picture || [],
-
-//     isFeatured: raw.isFeatured || false,
-
-//     createdAt: raw.createdAt,
-//     updatedAt: raw.updatedAt,
-//   });
-// }
-
+  
   // Domain → DB 
 static toPersistence(listing: Listing) {
   return {
@@ -118,8 +86,6 @@ description: listing.description,
 
     price: listing.price,
     pricePerNight: listing.pricePerNight,
-
-    picture: listing.picture,
 
     isFeatured: listing.isFeatured,
 

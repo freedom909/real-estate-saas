@@ -1,7 +1,9 @@
 // src/subgraphs/listing/domain/entities/Listing.ts
 
+
 import { Description } from "../value-objects/description";
 import { Title } from "../value-objects/Title";
+import { Picture } from "./picture";
 
 import { SuggestionStatus } from "./suggestionStatus";
 
@@ -26,9 +28,7 @@ export interface ListingProps {
 
   price: number;
   pricePerNight?: number;
-
-  picture: string[];
-
+  pictures: Picture[];
   isFeatured: boolean;
   ownerId: string;
   createdAt: Date;
@@ -65,7 +65,7 @@ export class Listing {
   get numOfRooms() { return this.props.numOfRooms; }
   get price() { return this.props.price; }
   get pricePerNight() { return this.props.pricePerNight ?? this.props.price; }
-  get picture() { return this.props.picture; }
+  get pictures() { return this.props.pictures; }//I am not sure here
   get isFeatured() { return this.props.isFeatured; }
   get rawTitle() { return this.props.rawTitle; }
   get rawDescription() {

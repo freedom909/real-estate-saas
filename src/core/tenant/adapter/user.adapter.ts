@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
-import UserRepository from "../../../subgraphs/user/repos/user.repo";
+import UserRepository from "../../../subgraphs/user/infra/repos/user.repo";
 
 
 /**

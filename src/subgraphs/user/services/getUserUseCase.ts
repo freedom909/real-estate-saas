@@ -1,5 +1,5 @@
 
-import { Action, Resource } from "@/core/user/domain/entities/types";
+import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
 import UserService from "./user.service";
 import { ForbiddenError } from "@/infrastructure/utils/errors";
 

@@ -28,6 +28,7 @@ export interface IUserDBObject {
 }
 export interface IUserRepo {
   findById(id: string): Promise<IUserDBObject | null>;
+  setUserRole(id: string, role: string): Promise<void>;
   userByEmail(email: string): Promise<IUserDBObject | null>;
   create(user: Partial<IUserDBObject>): Promise<IUserDBObject>;
   update(id: string, user: Partial<IUserDBObject>): Promise<IUserDBObject | null>;
@@ -43,6 +44,10 @@ export default class UserRepo implements IUserRepo {
   ) {
     // this.UserModel = UserModel;
   }
+  async setUserRole(id: string, role: string): Promise<void> {
+    await this.UserModel.findByIdAndUpdate(id, { role });
+    await this.redis.del(`user:${id}`);
+  }
 
 userByEmail(email: string) {
   console.log("repo userByEmail", email);
@@ -52,7 +57,10 @@ userByEmail(email: string) {
 }
 
 async findById(id: string) {
+console.log("DB =", this.UserModel.db.name);
+console.log("COLLECTION =", this.UserModel.collection.name);
   const user = await this.UserModel.findById(id);
+  console.log("RESULT:", user);
 if (!user) return null;
   return user.toObject();
 }

@@ -7,6 +7,7 @@ import { IAdminUserRepository } from "../../domain/entities/IAdminUserRepository
 import { AdminUser } from "../../domain/entities/adminUser";
 import AdminUserModel from "../models/adminUser.model";
 import { AdminRole } from "../../domain/entities/adminRole";
+import { IUser } from "@/core/user/domain/user";
 
 @injectable()
 export class AdminUserRepository implements IAdminUserRepository {
@@ -14,11 +15,10 @@ export class AdminUserRepository implements IAdminUserRepository {
     @inject(TOKENS_ADMIN.models.adminUserModel)
     private model: typeof AdminUserModel
   ) {}
-  async promoteUserToAdmin(userId: string): Promise<void> {
-    await this.model.update({ role: AdminRole.ADMIN }, { where: { id: userId } });
-  }
-  async demoteAdminToUser(userId: string): Promise<void> {
-    await this.model.update({ role: AdminRole.CUSTOMER }, { where: { id: userId } });
+
+  
+  async demoteAdminToUser(user: AdminUser): Promise<void> {
+    await this.model.update({ role: AdminRole.CUSTOMER }, { where: { id: user.id } });
   }
   async countByRole(role: AdminRole): Promise<number> {
     return await this.model.count({
@@ -26,8 +26,8 @@ export class AdminUserRepository implements IAdminUserRepository {
     });
   }
 
-  async create(admin: AdminUser): Promise<AdminUser> {
-    const persistence = AdminUserMapper.toPersistence(admin);
+  async createAdmin(admin: IUser): Promise<AdminUser> {
+    const persistence = AdminUserMapper.toPersistence(admin as unknown as AdminUser);
     const created = await this.model.create(persistence);
     return AdminUserMapper.toDomain(created);
   }
@@ -41,7 +41,9 @@ export class AdminUserRepository implements IAdminUserRepository {
     // const record = await this.model.findByPk(id);
     // return record ? AdminUserMapper.toDomain(record) : null;
      const user = await this.model.findByPk(id);// Property 'findById' does not exist on type 'typeof AdminUserModel'.
-
+     if (!user) {
+      return null;
+     }
     console.log("========== MONGOOSE RESULT ==========");
     console.log(user);
 

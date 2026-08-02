@@ -1,5 +1,7 @@
 // src/core/admin/domain/entities/adminUser.ts
 
+
+import { IUser } from "@/core/user/domain/user";
 import { Email } from "../value-objects/email";
 
 export interface AdminUserProps {
@@ -16,6 +18,9 @@ export interface AdminUserProps {
 }
 
 export class AdminUser {
+  toJSON(): any {
+    return this.props;
+  }
   private props: AdminUserProps;
 
   constructor(props: AdminUserProps) {
@@ -69,7 +74,20 @@ export class AdminUser {
   private touch() {
     this.props.updatedAt = new Date();
   }
-
+  static fromUser(user: IUser): AdminUser {
+    return new AdminUser({
+      id: user.id,
+      email: new Email(user.profile.email),
+      name: user.profile.name,
+      role: user.role as "ADMIN" | "SUPER_ADMIN" | "STAFF" | "AGENT" | "CUSTOMER",
+      avatar: user.profile.avatar,
+      isActive: user.status === "ACTIVE",
+      immutable: user.immutable,
+      lastLoginAt: user.lastLoginAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
+  }
   private validate(props: AdminUserProps) {
     if (!props.id) throw new Error("AdminUser id required");
     if (!props.email) throw new Error("AdminUser email required");

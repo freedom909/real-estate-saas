@@ -82,9 +82,23 @@ export const resolvers = {
       const repo = container.resolve<IAdminUserRepository>(
         TOKENS_ADMIN.repos.adminUserRepository
       );
-      return repo.findAll();
+      const admins = await repo.findAll();
+      console.log("=================");
+console.log(admins);
+console.log("=================");
+      if (!admins) throw new Error("Admin users not found");
+      // Map to plain objects
+      const adminObjects = admins.map((a) => a.toJSON());
+      console.log("ADMIN USERS =", adminObjects);
+      return adminObjects.map((a) => ({
+        id: a.id,
+        email: a.email,
+        role: a.role,
+        createdAt: a.createdAt,
+        updatedAt: a.updatedAt,
+      }));
     }, "admin_users:view"),
-
+   
     adminUser: withPermission(async (_: any, { id }: { id: string }) => {
       const useCase = container.resolve<GetAdminUserByIdUseCase>(
         TOKENS_ADMIN.usecase.getAdminUserByIdUseCase

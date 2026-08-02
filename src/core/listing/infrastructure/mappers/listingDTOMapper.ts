@@ -31,7 +31,7 @@ export class ListingDTOMapper {
 
       price: listing.price,
 
-      picture: listing.picture,
+      pictures: listing.pictures.map((p) => p.id),
 
       isFeatured: listing.isFeatured,
 

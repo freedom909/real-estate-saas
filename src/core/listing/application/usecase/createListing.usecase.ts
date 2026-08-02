@@ -14,6 +14,7 @@ import { TOKENS_CATEGORY } from '@/modules/tokens/category.tokens';
 import { inject, injectable } from 'tsyringe';
 import { GenerateTitleResult } from '../ports/generateTitleResult';
 import { IAmenityAdapter } from '../adapters/IAmenity.adapter';
+import { Picture } from '../../domain/entities/picture';
 
 export interface CreateListingInput {
   title: string;
@@ -80,33 +81,35 @@ export default class CreateListingUseCase {
       throw new Error(`Invalid amenity IDs: ${invalidAmenities.join(", ")}`);
     }
     // Production logic: Any cross-domain validation would happen here via adapters
+    const listingId = uuidv4();
+    const pictures = input.picture.map((url, index) =>
+      new Picture({
+        id: uuidv4(),
+        listingId,
+        objectKey: url,
+        type: "listing",
+        sortOrder: index,
+      })
+    )
     const listing = new Listing({
-      address: input.address,
+      id: listingId,
       title: new Title(input.title),
       description: new Description(input.description),
+      address: input.address,
+      numOfBeds: input.numOfBeds,
+      numOfCustomers: input.numOfCustomers,
+      numOfBathrooms: input.numOfBathrooms,
+      numOfRooms: input.numOfRooms,
+      price: input.price,
+      isFeatured: input.isFeatured,
       locationId: input.locationId,
-      rawTitle: input.title,
       categories: input.categories,
-      amenityIds: input.amenityIds || [],
+      amenityIds: input.amenityIds,
       ownerId: input.ownerId,
+      pictures,
       createdAt: new Date(),
       updatedAt: new Date(),
-      id: uuidv4(),
-      numOfBeds: input.numOfBeds || 1,
-
-      numOfCustomers: input.numOfCustomers || 1,
-
-      numOfBathrooms: input.numOfBathrooms || 1,
-
-      numOfRooms: input.numOfRooms || 1,
-
-      price: input.price || 1,
-
-      picture: input.picture || [],
-
-      isFeatured: input.isFeatured || false,
-    });
-
+    })
     return this.listingRepository.save(listing);
   }
 }

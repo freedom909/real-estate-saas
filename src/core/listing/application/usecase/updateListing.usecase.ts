@@ -4,6 +4,7 @@ import { IListingRepository } from '../../domain/entities/IListingRepository';
 import { Title } from '../../domain/value-objects/Title';
 import { Description } from '../../domain/value-objects/description';
 import { Listing } from '../../domain/entities/listing';
+import { Picture } from '../../domain/entities/picture';
 
 export interface UpdateListingInput {
   title?: string;
@@ -18,7 +19,7 @@ export interface UpdateListingInput {
   numOfRooms?: number;
   price?: number;
   pricePerNight?: number;
-  picture?: string[];
+  pictures?: Picture[];
   isFeatured?: boolean;
 }
 
@@ -50,7 +51,7 @@ export default class UpdateListingUseCase {
       numOfRooms: input.numOfRooms ?? existing.numOfRooms,
       price: input.price ?? existing.price,
       pricePerNight: input.pricePerNight ?? existing.pricePerNight,
-      picture: input.picture ?? existing.picture,
+      pictures: input.pictures ?? existing.pictures.map((p) => p.id) as unknown as Picture[],
       isFeatured: input.isFeatured ?? existing.isFeatured,
       createdAt: existing.createdAt,
       updatedAt: new Date(),

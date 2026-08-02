@@ -1,11 +1,29 @@
 "use client";
 
+
 import { useMutation, useQuery } from "@apollo/client/react";
 import { GET_LISTING } from "@/app/graphql/listing/queries/listing";
+import { CREATE_BOOKING } from "@/app/graphql/booking/mutations/createBooking";
+
 import { use } from "react";
 import { useState } from "react";
-import { CREATE_BOOKING } from "@/app/graphql/booking/mutations/createBooking";
+
 import Navbar from "@/app/components/navbar";
+
+
+type Picture = {
+
+    id: string;
+
+    objectKey: string;
+
+    type: string;
+
+    sortOrder: number;
+
+};
+
+
 type Listing = {
 
     id: string;
@@ -18,7 +36,7 @@ type Listing = {
 
     price: number;
 
-    picture: string[];
+    pictures: Picture[];
 
     numOfBeds: number;
 
@@ -26,11 +44,14 @@ type Listing = {
 
 };
 
+
 type GetListingResponse = {
 
     listing: Listing;
 
 };
+
+
 
 export default function ListingDetailPage({
 
@@ -42,169 +63,523 @@ export default function ListingDetailPage({
 
 }) {
 
-    // ✅ 解包 Promise
-    const [createBooking, { loading: bookingLoading }] = useMutation(CREATE_BOOKING);
+
     const { id } = use(params);
+
+
     const [checkInDate, setCheckInDate] = useState("");
+
     const [checkOutDate, setCheckOutDate] = useState("");
-    const { data, loading, error } = useQuery(GET_LISTING, {
 
-        variables: { id },
 
-    });
 
-    if (loading) return <p>Loading...</p>;
+    const {
+        data,
+        loading,
+        error
 
-    if (error) return <p>Error: {error.message}</p>;
+    } = useQuery<GetListingResponse>(
+        GET_LISTING,
+        {
+            variables:{
+                id
+            }
+        }
+    );
 
-    const listing = (data as any)?.listing;
 
-    const price = listing.price || 0;
+
+    const [
+        createBooking,
+        {
+            loading:bookingLoading
+        }
+
+    ] = useMutation(
+        CREATE_BOOKING
+    );
+
+
+
+
+    if(loading){
+
+        return <p>Loading...</p>;
+
+    }
+
+
+    if(error){
+
+        return (
+
+            <p>
+                Error: {error.message}
+            </p>
+
+        );
+
+    }
+
+
+
+    const listing = data?.listing;
+
+
+
+    if(!listing){
+
+        return (
+
+            <p>
+                Listing not found
+            </p>
+
+        );
+
+    }
+
+
+
+
+    const cover =
+
+        listing.pictures?.find(
+
+            picture =>
+                picture.sortOrder === 0
+
+        )
+
+        ??
+        listing.pictures?.[0];
+
+
+
+
+    const imageUrl = cover
+
+        ?
+
+        `http://localhost:9000/omaesama/${cover.objectKey}`
+
+        :
+
+        "/placeholder.jpg";
+
+
+
+
+
+
+    const price = Number(listing.price ?? 0);
+
+
 
     const nights =
 
         checkInDate && checkOutDate
 
-            ? Math.max(
+        ?
 
-                1,
+        Math.max(
 
-                Math.ceil(
+            1,
 
-                    (new Date(checkOutDate).getTime() -
+            Math.ceil(
 
-                        new Date(checkInDate).getTime()) /
+                (
 
-                    (1000 * 60 * 60 * 24)
+                    new Date(checkOutDate).getTime()
+
+                    -
+
+                    new Date(checkInDate).getTime()
+
+                )
+
+                /
+
+                (
+
+                    1000 *
+
+                    60 *
+
+                    60 *
+
+                    24
 
                 )
 
             )
 
-            : 1;
+        )
+
+        :
+
+        1;
+
+
 
     const total = price * nights;
 
-    const handleReserve = async () => {
 
-        try {
 
-            const result = await createBooking({
 
-                variables: {
 
-                    input: {
+    const handleReserve = async()=>{
 
-                        listingId: id,
 
-                        checkInDate: checkInDate,
+        if(!checkInDate || !checkOutDate){
 
-                        checkOutDate: checkOutDate,
+            alert(
+                "Please select dates"
+            );
 
-                    },
-
-                },
-
-            });
-
-            console.log("Booking created:", (result as any)?.createBooking);
-            alert("Booking successful!");
-
-            window.location.href = "/bookings";
-
-        } catch (error) {
-
-            console.error("Booking error:", error);
-
-            alert("Booking failed");
+            return;
 
         }
 
+
+
+        try{
+
+
+            const result = await createBooking({
+
+                variables:{
+
+                    input:{
+
+                        listingId:id,
+
+                        checkInDate,
+
+                        checkOutDate,
+
+                    }
+
+                }
+
+            });
+
+
+
+            console.log(
+
+                "Booking created:",
+
+                result.data
+
+            );
+
+
+
+            alert(
+                "Booking successful!"
+            );
+
+
+
+            window.location.href =
+                "/bookings";
+
+
+
+        }catch(error){
+
+
+            console.error(
+
+                "Booking error:",
+
+                error
+
+            );
+
+
+            alert(
+                "Booking failed"
+            );
+
+        }
+
+
     };
 
-    return (
-        <>
-            <Navbar />
-            <div className="max-w-4xl mx-auto p-8">
 
-                <img
 
-                    src={listing.picture?.[0]}
 
-                    alt={listing.title}
 
-                    className="w-full h-96 object-cover rounded-xl"
+return (
 
-                />
-                <div className="p-8">
+<>
 
-                    <h1 className="text-3xl font-bold mb-6">Booking</h1>
 
-                    <div className="mb-4">
+<Navbar />
 
-                        <label className="block mb-2 font-semibold">Check-in</label>
 
-                        <input
 
-                            type="date"
+<div className="max-w-5xl mx-auto p-8">
 
-                            value={checkInDate}
 
-                            onChange={(e) => setCheckInDate(e.target.value)}
 
-                            className="w-full rounded-lg border p-3"
+    <img
 
-                        />
+        src={imageUrl}
 
-                    </div>
+        alt={listing.title}
 
-                    <div className="mb-6">
+        className="
+            w-full
+            h-96
+            object-cover
+            rounded-xl
+        "
 
-                        <label className="block mb-2 font-semibold">Check-out</label>
+    />
 
-                        <input
 
-                            type="date"
 
-                            value={checkOutDate}
 
-                            onChange={(e) => setCheckOutDate(e.target.value)}
+    <h1 className="
+        text-4xl
+        font-bold
+        mt-8
+    ">
 
-                            className="w-full rounded-lg border p-3"
+        {listing.title}
 
-                        />
+    </h1>
 
-                    </div>
 
-                    <button
 
-                        onClick={() => handleReserve()}
 
-                        disabled={loading}
 
-                        className="rounded-lg bg-black px-6 py-3 text-white disabled:opacity-50"
+    <p className="
+        text-gray-500
+        mt-2
+    ">
 
-                    >
+        {listing.address}
 
-                        {loading ? "Reserving..." : "Reserve"}
+    </p>
 
-                    </button>
 
-                </div>
-                <h1 className="text-4xl font-bold mt-6">{listing.title}</h1>
 
-                <p className="text-gray-500 mt-2">{listing.address}</p>
 
-                <p className="mt-6 text-lg leading-8">{listing.description}</p>
 
-                <div className="mt-8 text-3xl font-bold">
+    <p className="
+        mt-6
+        text-lg
+        leading-8
+    ">
 
-                    ¥{listing.price} / night
-                    ¥{total.toLocaleString()}
-                </div>
+        {listing.description}
 
-            </div>
-        </>
-    );
+    </p>
+
+
+
+
+
+
+    <div className="
+        mt-6
+        text-xl
+    ">
+
+
+        Beds:
+        {listing.numOfBeds}
+
+        <br/>
+
+        Guests:
+        {listing.numOfCustomers}
+
+
+    </div>
+
+
+
+
+
+    <div className="
+        mt-8
+        text-3xl
+        font-bold
+    ">
+
+
+        ¥{price.toLocaleString()}
+        / night
+
+
+        <div className="
+            text-xl
+            mt-2
+        ">
+
+            Total:
+            ¥{total.toLocaleString()}
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+    <div className="
+        mt-10
+        border
+        rounded-xl
+        p-6
+    ">
+
+
+
+        <h2 className="
+            text-2xl
+            font-bold
+            mb-6
+        ">
+
+            Booking
+
+        </h2>
+
+
+
+
+
+        <label className="
+            block
+            mb-2
+        ">
+
+            Check-in
+
+        </label>
+
+
+        <input
+
+            type="date"
+
+            value={checkInDate}
+
+            onChange={e=>
+                setCheckInDate(
+                    e.target.value
+                )
+            }
+
+            className="
+                w-full
+                border
+                rounded-lg
+                p-3
+                mb-5
+            "
+
+        />
+
+
+
+
+
+        <label className="
+            block
+            mb-2
+        ">
+
+            Check-out
+
+        </label>
+
+
+
+        <input
+
+            type="date"
+
+            value={checkOutDate}
+
+            onChange={e=>
+                setCheckOutDate(
+                    e.target.value
+                )
+            }
+
+            className="
+                w-full
+                border
+                rounded-lg
+                p-3
+                mb-6
+            "
+
+        />
+
+
+
+
+
+        <button
+
+
+            onClick={handleReserve}
+
+
+            disabled={bookingLoading}
+
+
+            className="
+                bg-black
+                text-white
+                px-6
+                py-3
+                rounded-lg
+                disabled:opacity-50
+            "
+
+
+        >
+
+            {
+                bookingLoading
+
+                ?
+
+                "Reserving..."
+
+                :
+
+                "Reserve"
+            }
+
+
+        </button>
+
+
+
+    </div>
+
+
+
+</div>
+
+
+</>
+
+
+);
+
 
 }

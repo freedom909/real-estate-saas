@@ -1,7 +1,7 @@
 // Test.model.ts
 import mongoose from "mongoose";
-import {IdentityModel} from "./models/identity.model";
-import MembershipModel from "./models/membership.model";
+import {IdentityModel} from "./infra/models/identity.model";
+import MembershipModel from "./infra/models/membership.model";
 
 
 async function testModels() {

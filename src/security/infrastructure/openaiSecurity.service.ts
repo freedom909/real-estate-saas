@@ -4,7 +4,7 @@ import { inject, injectable } from "tsyringe";
 
 import { SecurityEvent } from "../types";
 import OpenaiClient from "./openaiClient";
-import { SecurityAssessment } from "@/core/user/domain/entities/types";
+import { SecurityAssessment } from "@/subgraphs/user/domain/entities/types";
 
 
 

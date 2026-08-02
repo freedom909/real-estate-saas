@@ -44,7 +44,9 @@ categories: listing.categories,
 
 isFeatured: listing.isFeatured,
 
-picture: listing.picture,
+pictures: listing.pictures.map(pic => ({
+  ...pic.toJson(),
+})),
 
 price: listing.price,
 
@@ -56,10 +58,6 @@ numOfBathrooms: listing.numOfBathrooms,
 
 numOfRooms: listing.numOfRooms,
 
-};
-
-}
-
-}
+}}}
 
 export default GetListingByIdUseCase;

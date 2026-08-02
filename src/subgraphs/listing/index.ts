@@ -31,6 +31,8 @@ import "@/shared/category/container";  // 👈 必须
 import { registerAIContainer } from "@/modules/container/ai.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import ListingModel from "@/core/listing/infrastructure/models/listing.model";
+import { initAssociations } from "@/core/listing/infrastructure/models/associations";
+
 
 
 registerAIContainer()
@@ -38,6 +40,9 @@ registerAuthDependencies(container);
 
 registerListingDependencies();
 registerUserDependencies(container);
+
+
+initAssociations();
 
 const typeDefs = gql(readFileSync('./src/subgraphs/listing/schema.graphql', { encoding: 'utf-8' }));
 

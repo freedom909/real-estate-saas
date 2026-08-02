@@ -1,8 +1,8 @@
 import "dotenv/config";
 import mongoose from "mongoose";
-import UserModel from "@/subgraphs/user/models/user.model";
+import UserModel from "@/subgraphs/user/infra/models/user.model";
 import { TenantModel } from "@/core/tenant/infrastructure/models/tenant.model";
-import MembershipModel from "@/subgraphs/user/models/membership.model";
+import MembershipModel from "@/subgraphs/user/infra/models/membership.model";
 import { Role } from "@/core/shared/domain/role";
 
 // ── Tenants ──────────────────────────────────────────────

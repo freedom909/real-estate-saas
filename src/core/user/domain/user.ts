@@ -8,6 +8,8 @@ export  interface IProfile {
 }
 
 export interface IUser {
+  lastLoginAt: Date;
+  immutable: boolean;
   id: string;
   profile: IProfile;
   role: Role;

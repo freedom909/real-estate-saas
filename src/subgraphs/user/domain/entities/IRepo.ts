@@ -1,9 +1,13 @@
 
 import { UserRole } from "@/core/user/domain/userRole";
-import UserModel from "@/subgraphs/user/models/user.model";
+import UserModel, { IUserDB } from "@/subgraphs/user/infra/models/user.model";
+import { Model, Document, DefaultSchemaOptions, Types } from "mongoose";
 
-export interface IUserRepository {
-    createOAuthUser(input: CreateOAuthUserInput): Promise<typeof UserModel>;
+export interface IUserRepository {  
+    setUserRole(userId: string, role: UserRole): Promise<void>;
+    findById(userId: string): Promise<IUserDB>;
+    
+    createOAuthUser(input: CreateOAuthUserInput): Promise<IUserDB>;
     deactivate(userId: string): Promise<boolean>;
     activate(userId: string): Promise<boolean>;
 }
