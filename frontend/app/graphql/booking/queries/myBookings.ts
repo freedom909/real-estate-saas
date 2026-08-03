@@ -16,7 +16,10 @@ price
 listing {
 id
 title
-picture
+ pictures {
+    objectKey
+    sortOrder
+  }
 price
 }
 

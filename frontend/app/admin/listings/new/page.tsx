@@ -295,7 +295,8 @@ function CreateListingContent() {
             <div>
               <h3 className="text-lg font-medium mb-2">Generated Images</h3>
               <div className="grid grid-cols-3 gap-2">
-                {generatedImages.map((img, i) => (
+                {
+                generatedImages.map((img, i) => (
                   <img key={i} src={img} alt={`Generated ${i + 1}`} className="w-full rounded-lg border" />
                 ))}
               </div>

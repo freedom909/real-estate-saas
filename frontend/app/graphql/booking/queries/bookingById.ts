@@ -21,7 +21,10 @@ checkOutDate
 listing {
 
 title
-picture
+ pictures {
+    objectKey
+    sortOrder
+  }
 price
 
 }

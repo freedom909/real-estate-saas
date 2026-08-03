@@ -22,7 +22,10 @@ interface BookingQueryData {
     listing: {
       price: number;
       title: string;
-      picture?: string[];
+      pictures?: { 
+        objectKey: string;
+        sortOrder: number;
+      }[];
     };
     payment?: {
       id: string;
@@ -178,7 +181,7 @@ export default function BookingDetailPage() {
           <div className="overflow-hidden rounded-2xl border bg-gray-300 shadow-md">
             <img
               src={
-                booking?.listing?.picture?.[0] ||
+                booking?.listing?.pictures?.[0]?.objectKey ||
                 "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop"
               }
               className="h-72 w-full object-cover"

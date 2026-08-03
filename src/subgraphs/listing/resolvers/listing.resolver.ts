@@ -4,11 +4,10 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
-import { ICategoryRepository } from "@/shared/category/domain/ICategoryRepository";
 
-import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
+
 import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase";
-import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
+import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
 
 export const resolvers = {
 
@@ -83,8 +82,35 @@ export const resolvers = {
 
   },
 
+ Mutation: {
+    createListing: async ( _: any,{input}:any,{context}:any) => {
+console.log("========== CREATE LISTING ==========");
+console.log("input.picture =", input.picture);
+console.log("picture length =", input.picture?.length);
+console.log("context.user =", context.user);
+if (!context.user) {
+  throw new Error("User not authenticated");
+}
+      const useCase =
+        container.resolve<CreateListingUseCase>(
+          TOKENS_LISTING.usecase.createListingUseCase
+        );
+      return useCase.execute(input);
+    },
+  },
 
   Listing: {
+
+    __resolveReference: async (ref: { id: string }) => {
+  const useCase = container.resolve<GetListingByIdUseCase>(TOKENS_LISTING.usecase.getListingByIdUseCase);
+
+  try {
+    return await useCase.execute(ref.id);
+  } catch {
+    console.warn('⚠️ Missing listing:', ref.id);
+    return null;
+  }
+},
     owner: (parent: any) => ({
       __typename: "User",
       id: parent.ownerId
@@ -108,5 +134,4 @@ export const resolvers = {
         })
       ) ?? [],
   }
-
 }

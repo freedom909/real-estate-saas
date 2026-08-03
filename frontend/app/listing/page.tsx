@@ -85,10 +85,8 @@ export default function ListingPage() {
           {
 
             data?.listings?.map((listing: Listing) => {
-              console.log("listing =", listing);
-               console.log("pictures =", listing.pictures);
+
               const cover =listing.pictures?.find((picture) => picture.sortOrder === 0);
-              console.log("cover =", cover);
                 return (
                   <div
                     key={listing.id}

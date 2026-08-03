@@ -45,7 +45,9 @@ export default class CreateListingUseCase {
   ) { }
 
   async execute(input: CreateListingInput): Promise<GenerateTitleResult> {
+    console.log(input.picture);
 
+    console.log(input.picture.length);
     // Validate amenityIds
     if (input.amenityIds && input.amenityIds.length > 0) {
       console.log(input.amenityIds);

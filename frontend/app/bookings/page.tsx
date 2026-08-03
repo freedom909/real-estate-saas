@@ -68,7 +68,7 @@ Something went wrong: {error.message}
 }
 
 const bookings = data?.myBookings ?? [];
-
+//Property 'myBookings' does not exist on type '{}'.
 return (
 
 <div className="min-h-screen bg-gray-50">

@@ -1,21 +1,21 @@
 // src/wisdom-web/app/auth/auth.provider.tsx
 
 "use client";
+
 import { ApolloProvider } from "@apollo/client/react";
-import { SessionProvider } from "next-auth/react";
 import { client } from "../lib/apolloClient";
-import { useEffect } from "react";
-import { useAuthStore } from "../store/auth.store";
 import TenantSync from "./tenant-sync";
+import { useAuthStore } from "../store/auth.store";
+import { useEffect } from "react";
+
+function SyncAuthFromCookies() {
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const existingToken = useAuthStore((s) => s.accessToken);
 
 function getCookie(name: string): string | null {
   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
   return match ? decodeURIComponent(match[2]) : null;
 }
-
-function SyncAuthFromCookies() {
-  const setAuth = useAuthStore((s) => s.setAuth);
-  const existingToken = useAuthStore((s) => s.accessToken);
 
   useEffect(() => {
     // Only sync if store is empty (e.g. after GitHub/Facebook OAuth redirect)
@@ -60,14 +60,16 @@ function SyncAuthFromCookies() {
   return null;
 }
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <SessionProvider>
-      <ApolloProvider client={client}>
-        <SyncAuthFromCookies />
-        <TenantSync />
-        {children}
-      </ApolloProvider>
-    </SessionProvider>
+    <ApolloProvider client={client}>
+      <SyncAuthFromCookies />
+      <TenantSync />
+      {children}
+    </ApolloProvider>
   );
 }
