@@ -39,7 +39,14 @@ export function withAuthorization<TArgs = any>(
     const resourceOwnerId = options?.resolveOwnerId
       ? await options.resolveOwnerId(context, args)
       : undefined;
-
+       console.log(
+ "AUTH CHECK",
+ {
+   user: context.user,
+   action,
+   resource
+ }
+);
     const allowed = engine.can(action, resource, {
       user: {
         id: user.userId,
@@ -47,7 +54,7 @@ export function withAuthorization<TArgs = any>(
       },
       resourceOwnerId,
     });
-
+console.log("ALLOWED =", allowed);
     if (!allowed) {
       throw new GraphQLError("Forbidden: insufficient permissions", {
         extensions: { code: "FORBIDDEN", action, resource },

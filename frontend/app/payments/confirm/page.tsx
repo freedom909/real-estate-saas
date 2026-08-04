@@ -93,8 +93,8 @@ function PaymentConfirmContent() {
   });
 
   const loading = paymentLoading || bookingLoading;
-  const payment = paymentData?.payment;
-  const booking = bookingData?.booking;
+  const payment = paymentData?.payment || {}; // Property 'payment' does not exist on type '{}'.
+  const booking = bookingData?.booking || {}; // Property 'booking' does not exist on type '{}'.
   const status = payment?.status || "PENDING";
   const config = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.PENDING;
 

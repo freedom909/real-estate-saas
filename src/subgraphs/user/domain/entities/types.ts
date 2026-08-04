@@ -2,7 +2,12 @@ export enum Action {
   CREATE = 'create',
   READ = 'read',
   UPDATE = 'update',
-  DELETE = 'delete'
+  DELETE = 'delete',
+
+  CONFIRM = "confirm",
+  CANCEL = "cancel",
+  CHECK_IN = "check_in",
+  COMPLETE = "complete"
 }
 
 export enum Resource {

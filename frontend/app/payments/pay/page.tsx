@@ -35,8 +35,8 @@ function PaymentPageContent() {
 
   const [confirmPayment] = useMutation(CONFIRM_PAYMENT);
 
-  const payment = paymentData?.payment;
-  const booking = bookingData?.booking;
+  const payment = paymentData?.payment || {}; // Property 'payment' does not exist on type '{}'.
+  const booking = bookingData?.booking || {}; // Property 'booking' does not exist on type '{}'.
 
   useEffect(() => {
     if (payment && payment.status === "PENDING" && !clientSecret && !creatingIntent) {

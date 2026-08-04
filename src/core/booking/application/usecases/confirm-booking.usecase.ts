@@ -31,11 +31,13 @@ async execute(id: string) {
 
 // 🔥 DOMAIN STATE TRANSITION booking.confirm();
     // Use domain logic for state transition
+    console.log("Before:", booking.status);
     booking.confirm();
-
+    console.log("After:", booking.status);
+    
     // Save using the standard repository method
     await this.bookingRepository.save(booking);
-
+    console.log("Saved");
     await this.eventBus.publish(
       new BookingConfirmedEvent(
         booking.id,

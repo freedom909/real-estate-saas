@@ -78,6 +78,14 @@ const resolvers = {
         message: "Payment processing initiated",
         payment,
       };
+    },{
+      resolveOwnerId: async (_ctx, { paymentId }) => {
+        const repo = container.resolve<PaymentRepository>(
+          TOKENS_PAYMENT.repos.paymentRepository
+        );
+        const payment = await repo.findById(paymentId);
+        return payment?.customerId ?? null;
+      },
     }),
 
     processRefund: withAuthorization(Action.UPDATE, Resource.PAYMENT, async (

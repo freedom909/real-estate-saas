@@ -13,8 +13,6 @@ import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { container } from "tsyringe";
 
-
-
 export const resolvers = {
   Query: {
     booking: async (_: any, { id }: any) => {
@@ -50,7 +48,7 @@ export const resolvers = {
         throw new Error("Unauthenticated: context.user is null");
 
       }
-      const tenantId = user.sub;
+      const tenantId = user.tenantId;
       const userId = user.userId;
 
       // Fallback to input.tenantId if context user doesn't have it
@@ -77,7 +75,7 @@ export const resolvers = {
       };
     }),
 
-    cancelBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { id, reason }: any) => {
+    cancelBooking: withAuthorization(Action.CANCEL, Resource.BOOKING, async (_: any, { id, reason }: any) => {
       const usecase = container.resolve<CancelBookingUseCase>(TOKENS_BOOKING.usecase.cancelBookingUseCase);
 
       const booking = await usecase.execute(id, reason || "No reason provided");
@@ -96,18 +94,34 @@ export const resolvers = {
       },
     }),
 
-    confirmBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { id }: any) => {
+    confirmBooking: withAuthorization(Action.CONFIRM, Resource.BOOKING, async (_: any, { id }: any) => {
       return container
         .resolve<ConfirmBookingUseCase>(TOKENS_BOOKING.usecase.confirmBookingUseCase)
         .execute(id);
+    },{
+      resolveOwnerId: async (_ctx, { id }) => {
+        const repo = container.resolve<IBookingRepository>(
+          TOKENS_BOOKING.repository.bookingRepository
+        );
+        const booking = await repo.findById(id);
+        return booking?.customerId ?? null;
+      },
     }),
 
-    completeBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { id }: any) => {
+    completeBooking: withAuthorization(Action.COMPLETE, Resource.BOOKING, async (_: any, { id }: any) => {
       return container.resolve<CompleteBookingUseCase>(TOKENS_BOOKING.usecase.completeBookingUseCase).execute(id);
     }),
 
-    checkInBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { id }: any) => {
+    checkInBooking: withAuthorization(Action.CHECK_IN, Resource.BOOKING, async (_: any, { id }: any) => {
       return container.resolve<CheckInBookingUseCase>(TOKENS_BOOKING.usecase.checkInBookingUseCase).execute(id);
+    },{
+      resolveOwnerId: async (_ctx, { id }) => {
+        const repo = container.resolve<IBookingRepository>(
+          TOKENS_BOOKING.repository.bookingRepository
+        );
+        const booking = await repo.findById(id);
+        return booking?.customerId ?? null;
+      },
     }),
 
     updateBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { input }: any) => {
@@ -144,6 +158,14 @@ export const resolvers = {
     __resolveReference: async (reference: { id: string }) => {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(reference.id);
     },
+    payment: (parent: any) => {
+  console.log("BOOKING PARENT =", parent);
+
+  return {
+    __typename: "Payment",
+    id: parent.paymentId || parent.payment_id,
+  };
+},
   },
 
   User: {

@@ -5,37 +5,24 @@ import { gql } from "@apollo/client";
 
 export const BOOKING_BY_ID = gql`
 query BookingById($id: ID!) {
-
 booking(id: $id) {
-
 id
-
 status
-
 price
-
 checkInDate
-
 checkOutDate
-
 listing {
-
 title
  pictures {
     objectKey
     sortOrder
   }
 price
-
 }
 payment {
-
 id
-
 status
-
 amount
-
 }
 }
 

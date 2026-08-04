@@ -104,7 +104,9 @@ export default function BookingDetailPage() {
   });
 
   const booking = data?.booking;
-
+ 
+console.log("BOOKING =", booking);
+console.log("PAYMENT =", booking?.payment);
   const handleCancel = async () => {
     if (!booking || cancelling) return;
     if (!confirm("Are you sure you want to cancel this booking?")) return;
@@ -188,6 +190,9 @@ export default function BookingDetailPage() {
             />
             <div className="flex items-center justify-between">
               <div>
+              <pre>
+  {JSON.stringify(booking?.payment, null, 2)}
+</pre>
                 <p className="text-sm text-gray-500">Payment Status</p>
                 <PaymentStatusBadge status={(booking?.payment?.status as "PENDING" | "PAID" | "FAILED" | "REFUNDED") || "PENDING"} />
               </div>

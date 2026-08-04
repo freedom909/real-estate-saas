@@ -49,27 +49,7 @@ export default class PolicyEngine implements IPolicy {
         return ctx.user.id === ctx.resourceOwnerId;
       },
 
-      // -------------------
-      // BOOKING 资源规则
-      // -------------------
-
-      [`${Action.READ}_${Resource.BOOKING}`]: (ctx) => {
-        if (!ctx.user) return false;
-        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
-        return ctx.user.id === ctx.resourceOwnerId;
-      },
-
-      [`${Action.CREATE}_${Resource.BOOKING}`]: (ctx) => {
-        if (!ctx.user) return false;
-        return hasMinRole(ctx.user.role, Role.CUSTOMER);
-      },
-
-      [`${Action.UPDATE}_${Resource.BOOKING}`]: (ctx) => {
-        if (!ctx.user) return false;
-        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
-        return ctx.user.id === ctx.resourceOwnerId;
-      },
-
+      
       // -------------------
       // PAYMENT 资源规则
       // -------------------
@@ -111,6 +91,65 @@ export default class PolicyEngine implements IPolicy {
       [`${Action.DELETE}_${Resource.REVIEW}`]: (ctx) => {
         if (!ctx.user) return false;
         return hasMinRole(ctx.user.role, Role.ADMIN);
+      },
+
+      // -------------------
+      // BOOKING lifecycle rules
+      // -------------------
+      // -------------------
+      // BOOKING 资源规则
+      // -------------------
+
+      [`${Action.READ}_${Resource.BOOKING}`]: (ctx) => {
+        if (!ctx.user) return false;
+
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        return ctx.user.id === ctx.resourceOwnerId;
+      },
+
+      [`${Action.CREATE}_${Resource.BOOKING}`]: (ctx) => {
+        if (!ctx.user) return false;
+        return hasMinRole(ctx.user.role, Role.CUSTOMER);
+      },
+
+      [`${Action.UPDATE}_${Resource.BOOKING}`]: (ctx) => {
+        if (!ctx.user) return false;
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        return ctx.user.id === ctx.resourceOwnerId;
+      },
+
+      [`${Action.CONFIRM}_${Resource.BOOKING}`]: (ctx) => {
+
+      const key = `${Action.READ}_${Resource.BOOKING}`;
+console.log(key);
+        if (!ctx.user) return false;
+        console.log("KEY =", key);
+console.log(Object.keys(this.policies));
+return ctx.user.id === ctx.resourceOwnerId; 
+      },
+
+      [`${Action.CHECK_IN}_${Resource.BOOKING}`]: (ctx) => {
+        if (!ctx.user) return false;
+
+        return hasMinRole(ctx.user.role, Role.AGENT);
+      },
+
+      [`${Action.COMPLETE}_${Resource.BOOKING}`]: (ctx) => {
+        if (!ctx.user) return false;
+
+        return hasMinRole(ctx.user.role, Role.AGENT);
+      },
+
+      [`${Action.CANCEL}_${Resource.BOOKING}`]: (ctx) => {
+        if (!ctx.user) return false;
+
+        // customer can cancel own booking
+        if (ctx.user.id === ctx.resourceOwnerId) {
+          return true;
+        }
+
+        // admin/agent can cancel
+        return hasMinRole(ctx.user.role, Role.AGENT);
       },
     };
   }

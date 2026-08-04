@@ -2,10 +2,10 @@
 //import { Booking } from "@/graphql/generated";
 import axios from "axios";
 import {client }from "../lib/apolloClient";
-import { CreateBookingInput } from "app/types/booking.types";
-import { CREATE_BOOKING } from "app/graphql/booking/mutations/createBooking";
-import { GET_BOOKINGS } from "app/graphql/booking/queries/bookinsForCustomer.ts";
-import { CANCEL_BOOKING } from "app/graphql/booking/mutations/cancelBooking";
+import { CreateBookingInput } from "@/app/types/booking.types";
+import { CREATE_BOOKING } from "@/app/graphql/booking/mutations/createBooking";
+import { GET_BOOKINGS } from "@/app/graphql/booking/queries/bookingsForCustomer";
+import { CANCEL_BOOKING } from "@/app/graphql/booking/mutations/cancelBooking";
 
 const API_URL = "/4000/graphql/bookings";
 
