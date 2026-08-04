@@ -1,6 +1,6 @@
 "use client";
 
-import { gql, useQuery } from "@apollo/client";
+import { gql} from "@apollo/client";
 
 export const MY_BOOKINGS = gql`
 

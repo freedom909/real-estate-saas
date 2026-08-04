@@ -39,7 +39,7 @@ export default function OAuthButton({
                 rounded-xl
                 border
                 border-gray-300
-                bg-white
+                bg-gray-100
                 px-4
                 py-3
                 text-sm

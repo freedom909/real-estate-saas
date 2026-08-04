@@ -12,7 +12,6 @@ import { FailPaymentUseCase } from "@/core/payment/application/usecase/fail-paym
 import { withAuthorization } from "@/infrastructure/auth/withAuthorization";
 import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
 
-
 const resolvers = {
   Query: {
     paymentByBooking: async (

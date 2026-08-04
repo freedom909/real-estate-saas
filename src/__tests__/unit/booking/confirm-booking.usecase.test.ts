@@ -15,6 +15,12 @@ jest.mock("@/modules/tokens/event.bus.token", () => ({
   TOKENS_EVENT_BUS: { eventBus: Symbol("EventBus") },
 }));
 
+jest.mock("@/modules/tokens/payment.tokens", () => ({
+  TOKENS_PAYMENT: {
+    repos: { paymentRepository: Symbol("PaymentRepository") },
+  },
+}));
+
 jest.mock("@/shared/eventbus/in-memory-event-bus", () => ({
   InMemoryEventBus: class {},
 }));
@@ -39,37 +45,48 @@ function createPendingBooking(id: string = "booking-1"): Booking {
 
 describe("ConfirmBookingUseCase", () => {
   let useCase: ConfirmBookingUseCase;
-  let mockRepo: any;
+  let mockBookingRepo: any;
+  let mockPaymentRepo: any;
   let mockEventBus: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRepo = {
+    mockBookingRepo = {
       findById: jest.fn(),
       save: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
       findByCustomerId: jest.fn(),
       delete: jest.fn(),
       findByLatestByCustomerId: jest.fn(),
     };
+    mockPaymentRepo = {
+      findByBookingId: jest.fn(),
+      save: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
+      findById: jest.fn(),
+      findByCustomerId: jest.fn(),
+      delete: jest.fn(),
+    };
     mockEventBus = {
       publish: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
     };
-    useCase = new ConfirmBookingUseCase(mockRepo, mockEventBus);
+    useCase = new ConfirmBookingUseCase(mockBookingRepo, mockPaymentRepo, mockEventBus);
   });
 
   it("should confirm a pending booking", async () => {
     const booking = createPendingBooking();
-    mockRepo.findById.mockResolvedValue(booking);
+    mockBookingRepo.findById.mockResolvedValue(booking);
+    mockPaymentRepo.findByBookingId.mockResolvedValue(null);
 
     await useCase.execute("booking-1");
 
-    expect(mockRepo.findById).toHaveBeenCalledWith("booking-1");
-    expect(mockRepo.save).toHaveBeenCalledTimes(1);
+    expect(mockBookingRepo.findById).toHaveBeenCalledWith("booking-1");
+    expect(mockBookingRepo.save).toHaveBeenCalledTimes(1);
+    expect(mockPaymentRepo.findByBookingId).toHaveBeenCalledWith("booking-1");
+    expect(mockPaymentRepo.save).toHaveBeenCalledTimes(1);
     expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
   });
 
   it("should throw if booking not found", async () => {
-    mockRepo.findById.mockResolvedValue(null);
+    mockBookingRepo.findById.mockResolvedValue(null);
 
     await expect(useCase.execute("nonexistent")).rejects.toThrow("Booking not found");
   });
@@ -77,7 +94,7 @@ describe("ConfirmBookingUseCase", () => {
   it("should throw if booking is already confirmed", async () => {
     const booking = createPendingBooking();
     booking.confirm(); // transition to CONFIRMED first
-    mockRepo.findById.mockResolvedValue(booking);
+    mockBookingRepo.findById.mockResolvedValue(booking);
 
     await expect(useCase.execute("booking-1")).rejects.toThrow(
       "Invalid transition from CONFIRMED to CONFIRMED"
@@ -87,7 +104,7 @@ describe("ConfirmBookingUseCase", () => {
   it("should throw if booking is cancelled", async () => {
     const booking = createPendingBooking();
     booking.cancel("test reason");
-    mockRepo.findById.mockResolvedValue(booking);
+    mockBookingRepo.findById.mockResolvedValue(booking);
 
     await expect(useCase.execute("booking-1")).rejects.toThrow(
       "Invalid transition from CANCELLED to CONFIRMED"
@@ -96,7 +113,8 @@ describe("ConfirmBookingUseCase", () => {
 
   it("should publish BookingConfirmedEvent with correct data", async () => {
     const booking = createPendingBooking();
-    mockRepo.findById.mockResolvedValue(booking);
+    mockBookingRepo.findById.mockResolvedValue(booking);
+    mockPaymentRepo.findByBookingId.mockResolvedValue(null);
 
     await useCase.execute("booking-1");
 
@@ -104,5 +122,16 @@ describe("ConfirmBookingUseCase", () => {
     expect(event.bookingId).toBe("booking-1");
     expect(event.customerId).toBe("customer-1");
     expect(event.tenantId).toBe("tenant-1");
+  });
+
+  it("should not create a duplicate payment when one already exists", async () => {
+    const booking = createPendingBooking();
+    mockBookingRepo.findById.mockResolvedValue(booking);
+    mockPaymentRepo.findByBookingId.mockResolvedValue({ id: "payment-1" });
+
+    await useCase.execute("booking-1");
+
+    expect(mockPaymentRepo.findByBookingId).toHaveBeenCalledWith("booking-1");
+    expect(mockPaymentRepo.save).not.toHaveBeenCalled();
   });
 });

@@ -15,6 +15,8 @@ import { GetBookingsForCustomerUseCase } from "@/core/booking/application/usecas
 import { UpdateBookingUseCase } from "@/core/booking/application/usecases/update-booking.usecase";
 import { CheckInBookingUseCase } from "@/core/booking/application/usecases/check-in-booking.usecase";
 import { ListingGateway } from "@/core/booking/infrastructure/gateways/listing.gateway";
+import { TOKENS_PAYMENT } from "../tokens/payment.tokens";
+import { PaymentRepository } from "@/core/payment/infra/repository/payment.repository";
 
 
 
@@ -22,6 +24,9 @@ export const BookingRegister = () => {
   // Repositories
   container.register(TOKENS_BOOKING.repository.bookingRepository, {
     useClass: SequelizeBookingRepository,
+  });
+  container.register(TOKENS_PAYMENT.repos.paymentRepository, {
+    useClass: PaymentRepository,
   });
 
   // State Machine

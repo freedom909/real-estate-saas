@@ -47,6 +47,7 @@ export default function BookingDetailPage() {
     variables: { id: params.id },
     context: { headers: { 'Authorization': token } },
   });
+  const booking = data?.booking;
 
   const [cancelBooking] = useMutation(CANCEL_BOOKING, {
     context: { headers: { 'Authorization': token } },
@@ -103,10 +104,8 @@ export default function BookingDetailPage() {
     },
   });
 
-  const booking = data?.booking;
- 
-console.log("BOOKING =", booking);
-console.log("PAYMENT =", booking?.payment);
+  const payment = booking?.payment ?? null;
+
   const handleCancel = async () => {
     if (!booking || cancelling) return;
     if (!confirm("Are you sure you want to cancel this booking?")) return;
@@ -133,10 +132,10 @@ console.log("PAYMENT =", booking?.payment);
   };
 
   const handleProcessPayment = async () => {
-    if (!booking?.payment?.id || processingPayment) return;
+    if (!payment?.id || processingPayment) return;
     setProcessingPayment(true);
     try {
-      await processPayment({ variables: { paymentId: booking.payment.id } });
+      await processPayment({ variables: { paymentId: payment.id } });
     } catch (err) {
       console.error("Process Payment error:", err);
     } finally {
@@ -190,11 +189,8 @@ console.log("PAYMENT =", booking?.payment);
             />
             <div className="flex items-center justify-between">
               <div>
-              <pre>
-  {JSON.stringify(booking?.payment, null, 2)}
-</pre>
                 <p className="text-sm text-gray-500">Payment Status</p>
-                <PaymentStatusBadge status={(booking?.payment?.status as "PENDING" | "PAID" | "FAILED" | "REFUNDED") || "PENDING"} />
+                <PaymentStatusBadge status={(payment?.status as "PENDING" | "PAID" | "FAILED" | "REFUNDED") || "PENDING"} />
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-500">Price per night</p>
@@ -263,7 +259,7 @@ console.log("PAYMENT =", booking?.payment);
                     {confirming ? "Confirming..." : "Confirm Booking"}
                   </button>
                 )}
-                {booking?.payment?.status === "PENDING" && (
+                {booking?.status === "CONFIRMED" && payment?.status === "PENDING" && (
                   <button
                     onClick={handleProcessPayment}
                     disabled={processingPayment}
