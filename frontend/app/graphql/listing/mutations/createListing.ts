@@ -8,7 +8,7 @@ export const CREATE_LISTING = gql`
       description
       address
       price
-      picture
+      pictures { id objectKey }
       numOfBeds
       numOfBathrooms
       numOfRooms

@@ -8,6 +8,8 @@ export interface PictureProps {
   id: string;
   listingId: string;
   objectKey:string;
+  mimeType: string;
+  size:number;
   type: string;
   sortOrder: number;
 }
@@ -25,6 +27,10 @@ export class Picture {
 
   get listingId() {
     return this.props.listingId;
+  }
+
+  get mimeType(){
+    return this.props.mimeType
   }
 
   get objectKey() {

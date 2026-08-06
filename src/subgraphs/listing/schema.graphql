@@ -40,14 +40,15 @@ type Listing @key(fields: "id") {
   createdAt: DateTime!
   updatedAt: DateTime
 }
-type Picture{
+type Picture {
   id: ID!
   listingId: ID!
   objectKey: String!
+  url: String!
+  mimeType: String!
+  size: Int!
   type: String!
   sortOrder: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime
 }
 # -----------------------------------
 # Owner Federation Extension
@@ -93,7 +94,7 @@ input CreateListingInput {
   numOfCustomers: Int
   numOfBathrooms: Int
   numOfRooms: Int
-
+  isFeatured:Boolean
   price: Float
   pricePerNight: Float!
 

@@ -4,8 +4,6 @@ import { sequelize } from "@/infrastructure/config/seq";
 import "reflect-metadata";
 import { Model, InferAttributes, InferCreationAttributes, CreationOptional, DataTypes } from 'sequelize';
 
-
-
 class PictureModel extends Model<InferAttributes<PictureModel>, InferCreationAttributes<PictureModel>> {
   id: string;
   listingId: string;
@@ -54,12 +52,14 @@ PictureModel.init(
     mimeType: {
       type: DataTypes.STRING(100),
       allowNull: false,
+      defaultValue:"image/jpeg",
     },
 
 
     size: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue:0
     },
 
 

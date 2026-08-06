@@ -4,6 +4,7 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
+import { CategoryRepository } from "@/shared/category/infrastructure/category.repository";
 
 
 import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase";
@@ -63,8 +64,6 @@ export const resolvers = {
       }));
 
     },
-
-
     listing: async (
       _: any,
       { id }: { id: string }
@@ -80,10 +79,19 @@ export const resolvers = {
 
     },
 
+    categories: async () => {
+      const repo = container.resolve<CategoryRepository>(TOKENS_CATEGORY.categoryRepository);
+      const cats = await repo.findAll();
+      return cats.map((cat: any) => ({
+        id: cat.id,
+        name: cat.name,
+      }));
+    },
+
   },
 
  Mutation: {
-    createListing: async ( _: any,{input}:any,{context}:any) => {
+    createListing: async ( _: any,{input}:any,context:any) => {
 console.log("========== CREATE LISTING ==========");
 console.log("input.picture =", input.picture);
 console.log("picture length =", input.picture?.length);

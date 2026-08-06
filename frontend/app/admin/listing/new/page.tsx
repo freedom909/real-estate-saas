@@ -234,7 +234,7 @@ function CreateListingContent() {
         locationId: form.locationId || "default-location",
         categories: form.categories,
         isFeatured: form.isFeatured,
-        picture: allImages,
+        pictures: allImages,
         ownerId: "current-user",
       };
 

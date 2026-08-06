@@ -25,7 +25,7 @@ export interface CreateListingInput {
   numOfBathrooms: number;
   numOfRooms: number;
   price: number;
-  picture: string[];
+  pictures: string[];
   isFeatured: boolean;
   locationId: string;
   categories: string[];
@@ -45,9 +45,9 @@ export default class CreateListingUseCase {
   ) { }
 
   async execute(input: CreateListingInput): Promise<GenerateTitleResult> {
-    console.log(input.picture);
+    console.log(input.pictures);
 
-    console.log(input.picture.length);
+    console.log(input.pictures.length);
     // Validate amenityIds
     if (input.amenityIds && input.amenityIds.length > 0) {
       console.log(input.amenityIds);
@@ -84,11 +84,13 @@ export default class CreateListingUseCase {
     }
     // Production logic: Any cross-domain validation would happen here via adapters
     const listingId = uuidv4();
-    const pictures = input.picture.map((url, index) =>
+    const pictures = input.pictures.map((url, index) =>
       new Picture({
         id: uuidv4(),
         listingId,
         objectKey: url,
+        mimeType: "image/jpeg",
+        size: 0,
         type: "listing",
         sortOrder: index,
       })
