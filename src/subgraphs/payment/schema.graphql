@@ -12,16 +12,25 @@ scalar DateTime
 # --------------------------
 # PAYMENT TYPES
 # --------------------------
-type Payment @key(fields: "id") {
+type Payment @key(fields: "bookingId") {
   id: ID!
   tenantId: ID! @shareable
   bookingId: ID! @shareable
   customerId: ID! @shareable
   amount: Float! @shareable
+  paymentProvider:PaymentProvider @shareable
+  transcationId:String! @shareable
   status: PaymentStatus! @shareable
   paymentIntentId: String @shareable
   createdAt: DateTime! @shareable
   updatedAt: DateTime! @shareable
+}
+
+enum PaymentProvider {
+  MOCK
+  STRIPE
+  PAYPAY
+  SQUARE 
 }
 
 enum PaymentStatus {

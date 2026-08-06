@@ -13,6 +13,8 @@ import {
 const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16"];
 
 const QUICK_ACTIONS = [
+  { href: "/admin/listing/new", label: "Create Listing", icon: "🏠", color: "bg-green-50 text-green-600" },
+
   { href: "/admin/analytics", label: "Analytics", icon: "📈", color: "bg-emerald-50 text-emerald-600" },
   { href: "/admin/users", label: "Admin Users", icon: "🛡️", color: "bg-blue-50 text-blue-600" },
   { href: "/admin/manage-users", label: "Manage Users", icon: "👥", color: "bg-purple-50 text-purple-600" },

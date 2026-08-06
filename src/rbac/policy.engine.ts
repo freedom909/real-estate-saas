@@ -119,19 +119,14 @@ export default class PolicyEngine implements IPolicy {
       },
 
       [`${Action.CONFIRM}_${Resource.BOOKING}`]: (ctx) => {
-
-      const key = `${Action.READ}_${Resource.BOOKING}`;
-console.log(key);
         if (!ctx.user) return false;
-        console.log("KEY =", key);
-console.log(Object.keys(this.policies));
-return ctx.user.id === ctx.resourceOwnerId; 
+
+　　　　　return ctx.user.id === ctx.resourceOwnerId; 
       },
 
       [`${Action.CHECK_IN}_${Resource.BOOKING}`]: (ctx) => {
         if (!ctx.user) return false;
-
-        return hasMinRole(ctx.user.role, Role.AGENT);
+        return hasMinRole(ctx.user.role, Role.ADMIN);
       },
 
       [`${Action.COMPLETE}_${Resource.BOOKING}`]: (ctx) => {

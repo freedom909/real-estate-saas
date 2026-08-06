@@ -25,29 +25,30 @@ export default function AdminGuard({ children, requiredRole = "ADMIN" }: AdminGu
     }
 
     // Check if user is admin via adminUsers query
-    fetch(`${process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:4000/graphql"}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        query: `{ adminUsers { id } }`,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.errors) {
-              console.log(data.errors);
+   fetch(`${process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:4000/graphql"}`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${accessToken}`,
+  },
+  body: JSON.stringify({
+    query: `{ adminUsers { id } }`,
+  }),
+})
+  .then((res) => res.json())
+  .then((result: { data?: { adminUsers: { id: string }[] }; errors?: { message: string }[] }) => {
+    if (result.errors?.length) {
+      console.error(result.errors);
+      router.replace("/dashboard");
+      return;
+    }
 
     setAllowed(true);
-        } else {
-          setAllowed(true);
-        }
-      })
-      .catch(() => {
-        router.replace("/dashboard");
-      });
+  })
+  .catch((err) => {
+    console.error(err);
+    router.replace("/dashboard");
+  });
   }, [accessToken, router]);
 
   if (!accessToken) return null;

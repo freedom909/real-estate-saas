@@ -9,54 +9,87 @@ import { useAuthStore } from "../store/auth.store";
 import { useEffect } from "react";
 
 function SyncAuthFromCookies() {
-  const setAuth = useAuthStore((s) => s.setAuth);
-  const existingToken = useAuthStore((s) => s.accessToken);
 
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return match ? decodeURIComponent(match[2]) : null;
-}
+  const setAuth = useAuthStore(
+    (s)=>s.setAuth
+  );
 
-  useEffect(() => {
-    // Only sync if store is empty (e.g. after GitHub/Facebook OAuth redirect)
-    if (existingToken) return;
 
-    const accessToken = getCookie("accessToken");
-    const refreshToken = getCookie("refreshToken");
-    const userName = getCookie("userName");
-    const userEmail = getCookie("userEmail");
-    const userPicture = getCookie("userPicture");
+  const hasHydrated = useAuthStore(
+    (s)=>s._hasHydrated
+  );
 
-    if (accessToken && refreshToken) {
-      // Decode JWT to get the real user ID (sub claim)
-      let userId = "";
-      try {
-        const payload = JSON.parse(atob(accessToken.split(".")[1]));
-        userId = payload.sub || "";
-      } catch {
-        // If JWT decode fails, try to get user info from the API
-      }
+  function getCookie(name:string){
+    const match=document.cookie.match(
+      new RegExp("(^| )"+name+"=([^;]+)")
+    );
 
-      setAuth({
-        accessToken,
-        refreshToken,
-        user: {
-          id: userId,
-          email: userEmail || "",
-          name: userName || "",
-          picture: userPicture || "",
-        },
-      });
+    return match
+      ? decodeURIComponent(match[2])
+      : null;
+  }
 
-      // Clear the cookies after syncing
-      document.cookie = "accessToken=; path=/; max-age=0";
-      document.cookie = "refreshToken=; path=/; max-age=0";
-      document.cookie = "userName=; path=/; max-age=0";
-      document.cookie = "userEmail=; path=/; max-age=0";
-      document.cookie = "userPicture=; path=/; max-age=0";
+
+  useEffect(()=>{
+
+
+    if(!hasHydrated) return;
+
+
+    const token = useAuthStore.getState().accessToken;
+
+
+    if(token){
+      console.log(
+        "Already authenticated"
+      );
+      return;
     }
-  }, []);
 
+
+    const accessToken=getCookie(
+      "accessToken"
+    );
+
+    const refreshToken=getCookie(
+      "refreshToken"
+    );
+
+
+    if(!accessToken || !refreshToken)
+      return;
+
+
+
+    let userId="";
+
+    try{
+
+      const payload =
+        JSON.parse(
+          atob(
+            accessToken.split(".")[1]
+          )
+        );
+
+      userId=payload.sub;
+
+    }catch(e){}
+
+    setAuth({
+
+      accessToken,
+
+      refreshToken,
+
+      user:{
+        id:userId,
+        email:getCookie("userEmail") || "",
+        name:getCookie("userName") || "",
+        picture:getCookie("userPicture") || "",
+      }
+    });
+  },[hasHydrated]);
   return null;
 }
 

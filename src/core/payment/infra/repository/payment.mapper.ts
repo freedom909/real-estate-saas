@@ -1,4 +1,5 @@
-import { Payment } from "../../domain/entity/payment.entity";
+import { randomUUID } from "crypto";
+import { Payment, PaymentProvider } from "../../domain/entity/payment.entity";
 
 export class PaymentMapper {
 
@@ -14,7 +15,8 @@ export class PaymentMapper {
         checkInDate: row.checkInDate,
         checkOutDate: row.checkOutDate,
       },
-
+      paymentProvider:PaymentProvider.MOCK,
+      transactionId:`mock_${randomUUID()}`,
       amount: Number(
         row.amount
       ),
@@ -55,6 +57,8 @@ export class PaymentMapper {
       refundedAt: data.refundedAt,
       cancelReason: data.cancelReason,
       paymentIntentId: data.paymentIntentId,
+      paymentProvider:PaymentProvider.MOCK,
+      transactionId:data.transactionId,
     };
   }
 }

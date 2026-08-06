@@ -16,7 +16,11 @@ import { container } from "tsyringe";
 export const resolvers = {
   Query: {
     booking: async (_: any, { id }: any) => {
-      return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(id);
+      console.log("========== booking query ==========");
+      console.log("booking id =", id);
+      const booking = await container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(id);
+      console.log("booking =", booking);
+      return booking
     },
     bookingsForCustomer: async (_: any, { userId }: any) => {
       const repo =
@@ -95,26 +99,27 @@ export const resolvers = {
     }),
 
     confirmBooking: withAuthorization(Action.CONFIRM, Resource.BOOKING, async (_: any, { id }: any) => {
-      return container
+      return await container
         .resolve<ConfirmBookingUseCase>(TOKENS_BOOKING.usecase.confirmBookingUseCase)
         .execute(id);
-    },{
+    }, {
       resolveOwnerId: async (_ctx, { id }) => {
         const repo = container.resolve<IBookingRepository>(
           TOKENS_BOOKING.repository.bookingRepository
         );
+
         const booking = await repo.findById(id);
         return booking?.customerId ?? null;
       },
     }),
 
     completeBooking: withAuthorization(Action.COMPLETE, Resource.BOOKING, async (_: any, { id }: any) => {
-      return container.resolve<CompleteBookingUseCase>(TOKENS_BOOKING.usecase.completeBookingUseCase).execute(id);
+      return await container.resolve<CompleteBookingUseCase>(TOKENS_BOOKING.usecase.completeBookingUseCase).execute(id);
     }),
 
     checkInBooking: withAuthorization(Action.CHECK_IN, Resource.BOOKING, async (_: any, { id }: any) => {
-      return container.resolve<CheckInBookingUseCase>(TOKENS_BOOKING.usecase.checkInBookingUseCase).execute(id);
-    },{
+      return await container.resolve<CheckInBookingUseCase>(TOKENS_BOOKING.usecase.checkInBookingUseCase).execute(id);
+    }, {
       resolveOwnerId: async (_ctx, { id }) => {
         const repo = container.resolve<IBookingRepository>(
           TOKENS_BOOKING.repository.bookingRepository
@@ -159,24 +164,23 @@ export const resolvers = {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(reference.id);
     },
     payment: (parent: any) => {
-  console.log("BOOKING PARENT =", parent);
+      console.log("BOOKING PARENT =", parent);
 
-  return {
-    __typename: "Payment",
-    id: parent.paymentId || parent.payment_id,
-  };
-},
+      return {
+        __typename: "Payment",
+        bookingId: parent.id
+      };
+    },
   },
 
   User: {
     bookings: async (user: { id: string }) => {
 
-      const repo =
-        container.resolve<IBookingRepository>(
-          TOKENS_BOOKING.repository.bookingRepository
-        );
+      const repo = container.resolve<IBookingRepository>(
+        TOKENS_BOOKING.repository.bookingRepository
+      );
 
-      return repo.findByCustomerId(
+      return await repo.findByCustomerId(
         user.id
       );
     },

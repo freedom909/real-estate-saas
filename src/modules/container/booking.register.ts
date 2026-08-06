@@ -2,7 +2,6 @@
 
 import { container } from "tsyringe";
 import { TOKENS_BOOKING } from "../tokens/booking.tokens";
-import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { SequelizeBookingRepository } from "@/core/booking/infrastructure/repos/sequelizeBookingRepository";
 
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
@@ -17,8 +16,6 @@ import { CheckInBookingUseCase } from "@/core/booking/application/usecases/check
 import { ListingGateway } from "@/core/booking/infrastructure/gateways/listing.gateway";
 import { TOKENS_PAYMENT } from "../tokens/payment.tokens";
 import { PaymentRepository } from "@/core/payment/infra/repository/payment.repository";
-
-
 
 export const BookingRegister = () => {
   // Repositories

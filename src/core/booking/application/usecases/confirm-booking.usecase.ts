@@ -11,7 +11,7 @@ import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { IEventBus } from "@/shared/eventbus/IEventBus";
 import { BookingConfirmedEvent } from "../../domain/events/booking-confirm.event";
 import { IPaymentRepository } from "@/core/payment/domain/repository/i-payment.repository";
-import { Payment } from "@/core/payment/domain/entity/payment.entity";
+import { Payment, PaymentProvider } from "@/core/payment/domain/entity/payment.entity";
 
 @injectable()
 export class ConfirmBookingUseCase {
@@ -27,30 +27,65 @@ export class ConfirmBookingUseCase {
   ) {}
 
 async execute(id: string) {
-  const booking =
-    await this.bookingRepository.findById(id);
+    console.log(
+    "[ConfirmBooking] start",
+    id
+  );
+  const booking = await this.bookingRepository.findById(id);
 
   if (!booking) {
     throw new Error("Booking not found");
   }
-
+  console.log(
+    "[ConfirmBooking] before:",
+    booking?.status
+  );
     booking.confirm();
+      console.log(
+    "[ConfirmBooking] after:",
+    booking.status
+  );
     await this.bookingRepository.save(booking);
-
+console.log(
+  "[Payment] checking existing payment",
+  booking.id
+);
     const existingPayment = await this.paymentRepository.findByBookingId(booking.id);
-
+console.log(
+  "[Payment] existing:",
+  existingPayment
+);
     if (!existingPayment) {
+       console.log(
+   "[Payment] creating payment"
+ );
       const payment = Payment.create({
         id: uuidv4(),
         bookingId: booking.id,
         customerId: booking.customerId,
+        paymentProvider:PaymentProvider.MOCK,
+        transactionId:`transaction_${uuidv4()}`,
         tenantId: booking.tenantId,
         dateRange: booking.dateRange,
         amount: booking.price,
       });
 
-      await this.paymentRepository.save(payment);
-    }
+try {
+  await this.paymentRepository.save(payment);
+
+  console.log(
+    "[Payment] saved successfully"
+  );
+
+} catch(error) {
+
+  console.error(
+    "[Payment] save failed",
+    error
+  );
+
+  throw error;
+}
 
     await this.eventBus.publish(
       new BookingConfirmedEvent(
@@ -67,4 +102,4 @@ async execute(id: string) {
 
     return booking;
   }
-}
+}}

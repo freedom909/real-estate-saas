@@ -1,9 +1,6 @@
 "use client";
 
 import { oauthLogin } from "@/app/services/auth.service";
-
-import { useAuthStore } from "@/app/store/auth.store";
-
 import { CSSProperties, useEffect, useRef } from "react";
 
 import { handleGitHubLogin } from "@/app/components/login/handleGitHub.login";

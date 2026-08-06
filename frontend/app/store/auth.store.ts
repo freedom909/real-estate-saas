@@ -1,61 +1,116 @@
-import { create } from "zustand";
+// frontend/app/store/auth.store.ts
 
+import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
 
 export interface AuthPayload {
 
-accessToken: string;
+    accessToken: string;
 
-refreshToken: string;
+    refreshToken: string;
 
-user: {
-
-id: string;
-
-email: string;
-
-name?: string;
-
-picture?: string;
-
-};
+    user: {
+        id: string;
+        email: string;
+        name?: string;
+        picture?: string;
+    };
 
 }
 
+
+
 interface AuthState {
+
 
     accessToken: string | null;
 
     refreshToken: string | null;
 
-    user: any | null;
 
-    setAuth: (auth: AuthPayload) => void;
+    user: AuthPayload["user"] | null;
+    // zustand persist hydration
+    _hasHydrated: boolean;
 
+    _setHasHydrated: (value: boolean) => void;
+    // optional oauth state
+    status: string | null;
+
+    challengeId: string | null;
+
+    setAuth: (payload: AuthPayload) => void;
+    setUser: (user: AuthPayload["user"]) => void;
     logout: () => void;
-
+    clear: () => void;
+  
 }
 
-export const useAuthStore = create<AuthState>()(
 
+export const useAuthStore = create<AuthState>()(
     persist(
+
 
         (set) => ({
 
+
+
             accessToken: null,
+
 
             refreshToken: null,
 
+
             user: null,
 
-            setAuth: (auth) =>
-                set({
-                    accessToken: auth.accessToken,
-                    refreshToken: auth.refreshToken,
-                    user: auth.user,
-                }),
 
-            logout: () =>
+            _hasHydrated: false,
+
+
+            status: null,
+
+
+            challengeId: null,
+
+
+
+
+            setAuth: (payload) => {
+
+
+                set({
+
+                    accessToken: payload.accessToken,
+
+                    refreshToken: payload.refreshToken,
+
+                    user: payload.user,
+
+                });
+
+
+            },
+
+
+
+
+            setUser: (user) => {
+
+
+                set({
+
+                    user,
+
+                });
+
+
+            },
+
+
+
+
+            logout: () => {
+
 
                 set({
 
@@ -65,17 +120,86 @@ export const useAuthStore = create<AuthState>()(
 
                     user: null,
 
-                }),
+                    status: null,
+
+                    challengeId: null,
+
+                });
+
+
+            },
+
+
+
+
+
+            clear: () => {
+
+
+                set({
+
+                    accessToken: null,
+
+                    refreshToken: null,
+
+                    user: null,
+
+                    status: null,
+
+                    challengeId: null,
+
+                });
+
+
+            },
+
+
+
+
+
+            _setHasHydrated: (value) => {
+
+
+                set({
+
+                    _hasHydrated: value,
+
+                });
+
+
+            }
+
+
 
         }),
 
+
+
         {
+
 
             name: "auth-storage",
 
+
+
+            onRehydrateStorage: () => {
+
+
+                return (state) => {
+
+
+                    state?._setHasHydrated(true);
+
+
+                };
+
+
+            }
+
+
         }
+
 
     )
 
 );
-

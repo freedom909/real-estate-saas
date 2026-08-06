@@ -1,24 +1,27 @@
-import { PaymentTransitionService }
-  from "../service/paymentTransition.service";
 
-import { PaymentStatus }
-  from "../value-object/payment.status";
+import { PaymentTransitionService } from "../service/paymentTransition.service";
+import { randomUUID } from "crypto";
+import { PaymentStatus } from "../value-object/payment.status";
+
+export enum PaymentProvider {
+  MOCK = "MOCK",
+  STRIPE = "STRIPE",
+  PAYPAY = "PAYPAY",
+  SQUARE = "SQUARE",
+}
 
 export interface PaymentProps {
-
   id: string;
-
   bookingId: string;
-
   customerId: string;
-
   tenantId: string;
 
   dateRange: {
     checkInDate: Date;
     checkOutDate: Date;
   };
-
+  paymentProvider: PaymentProvider;
+  transactionId: string;
   amount: number;
 
   status: PaymentStatus;
@@ -39,9 +42,7 @@ export interface PaymentProps {
 
 export class Payment {
 
-  private constructor(
-    private props: PaymentProps
-  ) {}
+  private constructor(private props: PaymentProps) {}
 
   static create(
     props: Omit<
@@ -58,19 +59,16 @@ export class Payment {
 
     return new Payment({
       ...props,
-
       status: PaymentStatus.PENDING,
-
+      paymentProvider:props.paymentProvider ?? PaymentProvider.MOCK,
+      transactionId:props.transactionId ?? `mock_${randomUUID()}`,
       createdAt: new Date(),
     });
   }
 
-  static rehydrate(
-    props: PaymentProps
-  ): Payment {
-
-    return new Payment(props);
-  }
+static rehydrate(props: PaymentProps): Payment {
+  return new Payment(props);
+}
 
   // =====================
   // PENDING -> PROCESSING
@@ -151,8 +149,6 @@ export class Payment {
 
     this.props.updatedAt =
       new Date();
-
-
   }
 
   // =====================
@@ -183,7 +179,6 @@ export class Payment {
   // =====================
 
   toJSON() {
-
     return {
       ...this.props,
     };
@@ -252,4 +247,12 @@ get checkOutDate() {
   get paymentIntentId() {
     return this.props.paymentIntentId;
   }
+
+  get paymentProvider() {
+  return this.props.paymentProvider;
+}
+
+get transactionId() {
+  return this.props.transactionId;
+}
 }

@@ -11,6 +11,7 @@ import { PROCESS_PAYMENT } from "@/app/graphql/payment/mutations/processPayment"
 import PaymentStatusBadge from "@/app/payments/paymentStatus.badge";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { useAuthStore } from "@/app/store/auth.store";
 
 interface BookingQueryData {
   booking: {
@@ -36,6 +37,16 @@ interface BookingQueryData {
 }
 
 export default function BookingDetailPage() {
+  console.log("========== BOOKING PAGE AUTH ==========");
+  const { user } = useAuthStore();
+  const auth = useAuthStore();
+  console.log("AUTH STORE =", auth);
+  console.log("FRONTEND USER =", user);
+  const isAgent=user?.role==="AGENT"||user?.role === "ADMIN" ||user?.role === "SUPER_ADMIN";
+  console.log("FRONTEND ROLE =", user?.role);
+  console.log("isAgent =", isAgent);
+  const isCustomer = user?.role === "CUSTOMER";
+  console.log("isCustomer =", isCustomer);
   const params = useParams();
   const [cancelling, setCancelling] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -48,7 +59,12 @@ export default function BookingDetailPage() {
     context: { headers: { 'Authorization': token } },
   });
   const booking = data?.booking;
-
+  console.log("BOOKING STATUS =", booking?.status);
+  const canConfirm = isAgent && booking?.status === "PENDING";
+  console.log("canConfirm =", canConfirm);
+  const canPay =isCustomer && booking?.status === "CONFIRMED";
+  const canCheckIn =isAgent && booking?.status === "PAID";
+  const canComplete =isAgent && booking?.status === "CHECKED_IN";
   const [cancelBooking] = useMutation(CANCEL_BOOKING, {
     context: { headers: { 'Authorization': token } },
     onCompleted: () => {
@@ -72,6 +88,7 @@ export default function BookingDetailPage() {
   });
 
   const [checkInBooking] = useMutation(CHECK_IN_BOOKING, {
+    
     context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
@@ -120,6 +137,7 @@ export default function BookingDetailPage() {
   };
 
   const handleCheckIn = async () => {
+    
     if (!booking || checkingIn) return;
     setCheckingIn(true);
     await checkInBooking({ variables: { id: booking.id } });
@@ -250,7 +268,7 @@ export default function BookingDetailPage() {
                 <button className="flex-1 rounded-xl bg-black py-3 font-semibold text-white">
                   Contact Host
                 </button>
-                {booking?.status === "PENDING" && (
+                { canConfirm && (
                   <button
                     onClick={handleConfirm}
                     disabled={confirming}
@@ -259,7 +277,7 @@ export default function BookingDetailPage() {
                     {confirming ? "Confirming..." : "Confirm Booking"}
                   </button>
                 )}
-                {booking?.status === "CONFIRMED" && payment?.status === "PENDING" && (
+                { canPay && (
                   <button
                     onClick={handleProcessPayment}
                     disabled={processingPayment}
@@ -268,7 +286,8 @@ export default function BookingDetailPage() {
                     {processingPayment ? "Processing..." : "Process Payment"}
                   </button>
                 )}
-                {booking?.status === "CONFIRMED" && (
+                { 
+                canCheckIn && (
                   <button
                     onClick={handleCheckIn}
                     disabled={checkingIn}
@@ -277,7 +296,8 @@ export default function BookingDetailPage() {
                     {checkingIn ? "Checking in..." : "Check In"}
                   </button>
                 )}
-                {booking?.status === "CHECKED_IN" && (
+                {
+                canComplete &&(
                   <button
                     onClick={handleComplete}
                     disabled={completing}

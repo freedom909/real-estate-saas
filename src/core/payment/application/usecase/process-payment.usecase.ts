@@ -2,7 +2,7 @@
 import { TOKENS_PAYMENT } from "@/modules/tokens/payment.tokens";
 import { inject, injectable } from "tsyringe";
 import { IPaymentRepository } from "../../domain/repository/i-payment.repository";
-import { BookingGateway } from "@/core/booking/bookingGateway";
+
 import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { IEventBus } from "@/shared/eventbus/IEventBus";
 import { PaymentProcessedEvent } from "../../domain/event/payment.process.event";

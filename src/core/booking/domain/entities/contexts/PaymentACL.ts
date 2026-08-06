@@ -1,6 +1,7 @@
 import { injectable } from "tsyringe";
 import { PaymentGateway } from "./paymentGateway";
 import { PaymentAIContext } from "./paymentAIContext";
+import { PaymentProvider } from "@/core/payment/domain/entity/payment.entity";
 
 @injectable()
 export class PaymentACL {
@@ -14,7 +15,7 @@ export class PaymentACL {
       userId: raw.customerId,
       amount: raw.amount_cents / 100,
       currency: raw.currency_code,
-      paymentMethod: raw.method_type,
+      paymentMethod: raw.method_type as PaymentProvider,
       ipAddress: raw.network_data.ip,
       userAgent: raw.network_data.ua,
       timestamp: raw.created_at,

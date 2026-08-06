@@ -16,8 +16,6 @@ import { createRedis } from "../../infrastructure/redis/redis";
 // ✅ blacklist
 // import { OAuthProvider } from "./adapters/normalized.oauth.profile";
 import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
-// import { AuditAdapter } from "./adapters/audit.client";
-import { RiskEngine } from "@/security/domain/risk.engine";
 import Blacklist from "@/security/blacklist/blacklist";
 
 import AuditClient from "@/packages/audit-sdk/src/client/audit.client";

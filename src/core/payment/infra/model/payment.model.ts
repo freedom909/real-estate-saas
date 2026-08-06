@@ -4,12 +4,14 @@
 
 import {
     DataTypes,
+    ENUM,
     Model,
     Optional
 } from "sequelize";
 
 import { PaymentStatus }   from "../../domain/value-object/payment.status";
 import { sequelize } from "@/infrastructure/config/seq";
+import { PaymentProvider } from "../../domain/entity/payment.entity";
 
 export interface PaymentAttributes {
 
@@ -31,7 +33,8 @@ export interface PaymentAttributes {
     cancelReason?: string | null;
 
     processedAt?: Date | null;
-
+    paymentProvider: PaymentProvider;
+    transactionId: string | null;
     completedAt?: Date | null;
 
     refundedAt?: Date | null;
@@ -56,16 +59,15 @@ export interface PaymentCreationAttributes
         | "checkOutDate"
     > { }
 
-export class PaymentModel
-    extends Model<
-        PaymentAttributes,
-        PaymentCreationAttributes
-    >
+export class PaymentModel extends Model< PaymentAttributes, PaymentCreationAttributes >
     implements PaymentAttributes {
+    
+    public paymentProvider!: PaymentProvider;
+    public transactionId: string;
     public id!: string;
-
+    
     public bookingId!: string;
-
+   
     public customerId!: string;
 
     public tenantId!: string;
@@ -89,11 +91,12 @@ export class PaymentModel
     public readonly createdAt!: Date;
 
     public readonly updatedAt!: Date;
+    price: number;
+    dateRange: { checkInDate: Date; checkOutDate: Date; };
 }
 
 PaymentModel.init(
     {
-
         id: {
             type: DataTypes.UUID,
             primaryKey: true,
@@ -189,11 +192,22 @@ PaymentModel.init(
             allowNull: true,
             field: 'payment_intent_id',
         },
+        paymentProvider: {
+            type:DataTypes.ENUM("MOCK","STRIPE","PAYPAY","SQUARE"),
+            allowNull:false,
+            defaultValue:"MOCK",
+            field:"payment_provider"
+        },
+    
+        transactionId: {
+            type:DataTypes.STRING,
+            allowNull:false,
+            field:  'transaction_id'
+        },
     },
 
     {
         sequelize,
-
         tableName: "payments",
         timestamps: true,
         underscored: true, // This will automatically map camelCase attributes to snake_case columns

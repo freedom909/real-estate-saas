@@ -23,5 +23,4 @@ export interface SecurityAssessment {
   riskScore: number; // 0 ~ 100
   decision: "ALLOW" | "FLAG" | "CHALLENGE" | "BLOCK";
   reasons: string[];
-
 }
