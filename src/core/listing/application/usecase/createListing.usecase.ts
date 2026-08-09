@@ -25,11 +25,11 @@ export interface CreateListingInput {
   numOfBathrooms: number;
   numOfRooms: number;
   price: number;
-  pictures: string[];
+  pictures: { objectKey: string; sortOrder?: number }[];
   isFeatured: boolean;
   locationId: string;
   categories: string[];
-  amenityIds?: string[];
+  amenityIds?: number[];
   ownerId: string;
 }
 
@@ -84,15 +84,16 @@ export default class CreateListingUseCase {
     }
     // Production logic: Any cross-domain validation would happen here via adapters
     const listingId = uuidv4();
-    const pictures = input.pictures.map((url, index) =>
+    const pictures = input.pictures.map((pic, index) =>
       new Picture({
         id: uuidv4(),
         listingId,
-        objectKey: url,
+        url: pic.objectKey,
+        objectKey: pic.objectKey,
         mimeType: "image/jpeg",
         size: 0,
         type: "listing",
-        sortOrder: index,
+        sortOrder: pic.sortOrder ?? index,
       })
     )
     const listing = new Listing({
@@ -108,7 +109,7 @@ export default class CreateListingUseCase {
       isFeatured: input.isFeatured,
       locationId: input.locationId,
       categories: input.categories,
-      amenityIds: input.amenityIds,
+      amenityIds: input.amenityIds || [],
       ownerId: input.ownerId,
       pictures,
       createdAt: new Date(),

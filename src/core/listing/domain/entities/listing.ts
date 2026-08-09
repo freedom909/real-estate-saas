@@ -5,7 +5,6 @@ import { Description } from "../value-objects/description";
 import { Title } from "../value-objects/Title";
 import { Picture } from "./picture";
 
-import { SuggestionStatus } from "./suggestionStatus";
 
 export interface ListingProps {
   id: string;
@@ -19,7 +18,7 @@ export interface ListingProps {
   address: string;
 
   categories: string[];
-  amenityIds: string[];
+  amenityIds: number[];
 
   numOfBeds: number;
   numOfCustomers: number;

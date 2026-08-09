@@ -1,5 +1,10 @@
 export type Picture = {
+  id: string;
+  listingId: string;
   objectKey: string;
+  url: string;
+  mimeType: string;
+  size: number;
   type: string;
   sortOrder: number;
 };

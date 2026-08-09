@@ -86,7 +86,9 @@ function OwnerBookingsContent() {
                 <img
                   src={
                     booking.listing?.pictures?.[0]?.objectKey
-                      ? `/api/images/${booking.listing.pictures[0].objectKey}`
+                      ? (booking.listing.pictures[0].objectKey.startsWith("http")
+                          ? booking.listing.pictures[0].objectKey
+                          : `http://localhost:9000/omaesama/${booking.listing.pictures[0].objectKey}`)
                       : "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=100&auto=format&fit=crop"
                   }
                   alt={booking.listing?.title}

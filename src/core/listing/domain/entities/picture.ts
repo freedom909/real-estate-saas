@@ -2,14 +2,15 @@
 
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 import { inject, injectable } from "tsyringe";
-import PictureModel from "../../infrastructure/models/picture.model";
+import { PictureModel } from "../../infrastructure/models/picture.model";
 
 export interface PictureProps {
   id: string;
   listingId: string;
-  objectKey:string;
+  objectKey: string;
+  url: string;
   mimeType: string;
-  size:number;
+  size: number;
   type: string;
   sortOrder: number;
 }
@@ -29,6 +30,9 @@ export class Picture {
     return this.props.listingId;
   }
 
+  get url() {
+    return this.props.url;
+  }
   get mimeType(){
     return this.props.mimeType
   }

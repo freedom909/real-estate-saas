@@ -125,7 +125,7 @@ const LISTINGS = [
     isFeatured: false,
   },
   {
-    id: "'66ea1f05-19cb-4afd-81d9-cdc7af03bf4c",
+    id: "66ea1f05-19cb-4afd-81d9-cdc7af03bf4c",
     title: "Cozy Kyoto Riverside Apartment",
     description: "Enjoy a peaceful stay...",
     ownerId: "owner-004",

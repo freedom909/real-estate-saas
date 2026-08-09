@@ -12,7 +12,7 @@ export interface UpdateListingInput {
   address?: string;
   locationId?: string;
   categories?: string[];
-  amenityIds?: string[];
+  amenityIds?: number[];
   numOfBeds?: number;
   numOfCustomers?: number;
   numOfBathrooms?: number;
@@ -44,7 +44,7 @@ export default class UpdateListingUseCase {
       description: new Description(input.description ?? existing.description),
       address: input.address ?? existing.address,
       categories: input.categories ?? existing.categories,
-      amenityIds: input.amenityIds ?? existing.amenityIds,
+      amenityIds: input.amenityIds || [],
       numOfBeds: input.numOfBeds ?? existing.numOfBeds,
       numOfCustomers: input.numOfCustomers ?? existing.numOfCustomers,
       numOfBathrooms: input.numOfBathrooms ?? existing.numOfBathrooms,

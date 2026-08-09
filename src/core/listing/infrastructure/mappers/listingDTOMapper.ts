@@ -19,7 +19,7 @@ export class ListingDTOMapper {
 
       categories: listing.categories,
 
-      amenityIds: listing.amenityIds,
+      amenityIds: listing.amenityIds || [],
 
       numOfBeds: listing.numOfBeds,
 

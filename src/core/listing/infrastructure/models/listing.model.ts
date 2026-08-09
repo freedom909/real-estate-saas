@@ -1,44 +1,39 @@
-// src/subgraphs/listing/infrastructure/models/listing.model.ts
+import {
+  Model,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+} from "sequelize";
 
-import "reflect-metadata";
-import { Model, DataTypes, InferAttributes, InferCreationAttributes } from 'sequelize';
 import { sequelize } from "@/infrastructure/config/seq";
-import type PictureModel from "./picture.model";
+import { PictureModel } from "./picture.model";
 
-
-class ListingModel extends Model<InferAttributes<ListingModel>,
+class ListingModel extends Model<
+  InferAttributes<ListingModel>,
   InferCreationAttributes<ListingModel>
->{
-  declare id:string;
+> {
+  declare id: string;
 
-  declare title:string;
+  declare title: string;
+  declare description: string;
 
-  declare description:string;
+  declare ownerId: string;
+  declare locationId: string;
 
-  declare ownerId:string;
+  declare amenityIds?: number[];
 
-  declare locationId:string;
-  declare amenityIds?:string[];
+  declare address: string;
 
-  declare address:string;
+  declare numOfBeds: number;
+  declare numOfCustomers: number;
+  declare numOfBathrooms: number;
+  declare numOfRooms: number;
 
-  declare numOfBeds:number;
+  declare price: number;
 
-  declare numOfCustomers:number;
+  declare isFeatured: boolean;
 
-  declare numOfBathrooms:number;
-
-
-  declare numOfRooms:number;
-
-  declare price:number;
-
-  declare isFeatured:boolean;
-
-
-  // ⭐ 加这里
   declare pictures?: PictureModel[];
-
 }
 
 ListingModel.init(
@@ -46,6 +41,7 @@ ListingModel.init(
     id: {
       type: DataTypes.STRING(50),
       primaryKey: true,
+      allowNull: false,
     },
 
     title: {
@@ -53,10 +49,6 @@ ListingModel.init(
       allowNull: false,
     },
 
-    amenityIds: {
-      type: DataTypes.JSON(),
-      allowNull: true,
-    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -72,6 +64,11 @@ ListingModel.init(
       allowNull: false,
     },
 
+    amenityIds: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+
     address: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -79,41 +76,48 @@ ListingModel.init(
 
     numOfBeds: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       defaultValue: 1,
     },
 
     numOfCustomers: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       defaultValue: 1,
     },
 
     numOfBathrooms: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       defaultValue: 1,
     },
 
     numOfRooms: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       defaultValue: 1,
     },
 
     price: {
       type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
       defaultValue: 1.0,
     },
 
     isFeatured: {
       type: DataTypes.BOOLEAN,
+      allowNull: false,
       defaultValue: false,
     },
-
   },
   {
     sequelize,
     tableName: "listings",
-    timestamps: true, // Enable timestamps to automatically manage createdAt and updatedAt
+    timestamps: true,
+    paranoid: true,
   }
-)
+);
 
+// Associations are defined in associations.ts and called at startup
 
 export default ListingModel;

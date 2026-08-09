@@ -13,7 +13,7 @@ import { Op } from 'sequelize';
 import Category from '../models/category.model';
 import CategoryModel from '@/shared/category/infrastructure/category.model';
 import { Listing } from '../../domain/entities/listing';
-import PictureModel from '../models/picture.model';
+import { PictureModel } from '../models/picture.model';
 
 @injectable()
 export class ListingRepository implements IListingRepository {
@@ -30,39 +30,30 @@ export class ListingRepository implements IListingRepository {
 
   async findAll(): Promise<Listing[]> {
     const records = await this.model.findAll({
-              include: [
-            {
-                model: PictureModel,
-                as: "pictures",
-            },
-        ],
-    })
-console.log(
-  "ALL PICTURES =",
-  JSON.stringify(
-    records.flatMap(
-      record => record.pictures ?? []
-    ),
-    null,
-    2
-  )
-);
-console.log(
-  "ALL PICTURES =",
-  JSON.stringify(records.flatMap(record => record.pictures), null, 2)//Property 'pictures' does not exist on type 'ListingModel'.
-);
-  return records.map(record =>
-    ListingMapper.toDomain(record)
-  );
+      include: [
+        {
+          model: PictureModel,
+          as: "pictures",
+        },
+      ],
+    });
+    return records.map(record =>
+      ListingMapper.toDomain(record)
+    );
   }
-  
+
   findAllWithPictures(): Promise<Listing[]> {
     return this.model.findAll({ include: PictureModel }).then(records => records.map(record => ListingMapper.toDomain(record)));
   }
+
   async create(listing: Listing): Promise<Listing> {
-    const persistence = ListingMapper.toPersistence(listing);
-    const created = await this.model.create(persistence);//
-    return ListingMapper.toDomain(created);
+    // Use save() which handles listing + categories + amenities + pictures in a transaction
+    await this.save(listing);
+    // Reload with pictures included
+    const created = await this.model.findByPk(listing.id, {
+      include: [{ model: PictureModel, as: "pictures" }],
+    });
+    return ListingMapper.toDomain(created!);
   }
 
   async update(id: string, listing: Listing): Promise<boolean> {
@@ -77,21 +68,18 @@ console.log(
   }
 
   async findById(id: string): Promise<Listing | null> {
-    const listing = await this.model.findByPk(id,{
-    include:[
+    const listing = await this.model.findByPk(id, {
+      include: [
         {
-            model:PictureModel,
-            as:"pictures"
+          model: PictureModel,
+          as: "pictures"
         }
-    ]
-});
+      ]
+    });
     if (!listing) {
       return null;
     }
-console.log(
- "PICTURES=",
- JSON.stringify(listing.toJSON(),null,2)
-);
+
     const categoryRows = await this.listingCategoryModel.findAll({
       where: { listingId: id }
     });
@@ -183,7 +171,6 @@ console.log(
     });
 
     // Batch-load categories for all returned listing IDs
-    // (listing_categories is a join table, not a column on listings)
     const listingIds = records.map((r: any) => r.id);
     const categoryRows = listingIds.length > 0
       ? await this.listingCategoryModel.findAll({ where: { listingId: listingIds } })
@@ -225,7 +212,7 @@ console.log(
 
       // 2. Handle categories join table
       const categoryIds = listing.categories || [];
-      
+
       await this.listingCategoryModel.destroy({
         where: { listingId: listing.id },
         transaction,
@@ -243,7 +230,7 @@ console.log(
 
       // 3. Handle amenities join table
       const amenityIds = (listing as any).amenityIds || [];
-      
+
       await this.listingAmenityModel.destroy({
         where: { listingId: listing.id },
         transaction,
@@ -258,36 +245,31 @@ console.log(
           { transaction }
         );
       }
-await PictureModel.destroy({
-    where:{
-        listingId:listing.id
-    },
-    transaction
-});
 
-if(listing.pictures.length>0){
+      // 4. Handle pictures
+      await PictureModel.destroy({
+        where: {
+          listingId: listing.id
+        },
+        transaction
+      });
 
-    await PictureModel.bulkCreate(
+      if (listing.pictures && listing.pictures.length > 0) {
+        await PictureModel.bulkCreate(
+          listing.pictures.map(pic => ({
+            id: pic.id,
+            listingId: listing.id,
+            objectKey: pic.objectKey,
+            url: pic.url,
+            mimeType: pic.mimeType,
+            size: pic.size,
+            type: pic.type,
+            sortOrder: pic.sortOrder,
+          })),
+          { transaction }
+        );
+      }
 
-        listing.pictures.map(pic=>({
-
-            id:pic.id,
-
-            listingId:listing.id,
-
-            objectKey:pic.objectKey,
-
-            type:pic.type,
-
-            sortOrder:pic.sortOrder,
-
-        })),
-
-        {transaction}
-
-    );
-
-}
       await transaction.commit();
       return listing;
 

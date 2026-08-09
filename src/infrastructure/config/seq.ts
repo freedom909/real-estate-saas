@@ -1,5 +1,5 @@
-import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
+import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -9,10 +9,9 @@ const {
   DB_PASSWORD,
   DB_HOST,
   DB_PORT,
-  NODE_ENV
+  NODE_ENV,
 } = process.env;
 
-// ❗ 强制校验（很重要）
 if (!DB_NAME || !DB_USER || !DB_PASSWORD) {
   throw new Error("❌ Missing DB environment variables");
 }
@@ -22,11 +21,11 @@ export const sequelize = new Sequelize(
   DB_USER,
   DB_PASSWORD,
   {
-    host: DB_HOST || 'localhost',
+    host: DB_HOST || "localhost",
     port: Number(DB_PORT) || 3306,
-    dialect: 'mysql',
+    dialect: "mysql",
 
-    logging: NODE_ENV === 'development' ? console.log : false,
+    logging: NODE_ENV === "development" ? console.log : false,
 
     pool: {
       max: 10,
@@ -37,10 +36,14 @@ export const sequelize = new Sequelize(
   }
 );
 
-// ✅ 显式连接函数（推荐）
+// ======================================================
+// Connection
+// ======================================================
+
 export async function connectMySQL() {
   try {
     await sequelize.authenticate();
+
     console.log("✅ MySQL connected");
   } catch (err) {
     console.error("❌ MySQL connection failed:", err);

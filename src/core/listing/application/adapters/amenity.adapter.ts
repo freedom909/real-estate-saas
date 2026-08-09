@@ -1,7 +1,7 @@
 import { IAmenityAdapter } from "./IAmenity.adapter";
 
 class AmenityAdapter implements IAmenityAdapter {
-  async getValidIds(ids: string[]): Promise<string[]> {
+  async getValidIds(ids: number[]): Promise<number[]> {
     const res = await fetch("http://localhost:4090/graphql", {
       method: "POST",
       headers: {

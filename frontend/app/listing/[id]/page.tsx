@@ -161,7 +161,9 @@ export default function ListingDetailPage({
 
 
 
-    const imageUrl = cover?.url ?? (cover?.objectKey ? `http://localhost:9000/omaesama/${cover.objectKey}` : "/placeholder.jpg");
+    const imageUrl = cover?.url ?? (cover?.objectKey
+      ? (cover.objectKey.startsWith("http") ? cover.objectKey : `http://localhost:9000/omaesama/${cover.objectKey}`)
+      : "/placeholder.jpg");
     const price = Number(listing.price ?? 0);
 
 
@@ -312,14 +314,9 @@ return (
 
 
 <div className="max-w-5xl mx-auto p-8">
-
-
-
-    <img
-
-        src={imageUrl}
-
-        alt={listing.title}
+<img
+  src={imageUrl}
+  alt={listing.title}
 
         className="
             w-full

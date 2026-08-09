@@ -7,6 +7,11 @@ import { CREATE_LISTING } from "@/app/graphql/listing/mutations/createListing";
 import { textToImage } from "@/app/services/imageGen";
 import AdminGuard from "@/app/components/admin/AdminGuard";
 import AdminLayout from "@/app/components/admin/AdminLayout";
+import { Listing } from "@/app/types/listing";
+
+type CreateListingResponse = {
+  createListing: Listing;
+};
 
 export default function CreateListingPage() {
   return (
@@ -18,7 +23,7 @@ export default function CreateListingPage() {
 
 function CreateListingContent() {
   const router = useRouter();
-  const [createListing] = useMutation(CREATE_LISTING);
+  const [createListing] = useMutation<CreateListingResponse>(CREATE_LISTING);
 
   const [form, setForm] = useState({
     title: "",
@@ -102,7 +107,7 @@ function CreateListingContent() {
         locationId: form.locationId || "default-location",
         categories: form.categories ? form.categories.split(",").map((c) => c.trim()) : [],
         isFeatured: form.isFeatured,
-        picture: images,
+        pictures: images.map((url) => ({ objectKey: url })),
         ownerId: "current-user", // Replace with actual user ID
       };
 

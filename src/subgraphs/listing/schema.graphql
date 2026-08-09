@@ -24,7 +24,7 @@ type Listing @key(fields: "id") {
   locationId: ID!
 
   categories: [Category!]!
-  amenityIds: [Amenity!]!
+  amenityIds: [ID!]!
 
   numOfBeds: Int! @shareable
   numOfCustomers: Int! @shareable
@@ -85,7 +85,6 @@ input CreateListingInput {
   description: String!
 
   address: String!
-  ownerId: ID!
 
   locationId: ID!
 

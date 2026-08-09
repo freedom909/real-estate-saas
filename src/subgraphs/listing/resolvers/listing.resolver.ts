@@ -27,43 +27,24 @@ export const resolvers = {
       const listings =
         await repo.findAll();
       return listings.map(listing => ({
-
         id: listing.id,
         ownerId: listing.ownerId,
-        title:
-          listing.title,
-
-
-        description:
-          listing.description,
-
-
+        locationId: listing.locationId,
+        title: listing.title,
+        description: listing.description,
         address: listing.address,
-
-
         price: listing.price,
-
-
+        pricePerNight: listing.pricePerNight,
         numOfBeds: listing.numOfBeds,
-
-
         numOfCustomers: listing.numOfCustomers,
-
-
         numOfBathrooms: listing.numOfBathrooms,
-
-
         numOfRooms: listing.numOfRooms,
-
-
         isFeatured: listing.isFeatured,
-
-
-        pictures:
-          listing.pictures.map(pic =>
-            pic.toJson()
-          )
-
+        categories: listing.categories ?? [],
+        amenityIds: listing.amenityIds ?? [],
+        createdAt: listing.createdAt,
+        updatedAt: listing.updatedAt,
+        pictures: listing.pictures.map(pic => pic.toJson()),
       }));
 
     },
@@ -105,10 +86,11 @@ export const resolvers = {
       if (!context.user) {
         throw new Error("User not authenticated");
       }
+      const ownerId = context.user.id;
       const useCase = container.resolve<CreateListingUseCase>(
           TOKENS_LISTING.usecase.createListingUseCase
         );
-      return await useCase.execute(input);
+      return await useCase.execute({ ...input, ownerId });
     },
 
     uploadImage: async (_: any, { files }: any, context: any) => {
@@ -134,7 +116,6 @@ export const resolvers = {
         id: parent.ownerId
       }),
 
-
       categories: (parent: any) =>
         parent.categories?.map(
           (id: string) => ({
@@ -145,7 +126,7 @@ export const resolvers = {
 
       amenities: (parent: any) =>
         parent.amenityIds?.map(
-          (id: string) => ({
+          (id: number) => ({
             __typename: "Amenity",
             id
           })
@@ -153,8 +134,13 @@ export const resolvers = {
     },
     Picture: {
       url(parent: any) {
+        // If url is already a full URL, use it directly
+        if (parent.url && parent.url.startsWith("http")) return parent.url;
+        // If objectKey is already a full URL, use it directly
+        if (parent.objectKey && parent.objectKey.startsWith("http")) return parent.objectKey;
+        // Otherwise, construct MinIO URL from objectKey
         const endpoint = process.env.MINIO_ENDPOINT || process.env.MinIO_ENDPOINT || 'http://localhost:9000';
-        const bucket = process.env.MINIO_BUCKET || process.env.MinIO_BUCKET_NAME || 'omaesama';
+        const bucket = process.env.MINIO_BUCKET || process.env.MINIO_BUCKET_NAME || 'omaesama';
         return `${endpoint}/${bucket}/${parent.objectKey}`;
       },
       mimeType(parent: any) {

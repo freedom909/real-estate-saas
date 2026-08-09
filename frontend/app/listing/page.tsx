@@ -114,7 +114,7 @@ export default function ListingPage() {
                         cover ? (
 
 <Image
-    src={`http://localhost:9000/omaesama/${cover.objectKey}`}
+    src={cover.objectKey.startsWith("http") ? cover.objectKey : `http://localhost:9000/omaesama/${cover.objectKey}`}
     alt={listing.title}
     width={600}
     height={400}

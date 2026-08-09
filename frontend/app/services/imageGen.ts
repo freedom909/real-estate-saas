@@ -33,6 +33,18 @@ export interface ImageResponse {
   seed: number;
 }
 
+/**
+ * Convert a raw image_url from the image-gen API into a browsable URL.
+ * The API returns local filesystem paths like "./outputs/abc.png".
+ * We need to convert them to "http://localhost:4000/api/images/images/abc.png".
+ */
+function toBrowsableUrl(rawUrl: string): string {
+  if (rawUrl.startsWith("http")) return rawUrl;
+  // Extract just the filename from the path (e.g. "./outputs/abc.png" → "abc.png")
+  const filename = rawUrl.split(/[/\\]/).pop() || rawUrl;
+  return `${IMAGE_API_URL}/api/images/images/${encodeURIComponent(filename)}`;
+}
+
 export async function textToImage(params: TextToImageParams): Promise<ImageResponse> {
   const res = await fetch(`${IMAGE_API_URL}/api/images/txt2img`, {
     method: "POST",
@@ -40,7 +52,9 @@ export async function textToImage(params: TextToImageParams): Promise<ImageRespo
     body: JSON.stringify(params),
   });
   if (!res.ok) throw new Error("Failed to generate image");
-  return res.json();
+  const data = await res.json();
+  data.image_url = toBrowsableUrl(data.image_url);
+  return data;
 }
 
 export async function imageToImage(
@@ -56,7 +70,9 @@ export async function imageToImage(
     body: formData,
   });
   if (!res.ok) throw new Error("Failed to generate image");
-  return res.json();
+  const data = await res.json();
+  data.image_url = toBrowsableUrl(data.image_url);
+  return data;
 }
 
 export async function inpaint(
@@ -73,8 +89,10 @@ export async function inpaint(
     method: "POST",
     body: formData,
   });
-  if (!res.ok) throw new Error("Failed to inpaint image");
-  return res.json();
+  if (!res.ok) throw new Error("Failed to generate image");
+  const data = await res.json();
+  data.image_url = toBrowsableUrl(data.image_url);
+  return data;
 }
 
 export function getImageUrl(filename: string): string {
