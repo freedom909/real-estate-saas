@@ -4,10 +4,11 @@
 export interface ISessionPort {
   createSession(input: {
     userId: string;
+    role?: string | null;
     deviceId?: string | null;
     ip?: string | null;
     userAgent?: string | null;
-    email?: string | null; // Add email to the session creation input
+    email?: string | null;
   }): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -24,10 +25,11 @@ export interface ISessionPort {
   }
   createSession(input: {
     userId: string;
+    role?: string | null;
     deviceId?: string | null;
     ip?: string | null;
     userAgent?: string | null;
-    email?: string | null; // Add email to the session creation input
+    email?: string | null;
   }): Promise<{
     accessToken: string;
     refreshToken: string;

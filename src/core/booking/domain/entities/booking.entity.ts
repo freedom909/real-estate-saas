@@ -22,10 +22,19 @@ export interface BookingProps {
 
 export class Booking {
   props: any;
-  private constructor( props: BookingProps) {}
+  private constructor( props: BookingProps) {
+    this.props = props;
+  }
+
+  static create(props: Omit<BookingProps, 'status' | 'createdAt'>): Booking {
+    return new Booking({
+      ...props,
+      status: BookingStatus.PENDING,
+      createdAt: new Date(),
+    });
+  }
 
   static restore(props: BookingProps): Booking {
-
     return new Booking({
       ...props,
       status: BookingStatus.PENDING,
@@ -60,72 +69,48 @@ export class Booking {
   }
 
   cancel(reason: string): void {
-
     BookingTransitionService.ensureTransition(
       this.props.status,
       BookingStatus.CANCELLED
     );
 
-    if (
-      this.props.dateRange.checkInDate
-      < new Date()
-    ) {
-      throw new Error(
-        "Cannot cancel after check-in"
-      );
+    if (this.props.dateRange.checkInDate < new Date()) {
+      throw new Error("Cannot cancel after check-in");
     }
 
-    this.props.status =
-      BookingStatus.CANCELLED;
-
+    this.props.status = BookingStatus.CANCELLED;
     this.props.updatedAt = new Date();
-
     this.props.cancelReason = reason;
   }
 
   complete(): void {
     BookingTransitionService.ensureTransition(this.props.status, BookingStatus.COMPLETED);
 
-    // 🔥 Safety Rule
-    if (
-      this.props.status !== BookingStatus.CHECKED_IN
-    ) {
+    if (this.props.status !== BookingStatus.CHECKED_IN) {
       throw new Error("Only checked-in bookings can be completed");
     }
 
     this.props.status = BookingStatus.COMPLETED;
-
     this.props.completedAt = new Date();
-
     this.props.updatedAt = new Date();
   }
 
   checkIn(): void {
     BookingTransitionService.ensureTransition(this.props.status, BookingStatus.CHECKED_IN);
 
-    if (
-      this.props.status !== BookingStatus.CONFIRMED
-    ) {
+    if (this.props.status !== BookingStatus.CONFIRMED) {
       throw new Error("Only confirmed bookings can be checked in");
     }
 
     this.props.status = BookingStatus.CHECKED_IN;
-
     this.props.updatedAt = new Date();
   }
 
-
   confirm(): void {
-
-    BookingTransitionService.ensureTransition(this.props.status, BookingStatus.CONFIRMED)
-
-    this.props.status =
-      BookingStatus.CONFIRMED; // Use CONFIRMED from domain enum
-
+    BookingTransitionService.ensureTransition(this.props.status, BookingStatus.CONFIRMED);
+    this.props.status = BookingStatus.CONFIRMED;
     this.props.confirmedAt = new Date();
-
     this.props.updatedAt = new Date();
-
   }
 
   toJSON() {
@@ -150,7 +135,6 @@ export class Booking {
   }
 
   get listingId() {
-    console.log('listingId =', this.props.listingId);
     return this.props.listingId;
   }
 
@@ -181,5 +165,4 @@ export class Booking {
   get completedAt() {
     return this.props.completedAt;
   }
-
 }

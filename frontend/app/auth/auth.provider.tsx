@@ -62,6 +62,8 @@ function SyncAuthFromCookies() {
 
 
     let userId="";
+    let userRole = "CUSTOMER";
+    let userEmail = "";
 
     try{
 
@@ -72,7 +74,9 @@ function SyncAuthFromCookies() {
           )
         );
 
-      userId=payload.sub;
+      userId=payload.sub || "";
+      userRole = payload.role || "CUSTOMER";
+      userEmail = payload.email || getCookie("userEmail") || "";
 
     }catch(e){}
 
@@ -84,9 +88,10 @@ function SyncAuthFromCookies() {
 
       user:{
         id:userId,
-        email:getCookie("userEmail") || "",
+        email:userEmail,
         name:getCookie("userName") || "",
         picture:getCookie("userPicture") || "",
+        role:userRole,
       }
     });
   },[hasHydrated]);

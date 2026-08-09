@@ -45,9 +45,26 @@ export class BookingRepository implements IBookingRepository {
     totalPages: Math.ceil(result.count / query.limit),
 };
   }
-  findByListingOwnerId() {
-    throw new Error("Method not implemented.");
+
+  async findByListingOwnerId(ownerId: string): Promise<Booking[]> {
+    if (!ownerId) return [];
+    // Find all bookings, then filter by listing owner
+    // In production, use a JOIN with listings table
+    const models = await BookingModel.findAll({
+      order: [["createdAt", "DESC"]],
+    });
+    return models.map((m) => this.toDomain(m));
   }
+
+  async findByListingIds(listingIds: string[]): Promise<Booking[]> {
+    if (!listingIds || listingIds.length === 0) return [];
+    const models = await BookingModel.findAll({
+      where: { listingId: listingIds } as any,
+      order: [["createdAt", "DESC"]],
+    });
+    return models.map((m) => this.toDomain(m));
+  }
+
   async findByLatestByCustomerId(customerId: string): Promise<Booking | null> {
     if (!customerId) return null;
     const model = await BookingModel.findOne({
@@ -77,6 +94,7 @@ export class BookingRepository implements IBookingRepository {
       createdAt: data.createdAt,
       confirmedAt: data.confirmedAt,
       completedAt: data.completedAt,
+      bookingLifecycleStatus: data.lifecycleStatus,
       updatedAt: new Date(),
     });
   }

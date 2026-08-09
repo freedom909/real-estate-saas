@@ -138,10 +138,11 @@ const userDTO =
   AuthResponseMapper.toUserDTO(user);
     const tokens = await this.sessionPort.createSession({
     userId: user.id,
+    role: user.role,
     deviceId,
     ip,
     userAgent,
-    email: user.email, // Pass the user's email to be included in the session token
+    email: user.email,
   });
   console.log("dto:",userDTO)
 

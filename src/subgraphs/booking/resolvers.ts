@@ -14,6 +14,8 @@ import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { container } from "tsyringe";
 import { query } from "express";
 import { GetBookingForUserUseCase } from "@/core/booking/application/usecases/getBookingForUser.usecase";
+import { Role } from "@/core/shared/domain/role";
+import ListingModel from "@/core/listing/infrastructure/models/listing.model";
 
 export const resolvers = {
   Query: {
@@ -36,9 +38,38 @@ export const resolvers = {
       const user = await requireAuth(context);
       console.log("MY BOOKINGS USER =>", user);
       const userId = user.userId;
-      return container.resolve<IBookingRepository>(
+      const role = user.role;
+      const bookingRepo = container.resolve<IBookingRepository>(
         TOKENS_BOOKING.repository.bookingRepository
-      ).findByCustomerId(userId);
+      );
+
+      // For OWNER/ADMIN: return bookings for their listings + their own bookings as customer
+      if (role === Role.OWNER || role === Role.ADMIN || role === Role.SUPER_ADMIN) {
+        // Find listings owned by this user
+        const listings = await ListingModel.findAll({
+          where: { ownerId: userId },
+          attributes: ["id"],
+        });
+        const ownerListingIds = listings.map((l: any) => l.id);
+
+        // Get bookings for owner's listings
+        const ownerBookings = ownerListingIds.length > 0
+          ? await bookingRepo.findByListingIds(ownerListingIds)
+          : [];
+
+        // Also get bookings where user is the customer (e.g., they booked someone else's listing)
+        const customerBookings = await bookingRepo.findByCustomerId(userId);
+
+        // Merge and deduplicate by booking ID
+        const bookingMap = new Map<string, any>();
+        for (const b of [...ownerBookings, ...customerBookings]) {
+          bookingMap.set(b.id, b);
+        }
+        return Array.from(bookingMap.values());
+      }
+
+      // For CUSTOMER: return only their own bookings
+      return bookingRepo.findByCustomerId(userId);
     },
   },
   Mutation: {
@@ -109,9 +140,13 @@ export const resolvers = {
         const repo = container.resolve<IBookingRepository>(
           TOKENS_BOOKING.repository.bookingRepository
         );
-
         const booking = await repo.findById(id);
-        return booking?.customerId ?? null;
+        if (!booking) return null;
+
+        // Return the LISTING OWNER's ID, not the customer ID
+        // The listing owner is the one who should confirm bookings
+        const listing = await ListingModel.findByPk(booking.listingId);
+        return (listing as any)?.ownerId ?? booking.customerId;
       },
     }),
 
@@ -127,18 +162,19 @@ export const resolvers = {
           TOKENS_BOOKING.repository.bookingRepository
         );
         const booking = await repo.findById(id);
-        return booking?.customerId ?? null;
+        if (!booking) return null;
+        const listing = await ListingModel.findByPk(booking.listingId);
+        return (listing as any)?.ownerId ?? booking.customerId;
       },
     }),
 
     updateBooking: withAuthorization(Action.UPDATE, Resource.BOOKING, async (_: any, { input }: any) => {
-      const booking = await container
-        .resolve<UpdateBookingUseCase>(TOKENS_BOOKING.usecase.updateBookingUseCase)
-        .execute(input);
+      const usecase = container.resolve<UpdateBookingUseCase>(TOKENS_BOOKING.usecase.updateBookingUseCase);
+      const booking = await usecase.execute(input);
       return {
         code: 200,
         success: true,
-        message: "Booking updated successfully",
+        message: "Booking updated",
         booking,
       };
     }, {
@@ -148,6 +184,14 @@ export const resolvers = {
         return booking?.customerId ?? null;
       },
     }),
+
+    analyzeBookingFraud: async (_: any, { bookingId }: any) => {
+      // Placeholder for fraud analysis
+      return {
+        agentName: "FraudAnalyzer",
+        assessment: { riskScore: 0, factors: [] },
+      };
+    },
   },
 
   Booking: {
@@ -155,40 +199,25 @@ export const resolvers = {
 
     customer: (parent) => ({
       __typename: "User",
-      id: parent.customerId
+      id: parent.customerId,
     }),
 
-    // ✅ Handle potential snake_case from DB or missing fields
+    tenant: (parent) => ({
+      __typename: "Tenant",
+      id: parent.tenantId,
+    }),
+
     checkInDate: (parent: any) => parent.checkInDate || parent.dateRange?.checkInDate || parent.check_in_date,
     checkOutDate: (parent: any) => parent.checkOutDate || parent.dateRange?.checkOutDate || parent.check_out_date,
     price: (parent: any) => parent.price ?? parent.total_price ?? 0,
+    lifecycleStatus: (parent: any) => parent.lifecycleStatus ?? parent.bookingLifecycleStatus ?? "UPCOMING",
     __resolveReference: async (reference: { id: string }) => {
       return container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(reference.id);
     },
     payment: (parent: any) => {
       console.log("BOOKING PARENT =", parent);
 
-      return {
-        __typename: "Payment",
-        bookingId: parent.id
-      };
+      return parent.payment ?? null;
     },
   },
-
-  User: {
-    bookings: async (_: any, {input }:any , ctx: any) => { 
-      const user = ctx.user 
-      const BookingFilterInput =input
-      if (!user) {
-       throw new Error('user is not found')  
-      }    
-      const usecase =container.resolve<GetBookingForUserUseCase>(TOKENS_BOOKING.usecase.getBookingsForUserUseCase);
-         return usecase.execute(user,BookingFilterInput );
-    },
-  }
-
-  // Note: The 'Review' field on the 'Booking' type should be handled 
-  // by the Review Subgraph using the @key directive, 
-  // not by a resolver inside the Booking Subgraph.
-
 };

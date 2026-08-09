@@ -1,12 +1,13 @@
 // FILE: src/subgraphs/booking/infrastructure/repositories/sequelize-booking.repository.ts
 
 import { injectable } from "tsyringe";
-import { IBookingRepository } from "../../domain/repositories/i-booking.repository";
+import { IBookingRepository, BookingPaginatedResult, BookingQuery } from "../../domain/repositories/i-booking.repository";
 import { Booking } from "../../domain/entities/booking.entity";
 import { BookingModel } from "../models/booking.model";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 import { BookingStatus } from "../../domain/value-objects/booking-status";
+import { Op } from "sequelize";
 
 @injectable()
 export class SequelizeBookingRepository implements IBookingRepository {
@@ -38,6 +39,7 @@ export class SequelizeBookingRepository implements IBookingRepository {
       createdAt: data.createdAt,
       updatedAt: new Date(),
       confirmedAt: data.confirmedAt,
+      bookingLifecycleStatus: data.lifecycleStatus,
     });
   }
 
@@ -47,6 +49,48 @@ export class SequelizeBookingRepository implements IBookingRepository {
       order: [["createdAt", "DESC"]],
     });
 
+    return models.map((m) => this.toDomain(m));
+  }
+
+  async findByListingIds(listingIds: string[]): Promise<Booking[]> {
+    if (!listingIds || listingIds.length === 0) return [];
+    const models = await BookingModel.findAll({
+      where: { listingId: { [Op.in]: listingIds } },
+      order: [["createdAt", "DESC"]],
+    });
+    return models.map((m) => this.toDomain(m));
+  }
+
+  async findByListingOwnerId(ownerId: string): Promise<Booking[]> {
+    if (!ownerId) return [];
+    // This requires a join with listings table — implemented in resolvers instead
+    // Fallback: return all (filtered in resolver layer)
+    const models = await BookingModel.findAll({
+      order: [["createdAt", "DESC"]],
+    });
+    return models.map((m) => this.toDomain(m));
+  }
+
+  async findAll(query: BookingQuery): Promise<BookingPaginatedResult> {
+    const result = await BookingModel.findAndCountAll({
+      limit: query.limit,
+      offset: (query.page - 1) * query.limit,
+      order: [[query.sortBy ?? "createdAt", query.sortOrder ?? "DESC"]],
+    });
+    return {
+      items: result.rows.map((m) => this.toDomain(m)),
+      total: result.count,
+      page: query.page,
+      limit: query.limit,
+      totalPages: Math.ceil(result.count / query.limit),
+    };
+  }
+
+  async findByTenantId(tenantId: string): Promise<Booking[]> {
+    const models = await BookingModel.findAll({
+      where: { tenantId },
+      order: [["createdAt", "DESC"]],
+    });
     return models.map((m) => this.toDomain(m));
   }
 

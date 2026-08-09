@@ -42,7 +42,7 @@ export default function BookingDetailPage() {
   const auth = useAuthStore();
   console.log("AUTH STORE =", auth);
   console.log("FRONTEND USER =", user);
-  const isAgent=user?.role ==="AGENT"||user?.role === "ADMIN" ||user?.role === "SUPER_ADMIN";
+  const isAgent=user?.role ==="AGENT"||user?.role === "ADMIN" ||user?.role === "SUPER_ADMIN" || user?.role === "OWNER";
   console.log("FRONTEND ROLE =", user?.role);
   console.log("isAgent =", isAgent);
   const isCustomer = user?.role === "CUSTOMER";

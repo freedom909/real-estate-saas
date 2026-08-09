@@ -153,11 +153,12 @@ export const resolvers = {
     },
     Picture: {
       url(parent: any) {
-        return `${process.env.MINIO_ENDPOINT}/${process.env.MINIO_BUCKET}/${parent.objectKey}`;
+        const endpoint = process.env.MINIO_ENDPOINT || process.env.MinIO_ENDPOINT || 'http://localhost:9000';
+        const bucket = process.env.MINIO_BUCKET || process.env.MinIO_BUCKET_NAME || 'omaesama';
+        return `${endpoint}/${bucket}/${parent.objectKey}`;
       },
-        mimeType(parent: any) {
-    console.log(parent);
-    return parent.mimeType;
-  }
+      mimeType(parent: any) {
+        return parent.mimeType;
+      }
     },
   }

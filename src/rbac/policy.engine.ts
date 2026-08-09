@@ -120,8 +120,9 @@ export default class PolicyEngine implements IPolicy {
 
       [`${Action.CONFIRM}_${Resource.BOOKING}`]: (ctx) => {
         if (!ctx.user) return false;
-
-　　　　　return ctx.user.id === ctx.resourceOwnerId; 
+        // Listing owner or admin can confirm
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        return ctx.user.id === ctx.resourceOwnerId;
       },
 
       [`${Action.CHECK_IN}_${Resource.BOOKING}`]: (ctx) => {

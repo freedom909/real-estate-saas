@@ -29,5 +29,6 @@ export interface IBookingRepository {
   findByCustomerId(customerId: string): Promise<Booking[]>;
   delete(id: string): Promise<void>;
   findAll(query:BookingQuery):Promise<BookingPaginatedResult>
-  findByListingOwnerId()
+  findByListingOwnerId(ownerId: string): Promise<Booking[]>;
+  findByListingIds(listingIds: string[]): Promise<Booking[]>;
 }

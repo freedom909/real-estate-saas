@@ -11,21 +11,22 @@ export class SessionService implements ISessionPort {
 
   async createSession(input: {
     userId: string;
+    role?: string | null;
     deviceId?: string | null;
     ip?: string | null;
     userAgent?: string | null;
+    email?: string | null;
   }) {
 
     const sessionId = uuidv4();
-
-    // 👉 这里可以调用 repo 存 DB
-    // await this.sessionRepo.create(...)
 
     const accessToken = jwt.sign(
       {
         sub: input.userId,
         sessionId,
         type: "access",
+        role: input.role || undefined,
+        email: input.email || undefined,
       },
       process.env.ACCESS_TOKEN_SECRET!,
       { expiresIn: "1125m" }
@@ -36,6 +37,8 @@ export class SessionService implements ISessionPort {
         sub: input.userId,
         sessionId,
         type: "refresh",
+        role: input.role || undefined,
+        email: input.email || undefined,
       },
       process.env.ACCESS_TOKEN_SECRET!,
       { expiresIn: "7d" }
@@ -48,7 +51,7 @@ export class SessionService implements ISessionPort {
   }
 
   async revokeSession(sessionId: string): Promise<void> {
-    // 👉 可以写 blacklist / DB revoke
+    // TODO: blacklist / DB revoke
   }
 
   async updateActiveTenant(sessionId: string, tenantId: string): Promise<void> {

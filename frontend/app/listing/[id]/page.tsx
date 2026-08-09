@@ -161,7 +161,7 @@ export default function ListingDetailPage({
 
 
 
-    const imageUrl =  cover?.url ?? "/placeholder.jpg";
+    const imageUrl = cover?.url ?? (cover?.objectKey ? `http://localhost:9000/omaesama/${cover.objectKey}` : "/placeholder.jpg");
     const price = Number(listing.price ?? 0);
 
 
