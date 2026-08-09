@@ -13,6 +13,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: "📊", permission: "dashboard:view" },
+  { href: "/admin/bookings", label: "Bookings", icon: "📅", permission: "dashboard:view" },
   { href: "/admin/analytics", label: "Analytics", icon: "📈", permission: "dashboard:view" },
   { href: "/admin/reports", label: "Reports", icon: "📝", permission: "dashboard:view" },
   { href: "/admin/roles", label: "Roles", icon: "🔐", permission: "admin_users:view" },

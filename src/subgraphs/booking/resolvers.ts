@@ -43,8 +43,14 @@ export const resolvers = {
         TOKENS_BOOKING.repository.bookingRepository
       );
 
-      // For OWNER/ADMIN: return bookings for their listings + their own bookings as customer
-      if (role === Role.OWNER || role === Role.ADMIN || role === Role.SUPER_ADMIN) {
+      // ADMIN/SUPER_ADMIN: see ALL bookings (global view)
+      if (role === Role.ADMIN || role === Role.SUPER_ADMIN) {
+        const allBookings = await bookingRepo.findAll({ page: 1, limit: 1000 });
+        return allBookings.items;
+      }
+
+      // OWNER: return bookings for their listings + their own bookings as customer
+      if (role === Role.OWNER) {
         // Find listings owned by this user
         const listings = await ListingModel.findAll({
           where: { ownerId: userId },
