@@ -8,7 +8,7 @@ schema
 }
 
 scalar DateTime
-
+scalar Upload
 # -----------------------------------
 # Listing Entity
 # -----------------------------------
@@ -49,6 +49,8 @@ type Picture {
   size: Int!
   type: String!
   sortOrder: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime
 }
 # -----------------------------------
 # Owner Federation Extension
@@ -97,10 +99,13 @@ input CreateListingInput {
   isFeatured:Boolean
   price: Float
   pricePerNight: Float!
-
-  pictures: [ID!]!
+  pictures:[CreateImageInput!]!
 }
 
+input CreateImageInput {
+  objectKey: String!
+  sortOrder: Int
+}
 # -----------------------------------
 # AI Responses
 # -----------------------------------
@@ -157,6 +162,7 @@ id: ID! @external
 # Mutations
 # -----------------------------------
 type Mutation {
+  uploadImages(files: [Upload!]!): [Picture!]!
   createListing(input: CreateListingInput!): Listing!
   generateTitleSuggestion(
     listingId: ID!

@@ -16,10 +16,15 @@ price
 listing {
 id
 title
- pictures {
+pictures {
+    id
     objectKey
+    url
+    mimeType
+    size
+    type
     sortOrder
-  }
+}
 price
 }
 

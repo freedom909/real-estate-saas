@@ -3,11 +3,14 @@ import { useQuery } from "@apollo/client/react";
 import { MY_BOOKINGS } from "@/app/graphql/booking/queries/myBookings";
 import { BookingCard } from "./booking.card";
 import Navbar from "@/app/components/navbar";
+import { Booking } from "../services/booking.service";
 
-
+interface MyBookingsData {
+  myBookings: Booking[];
+}
 export default function MyBookingsPage() {
 
-const { data, loading, error } = useQuery(MY_BOOKINGS);
+const { data, loading, error } = useQuery<MyBookingsData>(MY_BOOKINGS);
     console.log("loading =", loading);
 
 console.log("error =", error);
@@ -68,7 +71,6 @@ Something went wrong: {error.message}
 }
 
 const bookings = data?.myBookings ?? [];
-//Property 'myBookings' does not exist on type '{}'.
 return (
 
 <div className="min-h-screen bg-gray-50">

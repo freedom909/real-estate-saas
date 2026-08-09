@@ -42,7 +42,7 @@ export default function BookingDetailPage() {
   const auth = useAuthStore();
   console.log("AUTH STORE =", auth);
   console.log("FRONTEND USER =", user);
-  const isAgent=user?.role==="AGENT"||user?.role === "ADMIN" ||user?.role === "SUPER_ADMIN";
+  const isAgent=user?.role ==="AGENT"||user?.role === "ADMIN" ||user?.role === "SUPER_ADMIN";
   console.log("FRONTEND ROLE =", user?.role);
   console.log("isAgent =", isAgent);
   const isCustomer = user?.role === "CUSTOMER";
@@ -59,6 +59,15 @@ export default function BookingDetailPage() {
     context: { headers: { 'Authorization': token } },
   });
   const booking = data?.booking;
+  console.log(
+  "BOOKING QUERY RESULT",
+  JSON.stringify(data,null,2)
+);
+
+console.log(
+  "BOOKING QUERY ERROR",
+  error
+);
   console.log("BOOKING STATUS =", booking?.status);
   const canConfirm = isAgent && booking?.status === "PENDING";
   console.log("canConfirm =", canConfirm);

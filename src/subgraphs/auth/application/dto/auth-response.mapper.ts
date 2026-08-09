@@ -1,7 +1,6 @@
 // application/mappers/auth-response.mapper.ts
 
-import { AuthUserResponseDTO }
-  from "../dto/auth-user.response";
+import { AuthUserResponseDTO } from "../dto/auth-user.response";
 
 export class AuthResponseMapper {
 

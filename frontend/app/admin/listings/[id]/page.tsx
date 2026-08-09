@@ -352,7 +352,8 @@ function AdminListingDetailContent({
           {/* Images */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h3 className="font-semibold mb-3">Images</h3>
-            {listing.pictures && listing.pictures.length > 0 ? (
+            {
+            listing.pictures && listing.pictures.length > 0 ? (
               <div className="space-y-2">
                 {listing.pictures.map((p, i) => (
                   <img

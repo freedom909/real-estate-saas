@@ -10,10 +10,19 @@ import { ALL_CATEGORIES } from "@/app/graphql/category/queries/category";
 import { ALL_LOCATIONS } from "@/app/graphql/location/queries/location";
 import AdminGuard from "@/app/components/admin/AdminGuard";
 import AdminLayout from "@/app/components/admin/AdminLayout";
+import { UPLOAD_IMAGE } from "@/app/graphql/listing/mutations/uploadImage";
 
 interface Category {
   id: string;
   name: string;
+}
+
+interface UploadedImage {
+   preview: string;
+  objectKey: string;
+  mimeType: string;
+  size: number;
+  url?: string;
 }
 
 interface LocationItem {
@@ -23,6 +32,15 @@ interface LocationItem {
   province: string;
   country: string;
 }
+
+type UploadImageResponse = {
+  uploadImage: {
+    objectKey: string;
+    url: string;
+    mimeType: string;
+    size: number;
+  };
+};
 
 export default function CreateListingPage() {
   return (
@@ -68,7 +86,8 @@ function CreateListingContent() {
   const [loading, setLoading] = useState(false);
   const [generatingImages, setGeneratingImages] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadImage] = useMutation<UploadImageResponse>(UPLOAD_IMAGE);
+  const [uploadedImages,setUploadedImages]= useState<UploadedImage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -133,14 +152,26 @@ function CreateListingContent() {
   };
 
   // --- FIX #2: Simple image upload (local preview, no presign-url dependency) ---
-  const handleFileUpload = (files: FileList | null) => {
+  const handleFileUpload = async(files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     for (const file of Array.from(files)) {
       if (!file.type.startsWith("image/")) continue;
       const previewUrl = URL.createObjectURL(file);
-      setUploadedImages((prev) => [...prev, previewUrl]);
-    }
+      const result=await uploadImage({
+        variables:{ file }
+      });
+if (result.data?.uploadImage) {
+ setUploadedImages(prev => [
+  ...prev,
+  {
+    preview: previewUrl,
+    objectKey: result.data!.uploadImage.objectKey,//
+    mimeType: file.type,
+    size: file.size,
+  },
+]);
+  }  }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -207,16 +238,21 @@ function CreateListingContent() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  const aiImages = await generatePropertyImages(form);
     try {
       // Combine uploaded + AI-generated images
       let allImages = [...uploadedImages];
-
+      
       // Auto-generate if no images exist
       if (allImages.length === 0) {
         setGeneratingImages(true);
         const aiImages = await generatePropertyImages(form);
-        allImages = aiImages;
+        allImages = aiImages.map(url => ({
+    preview: url,
+    objectKey: url,
+    mimeType: "image/jpeg",
+    size: 0,
+}));
         setGeneratedImages(aiImages);
         setGeneratingImages(false);
       }
@@ -501,7 +537,7 @@ function CreateListingContent() {
                   <div className="grid grid-cols-3 gap-2">
                     {uploadedImages.map((img, i) => (
                       <div key={`upload-${i}`} className="relative">
-                        <img src={img} alt={`Upload ${i + 1}`} className="w-full h-32 object-cover rounded-lg border" />
+                        <img src={img.preview} alt={`Upload ${i + 1}`} className="w-full h-32 object-cover rounded-lg border" />
                         <button
                           type="button"
                           onClick={() => removeUploadedImage(i)}

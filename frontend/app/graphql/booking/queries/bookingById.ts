@@ -13,10 +13,16 @@ checkInDate
 checkOutDate
 listing {
 title
- pictures {
-    objectKey
-    sortOrder
-  }
+pictures {
+        id
+        listingId
+        objectKey
+        url
+        mimeType
+        size
+        type
+        sortOrder
+      }
 price
 }
 payment {

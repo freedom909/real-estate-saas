@@ -160,16 +160,13 @@ type AuthUser {
   email: String
   name: String
   picture: String
+  role:Role!
 }
 
 type AuthPayload {
-
 accessToken: String!
-
 refreshToken: String!
-
 user: AuthUser!
-
 }
 
 # =====================

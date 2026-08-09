@@ -13,6 +13,7 @@ export const OAUTH_LOGIN = gql`
         email
         name
         picture
+        role
       }
     }
   }

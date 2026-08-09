@@ -12,15 +12,19 @@ import Navbar from "@/app/components/navbar";
 
 
 type Picture = {
-
     id: string;
 
     objectKey: string;
 
+    url: string;
+
+    mimeType: string;
+
+    size: number;
+
     type: string;
 
     sortOrder: number;
-
 };
 
 
@@ -157,21 +161,7 @@ export default function ListingDetailPage({
 
 
 
-    const imageUrl = cover
-
-        ?
-
-        `http://localhost:9000/omaesama/${cover.objectKey}`
-
-        :
-
-        "/placeholder.jpg";
-
-
-
-
-
-
+    const imageUrl =  cover?.url ?? "/placeholder.jpg";
     const price = Number(listing.price ?? 0);
 
 

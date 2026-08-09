@@ -12,6 +12,8 @@ import { withAuthorization } from "@/infrastructure/auth/withAuthorization";
 import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { container } from "tsyringe";
+import { query } from "express";
+import { GetBookingForUserUseCase } from "@/core/booking/application/usecases/getBookingForUser.usecase";
 
 export const resolvers = {
   Query: {
@@ -174,18 +176,16 @@ export const resolvers = {
   },
 
   User: {
-    bookings: async (user: { id: string }) => {
-
-      const repo = container.resolve<IBookingRepository>(
-        TOKENS_BOOKING.repository.bookingRepository
-      );
-
-      return await repo.findByCustomerId(
-        user.id
-      );
+    bookings: async (_: any, {input }:any , ctx: any) => { 
+      const user = ctx.user 
+      const BookingFilterInput =input
+      if (!user) {
+       throw new Error('user is not found')  
+      }    
+      const usecase =container.resolve<GetBookingForUserUseCase>(TOKENS_BOOKING.usecase.getBookingsForUserUseCase);
+         return usecase.execute(user,BookingFilterInput );
     },
-  },
-
+  }
 
   // Note: The 'Review' field on the 'Booking' type should be handled 
   // by the Review Subgraph using the @key directive, 

@@ -17,11 +17,16 @@ description
 address
 
 price
-
-pictures {
-    objectKey
-    sortOrder
-}
+      pictures {
+        id
+        listingId
+        objectKey
+        url
+        mimeType
+        size
+        type
+        sortOrder
+      }
 
 numOfBeds
 

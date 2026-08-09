@@ -117,6 +117,11 @@ extend type Listing @key(fields: "id") {
   bookings: [Booking!]! @shareable
 }
 
+input BookingFilterInput {
+  page:Int
+  limit:Int
+  status:BookingStatus
+}
 
 type ReservedDate @shareable {
   checkInDate: DateTime!

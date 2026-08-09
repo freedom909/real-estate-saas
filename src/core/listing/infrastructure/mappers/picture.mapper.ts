@@ -9,6 +9,8 @@ class PictureMapper {
       listingId: raw.listingId,
       objectKey: raw.objectKey,
       type: raw.type,
+      mimeType:raw.mimeType,
+      size:raw.size,
       sortOrder: raw.sortOrder,
     });
   }

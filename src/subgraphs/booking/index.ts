@@ -49,8 +49,8 @@ import { BookingModel, initBookingModel } from "@/core/booking/infrastructure/mo
 import { sequelize } from "@/infrastructure/config/seq";
 
 
-// 　await initBookingModel(sequelize);// 初始化模型，确保模型已同步
-//  await BookingModel.sync(); // 同步模型到数据库
+//　await initBookingModel(sequelize);// 初始化模型，确保模型已同步
+//await BookingModel.sync(); // 同步模型到数据库
 console.log("BookingModel =", BookingModel);
 
 console.log("typeof =", typeof BookingModel);

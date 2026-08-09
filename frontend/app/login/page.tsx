@@ -5,6 +5,7 @@ import { CSSProperties, useEffect, useRef } from "react";
 
 import { handleGitHubLogin } from "@/app/components/login/handleGitHub.login";
 import { handleFacebookLogin } from "@/app/components/login/handleFacebook.login";
+import { useAuthStore } from "../store/auth.store";
 
 const SOCIAL_BUTTON_MAX_WIDTH = 400;
 const socialButtonStyle: CSSProperties = {
@@ -62,7 +63,7 @@ export default function LoginPage() {
                         if (!result?.accessToken) return;
 
                         console.log("Google login success:", result);
-
+                        useAuthStore.getState().setAuth(result);
                         window.location.href = "/listing";
 
                     } catch (err) {
@@ -83,13 +84,10 @@ export default function LoginPage() {
                 document.getElementById("googleButton"),
 
                 {
-
                     theme: "outline",
-
                     size: "large",
                     width: buttonWidth,
-
-                }
+               }
 
             );
             } catch (err) {

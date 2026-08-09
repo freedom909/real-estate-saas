@@ -24,7 +24,7 @@ class GetListingsUseCase {
       address: listing.address,
       categories: listing.categories,
       isFeatured: listing.isFeatured,
-      picture: listing.picture,
+      picture: listing.pictures,
       price: listing.price,
       numOfBeds: listing.numOfBeds,
       numOfCustomers: listing.numOfCustomers,

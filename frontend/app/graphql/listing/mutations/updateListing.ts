@@ -9,8 +9,14 @@ export const UPDATE_LISTING = gql`
       address
       price
       pricePerNight
-      pictures {
+   pictures {
+        id
+        listingId
         objectKey
+        url
+        mimeType
+        size
+        type
         sortOrder
       }
       numOfBeds

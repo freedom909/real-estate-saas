@@ -2,16 +2,52 @@
 
 import { injectable } from "tsyringe";
 
-import { BookingModel } from "../models/booking.model";
-import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
+import { BookingAttributes, BookingModel } from "../models/booking.model";
+import { BookingPaginatedResult, BookingQuery, IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { Booking } from "@/core/booking/domain/entities/booking.entity";
 import { DateRange } from "@/core/booking/domain/value-objects/date-range.vo";
 import { BookingStatus } from "../../domain/value-objects/booking-status";
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
+import { BookingMapper } from "../mappers/booking.mapper";
+import { WhereOptions } from "sequelize/types/model";
 
+
+const whereClause: WhereOptions<BookingAttributes> = {};
 
 @injectable()
 export class BookingRepository implements IBookingRepository {
+  findByTenantId(tenantId: string): Promise<Booking[]> {
+    throw new Error("Method not implemented.");
+  }
+  findLatestBookingByCustomerId(customerId: string): Promise<Booking | null> {
+    throw new Error("Method not implemented.");
+  }
+  async findAll(query:BookingQuery): Promise<BookingPaginatedResult> {
+    const result= await BookingModel.findAndCountAll({
+    where: whereClause,
+    limit: query.limit,
+    offset: (query.page - 1) * query.limit,
+    order: [[query.sortBy ?? "createdAt", query.sortOrder ?? "DESC"]],
+    })
+    if (!result){
+      return  {
+    items: [],
+    total: 0,
+    page: query.page,
+    limit: query.limit,
+    totalPages: 0,
+} }
+    return {
+    items: result.rows.map(BookingMapper.toDomain),
+    total: result.count,
+    page: query.page,
+    limit: query.limit,
+    totalPages: Math.ceil(result.count / query.limit),
+};
+  }
+  findByListingOwnerId() {
+    throw new Error("Method not implemented.");
+  }
   async findByLatestByCustomerId(customerId: string): Promise<Booking | null> {
     if (!customerId) return null;
     const model = await BookingModel.findOne({

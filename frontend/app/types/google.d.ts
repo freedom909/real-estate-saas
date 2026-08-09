@@ -5,7 +5,7 @@ declare global {
         google: {
             accounts: {
                 id: {
-                    renderButton(arg0: HTMLElement | null, arg1: { theme: string; size: string; }): unknown;
+                    renderButton(arg0: HTMLElement | null, arg1: { theme: string; size: string; width: buttonWith}): unknown;
                     initialize(options: any): void;
            
                     prompt(): void;

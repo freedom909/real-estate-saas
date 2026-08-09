@@ -12,10 +12,15 @@ query BookingsForCustomer($userId: ID!) {
     tenant {
       name
       owner {
-        pictures {
-          objectKey
-          sortOrder
-        }
+pictures {
+    id
+    objectKey
+    url
+    mimeType
+    size
+    type
+    sortOrder
+}
       }
     }
   }

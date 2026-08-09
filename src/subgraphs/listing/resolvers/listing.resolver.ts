@@ -6,9 +6,12 @@ import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
 import { CategoryRepository } from "@/shared/category/infrastructure/category.repository";
 
-
 import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase";
 import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
+import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
+import { UploadImageUseCase } from "@/core/listing/application/usecase/uploadImages.usecase";
+import { TOKENS_STORAGE } from "@/modules/tokens/storage.tokens";
+
 
 export const resolvers = {
 
@@ -90,56 +93,71 @@ export const resolvers = {
 
   },
 
- Mutation: {
-    createListing: async ( _: any,{input}:any,context:any) => {
-console.log("========== CREATE LISTING ==========");
-console.log("input.picture =", input.picture);
-console.log("picture length =", input.picture?.length);
-console.log("context.user =", context.user);
-if (!context.user) {
-  throw new Error("User not authenticated");
-}
-      const useCase =
-        container.resolve<CreateListingUseCase>(
+  Upload: GraphQLUpload,
+
+  Mutation: {
+
+    createListing: async (_: any, { input }: any, context: any) => {
+      console.log("========== CREATE LISTING ==========");
+      console.log("input.picture =", input.picture);
+      console.log("picture length =", input.picture?.length);
+      console.log("context.user =", context.user);
+      if (!context.user) {
+        throw new Error("User not authenticated");
+      }
+      const useCase = container.resolve<CreateListingUseCase>(
           TOKENS_LISTING.usecase.createListingUseCase
         );
-      return useCase.execute(input);
+      return await useCase.execute(input);
+    },
+
+    uploadImage: async (_: any, { files }: any, context: any) => {
+      if (!context.user) {
+        throw new Error("User not authenticated");
+      }
+      const usecase=container.resolve<UploadImageUseCase>(TOKENS_STORAGE.uploadImage)
+      return await usecase.execute(files)
     },
   },
+    Listing: {
+      __resolveReference: async (ref: { id: string }) => {
+        const useCase = container.resolve<GetListingByIdUseCase>(TOKENS_LISTING.usecase.getListingByIdUseCase);
+        try {
+          return await useCase.execute(ref.id);
+        } catch {
+          console.warn('⚠️ Missing listing:', ref.id);
+          return null;
+        }
+      },
+      owner: (parent: any) => ({
+        __typename: "User",
+        id: parent.ownerId
+      }),
 
-  Listing: {
 
-    __resolveReference: async (ref: { id: string }) => {
-  const useCase = container.resolve<GetListingByIdUseCase>(TOKENS_LISTING.usecase.getListingByIdUseCase);
+      categories: (parent: any) =>
+        parent.categories?.map(
+          (id: string) => ({
+            __typename: "Category",
+            id
+          })
+        ) ?? [],
 
-  try {
-    return await useCase.execute(ref.id);
-  } catch {
-    console.warn('⚠️ Missing listing:', ref.id);
-    return null;
+      amenities: (parent: any) =>
+        parent.amenityIds?.map(
+          (id: string) => ({
+            __typename: "Amenity",
+            id
+          })
+        ) ?? [],
+    },
+    Picture: {
+      url(parent: any) {
+        return `${process.env.MINIO_ENDPOINT}/${process.env.MINIO_BUCKET}/${parent.objectKey}`;
+      },
+        mimeType(parent: any) {
+    console.log(parent);
+    return parent.mimeType;
   }
-},
-    owner: (parent: any) => ({
-      __typename: "User",
-      id: parent.ownerId
-    }),
-
-
-    categories: (parent: any) =>
-      parent.categories?.map(
-        (id: string) => ({
-          __typename: "Category",
-          id
-        })
-      ) ?? [],
-
-
-    amenities: (parent: any) =>
-      parent.amenityIds?.map(
-        (id: string) => ({
-          __typename: "Amenity",
-          id
-        })
-      ) ?? [],
+    },
   }
-}

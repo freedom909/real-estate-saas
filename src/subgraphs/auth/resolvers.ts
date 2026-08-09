@@ -159,6 +159,7 @@ export default {
             email: result.user.email,
             name: result.user.name,
             picture: result.user.picture,
+             role:result.user.role ?? "CUSTOMER"
           },
         };
       }

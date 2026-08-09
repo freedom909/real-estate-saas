@@ -29,8 +29,6 @@ import type { RequestHandler } from "express";
 import cors from "cors";
 import  resolvers  from "./payment.resolver";
 import { container } from "tsyringe";
-import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
-
 
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { UserClient } from "@/packages/user-sdk/src/client/user.client";

@@ -21,16 +21,14 @@ export interface BookingProps {
 }
 
 export class Booking {
-  private constructor(
-    private props: BookingProps) { }
+  props: any;
+  private constructor( props: BookingProps) {}
 
-  static create(
-    props: Omit<BookingProps, "status" | "createdAt">
-  ): Booking {
+  static restore(props: BookingProps): Booking {
+
     return new Booking({
       ...props,
       status: BookingStatus.PENDING,
-
       createdAt: new Date(),
       lifecycleStatus: BookingLifecycleStatus.UPCOMING,
     });

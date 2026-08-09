@@ -1,6 +1,7 @@
 // app/api/auth/callback/[provider]/route.ts
 // Unified OAuth callback — handles Google, GitHub, and Facebook
 
+import { Role } from "@/app/permission/role";
 import { NextRequest, NextResponse } from "next/server";
 
 const AUTH_GRAPHQL_ENDPOINT =
@@ -16,6 +17,7 @@ const OAUTH_LOGIN_MUTATION = `
         email
         name
         picture
+        role
       }
     }
   }
@@ -123,9 +125,19 @@ function setAuthCookies(
   response: NextResponse,
   accessToken: string,
   refreshToken: string,
-  user: { name?: string; email?: string; picture?: string }
+  user: { name?: string; email?: string; picture?: string; role:Role }
 ) {
   const secure = process.env.NODE_ENV === "production";
+
+ response.cookies.set(
+ "userRole",
+ user.role,
+    {
+      httpOnly:false,
+      sameSite:"lax",
+      maxAge:60 * 60 * 24 * 7,
+    }
+);
 
   response.cookies.set("accessToken", accessToken, {
     httpOnly: false,

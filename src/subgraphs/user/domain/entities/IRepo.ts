@@ -16,7 +16,7 @@ export interface IUserRepository {
 export interface CreateOAuthUserInput {
 
 email: string;
-role: UserRole;
+role: UserRole; // it is not role but UserRole?
 name: string;
 
 picture?: string;
