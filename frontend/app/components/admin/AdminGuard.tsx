@@ -19,9 +19,13 @@ export default function AdminGuard({ children, requiredRole = "ADMIN" }: AdminGu
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
   const role = useAuthStore((s) => s.user?.role);
+  const _hasHydrated = useAuthStore((s) => s._hasHydrated);
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
+    // Wait for Zustand hydration before checking
+    if (!_hasHydrated) return;
+
     if (!accessToken) {
       router.replace("/login");
       return;
@@ -58,7 +62,16 @@ export default function AdminGuard({ children, requiredRole = "ADMIN" }: AdminGu
         console.error(err);
         router.replace("/dashboard");
       });
-  }, [accessToken, router, role]);
+  }, [accessToken, router, role, _hasHydrated]);
+
+  // Wait for hydration
+  if (!_hasHydrated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
 
   if (!accessToken) return null;
   if (!allowed) {
