@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
         port: "9000",
         pathname: "/omaesama/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "9000",
+        pathname: "/listing-images/**",
+      },
     ],
   },
   output: "standalone",

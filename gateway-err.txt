@@ -1,0 +1,20 @@
+D:\minshuku-saas\node_modules\@apollo\gateway\src\supergraphManagers\IntrospectAndCompose\index.ts:118
+      throw Error(
+            ^
+
+Error: A valid schema couldn't be composed. The following composition errors were found:
+	[listing] Type "Owner" is an extension type, but there is no type definition for "Owner" in any subgraph.
+	[location] Type "Owner" is an extension type, but there is no type definition for "Owner" in any subgraph.
+	[location] Type "Customer" is an extension type, but there is no type definition for "Customer" in any subgraph.
+    at IntrospectAndCompose.createSupergraphFromSubgraphList (D:\minshuku-saas\node_modules\@apollo\gateway\src\supergraphManagers\IntrospectAndCompose\index.ts:118:13)
+    at IntrospectAndCompose.updateSupergraphSdl (D:\minshuku-saas\node_modules\@apollo\gateway\src\supergraphManagers\IntrospectAndCompose\index.ts:106:32)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async IntrospectAndCompose.initialize (D:\minshuku-saas\node_modules\@apollo\gateway\src\supergraphManagers\IntrospectAndCompose\index.ts:62:30)
+    at async ApolloGateway.initializeSupergraphManager (D:\minshuku-saas\node_modules\@apollo\gateway\src\index.ts:442:22)
+    at async ApolloGateway.load (D:\minshuku-saas\node_modules\@apollo\gateway\src\index.ts:352:7)
+    at async SchemaManager.start (D:\minshuku-saas\node_modules\@apollo\server\src\utils\schemaManager.ts:108:22)
+    at async ApolloServer._start (D:\minshuku-saas\node_modules\@apollo\server\dist\esm\ApolloServer.js:159:30)
+    at async ApolloServer.start (D:\minshuku-saas\node_modules\@apollo\server\dist\esm\ApolloServer.js:137:16)
+    at async start (D:\minshuku-saas\src\gateway\index.ts:129:3)
+
+Node.js v24.18.0

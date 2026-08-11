@@ -40,7 +40,7 @@ type Listing @key(fields: "id") {
   createdAt: DateTime!
   updatedAt: DateTime
 }
-type Picture {
+type Picture @key(fields: "id") {
   id: ID!
   listingId: ID!
   objectKey: String!
@@ -49,8 +49,6 @@ type Picture {
   size: Int!
   type: String!
   sortOrder: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime
 }
 # -----------------------------------
 # Owner Federation Extension

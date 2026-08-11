@@ -1,0 +1,74 @@
+◇ injected env (75) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+Symbol(Listing.adapters.AmenityAdapter)
+Listing subgraph configuration loaded
+Connecting to MySQL...
+✅ Redis connected
+Executing (default): SELECT 1+1 AS result
+Executing (default): DELETE p FROM pictures p
+      LEFT JOIN listings l ON p.listingId = l.id
+      WHERE l.id IS NULL
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'listings' AND TABLE_SCHEMA = 'saas'
+Executing (default): SHOW FULL COLUMNS FROM `listings`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'listings' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='saas' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `listings` CHANGE `title` `title` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `listings` CHANGE `description` `description` TEXT NOT NULL;
+Executing (default): ALTER TABLE `listings` CHANGE `ownerId` `ownerId` VARCHAR(50) NOT NULL;
+Executing (default): ALTER TABLE `listings` CHANGE `locationId` `locationId` VARCHAR(50) NOT NULL;
+Executing (default): ALTER TABLE `listings` CHANGE `amenityIds` `amenityIds` JSON;
+Executing (default): ALTER TABLE `listings` CHANGE `address` `address` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `listings` CHANGE `numOfBeds` `numOfBeds` INTEGER NOT NULL DEFAULT 1;
+Executing (default): ALTER TABLE `listings` CHANGE `numOfCustomers` `numOfCustomers` INTEGER NOT NULL DEFAULT 1;
+Executing (default): ALTER TABLE `listings` CHANGE `numOfBathrooms` `numOfBathrooms` INTEGER NOT NULL DEFAULT 1;
+Executing (default): ALTER TABLE `listings` CHANGE `numOfRooms` `numOfRooms` INTEGER NOT NULL DEFAULT 1;
+Executing (default): ALTER TABLE `listings` CHANGE `price` `price` DECIMAL(10,2) NOT NULL DEFAULT 1;
+Executing (default): ALTER TABLE `listings` CHANGE `isFeatured` `isFeatured` TINYINT(1) NOT NULL DEFAULT false;
+Executing (default): ALTER TABLE `listings` CHANGE `createdAt` `createdAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `listings` CHANGE `updatedAt` `updatedAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `listings` CHANGE `deletedAt` `deletedAt` DATETIME;
+Executing (default): SHOW INDEX FROM `listings`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'categories' AND TABLE_SCHEMA = 'saas'
+Executing (default): SHOW FULL COLUMNS FROM `categories`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'categories' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='saas' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `categories` CHANGE `name` `name` VARCHAR(255);
+Executing (default): SHOW INDEX FROM `categories`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'listing_locations' AND TABLE_SCHEMA = 'saas'
+Executing (default): SHOW FULL COLUMNS FROM `listing_locations`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'listing_locations' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='saas' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `listing_locations` CHANGE `createdAt` `createdAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `listing_locations` CHANGE `updatedAt` `updatedAt` DATETIME NOT NULL;
+Executing (default): SHOW INDEX FROM `listing_locations`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'listing_amenities' AND TABLE_SCHEMA = 'saas'
+Executing (default): SHOW FULL COLUMNS FROM `listing_amenities`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'listing_amenities' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='saas' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): SHOW INDEX FROM `listing_amenities`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'listing_categories' AND TABLE_SCHEMA = 'saas'
+Executing (default): SHOW FULL COLUMNS FROM `listing_categories`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'listing_categories' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='saas' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `listing_categories` CHANGE `createdAt` `createdAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `listing_categories` CHANGE `updatedAt` `updatedAt` DATETIME NOT NULL;
+Executing (default): SHOW INDEX FROM `listing_categories`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'pictures' AND TABLE_SCHEMA = 'saas'
+Executing (default): SHOW FULL COLUMNS FROM `pictures`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'pictures' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='saas' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): SELECT CONSTRAINT_CATALOG AS constraintCatalog, CONSTRAINT_NAME AS constraintName, CONSTRAINT_SCHEMA AS constraintSchema, CONSTRAINT_TYPE AS constraintType, TABLE_NAME AS tableName, TABLE_SCHEMA AS tableSchema from INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE table_name='pictures' AND constraint_name = 'pictures_ibfk_1' AND TABLE_SCHEMA = 'saas';
+Executing (default): ALTER TABLE `pictures` DROP FOREIGN KEY `pictures_ibfk_1`;
+Executing (default): ALTER TABLE `pictures` ADD FOREIGN KEY (`listingId`) REFERENCES `listings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+Executing (default): ALTER TABLE `pictures` CHANGE `objectKey` `objectKey` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `pictures` CHANGE `url` `url` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `pictures` CHANGE `mimeType` `mimeType` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `pictures` CHANGE `size` `size` INTEGER NOT NULL;
+Executing (default): ALTER TABLE `pictures` CHANGE `type` `type` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `pictures` CHANGE `sortOrder` `sortOrder` INTEGER NOT NULL DEFAULT 0;
+Executing (default): ALTER TABLE `pictures` CHANGE `createdAt` `createdAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `pictures` CHANGE `updatedAt` `updatedAt` DATETIME NOT NULL;
+Executing (default): SHOW INDEX FROM `pictures`
+MySQL connected
+Enabling inline tracing for this subgraph. To disable, use ApolloServerPluginInlineTraceDisabled.
+Listing Subgraph running on http://localhost:4101/graphql
+Executing (default): SELECT `ListingModel`.`id`, `ListingModel`.`title`, `ListingModel`.`description`, `ListingModel`.`ownerId`, `ListingModel`.`locationId`, `ListingModel`.`amenityIds`, `ListingModel`.`address`, `ListingModel`.`numOfBeds`, `ListingModel`.`numOfCustomers`, `ListingModel`.`numOfBathrooms`, `ListingModel`.`numOfRooms`, `ListingModel`.`price`, `ListingModel`.`isFeatured`, `ListingModel`.`createdAt`, `ListingModel`.`updatedAt`, `ListingModel`.`deletedAt`, `pictures`.`id` AS `pictures.id`, `pictures`.`listingId` AS `pictures.listingId`, `pictures`.`objectKey` AS `pictures.objectKey`, `pictures`.`url` AS `pictures.url`, `pictures`.`mimeType` AS `pictures.mimeType`, `pictures`.`size` AS `pictures.size`, `pictures`.`type` AS `pictures.type`, `pictures`.`sortOrder` AS `pictures.sortOrder`, `pictures`.`createdAt` AS `pictures.createdAt`, `pictures`.`updatedAt` AS `pictures.updatedAt` FROM `listings` AS `ListingModel` LEFT OUTER JOIN `pictures` AS `pictures` ON `ListingModel`.`id` = `pictures`.`listingId` WHERE (`ListingModel`.`deletedAt` IS NULL AND `ListingModel`.`id` = 'lst-kyoto-003');
+Executing (default): SELECT `listingId`, `categoryId`, `createdAt`, `updatedAt` FROM `listing_categories` AS `ListingCategories` WHERE `ListingCategories`.`listingId` = 'lst-kyoto-003';
+Executing (default): SELECT `listingId`, `amenityId` FROM `listing_amenities` AS `ListingAmenities` WHERE `ListingAmenities`.`listingId` = 'lst-kyoto-003';
+Executing (default): SELECT `ListingModel`.`id`, `ListingModel`.`title`, `ListingModel`.`description`, `ListingModel`.`ownerId`, `ListingModel`.`locationId`, `ListingModel`.`amenityIds`, `ListingModel`.`address`, `ListingModel`.`numOfBeds`, `ListingModel`.`numOfCustomers`, `ListingModel`.`numOfBathrooms`, `ListingModel`.`numOfRooms`, `ListingModel`.`price`, `ListingModel`.`isFeatured`, `ListingModel`.`createdAt`, `ListingModel`.`updatedAt`, `ListingModel`.`deletedAt`, `pictures`.`id` AS `pictures.id`, `pictures`.`listingId` AS `pictures.listingId`, `pictures`.`objectKey` AS `pictures.objectKey`, `pictures`.`url` AS `pictures.url`, `pictures`.`mimeType` AS `pictures.mimeType`, `pictures`.`size` AS `pictures.size`, `pictures`.`type` AS `pictures.type`, `pictures`.`sortOrder` AS `pictures.sortOrder`, `pictures`.`createdAt` AS `pictures.createdAt`, `pictures`.`updatedAt` AS `pictures.updatedAt` FROM `listings` AS `ListingModel` LEFT OUTER JOIN `pictures` AS `pictures` ON `ListingModel`.`id` = `pictures`.`listingId` WHERE (`ListingModel`.`deletedAt` IS NULL);
+Executing (default): SELECT `ListingModel`.`id`, `ListingModel`.`title`, `ListingModel`.`description`, `ListingModel`.`ownerId`, `ListingModel`.`locationId`, `ListingModel`.`amenityIds`, `ListingModel`.`address`, `ListingModel`.`numOfBeds`, `ListingModel`.`numOfCustomers`, `ListingModel`.`numOfBathrooms`, `ListingModel`.`numOfRooms`, `ListingModel`.`price`, `ListingModel`.`isFeatured`, `ListingModel`.`createdAt`, `ListingModel`.`updatedAt`, `ListingModel`.`deletedAt`, `pictures`.`id` AS `pictures.id`, `pictures`.`listingId` AS `pictures.listingId`, `pictures`.`objectKey` AS `pictures.objectKey`, `pictures`.`url` AS `pictures.url`, `pictures`.`mimeType` AS `pictures.mimeType`, `pictures`.`size` AS `pictures.size`, `pictures`.`type` AS `pictures.type`, `pictures`.`sortOrder` AS `pictures.sortOrder`, `pictures`.`createdAt` AS `pictures.createdAt`, `pictures`.`updatedAt` AS `pictures.updatedAt` FROM `listings` AS `ListingModel` LEFT OUTER JOIN `pictures` AS `pictures` ON `ListingModel`.`id` = `pictures`.`listingId` WHERE (`ListingModel`.`deletedAt` IS NULL);

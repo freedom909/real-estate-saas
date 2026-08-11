@@ -1,21 +1,15 @@
 // src/core/listing/domain/entities/picture.ts
 
-import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
-import { inject, injectable } from "tsyringe";
-import { PictureModel } from "../../infrastructure/models/picture.model";
-
 export interface PictureProps {
   id: string;
   listingId: string;
   objectKey: string;
-  url: string;
   mimeType: string;
   size: number;
   type: string;
   sortOrder: number;
 }
 
-@injectable()
 export class Picture {
     toJson() {
         return this.props;
@@ -30,9 +24,7 @@ export class Picture {
     return this.props.listingId;
   }
 
-  get url() {
-    return this.props.url;
-  }
+
   get mimeType(){
     return this.props.mimeType
   }

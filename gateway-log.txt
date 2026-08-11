@@ -1,0 +1,113 @@
+◇ injected env (75) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+✅ GATEWAY SECRET loaded
+✅ MongoDB connected for gateway
+start gateway
+gateway: ApolloGateway {
+  serviceMap: [Object: null prototype] {},
+  onSchemaChangeListeners: Set(0) {},
+  onSchemaLoadOrUpdateListeners: Set(0) {},
+  warnedStates: [Object: null prototype] {},
+  toDispose: [ [Function (anonymous)] ],
+  executor: [AsyncFunction (anonymous)],
+  config: {
+    __exposeQueryPlanExperimental: true,
+    supergraphSdl: IntrospectAndCompose {
+      serviceSdlCache: Map(0) {},
+      timerRef: null,
+      config: [Object],
+      state: [Object]
+    },
+    buildService: [Function: buildService]
+  },
+  logger: Logger {
+    name: 'apollo-gateway',
+    levels: { TRACE: 0, DEBUG: 1, INFO: 2, WARN: 3, ERROR: 4, SILENT: 5 },
+    methodFactory: [Function: defaultMethodFactory],
+    getLevel: [Function (anonymous)],
+    setLevel: [Function (anonymous)],
+    setDefaultLevel: [Function (anonymous)],
+    resetLevel: [Function (anonymous)],
+    enableAll: [Function (anonymous)],
+    disableAll: [Function (anonymous)],
+    rebuild: [Function (anonymous)],
+    trace: [Function: noop],
+    debug: [Function: noop],
+    info: [Function: noop],
+    warn: [Function: bound warn],
+    error: [Function: bound error],
+    log: [Function: noop]
+  },
+  queryPlanStore: InMemoryLRUCache {
+    cache: LRUCache {
+      max: 0,
+      maxSize: 31457280,
+      maxEntrySize: 31457280,
+      sizeCalculation: [Function: approximateObjectSize],
+      fetchMethod: null,
+      fetchContext: undefined,
+      keyMap: Map(0) {},
+      keyList: [],
+      valList: [],
+      next: [],
+      prev: [],
+      head: 0,
+      tail: 0,
+      free: [],
+      initialFill: 1,
+      size: 0,
+      disposeAfter: null,
+      disposed: null,
+      noDisposeOnSet: false,
+      noUpdateTTL: false,
+      noDeleteOnFetchRejection: false,
+      allowStaleOnFetchRejection: false,
+      allowStaleOnFetchAbort: false,
+      ignoreFetchAbort: false,
+      calculatedSize: 0,
+      sizes: ZeroArray(0) [],
+      removeItemSize: [Function (anonymous)],
+      requireSize: [Function (anonymous)],
+      addItemSize: [Function (anonymous)],
+      allowStale: false,
+      noDeleteOnStaleGet: false,
+      updateAgeOnGet: false,
+      updateAgeOnHas: false,
+      ttlResolution: 1,
+      ttlAutopurge: false,
+      ttl: 0
+    }
+  },
+  experimental_didResolveQueryPlan: undefined,
+  experimental_didUpdateSupergraph: undefined,
+  recursiveSelectionsLimitDisabled: false,
+  nonLocalSelectionsLimitDisabled: false,
+  state: { phase: 'initialized' }
+}
+Gateway context = {}
+GATEWAY AUTH => undefined
+Gateway auth = undefined
+Gateway user = undefined
+Gateway context = {}
+GATEWAY AUTH => undefined
+Gateway auth = undefined
+Gateway user = undefined
+Gateway context = {}
+GATEWAY AUTH => undefined
+Gateway auth = undefined
+Gateway user = undefined
+Gateway context = {}
+GATEWAY AUTH => undefined
+Gateway auth = undefined
+Gateway user = undefined
+Gateway context = {}
+GATEWAY AUTH => undefined
+Gateway auth = undefined
+Gateway user = undefined
+Gateway context = {}
+GATEWAY AUTH => undefined
+Gateway auth = undefined
+Gateway user = undefined
+Gateway context = {}
+GATEWAY AUTH => undefined
+Gateway auth = undefined
+Gateway user = undefined

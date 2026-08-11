@@ -5,15 +5,36 @@ import { PictureModel } from "../models/picture.model";
 import { Picture, PictureProps } from "../../domain/entities/picture";
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 import PictureMapper from "../mappers/picture.mapper";
+import { IPictureRepository } from "../../domain/repositories/picture.repository";
 
 
 
 @injectable()
-export class PictureRepository {
+export class PictureRepository implements IPictureRepository{
     constructor(
         @inject(TOKENS_PICTURE.models.pictureModel)
         private readonly pictureModel: typeof PictureModel,
-    ) { }
+    ) {}
+    async findByListingId(listingId: string): Promise<Picture[]> {
+        const raws = await this.pictureModel.findAll({
+            where: {
+                listingId,
+            },
+        });
+        return raws.map((raw) => PictureMapper.toDomain(raw));
+    }
+    async delete(id: string): Promise<void> {
+        const deleted = await this.pictureModel.destroy({
+            where: {
+                id,
+            },
+        });
+        if (deleted === 0) {
+      throw new Error(
+        "Picture not found"
+      );
+    }
+    }
     async create(picture: Picture) {
         const persistence = PictureMapper.toPersistence(picture);
         const raw = await this.pictureModel.create(persistence);//

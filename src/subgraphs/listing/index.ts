@@ -20,9 +20,11 @@ import registerAuthDependencies from "../auth/registerAuthDependencies";
 import { registerUserDependencies } from "../user/registerUserDependencies";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import registerListingDependencies from "@/modules/container/listing.register";
+import { registerPicture } from "@/modules/container/picture.register";
 import "@/shared/category/container";
 import { registerAIContainer } from "@/modules/container/ai.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
+import { initPictureModel } from "@/core/listing/infrastructure/models/picture.model";
 
 console.log(TOKENS_LISTING.adapters.amenityAdapter);
 console.info("Listing subgraph configuration loaded");
@@ -31,8 +33,10 @@ registerAIContainer()
 registerAuthDependencies(container);
 
 registerListingDependencies();
+registerPicture();
 registerUserDependencies(container);
 
+initPictureModel(sequelize);
 initAssociations();
 
 const typeDefs = gql(readFileSync('./src/subgraphs/listing/schema.graphql', { encoding: 'utf-8' }));
@@ -55,6 +59,7 @@ const startApolloServer = async () => {
     console.info("MySQL connected");
 
     const app = express();
+    app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001"], credentials: true }));
     const httpServer = http.createServer(app);
 
     const server = new ApolloServer({

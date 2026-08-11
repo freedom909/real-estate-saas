@@ -1,19 +1,20 @@
 "use client";
 
 
-import { useMutation, useQuery } from "@apollo/client/react";
+import { useMutation, useQuery, ApolloProvider } from "@apollo/client/react";
 import { GET_LISTING } from "@/app/graphql/listing/queries/listing";
 import { CREATE_BOOKING } from "@/app/graphql/booking/mutations/createBooking";
 
 import { use } from "react";
 import { useState } from "react";
 
+import { listingClient } from "@/app/lib/listingClient";
+
 import Navbar from "@/app/components/navbar";
 
 
 type Picture = {
     id: string;
-
     objectKey: string;
 
     url: string;
@@ -57,7 +58,15 @@ type GetListingResponse = {
 
 
 
-export default function ListingDetailPage({
+export default function ListingDetailPageWrapper(params: { params: Promise<{ id: string }> }) {
+  return (
+    <ApolloProvider client={listingClient}>
+      <ListingDetailPage {...params} />
+    </ApolloProvider>
+  );
+}
+
+function ListingDetailPage({
 
     params,
 
@@ -162,7 +171,7 @@ export default function ListingDetailPage({
 
 
     const imageUrl = cover?.url ?? (cover?.objectKey
-      ? (cover.objectKey.startsWith("http") ? cover.objectKey : `http://localhost:9000/omaesama/${cover.objectKey}`)
+      ? (cover.objectKey.startsWith("http") ? cover.objectKey : `http://localhost:9000/listing-images/${cover.objectKey}`)
       : "/placeholder.jpg");
     const price = Number(listing.price ?? 0);
 

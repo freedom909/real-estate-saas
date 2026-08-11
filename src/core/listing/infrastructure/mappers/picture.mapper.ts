@@ -5,7 +5,7 @@ import { Picture, PictureProps } from "../../domain/entities/picture";
 class PictureMapper {
   static toDomain(raw: any): Picture {
     return new Picture({
-      url: raw.url,
+
       id: raw.id,
       listingId: raw.listingId,
       objectKey: raw.objectKey,

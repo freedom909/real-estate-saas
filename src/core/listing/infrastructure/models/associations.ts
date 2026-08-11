@@ -5,7 +5,7 @@ import { PictureModel, initPictureModel } from "./picture.model";
 
 export function initAssociations() {
     // Initialize PictureModel with sequelize before setting up associations
-    initPictureModel(sequelize);
+    
 
     ListingModel.hasMany(PictureModel, {
         foreignKey: "listingId",

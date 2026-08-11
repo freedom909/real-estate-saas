@@ -88,7 +88,7 @@ export default class CreateListingUseCase {
       new Picture({
         id: uuidv4(),
         listingId,
-        url: pic.objectKey,
+
         objectKey: pic.objectKey,
         mimeType: "image/jpeg",
         size: 0,

@@ -1,7 +1,8 @@
-import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
-import { TOKENS_STORAGE } from "@/modules/tokens/storage.tokens";
+//src/core/listing/application/usecase/uploadImages.usecase.ts
+
 import { inject, injectable } from "tsyringe";
 import { MinioService } from "@/core/listing/infrastructure/persistence/minio.service";
+import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 
 
 @injectable()
@@ -10,7 +11,7 @@ export class UploadImageUseCase {
      *
      */
     constructor(
-      @inject(TOKENS_STORAGE.uploadImage)
+      @inject(TOKENS_PICTURE.usecase.uploadImageUseCase)
       private minioService:MinioService
 
     ) {}

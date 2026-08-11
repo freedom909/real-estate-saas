@@ -63,7 +63,7 @@ async function start() {
         // { name: "audit", url: "http://localhost:4070/graphql" },
         { name: "location", url: "http://localhost:4080/graphql" },
         { name: "amenity", url: "http://localhost:4090/graphql" },
-       
+
         { name: "listing", url: "http://localhost:4101/graphql" },
         { name: "account", url: "http://localhost:4102/graphql" },
         { name: "cart", url: "http://localhost:4103/graphql" },

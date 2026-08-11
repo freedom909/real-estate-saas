@@ -3,7 +3,6 @@ import { Description } from "../../domain/value-objects/description";
 import { Title } from "../../domain/value-objects/Title";
 import PictureMapper from "./picture.mapper";
 
-
 export class ListingMapper {
 
 static toDomain(raw: any): Listing {
@@ -22,7 +21,6 @@ static toDomain(raw: any): Listing {
       new Description(
         raw.description
       ),
-
     address: raw.address,
 
 categories:
@@ -49,9 +47,7 @@ amenityIds:
     pricePerNight:
       raw.pricePerNight != null ? Number(raw.pricePerNight) : undefined,
 
-    pictures:raw.pictures?.map((p:any)=>
-        PictureMapper.toDomain(p)
-    ) ?? [],
+    pictures:raw.pictures?.map((p:any)=> PictureMapper.toDomain(p)) ?? [],
 
     isFeatured:
       raw.isFeatured ?? false,

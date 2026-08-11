@@ -5,16 +5,25 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { useQuery } from "@apollo/client/react";
+import { useQuery, ApolloProvider } from "@apollo/client/react";
 
 import { GET_LISTINGS } from "../graphql/listing/queries/listings";
 
 import Navbar from "../components/navbar";
 
 import { Listing } from "../types/listing";
+import { listingClient } from "../lib/listingClient";
 
 
-export default function ListingPage() {
+export default function ListingPageWrapper() {
+  return (
+    <ApolloProvider client={listingClient}>
+      <ListingPage />
+    </ApolloProvider>
+  );
+}
+
+function ListingPage() {
   const {
     data,
     loading,
@@ -53,6 +62,7 @@ export default function ListingPage() {
         </div>
 
       </>
+
     );
 
   }
@@ -114,7 +124,7 @@ export default function ListingPage() {
                         cover ? (
 
 <Image
-    src={cover.objectKey.startsWith("http") ? cover.objectKey : `http://localhost:9000/omaesama/${cover.objectKey}`}
+    src={cover.url || `http://localhost:9000/listing-images/${cover.objectKey}`}
     alt={listing.title}
     width={600}
     height={400}
@@ -171,83 +181,46 @@ export default function ListingPage() {
                           text-gray-600
                           text-sm
                           mb-4
-                          line-clamp-3
                         "
                       >
-
                         {listing.description}
-
                       </p>
 
 
-
-                      <div
-                        className="
-                          flex
-                          justify-between
-                          items-center
-                        "
-                      >
-
-
-                        <span
-                          className="
-                            text-2xl
-                            font-bold
-                          "
-                        >
-
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-bold text-green-600">
                           ¥{listing.price}
-
                         </span>
-
-
 
                         <Link
                           href={`/listing/${listing.id}`}
+                          className="
+                            bg-blue-500
+                            text-white
+                            px-4
+                            py-2
+                            rounded-lg
+                            hover:bg-blue-600
+                            transition
+                          "
                         >
-
-                          <button
-                            className="
-                              bg-black
-                              text-white
-                              px-4
-                              py-2
-                              rounded-lg
-                              hover:bg-gray-800
-                            "
-                          >
-
-                            View
-
-                          </button>
-
-
+                          View Details
                         </Link>
-
-
                       </div>
-
 
                     </div>
 
-
                   </div>
-
 
                 );
 
-              }
+              })
 
-            )
           }
-
 
         </div>
 
-
       </div>
-
 
     </>
 

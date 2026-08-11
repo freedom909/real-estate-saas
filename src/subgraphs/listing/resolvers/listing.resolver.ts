@@ -10,7 +10,9 @@ import GetListingByIdUseCase from "@/core/listing/application/usecase/getListing
 import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
 import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 import { UploadImageUseCase } from "@/core/listing/application/usecase/uploadImages.usecase";
-import { TOKENS_STORAGE } from "@/modules/tokens/storage.tokens";
+
+import { MinioStorage } from "@/core/listing/infrastructure/storage/minio.storage";
+import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 
 
 export const resolvers = {
@@ -97,7 +99,7 @@ export const resolvers = {
       if (!context.user) {
         throw new Error("User not authenticated");
       }
-      const usecase=container.resolve<UploadImageUseCase>(TOKENS_STORAGE.uploadImage)
+      const usecase=container.resolve<UploadImageUseCase>(TOKENS_PICTURE.usecase.uploadImageUseCase)
       return await usecase.execute(files)
     },
   },
@@ -133,18 +135,15 @@ export const resolvers = {
         ) ?? [],
     },
     Picture: {
-      url(parent: any) {
-        // If url is already a full URL, use it directly
-        if (parent.url && parent.url.startsWith("http")) return parent.url;
-        // If objectKey is already a full URL, use it directly
-        if (parent.objectKey && parent.objectKey.startsWith("http")) return parent.objectKey;
-        // Otherwise, construct MinIO URL from objectKey
-        const endpoint = process.env.MINIO_ENDPOINT || process.env.MinIO_ENDPOINT || 'http://localhost:9000';
-        const bucket = process.env.MINIO_BUCKET || process.env.MINIO_BUCKET_NAME || 'omaesama';
-        return `${endpoint}/${bucket}/${parent.objectKey}`;
+      url: async (parent: any) => {
+        // Return direct URL since bucket is public
+        const bucket = process.env.MINIO_BUCKET || "listing-images";
+        const endpoint = process.env.MINIO_ENDPOINT || "localhost";
+        const port = process.env.MINIO_PORT || "9000";
+        return `http://${endpoint}:${port}/${bucket}/${parent.objectKey}`;
       },
-      mimeType(parent: any) {
-        return parent.mimeType;
+      mimeType: async (parent: any) => {
+        return await parent.mimeType;
       }
     },
   }

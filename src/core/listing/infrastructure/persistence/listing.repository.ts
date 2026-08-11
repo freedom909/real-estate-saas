@@ -260,9 +260,9 @@ export class ListingRepository implements IListingRepository {
             id: pic.id,
             listingId: listing.id,
             objectKey: pic.objectKey,
-            url: pic.url,
+
             mimeType: pic.mimeType,
-            size: pic.size,
+            
             type: pic.type,
             sortOrder: pic.sortOrder,
           })),
