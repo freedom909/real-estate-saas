@@ -18,7 +18,7 @@ const STATUS_STYLES: Record<string, string> = {
 export default function PaymentsPage() {
   const { user } = useAuthStore();
 
-  const { data, loading, error } = useQuery(GET_PAYMENTS_BY_CUSTOMER, {
+  const { data, loading, error } = useQuery<any>(GET_PAYMENTS_BY_CUSTOMER, {
     variables: { customerId: user?.id },
     skip: !user?.id,
   });

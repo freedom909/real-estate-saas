@@ -1,71 +1,47 @@
-// src/wisdom-web/app/lib/apolloClient.ts
+// app/lib/apolloClient.ts
 
-import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+} from "@apollo/client";
 import { SetContextLink } from "@apollo/client/link/context";
-import { ErrorLink } from "@apollo/client/link/error";
-import { useAuthStore } from "../store/auth.store";
-import { useTenantStore } from "../store/tenant.store";
-import { refreshToken } from "../services/auth.service";
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:4000/graphql",
+  uri:
+    process.env.NEXT_PUBLIC_GATEWAY_URL ||
+    "http://localhost:4000/graphql",
 });
 
-const authLink = new SetContextLink((operation) => {
-  const token = useAuthStore.getState().accessToken;
-  const tenantId = useTenantStore.getState().activeTenantId;
+const authLink = new SetContextLink((prevContext) => {
+  let accessToken: string | null = null;
+
+  if (typeof window !== "undefined") {
+    const authStorage = localStorage.getItem("auth-storage");
+
+    if (authStorage) {
+      try {
+        const parsed = JSON.parse(authStorage);
+        accessToken = parsed?.state?.accessToken ?? null;
+      } catch (error) {
+        console.error("Failed to parse auth-storage:", error);
+      }
+    }
+  }
+
   return {
     headers: {
-      authorization: token ? `Bearer ${token}` : "",
-      ...(tenantId ? { "x-tenant-id": tenantId } : {}),
+      ...prevContext.headers,
+      ...(accessToken
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        : {}),
     },
   };
 });
 
-// Error link — auto-refresh on token expiration
-let isRefreshing = false;
-
-const errorLink = new ErrorLink(((({ operation, forward }) => {
-const graphQLErrors = operation.getContext().errors;
-
-  if (!graphQLErrors) return;
-
-  return new Observable((observer) => {
-      refreshToken()
-        .then((success) => {
-          if (success) {
-            const newToken = useAuthStore.getState().accessToken;
-            operation.setContext({
-              headers: {
-                ...operation.getContext().headers,
-                authorization: `Bearer ${newToken}`,
-              },
-            });
-
-            forward(operation).subscribe({
-              next: observer.next.bind(observer),
-              error: observer.error.bind(observer),
-              complete: observer.complete.bind(observer),
-            });
-          } else {
-            observer.next({ errors: graphQLErrors } as any);
-            observer.complete();
-          }
-        })
-        .catch(() => {
-          observer.next({ errors: graphQLErrors } as any);
-          observer.complete();
-        })
-        .finally(() => {
-          isRefreshing = false;
-        });
-    });
-  }
-)))
-
-import { Observable } from "@apollo/client/core";
-
 export const client = new ApolloClient({
-  link: errorLink.concat(authLink).concat(httpLink),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });

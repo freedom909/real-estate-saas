@@ -51,8 +51,8 @@ function AdminListingDetailContent({
     variables: { id },
   });
 
-  const [updateListing, { loading: saving }] = useMutation(UPDATE_LISTING);
-  const [deleteListing, { loading: deleting }] = useMutation(DELETE_LISTING);
+  const [updateListing, { loading: saving }] = useMutation<any>(UPDATE_LISTING);
+  const [deleteListing, { loading: deleting }] = useMutation<any>(DELETE_LISTING);
 
   const [form, setForm] = useState({
     title: "",

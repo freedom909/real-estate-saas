@@ -52,7 +52,7 @@ export default function CreateListingPage() {
 
 function CreateListingContent() {
   const router = useRouter();
-  const [createListing] = useMutation(CREATE_LISTING);
+  const [createListing] = useMutation<any>(CREATE_LISTING);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: categoryData } = useQuery<{ categories: Category[] }>(ALL_CATEGORIES);

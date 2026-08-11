@@ -7,7 +7,7 @@ import { MY_BOOKINGS } from "@/app/graphql/booking/queries/myBookings";
 
 
 export function BookingSkeleton() {
-const { data, loading, error } = useQuery(MY_BOOKINGS);
+const { data, loading, error } = useQuery<any>(MY_BOOKINGS);
 if(loading){
   return (
     <div className="overflow-hidden rounded-2xl border bg-white hover:shadow-lg transition">

@@ -23,7 +23,7 @@ export default function UploadForm() {
   const [progress, setProgress] = useState<Partial<{ [key in ListingPictureType]: number }>>({});
   const [error, setError] = useState<string | null>(null);
 
-  const [listingPictureUpload] = useMutation(LISTING_PICTURE_UPLOAD);
+  const [listingPictureUpload] = useMutation<any>(LISTING_PICTURE_UPLOAD);
 
   // Validate file
   const validateFile = (file: File) => {

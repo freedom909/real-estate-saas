@@ -12,12 +12,12 @@ import { GET_LISTINGS } from "../graphql/listing/queries/listings";
 import Navbar from "../components/navbar";
 
 import { Listing } from "../types/listing";
-import { listingClient } from "../lib/listingClient";
+import { client } from "../lib/apolloClient";
 
 
 export default function ListingPageWrapper() {
   return (
-    <ApolloProvider client={listingClient}>
+    <ApolloProvider client={client}>
       <ListingPage />
     </ApolloProvider>
   );
@@ -28,7 +28,7 @@ function ListingPage() {
     data,
     loading,
     error
-  } = useQuery(GET_LISTINGS, {
+  } = useQuery<any>(GET_LISTINGS, {
 
     variables: {
       limit: 10,

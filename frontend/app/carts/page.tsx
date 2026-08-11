@@ -1,6 +1,7 @@
 "use client";
 import { useSession } from "next-auth/react";
 import HeaderClient from "../components/users/ui/HeaderClient";
+import CartComponent from "./CartComponent";
 
 
 export default function CartsPage() {

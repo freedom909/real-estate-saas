@@ -17,7 +17,7 @@ export default function OwnerProfilePage() {
 
 function OwnerProfileContent() {
   const { data, loading, error, refetch } = useQuery<any>(ME);
-  const [updateAdminAccount, { loading: updating }] = useMutation(UPDATE_ADMIN_ACCOUNT, {
+  const [updateAdminAccount, { loading: updating }] = useMutation<any>(UPDATE_ADMIN_ACCOUNT, {
     onCompleted: () => {
       setProfileMsg("Profile updated successfully!");
       refetch();

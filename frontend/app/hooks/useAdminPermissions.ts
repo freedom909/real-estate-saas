@@ -16,7 +16,7 @@ export type AdminRole = "ADMIN" | "SUPER_ADMIN" | "MODERATOR";
 export type Permission = string;
 
 export function useAdminPermissions() {
-  const { data, loading, error } = useQuery(MY_PERMISSIONS);
+  const { data, loading, error } = useQuery<any>(MY_PERMISSIONS);
 
   const role = data?.myPermissions?.role as AdminRole | undefined;
   const permissions = (data?.myPermissions?.permissions ?? []) as Permission[];

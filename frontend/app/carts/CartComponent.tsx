@@ -55,7 +55,7 @@ export default function CartComponent() {
     loading: cartLoading,
     error: cartError,
     refetch: refetchCart,
-  } = useQuery(GET_CARTS_BY_CUSTOMER, {
+  } = useQuery<any>(GET_CARTS_BY_CUSTOMER, {
     variables: { customerId },
     skip: !customerId,
   });
@@ -63,13 +63,13 @@ export default function CartComponent() {
   const {
     data: listingData,
     error: listingError,
-  } = useQuery(GET_LISTINGS);
+  } = useQuery<any>(GET_LISTINGS);
 
-  const [updateCartItem] = useMutation(UPDATE_CART_ITEM);
-  const [removeFromCart] = useMutation(REMOVE_FROM_CART);
-  const [clearCart] = useMutation(CLEAR_CART);
-  const [createBooking] = useMutation(CREATE_BOOKING);
-  const [createPayment] = useMutation(CREATE_PAYMENT);
+  const [updateCartItem] = useMutation<any>(UPDATE_CART_ITEM);
+  const [removeFromCart] = useMutation<any>(REMOVE_FROM_CART);
+  const [clearCart] = useMutation<any>(CLEAR_CART);
+  const [createBooking] = useMutation<any>(CREATE_BOOKING);
+  const [createPayment] = useMutation<any>(CREATE_PAYMENT);
 
   const listingsMap: Record<string, Listing> = {};
   if (listingData?.listings) {

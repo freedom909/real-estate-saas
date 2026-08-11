@@ -5,7 +5,7 @@ import { GET_FEATURED_LISTINGS } from "../graphql/listing/queries/featuredListin
 import ListingCard from "./ListingCard";
 
 export default function FeaturedListings() {
-  const { data, loading, error } = useQuery(GET_FEATURED_LISTINGS, {
+  const { data, loading, error } = useQuery<any>(GET_FEATURED_LISTINGS, {
     variables: { limit: 6 },
   });
 

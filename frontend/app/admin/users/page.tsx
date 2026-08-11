@@ -24,10 +24,10 @@ export default function AdminUsersPage() {
 }
 
 function AdminUsersContent() {
-  const { data, loading, error, refetch } = useQuery(ADMIN_USERS);
-  const [createAdminUser] = useMutation(CREATE_ADMIN_USER, { onCompleted: () => refetch() });
-  const [updateAdminUser] = useMutation(UPDATE_ADMIN_USER, { onCompleted: () => refetch() });
-  const [deleteAdminUser] = useMutation(DELETE_ADMIN_USER, { onCompleted: () => refetch() });
+  const { data, loading, error, refetch } = useQuery<any>(ADMIN_USERS);
+  const [createAdminUser] = useMutation<any>(CREATE_ADMIN_USER, { onCompleted: () => refetch() });
+  const [updateAdminUser] = useMutation<any>(UPDATE_ADMIN_USER, { onCompleted: () => refetch() });
+  const [deleteAdminUser] = useMutation<any>(DELETE_ADMIN_USER, { onCompleted: () => refetch() });
 
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState("");

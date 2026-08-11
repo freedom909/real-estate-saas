@@ -8,7 +8,7 @@ import { CREATE_BOOKING } from "@/app/graphql/booking/mutations/createBooking";
 import { use } from "react";
 import { useState } from "react";
 
-import { listingClient } from "@/app/lib/listingClient";
+import { client } from "@/app/lib/apolloClient";
 
 import Navbar from "@/app/components/navbar";
 
@@ -60,7 +60,7 @@ type GetListingResponse = {
 
 export default function ListingDetailPageWrapper(params: { params: Promise<{ id: string }> }) {
   return (
-    <ApolloProvider client={listingClient}>
+    <ApolloProvider client={client}>
       <ListingDetailPage {...params} />
     </ApolloProvider>
   );

@@ -9,7 +9,7 @@ import Navbar from "@/app/components/navbar";
 
 export default function CreateListingPage() {
   const router = useRouter();
-  const [createListing] = useMutation(CREATE_LISTING);
+  const [createListing] = useMutation<any>(CREATE_LISTING);
 
   const [form, setForm] = useState({
     title: "",

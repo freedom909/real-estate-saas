@@ -18,8 +18,8 @@ export default function AdminProfilePage() {
 
 
 function AdminProfileContent() {
-  const { data, loading, error, refetch } = useQuery(ME);
-  const [updateAdminAccount, { loading: updatingAdminAccount }] = useMutation(UPDATE_ADMIN_ACCOUNT, {
+  const { data, loading, error, refetch } = useQuery<any>(ME);
+  const [updateAdminAccount, { loading: updatingAdminAccount }] = useMutation<any>(UPDATE_ADMIN_ACCOUNT, {
     onCompleted: () => {
       setProfileMsg("Profile updated successfully!");
       refetch();

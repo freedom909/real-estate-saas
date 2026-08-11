@@ -79,11 +79,11 @@ function AuditLogsContent() {
 
   const activeFilter = buildFilter();
 
-  const { data, loading, error, refetch } = useQuery(AUDIT_LOGS, {
+  const { data, loading, error, refetch } = useQuery<any>(AUDIT_LOGS, {
     variables: { limit, filter: activeFilter },
   });
 
-  const { data: countData } = useQuery(AUDIT_LOG_COUNT, {
+  const { data: countData } = useQuery<any>(AUDIT_LOG_COUNT, {
     variables: { filter: activeFilter },
   });
 

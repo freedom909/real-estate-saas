@@ -94,7 +94,7 @@ export default function RolesPage() {
 }
 
 function RolesContent() {
-  const { data } = useQuery(ADMIN_USERS);
+  const { data } = useQuery<any>(ADMIN_USERS);
   const [viewingRole, setViewingRole] = useState<RoleDef | null>(null);
   const [showMatrix, setShowMatrix] = useState(false);
 

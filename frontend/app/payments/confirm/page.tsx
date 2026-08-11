@@ -82,12 +82,12 @@ function PaymentConfirmContent() {
   const paymentId = searchParams.get("paymentId");
   const bookingId = searchParams.get("bookingId");
 
-  const { data: paymentData, loading: paymentLoading } = useQuery(GET_PAYMENT, {
+  const { data: paymentData, loading: paymentLoading } = useQuery<any>(GET_PAYMENT, {
     variables: { id: paymentId },
     skip: !paymentId,
   });
 
-  const { data: bookingData, loading: bookingLoading } = useQuery(BOOKING_BY_ID, {
+  const { data: bookingData, loading: bookingLoading } = useQuery<any>(BOOKING_BY_ID, {
     variables: { id: bookingId },
     skip: !bookingId,
   });

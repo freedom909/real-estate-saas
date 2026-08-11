@@ -74,7 +74,7 @@ console.log(
   const canPay =isCustomer && booking?.status === "CONFIRMED";
   const canCheckIn =isAgent && booking?.status === "PAID";
   const canComplete =isAgent && booking?.status === "CHECKED_IN";
-  const [cancelBooking] = useMutation(CANCEL_BOOKING, {
+  const [cancelBooking] = useMutation<any>(CANCEL_BOOKING, {
     context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
@@ -85,7 +85,7 @@ console.log(
     },
   });
 
-  const [confirmBooking] = useMutation(CONFIRM_BOOKING, {
+  const [confirmBooking] = useMutation<any>(CONFIRM_BOOKING, {
     context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
@@ -96,7 +96,7 @@ console.log(
     },
   });
 
-  const [checkInBooking] = useMutation(CHECK_IN_BOOKING, {
+  const [checkInBooking] = useMutation<any>(CHECK_IN_BOOKING, {
     
     context: { headers: { 'Authorization': token } },
     onCompleted: () => {
@@ -108,7 +108,7 @@ console.log(
     },
   });
 
-  const [completeBooking] = useMutation(COMPLETE_BOOKING, {
+  const [completeBooking] = useMutation<any>(COMPLETE_BOOKING, {
     context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
@@ -119,7 +119,7 @@ console.log(
     },
   });
 
-  const [processPayment] = useMutation(PROCESS_PAYMENT, {
+  const [processPayment] = useMutation<any>(PROCESS_PAYMENT, {
     context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();

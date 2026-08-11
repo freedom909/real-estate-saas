@@ -52,10 +52,10 @@ export default function NotificationsPage() {
 }
 
 function NotificationsContent() {
-  const { data, loading, error, refetch } = useQuery(NOTIFICATIONS, { variables: { limit: 200 } });
-  const [markRead] = useMutation(MARK_NOTIFICATION_READ, { onCompleted: () => refetch() });
-  const [markAllRead] = useMutation(MARK_ALL_NOTIFICATIONS_READ, { onCompleted: () => refetch() });
-  const [deleteNotif] = useMutation(DELETE_NOTIFICATION, { onCompleted: () => refetch() });
+  const { data, loading, error, refetch } = useQuery<any>(NOTIFICATIONS, { variables: { limit: 200 } });
+  const [markRead] = useMutation<any>(MARK_NOTIFICATION_READ, { onCompleted: () => refetch() });
+  const [markAllRead] = useMutation<any>(MARK_ALL_NOTIFICATIONS_READ, { onCompleted: () => refetch() });
+  const [deleteNotif] = useMutation<any>(DELETE_NOTIFICATION, { onCompleted: () => refetch() });
 
   const [tab, setTab] = useState<FilterTab>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("");

@@ -26,60 +26,66 @@ const authInterceptorLink = new ApolloLink((operation, forward) => {
     }));
   }
 
-  return forward(operation).map((response) => {
-    // Check for auth errors in the response
-    const errors = response.errors;
-    if (errors) {
-      const authError = errors.find(
-        (e: any) =>
-          e.message?.includes("UNAUTHORIZED") ||
-          e.message?.includes("TOKEN_EXPIRED") ||
-          e.message?.includes("Invalid or expired token")
-      );
+  return new Observable((observer) => {
+    forward(operation).subscribe({
+      next: (response: any) => {
+        // Check for auth errors in the response
+        const errors = response.errors;
+        if (errors) {
+          const authError = errors.find(
+            (e: any) =>
+              e.message?.includes("UNAUTHORIZED") ||
+              e.message?.includes("TOKEN_EXPIRED") ||
+              e.message?.includes("Invalid or expired token")
+          );
 
-      if (authError && !isRefreshing) {
-        // Token expired — attempt refresh
-        isRefreshing = true;
+          if (authError && !isRefreshing) {
+            // Token expired — attempt refresh
+            isRefreshing = true;
 
-        return new Observable((observer) => {
-          refreshToken()
-            .then((success) => {
-              if (success) {
-                // Retry the original operation with new token
-                const newToken = useAuthStore.getState().accessToken;
-                operation.setContext({
-                  headers: {
-                    ...operation.getContext().headers,
-                    Authorization: `Bearer ${newToken}`,
-                  },
-                });
+            refreshToken()
+              .then((success) => {
+                if (success) {
+                  // Retry the original operation with new token
+                  const newToken = useAuthStore.getState().accessToken;
+                  operation.setContext({
+                    headers: {
+                      ...operation.getContext().headers,
+                      Authorization: `Bearer ${newToken}`,
+                    },
+                  });
 
-                forward(operation).subscribe({
-                  next: observer.next.bind(observer),
-                  error: observer.error.bind(observer),
-                  complete: observer.complete.bind(observer),
-                });
-              } else {
-                // Refresh failed — propagate error
+                  forward(operation).subscribe({
+                    next: observer.next.bind(observer),
+                    error: observer.error.bind(observer),
+                    complete: observer.complete.bind(observer),
+                  });
+                } else {
+                  // Refresh failed — propagate error
+                  observer.next(response);
+                  observer.complete();
+                }
+              })
+              .catch(() => {
                 observer.next(response);
                 observer.complete();
-              }
-            })
-            .catch((err) => {
-              observer.next(response);
-              observer.complete();
-            })
-            .finally(() => {
-              isRefreshing = false;
-              // Process pending requests
-              pendingRequests.forEach((cb) => cb());
-              pendingRequests = [];
-            });
-        });
-      }
-    }
-
-    return response;
+              })
+              .finally(() => {
+                isRefreshing = false;
+                // Process pending requests
+                pendingRequests.forEach((cb) => cb());
+                pendingRequests = [];
+              });
+          } else {
+            observer.next(response);
+          }
+        } else {
+          observer.next(response);
+        }
+      },
+      error: (err: any) => observer.error(err),
+      complete: () => observer.complete(),
+    });
   });
 });
 

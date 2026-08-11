@@ -32,7 +32,7 @@ export default function AdminDashboardPage() {
 }
 
 function AdminDashboardContent() {
-  const { data, loading, error } = useQuery(DASHBOARD_STATS);
+  const { data, loading, error } = useQuery<any>(DASHBOARD_STATS);
 
   if (loading) return <AdminLayout><LoadingSkeleton /></AdminLayout>;
   if (error) return <AdminLayout><p className="text-red-500">Error: {error.message}</p></AdminLayout>;

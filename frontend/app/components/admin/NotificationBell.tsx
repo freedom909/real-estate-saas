@@ -22,10 +22,10 @@ const TYPE_ICONS: Record<string, string> = {
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data, refetch } = useQuery(NOTIFICATIONS, { variables: { limit: 20 } });
-  const [markRead] = useMutation(MARK_NOTIFICATION_READ, { onCompleted: () => refetch() });
-  const [markAllRead] = useMutation(MARK_ALL_NOTIFICATIONS_READ, { onCompleted: () => refetch() });
-  const [deleteNotif] = useMutation(DELETE_NOTIFICATION, { onCompleted: () => refetch() });
+  const { data, refetch } = useQuery<any>(NOTIFICATIONS, { variables: { limit: 20 } });
+  const [markRead] = useMutation<any>(MARK_NOTIFICATION_READ, { onCompleted: () => refetch() });
+  const [markAllRead] = useMutation<any>(MARK_ALL_NOTIFICATIONS_READ, { onCompleted: () => refetch() });
+  const [deleteNotif] = useMutation<any>(DELETE_NOTIFICATION, { onCompleted: () => refetch() });
 
   const notifications = data?.notifications?.notifications ?? [];
   const unreadCount = data?.notifications?.unreadCount ?? 0;

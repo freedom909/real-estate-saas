@@ -85,16 +85,16 @@ function SettingsContent() {
   const [newSetting, setNewSetting] = useState({ key: "", value: "", description: "" });
   const [msg, setMsg] = useState("");
 
-  const { data, loading, error, refetch } = useQuery(SYSTEM_SETTINGS, {
+  const { data, loading, error, refetch } = useQuery<any>(SYSTEM_SETTINGS, {
     variables: { category: activeCategory },
   });
 
-  const [updateSetting] = useMutation(UPDATE_SYSTEM_SETTING, {
+  const [updateSetting] = useMutation<any>(UPDATE_SYSTEM_SETTING, {
     onCompleted: () => { setMsg("Setting updated!"); refetch(); },
     onError: (err) => setMsg(err.message),
   });
 
-  const [deleteSetting] = useMutation(DELETE_SYSTEM_SETTING, {
+  const [deleteSetting] = useMutation<any>(DELETE_SYSTEM_SETTING, {
     onCompleted: () => { setMsg("Setting deleted!"); refetch(); },
     onError: (err) => setMsg(err.message),
   });

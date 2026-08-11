@@ -23,17 +23,17 @@ function PaymentPageContent() {
   const [intentError, setIntentError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-  const { data: paymentData, loading: paymentLoading } = useQuery(GET_PAYMENT, {
+  const { data: paymentData, loading: paymentLoading } = useQuery<any>(GET_PAYMENT, {
     variables: { id: paymentId },
     skip: !paymentId,
   });
 
-  const { data: bookingData, loading: bookingLoading } = useQuery(BOOKING_BY_ID, {
+  const { data: bookingData, loading: bookingLoading } = useQuery<any>(BOOKING_BY_ID, {
     variables: { id: bookingId },
     skip: !bookingId,
   });
 
-  const [confirmPayment] = useMutation(CONFIRM_PAYMENT);
+  const [confirmPayment] = useMutation<any>(CONFIRM_PAYMENT);
 
   const payment = paymentData?.payment || {}; // Property 'payment' does not exist on type '{}'.
   const booking = bookingData?.booking || {}; // Property 'booking' does not exist on type '{}'.

@@ -76,14 +76,14 @@ function ManageUsersContent() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const limit = 20;
 
-  const { data, loading, error, refetch } = useQuery(ALL_USERS, {
+  const { data, loading, error, refetch } = useQuery<any>(ALL_USERS, {
     variables: { limit, offset: page * limit },
   });
-  const { data: countData } = useQuery(USER_COUNT);
+  const { data: countData } = useQuery<any>(USER_COUNT);
 
-  const [updateProfile] = useMutation(UPDATE_USER_PROFILE, { onCompleted: () => refetch() });
-  const [deactivateUser] = useMutation(DEACTIVATE_USER, { onCompleted: () => refetch() });
-  const [createUser] = useMutation(CREATE_USER, { onCompleted: () => { refetch(); setShowCreateForm(false); } });
+  const [updateProfile] = useMutation<any>(UPDATE_USER_PROFILE, { onCompleted: () => refetch() });
+  const [deactivateUser] = useMutation<any>(DEACTIVATE_USER, { onCompleted: () => refetch() });
+  const [createUser] = useMutation<any>(CREATE_USER, { onCompleted: () => { refetch(); setShowCreateForm(false); } });
 
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editForm, setEditForm] = useState({ name: "", avatar: "", role: "CUSTOMER" });

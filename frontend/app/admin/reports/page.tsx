@@ -38,8 +38,8 @@ function ReportsContent() {
   const [reportType, setReportType] = useState("overview");
   const [dateRange, setDateRange] = useState(30);
 
-  const { data: statsData, loading: statsLoading } = useQuery(DASHBOARD_STATS);
-  const { data: logsData, loading: logsLoading } = useQuery(AUDIT_LOGS, { variables: { limit: 200 } });
+  const { data: statsData, loading: statsLoading } = useQuery<any>(DASHBOARD_STATS);
+  const { data: logsData, loading: logsLoading } = useQuery<any>(AUDIT_LOGS, { variables: { limit: 200 } });
 
   const loading = statsLoading || logsLoading;
   const stats = statsData?.dashboardStats;

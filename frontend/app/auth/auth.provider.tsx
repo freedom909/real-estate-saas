@@ -91,7 +91,7 @@ function SyncAuthFromCookies() {
         email:userEmail,
         name:getCookie("userName") || "",
         picture:getCookie("userPicture") || "",
-        role:userRole,
+        role:userRole as any,
       }
     });
   },[hasHydrated]);
