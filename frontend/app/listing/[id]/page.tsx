@@ -59,11 +59,11 @@ type GetListingResponse = {
 
 
 export default function ListingDetailPageWrapper(params: { params: Promise<{ id: string }> }) {
-  return (
-    <ApolloProvider client={client}>
-      <ListingDetailPage {...params} />
-    </ApolloProvider>
-  );
+    return (
+        <ApolloProvider client={client}>
+            <ListingDetailPage {...params} />
+        </ApolloProvider>
+    );
 }
 
 function ListingDetailPage({
@@ -94,7 +94,7 @@ function ListingDetailPage({
     } = useQuery<GetListingResponse>(
         GET_LISTING,
         {
-            variables:{
+            variables: {
                 id
             }
         }
@@ -105,7 +105,7 @@ function ListingDetailPage({
     const [
         createBooking,
         {
-            loading:bookingLoading
+            loading: bookingLoading
         }
 
     ] = useMutation(
@@ -115,14 +115,14 @@ function ListingDetailPage({
 
 
 
-    if(loading){
+    if (loading) {
 
         return <p>Loading...</p>;
 
     }
 
 
-    if(error){
+    if (error) {
 
         return (
 
@@ -140,7 +140,7 @@ function ListingDetailPage({
 
 
 
-    if(!listing){
+    if (!listing) {
 
         return (
 
@@ -171,8 +171,8 @@ function ListingDetailPage({
 
 
     const imageUrl = cover?.url ?? (cover?.objectKey
-      ? (cover.objectKey.startsWith("http") ? cover.objectKey : `http://localhost:9000/listing-images/${cover.objectKey}`)
-      : "/placeholder.jpg");
+        ? (cover.objectKey.startsWith("http") ? cover.objectKey : `http://localhost:9000/listing-images/${cover.objectKey}`)
+        : "/placeholder.jpg");
     const price = Number(listing.price ?? 0);
 
 
@@ -181,58 +181,37 @@ function ListingDetailPage({
 
         checkInDate && checkOutDate
 
-        ?
+            ?
 
-        Math.max(
+            Math.max(
 
-            1,
+                1,
 
-            Math.ceil(
+                Math.ceil(
 
-                (
+                    (
+                        new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()
 
-                    new Date(checkOutDate).getTime()
-
-                    -
-
-                    new Date(checkInDate).getTime()
-
+                    )
+                    /
+                    (
+                        1000 * 60 * 60 * 24
+                    )
                 )
-
-                /
-
-                (
-
-                    1000 *
-
-                    60 *
-
-                    60 *
-
-                    24
-
-                )
-
             )
 
-        )
+            :
 
-        :
-
-        1;
+            1;
 
 
 
     const total = price * nights;
 
+    const handleReserve = async () => {
 
 
-
-
-    const handleReserve = async()=>{
-
-
-        if(!checkInDate || !checkOutDate){
+        if (!checkInDate || !checkOutDate) {
 
             alert(
                 "Please select dates"
@@ -244,16 +223,16 @@ function ListingDetailPage({
 
 
 
-        try{
+        try {
 
 
             const result = await createBooking({
 
-                variables:{
+                variables: {
 
-                    input:{
+                    input: {
 
-                        listingId:id,
+                        listingId: id,
 
                         checkInDate,
 
@@ -288,7 +267,7 @@ function ListingDetailPage({
 
 
 
-        }catch(error){
+        } catch (error) {
 
 
             console.error(
@@ -313,125 +292,125 @@ function ListingDetailPage({
 
 
 
-return (
+    return (
 
-<>
-
-
-<Navbar />
+        <>
 
 
+            <Navbar />
 
-<div className="max-w-5xl mx-auto p-8">
-<img
-  src={imageUrl}
-  alt={listing.title}
 
-        className="
+
+            <div className="max-w-5xl mx-auto p-8">
+                <img
+                    src={imageUrl}
+                    alt={listing.title}
+
+                    className="
             w-full
             h-96
             object-cover
             rounded-xl
         "
 
-    />
+                />
 
 
 
 
-    <h1 className="
+                <h1 className="
         text-4xl
         font-bold
         mt-8
     ">
 
-        {listing.title}
+                    {listing.title}
 
-    </h1>
-
-
+                </h1>
 
 
 
-    <p className="
+
+
+                <p className="
         text-gray-500
         mt-2
     ">
 
-        {listing.address}
+                    {listing.address}
 
-    </p>
-
-
+                </p>
 
 
 
-    <p className="
+
+
+                <p className="
         mt-6
         text-lg
         leading-8
     ">
 
-        {listing.description}
+                    {listing.description}
 
-    </p>
-
-
+                </p>
 
 
 
 
-    <div className="
+
+
+                <div className="
         mt-6
         text-xl
     ">
 
 
-        Beds:
-        {listing.numOfBeds}
+                    Beds:
+                    {listing.numOfBeds}
 
-        <br/>
+                    <br />
 
-        Guests:
-        {listing.numOfCustomers}
-
-
-    </div>
+                    Guests:
+                    {listing.numOfCustomers}
 
 
+                </div>
 
 
 
-    <div className="
+
+
+                <div className="
         mt-8
         text-3xl
         font-bold
     ">
 
 
-        ¥{price.toLocaleString()}
-        / night
+                    ¥{price.toLocaleString()}
+                    / night
 
 
-        <div className="
+                    <div className="
             text-xl
             mt-2
         ">
 
-            Total:
-            ¥{total.toLocaleString()}
+                        Total:
+                        ¥{total.toLocaleString()}
 
 
-        </div>
+                    </div>
 
 
-    </div>
+                </div>
 
 
 
 
 
-    <div className="
+                <div className="
         mt-10
         border
         rounded-xl
@@ -440,43 +419,43 @@ return (
 
 
 
-        <h2 className="
+                    <h2 className="
             text-2xl
             font-bold
             mb-6
         ">
 
-            Booking
+                        Booking
 
-        </h2>
-
-
+                    </h2>
 
 
 
-        <label className="
+
+
+                    <label className="
             block
             mb-2
         ">
 
-            Check-in
+                        Check-in
 
-        </label>
+                    </label>
 
 
-        <input
+                    <input
 
-            type="date"
+                        type="date"
 
-            value={checkInDate}
+                        value={checkInDate}
 
-            onChange={e=>
-                setCheckInDate(
-                    e.target.value
-                )
-            }
+                        onChange={e =>
+                            setCheckInDate(
+                                e.target.value
+                            )
+                        }
 
-            className="
+                        className="
                 w-full
                 border
                 rounded-lg
@@ -484,36 +463,36 @@ return (
                 mb-5
             "
 
-        />
+                    />
 
 
 
 
 
-        <label className="
+                    <label className="
             block
             mb-2
         ">
 
-            Check-out
+                        Check-out
 
-        </label>
+                    </label>
 
 
 
-        <input
+                    <input
 
-            type="date"
+                        type="date"
 
-            value={checkOutDate}
+                        value={checkOutDate}
 
-            onChange={e=>
-                setCheckOutDate(
-                    e.target.value
-                )
-            }
+                        onChange={e =>
+                            setCheckOutDate(
+                                e.target.value
+                            )
+                        }
 
-            className="
+                        className="
                 w-full
                 border
                 rounded-lg
@@ -521,22 +500,18 @@ return (
                 mb-6
             "
 
-        />
+                    />
+
+                    <button
 
 
+                        onClick={handleReserve}
 
 
-
-        <button
-
-
-            onClick={handleReserve}
+                        disabled={bookingLoading}
 
 
-            disabled={bookingLoading}
-
-
-            className="
+                        className="
                 bg-black
                 text-white
                 px-6
@@ -546,36 +521,36 @@ return (
             "
 
 
-        >
+                    >
 
-            {
-                bookingLoading
+                        {
+                            bookingLoading
 
-                ?
+                                ?
 
-                "Reserving..."
+                                "Reserving..."
 
-                :
+                                :
 
-                "Reserve"
-            }
-
-
-        </button>
+                                "Reserve"
+                        }
 
 
-
-    </div>
+                    </button>
 
 
 
-</div>
+                </div>
 
 
-</>
+
+            </div>
 
 
-);
+        </>
+
+
+    );
 
 
 }

@@ -15,7 +15,7 @@ interface Booking {
   listing?: {
     id: string;
     title: string;
-    pictures?: Array<{ objectKey: string }>;
+    pictures?: Array<{ url: string }>;
     price: number;
   };
 }
@@ -85,11 +85,8 @@ function OwnerBookingsContent() {
               <div className="flex flex-col md:flex-row">
                 <img
                   src={
-                    booking.listing?.pictures?.[0]?.objectKey
-                      ? (booking.listing.pictures[0].objectKey.startsWith("http")
-                          ? booking.listing.pictures[0].objectKey
-                          : `http://localhost:9000/omaesama/${booking.listing.pictures[0].objectKey}`)
-                      : "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=100&auto=format&fit=crop"
+                    booking.listing?.pictures?.[0]?.url
+                      || "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=100&auto=format&fit=crop"
                   }
                   alt={booking.listing?.title}
                   className="h-40 w-full object-cover md:w-48"

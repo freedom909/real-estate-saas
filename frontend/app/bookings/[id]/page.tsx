@@ -24,7 +24,7 @@ interface BookingQueryData {
       price: number;
       title: string;
       pictures?: { 
-        objectKey: string;
+        url: string;
         sortOrder: number;
       }[];
     };
@@ -209,7 +209,7 @@ console.log(
           <div className="overflow-hidden rounded-2xl border bg-gray-300 shadow-md">
             <img
               src={
-                booking?.listing?.pictures?.[0]?.objectKey ||
+                booking?.listing?.pictures?.[0]?.url ||
                 "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop"
               }
               className="h-72 w-full object-cover"

@@ -15,7 +15,7 @@ interface Booking {
   listing?: {
     id: string;
     title: string;
-    pictures?: Array<{ objectKey: string }>;
+    pictures?: Array<{ url: string }>;
     price: number;
   };
 }
@@ -93,9 +93,8 @@ function AdminBookingsContent() {
                     <div className="flex items-center gap-3">
                       <img
                         src={
-                          booking.listing?.pictures?.[0]?.objectKey
-                            ? `/api/images/${booking.listing.pictures[0].objectKey}`
-                            : "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=100&auto=format&fit=crop"
+                          booking.listing?.pictures?.[0]?.url
+                            || "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=100&auto=format&fit=crop"
                         }
                         alt={booking.listing?.title}
                         className="w-10 h-10 rounded-lg object-cover"
