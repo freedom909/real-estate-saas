@@ -25,7 +25,7 @@ export interface CreateListingInput {
   numOfBathrooms: number;
   numOfRooms: number;
   price: number;
-  pictures: { objectKey: string; sortOrder?: number }[];
+  pictures: { objectKey: string; mimeType: string; size: number; sortOrder?: number }[];
   isFeatured: boolean;
   locationId: string;
   categories: string[];
@@ -88,10 +88,10 @@ export default class CreateListingUseCase {
       new Picture({
         id: uuidv4(),
         listingId,
-
+      
         objectKey: pic.objectKey,
-        mimeType: "image/jpeg",
-        size: 0,
+        mimeType: pic.mimeType,
+        size: pic.size,
         type: "listing",
         sortOrder: pic.sortOrder ?? index,
       })
@@ -110,10 +110,11 @@ export default class CreateListingUseCase {
       locationId: input.locationId,
       categories: input.categories,
       amenityIds: input.amenityIds || [],
-      ownerId: input.ownerId,
+     
       pictures,
       createdAt: new Date(),
       updatedAt: new Date(),
+      ownerId: input.ownerId,// Property 'ownerId' does not exist on type 'CreateListingInput'.
     })
     return this.listingRepository.save(listing);
   }

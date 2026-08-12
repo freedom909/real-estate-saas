@@ -12,4 +12,5 @@ export const TOKENS_PICTURE = {
   storage: {
     minioStorage: Symbol.for('MinioStorage'),
   },
+
 }

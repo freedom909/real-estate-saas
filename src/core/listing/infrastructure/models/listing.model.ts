@@ -55,7 +55,7 @@ ListingModel.init(
     },
 
     ownerId: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.STRING(50),// is this all right?
       allowNull: false,
     },
 

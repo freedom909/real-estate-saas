@@ -15,6 +15,7 @@ import { MinioStorage } from "@/core/listing/infrastructure/storage/minio.storag
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 
 
+
 export const resolvers = {
 
   Query: {
@@ -26,8 +27,7 @@ export const resolvers = {
           TOKENS_LISTING.repos.listingRepository
         );
 
-      const listings =
-        await repo.findAll();
+      const listings = await repo.findAll();
       return listings.map(listing => ({
         id: listing.id,
         ownerId: listing.ownerId,
@@ -88,11 +88,11 @@ export const resolvers = {
       if (!context.user) {
         throw new Error("User not authenticated");
       }
-      const ownerId = context.user.id;
+      const ownerId = context.user.userId;
       const useCase = container.resolve<CreateListingUseCase>(
           TOKENS_LISTING.usecase.createListingUseCase
         );
-      return await useCase.execute({ ...input, ownerId });
+      return await useCase.execute({...input, ownerId});
     },
 
     uploadImage: async (_: any, { files }: any, context: any) => {
@@ -137,13 +137,11 @@ export const resolvers = {
     Picture: {
       url: async (parent: any) => {
         // Return direct URL since bucket is public
-        const bucket = process.env.MINIO_BUCKET || "listing-images";
-        const endpoint = process.env.MINIO_ENDPOINT || "localhost";
-        const port = process.env.MINIO_PORT || "9000";
-        return `http://${endpoint}:${port}/${bucket}/${parent.objectKey}`;
+        const minioStorage = container.resolve<MinioStorage>(TOKENS_PICTURE.storage.minioStorage);
+        return await minioStorage.getUrl(parent.objectKey)
       },
-      mimeType: async (parent: any) => {
-        return await parent.mimeType;
+      mimeType: (parent: any) => {
+        return parent.mimeType;
       }
     },
   }

@@ -94,7 +94,7 @@ export default function CreateListingPage() {
         categories: form.categories ? form.categories.split(",").map((c) => c.trim()) : [],
         isFeatured: form.isFeatured,
         picture: images,
-        ownerId: "current-user", // Replace with actual user ID
+        
       };
 
       const result = await createListing({ variables: { input } });

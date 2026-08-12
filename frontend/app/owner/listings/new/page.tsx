@@ -272,7 +272,6 @@ if (result.data?.uploadImage) {
         categories: form.categories,
         isFeatured: form.isFeatured,
         pictures: allImages,
-        ownerId: "current-user",
       };
      
       

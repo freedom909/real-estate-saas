@@ -4,6 +4,8 @@
   "main": "index.js",
   "type": "module",
 "scripts": {
+  "seed:listings": "tsx src/seeds/seed-listings.ts",
+  "seed:categories": "tsx src/seeds/seed-categories.ts",
   "db:sync": "npx prisma migrate dev",
   "db:reset": "npx prisma migrate reset",
 

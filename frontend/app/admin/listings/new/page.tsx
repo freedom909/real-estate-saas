@@ -108,7 +108,7 @@ function CreateListingContent() {
         categories: form.categories ? form.categories.split(",").map((c) => c.trim()) : [],
         isFeatured: form.isFeatured,
         pictures: images.map((url) => ({ objectKey: url })),
-        ownerId: "current-user", // Replace with actual user ID
+        
       };
 
       const result = await createListing({ variables: { input } });

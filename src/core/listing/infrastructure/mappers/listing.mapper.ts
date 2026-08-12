@@ -14,8 +14,7 @@ static toDomain(raw: any): Listing {
     ownerId: raw.ownerId,
     locationId: raw.locationId,
 
-    title:
-      new Title(raw.title),
+    title: new Title(raw.title),
 
     description:
       new Description(
