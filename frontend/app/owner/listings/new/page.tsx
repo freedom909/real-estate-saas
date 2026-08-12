@@ -9,7 +9,7 @@ import { CREATE_LISTING } from "@/app/graphql/listing/mutations/createListing";
 import { textToImage } from "@/app/services/imageGen";
 import OwnerGuard from "@/app/components/owner/OwnerGuard";
 import OwnerLayout from "@/app/components/owner/OwnerLayout";
-import { UPLOAD_IMAGE } from "@/app/graphql/listing/mutations/uploadImage";
+import { uploadImagesDirect } from "@/app/graphql/listing/mutations/uploadImage";
 import { ALL_CATEGORIES } from "@/app/graphql/category/queries/category";
 import { ALL_LOCATIONS } from "@/app/graphql/location/queries/location";
 import { Listing } from "@/app/types/listing";
@@ -88,7 +88,6 @@ function CreateListingContent() {
   const [loading, setLoading] = useState(false);
   const [generatingImages, setGeneratingImages] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [uploadImage] = useMutation<UploadImageResponse>(UPLOAD_IMAGE);
   const [uploadedImages,setUploadedImages]= useState<UploadedImage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -157,23 +156,32 @@ function CreateListingContent() {
   const handleFileUpload = async(files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    for (const file of Array.from(files)) {
-      if (!file.type.startsWith("image/")) continue;
-      const previewUrl = URL.createObjectURL(file);
-      const result=await uploadImage({
-        variables:{ file }
-      });
-if (result.data?.uploadImage) {
- setUploadedImages(prev => [
-  ...prev,
-  {
-    preview: previewUrl,
-    objectKey: result.data!.uploadImage.objectKey,//
-    mimeType: file.type,
-    size: file.size,
-  },
-]);
-  }  }
+    const imageFiles = Array.from(files).filter(file =>
+      file.type.startsWith("image/")
+    );
+
+    if (imageFiles.length === 0) return;
+
+    try {
+      // Upload directly to listing subgraph (bypasses gateway)
+      const uploaded = await uploadImagesDirect(imageFiles);
+
+      const newImages: UploadedImage[] = uploaded.map(
+        (image: any, index: number) => ({
+          preview: URL.createObjectURL(imageFiles[index]),
+          objectKey: image.objectKey,
+          mimeType: image.mimeType,
+          size: image.size,
+          url: image.url,
+        })
+      );
+
+      setUploadedImages(prev => [...prev, ...newImages]);
+
+    } catch (error: any) {
+      console.error("Image upload failed:", error);
+      setError(error.message || "Failed to upload images");
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {

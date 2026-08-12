@@ -16,6 +16,12 @@ import { GenerateTitleResult } from '../ports/generateTitleResult';
 import { IAmenityAdapter } from '../adapters/IAmenity.adapter';
 import { Picture } from '../../domain/entities/picture';
 
+interface CreateImageInput {
+  objectKey: string;
+  mimeType: string;
+  size: number;
+}
+
 export interface CreateListingInput {
   title: string;
   description: string;
@@ -25,7 +31,7 @@ export interface CreateListingInput {
   numOfBathrooms: number;
   numOfRooms: number;
   price: number;
-  pictures: { objectKey: string; mimeType: string; size: number; sortOrder?: number }[];
+  pictures: CreateImageInput[];
   isFeatured: boolean;
   locationId: string;
   categories: string[];
@@ -93,7 +99,7 @@ export default class CreateListingUseCase {
         mimeType: pic.mimeType,
         size: pic.size,
         type: "listing",
-        sortOrder: pic.sortOrder ?? index,
+        sortOrder: index,
       })
     )
     const listing = new Listing({

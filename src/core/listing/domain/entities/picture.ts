@@ -23,7 +23,9 @@ export class Picture {
   get listingId() {
     return this.props.listingId;
   }
-
+  get size(){
+    return this.props.size
+  }
 
   get mimeType(){
     return this.props.mimeType

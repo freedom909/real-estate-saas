@@ -95,7 +95,7 @@ export const resolvers = {
       return await useCase.execute({...input, ownerId});
     },
 
-    uploadImage: async (_: any, { files }: any, context: any) => {
+    uploadImages: async (_: any, { files }: any, context: any) => {
       if (!context.user) {
         throw new Error("User not authenticated");
       }

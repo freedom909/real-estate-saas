@@ -101,7 +101,8 @@ input CreateListingInput {
 
 input CreateImageInput {
   objectKey: String!
-  sortOrder: Int
+  mimeType: String!
+  size: Int!
 }
 # -----------------------------------
 # AI Responses

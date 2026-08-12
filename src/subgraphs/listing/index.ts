@@ -25,6 +25,7 @@ import "@/shared/category/container";
 import { registerAIContainer } from "@/modules/container/ai.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import { initPictureModel } from "@/core/listing/infrastructure/models/picture.model";
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 
 console.log(TOKENS_LISTING.adapters.amenityAdapter);
 console.info("Listing subgraph configuration loaded");
@@ -64,6 +65,7 @@ const startApolloServer = async () => {
 
     const server = new ApolloServer({
       schema: buildSubgraphSchema({ typeDefs, resolvers }),
+      csrfPrevention: false,
       plugins: [
         ApolloServerPluginDrainHttpServer({ httpServer }),
         {
@@ -82,6 +84,7 @@ const startApolloServer = async () => {
 
     app.use(
       "/graphql",
+      graphqlUploadExpress({ maxFileSize: 10_000_000, maxFiles: 10 }),
       express.json(),
       async (req, _res, next) => {
         (req as any).user = await getUserFromContext(req);

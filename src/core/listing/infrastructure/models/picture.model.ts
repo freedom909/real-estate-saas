@@ -16,7 +16,7 @@ export class PictureModel extends Model<
   declare listingId: string;
 
   declare objectKey: string;
-  declare url: string;
+  
 
   declare mimeType: string;
   declare size: number;
@@ -45,11 +45,6 @@ export function initPictureModel(sequelize: Sequelize) {
         allowNull: false,
       },
 
-      url: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-
       mimeType: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -58,6 +53,7 @@ export function initPictureModel(sequelize: Sequelize) {
       size: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 0,
       },
 
       type: {

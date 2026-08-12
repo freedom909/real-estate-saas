@@ -14,6 +14,8 @@ import Category from '../models/category.model';
 import CategoryModel from '@/shared/category/infrastructure/category.model';
 import { Listing } from '../../domain/entities/listing';
 import { PictureModel } from '../models/picture.model';
+import PictureMapper from '../mappers/picture.mapper';
+import { sequelize } from '@/infrastructure/config/seq';
 
 @injectable()
 export class ListingRepository implements IListingRepository {
@@ -202,80 +204,30 @@ export class ListingRepository implements IListingRepository {
     });
   }
 
-  async save(listing: Listing): Promise<Listing> {
-    const raw = ListingMapper.toPersistence(listing);
-    const transaction = await this.sequelize.transaction();
+async save(listing: Listing): Promise<Listing> {
+  const transaction = await sequelize.transaction();
 
-    try {
-      // 1. Upsert main Listing table
-      await this.model.upsert(raw as any, { transaction });
+  try {
+    const listingData = ListingMapper.toPersistence(listing);
 
-      // 2. Handle categories join table
-      const categoryIds = listing.categories || [];
+    await ListingModel.create(listingData, {
+      transaction,
+    });
 
-      await this.listingCategoryModel.destroy({
-        where: { listingId: listing.id },
-        transaction,
-      });
-
-      if (categoryIds.length > 0) {
-        await this.listingCategoryModel.bulkCreate(
-          categoryIds.map((catId: string) => ({
-            listingId: listing.id,
-            categoryId: catId,
-          })),
-          { transaction }
-        );
-      }
-
-      // 3. Handle amenities join table
-      const amenityIds = (listing as any).amenityIds || [];
-
-      await this.listingAmenityModel.destroy({
-        where: { listingId: listing.id },
-        transaction,
-      });
-
-      if (amenityIds.length > 0) {
-        await this.listingAmenityModel.bulkCreate(
-          amenityIds.map((amId: number) => ({
-            listingId: listing.id,
-            amenityId: amId,
-          })),
-          { transaction }
-        );
-      }
-
-      // 4. Handle pictures
-      await PictureModel.destroy({
-        where: {
-          listingId: listing.id
-        },
-        transaction
-      });
-
-      if (listing.pictures && listing.pictures.length > 0) {
-        await PictureModel.bulkCreate(
-          listing.pictures.map(pic => ({
-            id: pic.id,
-            listingId: listing.id,
-            objectKey: pic.objectKey,
-
-            mimeType: pic.mimeType,
-            
-            type: pic.type,
-            sortOrder: pic.sortOrder,
-          })),
-          { transaction }
-        );
-      }
-
-      await transaction.commit();
-      return listing;
-
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
+    for (const picture of listing.pictures) {
+       console.log("Saving picture:", picture);
+      await PictureModel.create(
+        PictureMapper.toPersistence(picture),
+        { transaction }
+      );
     }
+
+    await transaction.commit();
+
+    return listing;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
   }
+}
 }

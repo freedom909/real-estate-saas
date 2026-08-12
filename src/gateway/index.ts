@@ -42,6 +42,7 @@ import uploadRouter from "@/gateway/routes/uploadRouter"
 import imageRouter from "@/gateway/routes/imageRouter"
 
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs"
 async function start() {
   // Connect to MongoDB for REST routes (tenant API)
   const { default: mongoose } = await import("mongoose");
@@ -124,6 +125,8 @@ async function start() {
   const server = new ApolloServer({
     gateway,
     plugins: enableAuth ? [createAuthPlugin()] : [],
+    // Disable CSRF prevention — uploads use multipart/form-data which is blocked by default
+    csrfPrevention: false,
   })
 
   await server.start()
@@ -151,6 +154,7 @@ async function start() {
 
   // GraphQL endpoint
   app.use("/graphql",
+    graphqlUploadExpress({ maxFileSize: 10_000_000, maxFiles: 10 }),
     async (req, res, next) => {
 
       console.log("SUBGRAPH AUTH =>", req.headers.authorization);
