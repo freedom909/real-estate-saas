@@ -12,9 +12,9 @@ export class OpenAITool implements IOpenAITool {
   private client: OpenAI;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OpenAI_API_KEY;
     if (!apiKey) {
-      throw new Error("Missing OPENAI_API_KEY environment variable.");
+      throw new Error("Missing OpenAI_API_KEY environment variable.");
     }
 
     this.client = new OpenAI({

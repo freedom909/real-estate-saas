@@ -7,9 +7,7 @@ import { CREATE_BOOKING } from "@/app/graphql/booking/mutations/createBooking";
 
 import { use } from "react";
 import { useState } from "react";
-
 import { client } from "@/app/lib/apolloClient";
-
 import Navbar from "@/app/components/navbar";
 
 
@@ -18,7 +16,6 @@ type Picture = {
     objectKey: string;
 
     url: string;
-
     mimeType: string;
 
     size: number;

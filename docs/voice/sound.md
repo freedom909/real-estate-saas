@@ -1215,7 +1215,7 @@ import OpenAI, { toFile } from "openai";
 export class OpenAIVoiceRepository implements IVoiceRepository {
   private client: OpenAI;
   constructor() {
-    this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    this.client = new OpenAI({ apiKey: process.env.OpenAI_API_KEY });
   }
   async speechToText(audio: Buffer, language: string): Promise<string> {
     // Buffer → File形式に変換
@@ -1238,7 +1238,7 @@ export interface IVoiceRepository {
 }
 4. 独立したコードとして使う場合
 import OpenAI from "openai";
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = new OpenAI({ apiKey: process.env.OpenAI_API_KEY });
 async function recognizeSpeech(audioBuffer: Buffer, language: string = "ja") {
   // Buffer → File形式に変換
   const file = new File([audioBuffer], "audio.webm", { type: "audio/webm" });
@@ -1317,7 +1317,7 @@ async textToSpeech(
 }
 3. 独立したコードとして使う場合
 import OpenAI from "openai";
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = new OpenAI({ apiKey: process.env.OpenAI_API_KEY });
 async function textToSpeech(text: string, voice: string = "Shimmer") {
   const response = await client.audio.speech.create({
     model: "tts-1",
@@ -1690,7 +1690,7 @@ OpenAIVoiceRepository（実際のAPI呼び出し）
 export class OpenAIVoiceRepository implements IVoiceRepository {
   private client: OpenAI;
   constructor() {
-    this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    this.client = new OpenAI({ apiKey: process.env.OpenAI_API_KEY });
   }
   // 音声認識（STT）
   async speechToText(audio: Buffer, language: string): Promise<string> {

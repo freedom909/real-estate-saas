@@ -70,7 +70,7 @@ async function testRepositorySearch() {
   container.register(TOKENS_LISTING.sequelize, { useValue: (await import("@/infrastructure/config/seq")).sequelize });
   container.register(TOKENS_LISTING.repos.listingRepository, { useClass: ListingRepository });
 
-  const repo = container.resolve<ListingRepository>(TOKENS_LISTING.repos.listingRepository);
+  const repo = container.resolve<typeof ListingRepository>(TOKENS_LISTING.repos.listingRepository);
   const results = await repo.search({ location: "Kyoto" });
   console.log(`Found ${results.length} listings via repo.search({ location: "Kyoto" }):`);
   for (const r of results) {

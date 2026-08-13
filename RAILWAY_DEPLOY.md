@@ -114,7 +114,7 @@ FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
 GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 GEMINI_API_KEY=your-gemini-api-key
-OPENAI_API_KEY=your-openai-api-key
+OpenAI_API_KEY=your-openai-api-key
 ```
 
 ## Step 4: Deploy Backend

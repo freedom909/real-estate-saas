@@ -5,7 +5,7 @@ export class OpenAIVoiceRepository implements IVoiceRepository {
   private client: OpenAI;
 
   constructor() {
-    this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    this.client = new OpenAI({ apiKey: process.env.OpenAI_API_KEY });
   }
 
   async speechToText(audio: Buffer, language: string): Promise<string> {

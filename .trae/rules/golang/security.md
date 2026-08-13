@@ -11,9 +11,9 @@ paths:
 ## Secret Management
 
 ```go
-apiKey := os.Getenv("OPENAI_API_KEY")
+apiKey := os.Getenv("OpenAI_API_KEY")
 if apiKey == "" {
-    log.Fatal("OPENAI_API_KEY not configured")
+    log.Fatal("OpenAI_API_KEY not configured")
 }
 ```
 

@@ -8,9 +8,9 @@ const router = express.Router();
 // Returns: { image_url: string, seed: number }
 router.post("/txt2img", async (req: express.Request, res: express.Response) => {
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OpenAI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "OPENAI_API_KEY is not configured" });
+      return res.status(500).json({ error: "OpenAI_API_KEY is not configured" });
     }
 
     const { prompt, negative_prompt, width, height } = req.body;

@@ -55,7 +55,7 @@ ListingModel.init(
     },
 
     ownerId: {
-      type: DataTypes.STRING(50),// is this all right?
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
 
@@ -109,6 +109,7 @@ ListingModel.init(
       allowNull: false,
       defaultValue: false,
     },
+
   },
   {
     sequelize,

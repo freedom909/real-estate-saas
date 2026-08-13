@@ -18,7 +18,7 @@ export class UploadImageUseCase {
     for (const file of files) {
       // GraphQL Upload spec: file is a Promise resolving to { filename, mimeType, createReadStream }
       const upload = await file;
-      const { filename, mimeType, createReadStream } = upload;
+      const { filename, mimetype, createReadStream } = upload;
 
       // Read the stream into a buffer
       const stream = createReadStream();
@@ -36,7 +36,7 @@ export class UploadImageUseCase {
       const result = await this.minioStorage.upload({
         listingId: "pending", // Will be updated when listing is created
         buffer,
-        mimeType: mimeType || "application/octet-stream",
+        mimeType: mimetype || "application/octet-stream",
         originalName: filename,
       });
 

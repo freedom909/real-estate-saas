@@ -13,6 +13,7 @@ import { UploadImageUseCase } from "@/core/listing/application/usecase/uploadIma
 
 import { MinioStorage } from "@/core/listing/infrastructure/storage/minio.storage";
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
+import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
 
 
 
@@ -59,10 +60,21 @@ export const resolvers = {
         container.resolve<GetListingByIdUseCase>(
           TOKENS_LISTING.usecase.getListingByIdUseCase
         );
-
-
       return useCase.execute(id);
 
+    },
+
+    featuredListings: async (_: any,{ limit }: { limit?: number }) => {
+      try {
+        const useCase = container.resolve<GetFeaturedListingsUseCase>(
+          TOKENS_LISTING.usecase.getFeaturedListingsUseCase
+        );
+
+        return useCase.execute(limit??6);
+      } catch (error) {
+        console.error('⚠️ Error fetching featured listings:', error);
+        return [];
+      }
     },
 
     categories: async () => {
@@ -90,58 +102,58 @@ export const resolvers = {
       }
       const ownerId = context.user.userId;
       const useCase = container.resolve<CreateListingUseCase>(
-          TOKENS_LISTING.usecase.createListingUseCase
-        );
-      return await useCase.execute({...input, ownerId});
+        TOKENS_LISTING.usecase.createListingUseCase
+      );
+      return await useCase.execute({ ...input, ownerId });
     },
 
     uploadImages: async (_: any, { files }: any, context: any) => {
       if (!context.user) {
         throw new Error("User not authenticated");
       }
-      const usecase=container.resolve<UploadImageUseCase>(TOKENS_PICTURE.usecase.uploadImageUseCase)
+      const usecase = container.resolve<UploadImageUseCase>(TOKENS_PICTURE.usecase.uploadImageUseCase)
       return await usecase.execute(files)
     },
   },
-    Listing: {
-      __resolveReference: async (ref: { id: string }) => {
-        const useCase = container.resolve<GetListingByIdUseCase>(TOKENS_LISTING.usecase.getListingByIdUseCase);
-        try {
-          return await useCase.execute(ref.id);
-        } catch {
-          console.warn('⚠️ Missing listing:', ref.id);
-          return null;
-        }
-      },
-      owner: (parent: any) => ({
-        __typename: "User",
-        id: parent.ownerId
-      }),
-
-      categories: (parent: any) =>
-        parent.categories?.map(
-          (id: string) => ({
-            __typename: "Category",
-            id
-          })
-        ) ?? [],
-
-      amenities: (parent: any) =>
-        parent.amenityIds?.map(
-          (id: number) => ({
-            __typename: "Amenity",
-            id
-          })
-        ) ?? [],
-    },
-    Picture: {
-      url: async (parent: any) => {
-        // Return direct URL since bucket is public
-        const minioStorage = container.resolve<MinioStorage>(TOKENS_PICTURE.storage.minioStorage);
-        return await minioStorage.getUrl(parent.objectKey)
-      },
-      mimeType: (parent: any) => {
-        return parent.mimeType;
+  Listing: {
+    __resolveReference: async (ref: { id: string }) => {
+      const useCase = container.resolve<GetListingByIdUseCase>(TOKENS_LISTING.usecase.getListingByIdUseCase);
+      try {
+        return await useCase.execute(ref.id);
+      } catch {
+        console.warn('⚠️ Missing listing:', ref.id);
+        return null;
       }
     },
-  }
+    owner: (parent: any) => ({
+      __typename: "User",
+      id: parent.ownerId
+    }),
+
+    categories: (parent: any) =>
+      parent.categories?.map(
+        (id: string) => ({
+          __typename: "Category",
+          id
+        })
+      ) ?? [],
+
+    amenities: (parent: any) =>
+      parent.amenityIds?.map(
+        (id: number) => ({
+          __typename: "Amenity",
+          id
+        })
+      ) ?? [],
+  },
+  Picture: {
+    url: async (parent: any) => {
+      // Return direct URL since bucket is public
+      const minioStorage = container.resolve<MinioStorage>(TOKENS_PICTURE.storage.minioStorage);
+      return await minioStorage.getUrl(parent.objectKey)
+    },
+    mimeType: (parent: any) => {
+      return parent.mimeType;
+    }
+  },
+}

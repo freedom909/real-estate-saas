@@ -26,7 +26,7 @@ export class SearchListingUseCase {
         numOfCustomers: l.numOfCustomers,
         numOfBathrooms: l.numOfBathrooms,
         numOfRooms: l.numOfRooms,
-        picture: l.picture,
+        picture: l.pictures,// is anything wrong here?
         isFeatured: l.isFeatured,
       })),
       total: listings.length,

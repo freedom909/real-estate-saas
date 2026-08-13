@@ -2,6 +2,7 @@
 
 import { Client } from "minio";
 import { randomUUID } from "crypto";
+import { extname } from "path";
 
 export interface UploadImageInput {
   listingId: string;
@@ -17,14 +18,16 @@ export interface StoredImage {
 }
 
 export class MinioStorage {
-
   private readonly client: Client;
   private readonly bucket: string;
+
   constructor() {
+    this.bucket =
+      process.env.MINIO_BUCKET || "listing-images";
 
-    this.bucket = process.env.MINIO_BUCKET || "listing-images";
-
-    this.client = new Client({ endPoint:process.env.MINIO_ENDPOINT || "localhost",
+    this.client = new Client({
+      endPoint:
+        process.env.MINIO_ENDPOINT || "localhost",
 
       port:
         Number(process.env.MINIO_PORT) || 9000,
@@ -41,20 +44,29 @@ export class MinioStorage {
   }
 
   async ensureBucket(): Promise<void> {
+    const exists = await this.client.bucketExists(
+      this.bucket
+    );
 
-    const exists = await this.client.bucketExists(this.bucket);
-
-    if (!exists)
-         { await this.client.makeBucket(this.bucket,"us-east-1"); }
+    if (!exists) {
+      await this.client.makeBucket(
+        this.bucket,
+        "us-east-1"
+      );
+    }
   }
 
-  async upload(input: UploadImageInput): Promise<StoredImage> {
-
+  async upload(
+    input: UploadImageInput
+  ): Promise<StoredImage> {
     await this.ensureBucket();
 
-    const extension = input.mimeType.split("/")[1] || "bin";
+    // ✅ Use original filename to determine extension
+    const extension =
+      extname(input.originalName || "").toLowerCase() || ".bin";
 
-    const objectKey =`listings/${input.listingId}/${randomUUID()}.${extension}`;
+    const objectKey =
+      `listings/${input.listingId}/${randomUUID()}${extension}`;
 
     await this.client.putObject(
       this.bucket,
@@ -62,14 +74,16 @@ export class MinioStorage {
       input.buffer,
       input.buffer.length,
       {
-        "Content-Type": input.mimeType,
+        "Content-Type":
+          input.mimeType || "application/octet-stream",
       }
     );
 
     return {
       objectKey,
       size: input.buffer.length,
-      mimeType: input.mimeType,
+      mimeType:
+        input.mimeType || "application/octet-stream",
     };
   }
 
@@ -81,7 +95,7 @@ export class MinioStorage {
   }
 
   async getUrl(objectKey: string): Promise<string> {
-   return this.client.presignedGetObject(
+    return this.client.presignedGetObject(
       this.bucket,
       objectKey,
       60 * 60

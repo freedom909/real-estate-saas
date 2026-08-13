@@ -30,12 +30,12 @@ const dbPassword = "password123" // In source code
 
 #### PASS: ALWAYS Do This
 ```typescript
-const apiKey = process.env.OPENAI_API_KEY
+const apiKey = process.env.OpenAI_API_KEY
 const dbUrl = process.env.DATABASE_URL
 
 // Verify secrets exist
 if (!apiKey) {
-  throw new Error('OPENAI_API_KEY not configured')
+  throw new Error('OpenAI_API_KEY not configured')
 }
 ```
 

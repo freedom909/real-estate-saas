@@ -12,7 +12,7 @@ export class OpenAILLMProvider implements ILLMProvider {
 
     this.client = new OpenAI({
       apiKey:
-        process.env.OPENAI_API_KEY
+        process.env.OpenAI_API_KEY
     });
   }
 

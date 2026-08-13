@@ -21,7 +21,7 @@ pictures {
         id
         listingId
         objectKey
-        url
+        
         mimeType
         size
         type

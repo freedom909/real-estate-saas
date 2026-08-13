@@ -21,10 +21,10 @@ export class OpenAIAdapter implements IOpenAITool {
       process.env.OPENAI_API_URL ||
       "https://api.openai.com/v1/chat/completions";
 
-    this.apiKey = process.env.OPENAI_API_KEY || "";
+    this.apiKey = process.env.OpenAI_API_KEY || "";
 
     if (!this.apiKey) {
-      console.warn("OPENAI_API_KEY is missing");
+      console.warn("OpenAI_API_KEY is missing");
     }
   }
 

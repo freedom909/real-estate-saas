@@ -2,11 +2,11 @@
 import axios from "axios";
 
 class OpenaiClient {
-  private apiKey = process.env.OPENAI_API_KEY;
+  private apiKey = process.env.OpenAI_API_KEY;
 
   async analyze(prompt: string, model: string = "openai-3.5-turbo"): Promise<any> {
     if (!this.apiKey) {
-      throw new Error("OPENAI_API_KEY is not set in environment variables.");
+      throw new Error("OpenAI_API_KEY is not set in environment variables.");
     }
 
     const response = await axios.post(

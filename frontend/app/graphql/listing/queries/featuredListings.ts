@@ -8,7 +8,16 @@ export const GET_FEATURED_LISTINGS = gql`
       description
       address
       price
-      picture
+      pictures {
+        id
+        listingId
+        objectKey
+        url
+        mimeType
+        size
+        type
+        sortOrder
+      }
       numOfBeds
       numOfCustomers
       isFeatured

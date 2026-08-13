@@ -11,7 +11,7 @@ keys
 .vscode
 .codebuddy
 .trae
-.mimocode
+.OpenAIcode
 __tests__
 **/*.test.ts
 **/*.spec.ts

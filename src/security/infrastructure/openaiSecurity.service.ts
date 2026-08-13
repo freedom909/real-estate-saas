@@ -13,7 +13,7 @@ export class SecurityAIService {
   constructor(
     private client: OpenaiClient
   ) { }
-  private apiKey = process.env.OPENAI_API_KEY!;
+  private apiKey = process.env.OpenAI_API_KEY!;
   private model = "openai-3.5-turbo";
 
   async analyze(event: SecurityEvent): Promise<SecurityAssessment> {

@@ -19,6 +19,9 @@ import { sequelize } from '@/infrastructure/config/seq';
 
 @injectable()
 export class ListingRepository implements IListingRepository {
+  static search(arg0: { location: string; }) {
+    throw new Error("Method not implemented.");
+  }
   constructor(
     @inject(TOKENS_LISTING.models.listingModel)
     private model: typeof ListingModel,
@@ -110,6 +113,12 @@ export class ListingRepository implements IListingRepository {
   async findFeatured(limit: number = 6): Promise<Listing[]> {
     const records = await this.model.findAll({
       where: { isFeatured: true },
+      include: [
+  {
+    model: PictureModel,
+    as: "pictures",
+  },
+],
       limit,
       order: [["createdAt", "DESC"]],
     });
@@ -131,6 +140,7 @@ export class ListingRepository implements IListingRepository {
         ...json,
         categories: categoryMap.get(json.id) ?? [],
         amenityIds: json.amenityIds ?? [],
+        pictures: json.pictures.map(p => PictureMapper.toDomain(p)),
       });
     });
   }
