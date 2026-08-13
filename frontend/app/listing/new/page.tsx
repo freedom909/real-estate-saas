@@ -93,7 +93,7 @@ export default function CreateListingPage() {
         locationId: form.locationId || "default-location",
         categories: form.categories ? form.categories.split(",").map((c) => c.trim()) : [],
         isFeatured: form.isFeatured,
-        picture: images,
+        pictures: images.map((url) => ({ objectKey: url })),
         
       };
 

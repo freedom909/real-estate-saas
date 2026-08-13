@@ -1,20 +1,18 @@
-//import { injectable, inject, delay } from 'tsyringe';
-import { Listing } from '../../domain/entities/listing';
-import { v4 as uuidv4 } from 'uuid';
-import { TOKENS_LISTING } from '@/modules/tokens/listing.tokens';
-import { IListingRepository } from '../../domain/entities/IListingRepository';
-import { Title } from '../../domain/value-objects/Title';
-import { Description } from '../../domain/value-objects/description';
+import { inject, injectable } from "tsyringe";
+import { Listing } from "../../domain/entities/listing";
+import { v4 as uuidv4 } from "uuid";
+import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
+import { IListingRepository } from "../../domain/entities/IListingRepository";
+import { Title } from "../../domain/value-objects/Title";
+import { Description } from "../../domain/value-objects/description";
 
+import { ICategoryRepository } from "@/shared/category/domain/ICategory.repository";
+import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 
-// Assuming categoryAdapter token is under TOKENS_LISTING.adapters
-import { ICategoryRepository } from '@/shared/category/domain/ICategory.repository';
-import { TOKENS_CATEGORY } from '@/modules/tokens/category.tokens';
-
-import { inject, injectable } from 'tsyringe';
-import { GenerateTitleResult } from '../ports/generateTitleResult';
-import { IAmenityAdapter } from '../adapters/IAmenity.adapter';
-import { Picture } from '../../domain/entities/picture';
+import { IAmenityAdapter } from "../adapters/IAmenityAdapter";
+import { Picture } from "../../domain/entities/picture";
+import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
+import { UploadImageUseCase } from "./uploadImages.usecase";
 
 interface CreateImageInput {
   objectKey: string;
@@ -31,12 +29,17 @@ export interface CreateListingInput {
   numOfBathrooms: number;
   numOfRooms: number;
   price: number;
-  pictures: CreateImageInput[];
+  pictures?: CreateImageInput[];
+  files?: any[];
   isFeatured: boolean;
   locationId: string;
   categories: string[];
   amenityIds?: number[];
   ownerId: string;
+}
+
+interface GenerateTitleResult {
+  id: string;
 }
 
 @injectable()
@@ -48,27 +51,20 @@ export default class CreateListingUseCase {
     private amenityAdapter: IAmenityAdapter,
     @inject(TOKENS_CATEGORY.categoryRepository)
     private categoryRepo: ICategoryRepository,
+    @inject(TOKENS_PICTURE.usecase.uploadImageUseCase)
+    private uploadImageUseCase: UploadImageUseCase
   ) { }
 
-  async execute(input: CreateListingInput): Promise<GenerateTitleResult> {
-    console.log(input.pictures);
-
-    console.log(input.pictures.length);
-    // Validate amenityIds
+  async execute(input: CreateListingInput): Promise<any> {
     if (input.amenityIds && input.amenityIds.length > 0) {
-      console.log(input.amenityIds);
       const validIds = await this.amenityAdapter.getValidIds(input.amenityIds);
-      console.log("++validIds", validIds); //no output in the terminal
       const validSet = new Set(validIds);
       const invalidAmenityIds = input.amenityIds.filter(id => !validSet.has(id));
-
       if (invalidAmenityIds.length > 0) {
         throw new Error(`Invalid amenity IDs provided: ${invalidAmenityIds.join(', ')}`);
       }
     }
     const categories = await this.categoryRepo.findByIds(input.categories);
-
-    console.log(categories); //no output in the terminal
     if (categories.length === 0 && input.categories.length > 0) {
       throw new Error(`Invalid category names provided: ${input.categories.join(', ')}`);
     }
@@ -78,30 +74,33 @@ export default class CreateListingUseCase {
       throw new Error(`Invalid category IDs: ${invalidCategories.join(", ")}`);
     }
 
-    // 2️⃣ 校验 amenities（通过 adapter）
     const validAmenityIds = await this.amenityAdapter.getValidIds(input.amenityIds || []);
-
     const invalidAmenities = (input.amenityIds || []).filter(
       id => !validAmenityIds.includes(id)
     );
-
     if (invalidAmenities.length > 0) {
       throw new Error(`Invalid amenity IDs: ${invalidAmenities.join(", ")}`);
     }
-    // Production logic: Any cross-domain validation would happen here via adapters
+
     const listingId = uuidv4();
-    const pictures = input.pictures.map((pic, index) =>
+
+    let pictures: Picture[] = (input.pictures ?? []).map((pic, index) =>
       new Picture({
         id: uuidv4(),
         listingId,
-      
         objectKey: pic.objectKey,
         mimeType: pic.mimeType,
         size: pic.size,
         type: "listing",
         sortOrder: index,
       })
-    )
+    );
+
+    if (input.files && input.files.length > 0) {
+      const uploaded = await this.uploadImageUseCase.execute(input.files, listingId);
+      pictures = [...pictures, ...uploaded];
+    }
+
     const listing = new Listing({
       id: listingId,
       title: new Title(input.title),
@@ -116,12 +115,12 @@ export default class CreateListingUseCase {
       locationId: input.locationId,
       categories: input.categories,
       amenityIds: input.amenityIds || [],
-     
       pictures,
       createdAt: new Date(),
       updatedAt: new Date(),
-      ownerId: input.ownerId,// Property 'ownerId' does not exist on type 'CreateListingInput'.
-    })
+      ownerId: input.ownerId,
+    });
+
     return this.listingRepository.save(listing);
   }
 }

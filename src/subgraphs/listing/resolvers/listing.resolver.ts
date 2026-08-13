@@ -93,10 +93,6 @@ export const resolvers = {
   Mutation: {
 
     createListing: async (_: any, { input }: any, context: any) => {
-      console.log("========== CREATE LISTING ==========");
-      console.log("input.picture =", input.picture);
-      console.log("picture length =", input.picture?.length);
-      console.log("context.user =", context.user);
       if (!context.user) {
         throw new Error("User not authenticated");
       }
@@ -107,14 +103,19 @@ export const resolvers = {
       return await useCase.execute({ ...input, ownerId });
     },
 
-    uploadImages: async (_: any, { files }: any, context: any) => {
+    uploadImages: async (_: any, { files, listingId }: any, context: any) => {
       if (!context.user) {
         throw new Error("User not authenticated");
       }
+      if (!listingId) {
+        throw new Error("listingId is required");
+      }
       const usecase = container.resolve<UploadImageUseCase>(TOKENS_PICTURE.usecase.uploadImageUseCase)
-      return await usecase.execute(files)
+      const pictures = await usecase.execute(files, listingId, { persist: true });
+      return pictures.map(pic => pic.toJson());
     },
   },
+  
   Listing: {
     __resolveReference: async (ref: { id: string }) => {
       const useCase = container.resolve<GetListingByIdUseCase>(TOKENS_LISTING.usecase.getListingByIdUseCase);

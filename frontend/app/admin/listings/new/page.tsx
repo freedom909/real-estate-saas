@@ -114,7 +114,7 @@ function CreateListingContent() {
       const result = await createListing({ variables: { input } });
       console.log("Listing created:", result.data?.createListing);
 
-      router.push("/listing");
+      router.push("/admin/listings");
     } catch (e: any) {
       setError(e.message || "Failed to create listing");
       setGeneratingImages(false);

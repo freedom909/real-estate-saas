@@ -50,7 +50,7 @@ export default function FeaturedListings() {
             title={listing.title}
             address={listing.address}
             price={listing.price}
-            image={listing.picture?.[0]}
+            image={listing.pictures?.[0]?.url}
           />
         ))}
       </div>

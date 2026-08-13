@@ -10,11 +10,16 @@ import { ALL_CATEGORIES } from "@/app/graphql/category/queries/category";
 import { ALL_LOCATIONS } from "@/app/graphql/location/queries/location";
 import AdminGuard from "@/app/components/admin/AdminGuard";
 import AdminLayout from "@/app/components/admin/AdminLayout";
-import { uploadImagesDirect } from "@/app/graphql/listing/mutations/uploadImage";
+import { uploadClient } from "@/app/graphql/listing/mutations/uploadImage";
 
 interface Category {
   id: string;
   name: string;
+}
+
+interface SelectedImage {
+  file: File;
+  preview: string;
 }
 
 interface CreateImageInput {
@@ -28,6 +33,7 @@ interface UploadedImage {
   mimeType: string;
   size: number;
   url?: string;
+  file: File;
 }
 
 interface LocationItem {
@@ -155,8 +161,8 @@ function CreateListingContent() {
     }
   };
 
-  // --- FIX #2: Simple image upload (local preview, no presign-url dependency) ---
-const handleFileUpload = async (files: FileList | null) => {
+  // --- Local preview only; actual upload deferred until CreateListing submission ---
+const handleFileUpload = (files: FileList | null) => {
   if (!files || files.length === 0) return;
 
   const imageFiles = Array.from(files).filter(file =>
@@ -165,26 +171,15 @@ const handleFileUpload = async (files: FileList | null) => {
 
   if (imageFiles.length === 0) return;
 
-  try {
-    // Upload directly to listing subgraph (bypasses gateway)
-    const uploaded = await uploadImagesDirect(imageFiles);
+  const newImages: UploadedImage[] = imageFiles.map(file => ({
+    preview: URL.createObjectURL(file),
+    objectKey: "",
+    mimeType: file.type,
+    size: file.size,
+    file,
+  }));
 
-    const newImages: UploadedImage[] = uploaded.map(
-      (image: any, index: number) => ({
-        preview: URL.createObjectURL(imageFiles[index]),
-        objectKey: image.objectKey,
-        mimeType: image.mimeType,
-        size: image.size,
-        url: image.url,
-      })
-    );
-
-    setUploadedImages(prev => [...prev, ...newImages]);
-
-  } catch (error: any) {
-    console.error("Image upload failed:", error);
-    setError(error.message || "Failed to upload images");
-  }
+  setUploadedImages(prev => [...prev, ...newImages]);
 };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -250,19 +245,13 @@ const handleFileUpload = async (files: FileList | null) => {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  console.log("🔥 CREATE LISTING CLICKED");
-
   setLoading(true);
   setError(null);
 
   try {
-    const allImages = [...uploadedImages];
+    const files = uploadedImages.map(image => image.file);
 
-    console.log("📸 uploadedImages:", uploadedImages);
-    console.log("📸 allImages:", allImages);
-
-    // 必须至少上传一张图片
-    if (allImages.length === 0) {
+    if (files.length === 0 && generatedImages.length === 0) {
       setError("Please upload at least one property image.");
       return;
     }
@@ -289,27 +278,32 @@ const handleSubmit = async (e: React.FormEvent) => {
       categories: form.categories,
 
       isFeatured: form.isFeatured,
-pictures: allImages.map((image) => ({
-  objectKey: image.objectKey,
-  mimeType: image.mimeType,
-  size: image.size,
-})),
+
+      pictures: generatedImages.map((url) => ({ objectKey: url })),
     };
 
-    console.log("📦 CREATE LISTING INPUT:", input);
+    const variables: Record<string, any> = { input };
+    if (files.length > 0) {
+      variables.input.files = files;
+    }
 
-    const result = await createListing({
-      variables: {
-        input,
-      },
+    const result = await uploadClient.mutate({
+      mutation: CREATE_LISTING,
+      variables,
     });
 
-    console.log("✅ LISTING CREATED:", result.data);
+    const listing = result.data?.createListing;
+
+    if (!listing?.id) {
+      throw new Error("Listing was created but no listing ID was returned");
+    }
+
+    console.log("✅ LISTING CREATED:", listing.id, "pictures:", listing.pictures?.length);
 
     setUploadedImages([]);
     setGeneratedImages([]);
 
-    router.push("/owner/listings");
+    router.push("/admin/listings");
 
   } catch (e: any) {
     console.error("❌ CREATE LISTING ERROR:", e);

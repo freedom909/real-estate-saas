@@ -9,10 +9,9 @@ import { CREATE_LISTING } from "@/app/graphql/listing/mutations/createListing";
 import { textToImage } from "@/app/services/imageGen";
 import OwnerGuard from "@/app/components/owner/OwnerGuard";
 import OwnerLayout from "@/app/components/owner/OwnerLayout";
-import { uploadImagesDirect } from "@/app/graphql/listing/mutations/uploadImage";
+import { uploadClient } from "@/app/graphql/listing/mutations/uploadImage";
 import { ALL_CATEGORIES } from "@/app/graphql/category/queries/category";
 import { ALL_LOCATIONS } from "@/app/graphql/location/queries/location";
-import { Listing } from "@/app/types/listing";
 
 export default function CreateListingPage() {
   return (
@@ -30,14 +29,10 @@ interface LocationItem {
   country: string;
 }
 
-type UploadImageResponse = {
-  uploadImage: {
-    objectKey: string;
-    url: string;
-    mimeType: string;
-    size: number;
-  };
-};
+interface SelectedImage {
+  file: File;
+  preview: string;
+}
 
 interface Category {
   id: string;
@@ -50,6 +45,7 @@ interface UploadedImage {
   mimeType: string;
   size: number;
   url?: string;
+  file: File;
 }
 
 function CreateListingContent() {
@@ -88,7 +84,7 @@ function CreateListingContent() {
   const [loading, setLoading] = useState(false);
   const [generatingImages, setGeneratingImages] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [uploadedImages,setUploadedImages]= useState<UploadedImage[]>([]);
+  const [uploadedImages,setUploadedImages]= useState<SelectedImage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -153,36 +149,30 @@ function CreateListingContent() {
   };
 
   // --- FIX #2: Simple image upload (local preview, no presign-url dependency) ---
-  const handleFileUpload = async(files: FileList | null) => {
-    if (!files || files.length === 0) return;
+  const handleFileUpload = (files: FileList | null) => {
+  if (!files || files.length === 0) return;
 
-    const imageFiles = Array.from(files).filter(file =>
-      file.type.startsWith("image/")
-    );
+  const imageFiles = Array.from(files).filter(file =>
+    file.type.startsWith("image/")
+  );
 
-    if (imageFiles.length === 0) return;
+  if (imageFiles.length === 0) return;
 
-    try {
-      // Upload directly to listing subgraph (bypasses gateway)
-      const uploaded = await uploadImagesDirect(imageFiles);
+  const newImages: UploadedImage[] = imageFiles.map(file => ({
+    preview: URL.createObjectURL(file),
 
-      const newImages: UploadedImage[] = uploaded.map(
-        (image: any, index: number) => ({
-          preview: URL.createObjectURL(imageFiles[index]),
-          objectKey: image.objectKey,
-          mimeType: image.mimeType,
-          size: image.size,
-          url: image.url,
-        })
-      );
+    // 暂时没有 objectKey
+    objectKey: "",
 
-      setUploadedImages(prev => [...prev, ...newImages]);
+    mimeType: file.type,
+    size: file.size,
 
-    } catch (error: any) {
-      console.error("Image upload failed:", error);
-      setError(error.message || "Failed to upload images");
-    }
-  };
+    // 非常重要：保存真正的 File
+    file,
+  }));
+
+  setUploadedImages(prev => [...prev, ...newImages]);
+};
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -244,58 +234,77 @@ function CreateListingContent() {
   }
 
   // --- Submit ---
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      // Combine uploaded + AI-generated images
-      let allImages = [...uploadedImages];
-      
-      // Auto-generate if no images exist
-      if (allImages.length === 0) {
-        setGeneratingImages(true);
-        const aiImages = await generatePropertyImages(form);
-        allImages = aiImages.map(url => ({
-    preview: url,
-    objectKey: url,
-    mimeType: "image/jpeg",
-    size: 0,
-}));
-        setGeneratedImages(aiImages);
-        setGeneratingImages(false);
-      }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-      const input = {
-        title: form.title,
-        description: form.description,
-        address: form.address,
-        price: parseFloat(form.price) || 0,
-        pricePerNight: parseFloat(form.pricePerNight) || parseFloat(form.price) || 0,
-        numOfBeds: parseInt(form.numOfBeds) || 1,
-        numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
-        numOfRooms: parseInt(form.numOfRooms) || 1,
-        numOfCustomers: parseInt(form.numOfCustomers) || 2,
-        locationId: form.locationId || "default-location",
-        categories: form.categories,
-        isFeatured: form.isFeatured,
-        pictures: allImages,
-      };
-     
-      
-      const result = await createListing({ variables: { input } });
-      console.log("Listing created:", result.data as { createListing: Listing });
-      setUploadedImages([]);
-      setGeneratedImages([]);
-      router.push("/owner/listings");
-     
-    } catch (e: any) {
-      setError(e.message || "Failed to create listing");
-      setGeneratingImages(false);
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  setError(null);
+
+  try {
+    const files = uploadedImages.map(image => image.file);
+
+    const input = {
+      title: form.title,
+      description: form.description,
+      address: form.address,
+
+      price: parseFloat(form.price) || 0,
+      pricePerNight:
+        parseFloat(form.pricePerNight) ||
+        parseFloat(form.price) ||
+        0,
+
+      numOfBeds: parseInt(form.numOfBeds) || 1,
+      numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
+      numOfRooms: parseInt(form.numOfRooms) || 1,
+      numOfCustomers: parseInt(form.numOfCustomers) || 2,
+
+      locationId: form.locationId || "default-location",
+      categories: form.categories,
+      isFeatured: form.isFeatured,
+      pictures: [],
+    };
+
+    const variables: Record<string, any> = { input };
+    if (files.length > 0) {
+      variables.input.files = files;
     }
-  };
+
+    const result = await uploadClient.mutate({
+      mutation: CREATE_LISTING,
+      variables,
+    });
+
+    const listing = result.data?.createListing;
+
+    if (!listing?.id) {
+      throw new Error("Listing was created but no listing ID was returned");
+    }
+
+    console.log("✅ Listing created with images:", listing.id, "pictures:", listing.pictures?.length);
+
+    setUploadedImages([]);
+    setGeneratedImages([]);
+
+    router.push("/owner/listings");
+
+  } catch (e: any) {
+
+    console.error(
+      "❌ Create listing failed:",
+      e
+    );
+
+    setError(
+      e.message ||
+      "Failed to create listing"
+    );
+
+  } finally {
+
+    setLoading(false);
+  }
+};
 
   return (
     <OwnerGuard>

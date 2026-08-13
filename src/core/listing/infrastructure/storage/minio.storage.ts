@@ -56,14 +56,11 @@ export class MinioStorage {
     }
   }
 
-  async upload(
-    input: UploadImageInput
-  ): Promise<StoredImage> {
+  async upload(input: UploadImageInput): Promise<StoredImage> {
     await this.ensureBucket();
 
     // ✅ Use original filename to determine extension
-    const extension =
-      extname(input.originalName || "").toLowerCase() || ".bin";
+    const extension = extname(input.originalName || "").toLowerCase() || ".bin";
 
     const objectKey =
       `listings/${input.listingId}/${randomUUID()}${extension}`;

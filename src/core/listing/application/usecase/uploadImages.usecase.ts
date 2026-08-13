@@ -1,26 +1,37 @@
-//src/core/listing/application/usecase/uploadImages.usecase.ts
-
 import { inject, injectable } from "tsyringe";
+import { v4 as uuidv4 } from "uuid";
 
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 import { MinioStorage } from "../../infrastructure/storage/minio.storage";
+import { IPictureRepository } from "../../domain/repositories/picture.repository";
+import { Picture } from "../../domain/entities/picture";
 
 @injectable()
 export class UploadImageUseCase {
   constructor(
     @inject(TOKENS_PICTURE.storage.minioStorage)
-    private minioStorage: MinioStorage
+    private minioStorage: MinioStorage,
+    @inject(TOKENS_PICTURE.repos.pictureRepository)
+    private pictureRepository: IPictureRepository
   ) {}
 
-  async execute(files: any[]) {
-    const pictures = [];
+  async execute(
+    files: any[],
+    listingId: string,
+    options: { persist?: boolean } = {}
+  ): Promise<Picture[]> {
+    const { persist = false } = options;
+    if (!listingId) {
+      throw new Error("listingId is required for image upload");
+    }
 
-    for (const file of files) {
-      // GraphQL Upload spec: file is a Promise resolving to { filename, mimeType, createReadStream }
+    const pictures: Picture[] = [];
+
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
       const upload = await file;
       const { filename, mimetype, createReadStream } = upload;
 
-      // Read the stream into a buffer
       const stream = createReadStream();
       const chunks: Buffer[] = [];
 
@@ -32,25 +43,33 @@ export class UploadImageUseCase {
 
       const buffer = Buffer.concat(chunks);
 
-      // Upload to MinIO
       const result = await this.minioStorage.upload({
-        listingId: "pending", // Will be updated when listing is created
+        listingId,
         buffer,
         mimeType: mimetype || "application/octet-stream",
         originalName: filename,
       });
 
-      // Generate a presigned URL for immediate use
-      const url = await this.minioStorage.getUrl(result.objectKey);
-
-      pictures.push({
+      const picture = new Picture({
+        id: uuidv4(),
+        listingId,
         objectKey: result.objectKey,
-        url,
         mimeType: result.mimeType,
         size: result.size,
+        type: "listing",
+        sortOrder: index,
       });
+
+      if (persist) {
+        const saved = await this.pictureRepository.create(picture);
+        pictures.push(saved);
+      } else {
+        pictures.push(picture);
+      }
     }
 
     return pictures;
   }
 }
+
+

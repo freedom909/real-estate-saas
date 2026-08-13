@@ -96,7 +96,8 @@ input CreateListingInput {
   isFeatured:Boolean
   price: Float
   pricePerNight: Float!
-  pictures:[CreateImageInput!]!
+  pictures:[CreateImageInput!]
+  files: [Upload]
 }
 
 input CreateImageInput {
@@ -160,7 +161,7 @@ id: ID! @external
 # Mutations
 # -----------------------------------
 type Mutation {
-  uploadImages(files: [Upload!]!): [Picture!]!
+  uploadImages(files: [Upload!]!,listingId: ID!): [Picture!]!
   createListing(input: CreateListingInput!): Listing!
   generateTitleSuggestion(
     listingId: ID!
