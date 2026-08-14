@@ -26,6 +26,7 @@ import { Permission, getPermissions } from "../guards/adminPermissions";
 import { logAuditAction, withAuditLog } from "../guards/auditLogger";
 import UpdateAdminAccountUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
 import { Role } from "@/core/shared/domain/role";
+import GetAllAdminsUseCase from "@/core/admin/application/usecase/getAllAdmins.usecase";
 
 // Helper: wrap resolver with permission guard
 function withPermission(resolver: Function, permission: Permission) {
@@ -78,26 +79,27 @@ export const resolvers = {
     }, "dashboard:view"),
 
     // Admin Users
-    adminUsers: withPermission(async () => {
-      const repo = container.resolve<IAdminUserRepository>(
-        TOKENS_ADMIN.repos.adminUserRepository
-      );
-      const admins = await repo.findAll();
-      console.log("=================");
-console.log(admins);
-console.log("=================");
-      if (!admins) throw new Error("Admin users not found");
-      // Map to plain objects
-      const adminObjects = admins.map((a) => a.toJSON());
-      console.log("ADMIN USERS =", adminObjects);
-      return adminObjects.map((a) => ({
-        id: a.id,
-        email: a.email,
-        role: a.role,
-        createdAt: a.createdAt,
-        updatedAt: a.updatedAt,
-      }));
-    }, "admin_users:view"),
+adminUsers: withPermission(async () => {
+  const useCase = container.resolve<GetAllAdminsUseCase>(
+    TOKENS_ADMIN.usecase.getAllAdminsUseCase
+  );
+
+  const admins = await useCase.execute();
+
+  console.log("ADMIN USERS resolver =", admins);
+
+  return admins.map((a) => ({
+    id: a.id,
+    email: a.email.valueOf(),
+    role: a.role,
+    immutable: a.immutable,
+    name: a.name,
+    avatar: a.avatar,
+    isActive: a.isActive,
+    createdAt: a.createdAt,
+    updatedAt: a.updatedAt,
+  }));
+}, "admin_users:view"),
    
     adminUser: withPermission(async (_: any, { id }: { id: string }) => {
       const useCase = container.resolve<GetAdminUserByIdUseCase>(

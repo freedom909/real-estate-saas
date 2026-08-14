@@ -36,10 +36,10 @@ type User @key(fields: "id") {
   picture: String
   role: UserRole! @shareable
   status: AccountStatus! @shareable
-  immutable: Boolean!   # 默认 false，只有极少数账号为 true
+  immutable: Boolean!   # 默认 false
   lastLoginAt: DateTime @shareable
   isActive: Boolean! @shareable
-
+  avatar: String
   profile: Profile! @shareable
   tenant: Tenant @shareable
 

@@ -20,10 +20,7 @@ import { sequelize } from "@/infrastructure/config/seq";
 import registerAuthDependencies from "../auth/registerAuthDependencies";
 import { registerUserDependencies } from "../user/registerUserDependencies";
 import registerAdminDependencies from "@/modules/container/admin.register";
-import AdminUserModel from "@/core/admin/infrastructure/models/adminUser.model";
-import AuditLogModel from "@/core/admin/infrastructure/models/auditLog.model";
-import SystemSettingsModel from "@/core/admin/infrastructure/models/systemSettings.model";
-import NotificationModel from "@/core/admin/infrastructure/models/notification.model";
+
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
 console.info("Admin subgraph configuration loaded");
@@ -40,7 +37,7 @@ const startApolloServer = async () => {
   try {
     console.info("Connecting to MySQL...");
 if (process.env.NODE_ENV === "development") {
-    await sequelize.sync({ alter: true });
+    await sequelize.authenticate()
 }
 await sequelize.authenticate();
     console.info("MySQL connected");

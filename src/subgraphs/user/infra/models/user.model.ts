@@ -9,6 +9,7 @@ export interface IUserDB {
   _id: Types.ObjectId;
   email: string; // Mongoose schema requires it, so it's a string
   name: string;
+  isActive: boolean;
   picture: string;
   role: UserRole;
   status: "ACTIVE" | "SUSPENDED" | "BANNED" | "DELETED"; // Aligned with Mongoose enum

@@ -34,6 +34,8 @@ export class AdminUserRepository implements IAdminUserRepository {
 
   async findAll(): Promise<AdminUser[]> {
     const records = await this.model.findAll({ order: [["createdAt", "DESC"]] });
+    console.log("========== MONGOOSE RESULT ==========");
+    console.log("findAll records =", records);
     return records.map((r) => AdminUserMapper.toDomain(r));
   }
 

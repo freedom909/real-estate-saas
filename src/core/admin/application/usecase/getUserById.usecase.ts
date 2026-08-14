@@ -19,6 +19,7 @@ export default class GetAdminUserByIdUseCase {
       id: admin.id,
       email: admin.email,
       name: admin.name,
+      immutable: admin.immutable,
       role: admin.role,
       avatar: admin.avatar,
       isActive: admin.isActive,

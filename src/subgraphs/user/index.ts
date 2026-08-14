@@ -28,18 +28,12 @@ import UserModel from "./infra/models/user.model";
 
 // 🔍 启动时验证 env
 userRegister();
-console.log(
-  "BOOT USER_SUBGRAPH_URL =",
-  process.env.USER_SUBGRAPH_URL
-);
+
 // 🥭 1️⃣ Mongo
 await connectMongo(process.env.MONGO_URI ||"mongodb://localhost:27017/nakano");
 console.log("MongoDB connected",process.env.MONGO_URI);
 const collections = await mongoose.connection.db.listCollections().toArray();
-console.log("Connected DB =", mongoose.connection.name);
-console.log("Host =", mongoose.connection.host);
-console.log("Port =", mongoose.connection.port);
-console.log(collections);
+
 const docs = await mongoose.connection.db
   .collection("users")
   .find({})
@@ -49,7 +43,6 @@ console.log("USERS =", docs);
 
 // 🧰 2️⃣ Container
 const userContainer = registerUserDependencies(container);
-
 // 🚀 3️⃣ App
 const app = express();
 const httpServer = http.createServer(app);
@@ -60,8 +53,7 @@ const typeDefs = gql(
 );
 
 const server = new ApolloServer({
-  schema: buildSubgraphSchema([
-    
+  schema: buildSubgraphSchema([  
     { typeDefs, resolvers},//
   ]),
 });

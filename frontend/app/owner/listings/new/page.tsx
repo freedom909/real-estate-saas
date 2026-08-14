@@ -12,6 +12,7 @@ import OwnerLayout from "@/app/components/owner/OwnerLayout";
 import { uploadClient } from "@/app/graphql/listing/mutations/uploadImage";
 import { ALL_CATEGORIES } from "@/app/graphql/category/queries/category";
 import { ALL_LOCATIONS } from "@/app/graphql/location/queries/location";
+import { Listing } from "@/app/types/listing";
 
 export default function CreateListingPage() {
   return (
@@ -19,6 +20,9 @@ export default function CreateListingPage() {
       <CreateListingContent />
     </OwnerGuard>
   );
+}
+interface CreateListingMutationData {
+  createListing: Listing;
 }
 
 interface LocationItem {
@@ -270,12 +274,12 @@ const handleSubmit = async (e: React.FormEvent) => {
       variables.input.files = files;
     }
 
-    const result = await uploadClient.mutate({
+    const result = await uploadClient.mutate<CreateListingMutationData>({
       mutation: CREATE_LISTING,
       variables,
     });
 
-    const listing = result.data?.createListing;
+    const listing = result.data?.createListing;//Property 'createListing' does not exist on type '{}'.
 
     if (!listing?.id) {
       throw new Error("Listing was created but no listing ID was returned");

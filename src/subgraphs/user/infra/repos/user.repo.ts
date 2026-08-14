@@ -12,7 +12,7 @@ export interface IUserDBObject {
  email:string;
 
  name:string;
-
+ 
  picture:string;
 
  role:string;

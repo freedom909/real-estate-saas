@@ -10,6 +10,7 @@ export class AdminUserMapper {
       email: new Email(raw.email),
       name: raw.name,
       role: raw.role,
+      immutable: raw.immutable,
       avatar: raw.avatar,
       isActive: raw.isActive,
       lastLoginAt: raw.lastLoginAt,

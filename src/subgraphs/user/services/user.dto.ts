@@ -1,6 +1,6 @@
 // user.dto.ts
 
-import { Role } from "@/wisdom-web/app/permission/role";
+import { Role } from "@/core/shared/domain/role";
 
 
 export interface UserResponse {
@@ -10,6 +10,8 @@ export interface UserResponse {
  email:string;
 
  name:string;
+
+ isActive:boolean;
 
  picture:string;
 

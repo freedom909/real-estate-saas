@@ -16,6 +16,25 @@ extend type User @key(fields: "id") {
   id: ID! @external
 }
 
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+  MODERATOR
+}
+
+
+type AdminUser {
+  id: ID!
+  email: String!
+  name: String!
+  role: AdminRole!
+  avatar: String
+  isActive: Boolean!
+  immutable: Boolean!
+  lastLoginAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
 
 # =====================
 # Audit Log (admin-specific)
@@ -189,7 +208,7 @@ enum UserRole {
 # Query
 # =====================
 type Query {
-  adminUsers: [User!]!
+  adminUsers: [AdminUser!]!
   adminUser(id: ID!): User
   adminAuditLogs(limit: Int, filter: AuditLogFilter): [AdminAuditLog!]!
   adminAuditLogCount(filter: AuditLogFilter): Int!

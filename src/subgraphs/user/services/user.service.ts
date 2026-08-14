@@ -38,6 +38,7 @@ class UserService {
       id: user._id.toString(),
       email: user.email,
       name: user.name,
+      isActive: user.isActive,
       picture: user.picture,
       role: user.role,
       status: user.status,
@@ -63,7 +64,7 @@ class UserService {
     const users = await this.userRepository.findAll(limit, offset);
     return users.map((u: any) => ({
       id: u._id.toString(),
-      email: u.email,
+      isActive: u.isActive,
       name: u.name,
       picture: u.picture,
       role: u.role,

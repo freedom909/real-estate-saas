@@ -10,11 +10,15 @@ import { ALL_CATEGORIES } from "@/app/graphql/category/queries/category";
 import { ALL_LOCATIONS } from "@/app/graphql/location/queries/location";
 import AdminGuard from "@/app/components/admin/AdminGuard";
 import AdminLayout from "@/app/components/admin/AdminLayout";
-import { uploadClient } from "@/app/graphql/listing/mutations/uploadImage";
+import { uploadClient } from "@/app/lib/apolloClient";
 
 interface Category {
   id: string;
   name: string;
+}
+
+interface CreateListingMutationData {
+  createListing: Listing;
 }
 
 interface SelectedImage {
@@ -287,7 +291,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       variables.input.files = files;
     }
 
-    const result = await uploadClient.mutate({
+    const result = await uploadClient.mutate<CreateListingMutationData>({
       mutation: CREATE_LISTING,
       variables,
     });

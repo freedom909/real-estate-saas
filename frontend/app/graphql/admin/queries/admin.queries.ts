@@ -8,6 +8,7 @@ export const ADMIN_USERS = gql`
       id
       email
       name
+      immutable
       role
       avatar
       isActive
