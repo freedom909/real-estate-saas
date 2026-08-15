@@ -10,6 +10,7 @@ export enum BookingEvent {
   RESET = "RESET",
   SET_SPECIAL_REQUESTS = "SET_SPECIAL_REQUESTS",
   SET_CONTACT = "SET_CONTACT",
+  BOOKING_CREATED = "BOOKING_CREATED",
 }
 
 // ── Payload types for each event ─────────────────────────────

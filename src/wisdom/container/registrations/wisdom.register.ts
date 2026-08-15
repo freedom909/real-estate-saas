@@ -19,9 +19,6 @@ import { BookingIdExtractor } from "../../semantic/extractors/booking-id.extract
 import { ListingExtractor } from "../../semantic/extractors/listing.extractor";
 
 
-// Reference
-import { ReferenceResolver } from "../../reference/reference-resolver";
-
 // Routing
 import { AgentRouter } from "../../agents/agent-router";
 
@@ -75,6 +72,9 @@ import { SummaryStage } from "@/wisdom/orchestration/stage/summary.stage";
 import { ReferenceStage } from "@/wisdom/orchestration/stage/reference.stage";
 import { ArtifactMemoryStage } from "@/wisdom/orchestration/stage/artifactMemory.stage";
 import { CustomerExtractor } from "@/wisdom/semantic/extractors/customer.extractor";
+import { ReferenceResolver } from "@/wisdom/conversation/reference/reference.resolver";
+import { ListingReferenceResolver } from "@/wisdom/reference/IlistingReference-resolver";
+import { ConversationReferenceResolver } from "@/wisdom/conversation/conversationReferences.resolver";
 
 export function registerWisdom() {
   // Infrastructure — OpenAI adapter (used by LLMExtractor and as LLM provider)
@@ -98,6 +98,8 @@ export function registerWisdom() {
   
 
   // Reference
+  container.register(WISDOM_TOKENS.reference.listingReferenceResolver, { useClass: ListingReferenceResolver });
+  container.register(WISDOM_TOKENS.reference.conversationReferenceResolver, { useClass: ConversationReferenceResolver });
   container.register(WISDOM_TOKENS.referenceResolver, { useClass: ReferenceResolver });
   container.register(WISDOM_TOKENS.referenceStage, { useClass: ReferenceStage });
 

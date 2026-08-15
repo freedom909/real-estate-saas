@@ -3,7 +3,7 @@
 import { SemanticContext } from "../semantic/semantic-context";
 import { AIContext } from "./ai-context";
 
-export interface IReferenceResolver {
+export interface IListingReferenceResolver {
   resolve(
     semantic: SemanticContext,
     context: AIContext

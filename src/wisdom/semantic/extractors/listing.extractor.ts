@@ -2,8 +2,11 @@
 //
 // Extracts LISTING_ID entities from the message.
 // Handles:
-//   "listing 123", "listingId=abc", "listing: 456"
+//   "listingId=abc", "listing: 456"
 //   Context: falls back to request.context.resources?.listingId
+//
+// NOTE: "listing <word>" pattern intentionally excluded — too greedy.
+// "I want the cheapest listing in Tokyo" would wrongly capture "in" as listing ID.
 
 import { injectable } from "tsyringe";
 import { SemanticEntity } from "../semantic.entity";
@@ -20,11 +23,10 @@ export class ListingExtractor implements ISemanticEntityExtractor {
   }
 
   extract(message: string): SemanticEntity[] {
-    // Pattern 1: "listingId=xxx" or "listing: xxx" or "listing xxx"
+    // Pattern 1: explicit listing ID references only
     const patterns = [
       /listingid\s*=\s*([a-zA-Z0-9-]+)/i,
       /listing\s*:\s*([a-zA-Z0-9-]+)/i,
-      /listing\s+([a-zA-Z0-9-]+)/i,
     ];
 
     for (const pattern of patterns) {

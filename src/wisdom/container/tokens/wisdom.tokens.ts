@@ -16,7 +16,10 @@ export const WISDOM_TOKENS = {
   knowledgeStage: Symbol.for("wisdom.knowledgeStage"),
   summaryStage: Symbol.for("wisdom.summaryStage"),
  
-
+  reference:{
+    listingReferenceResolver: Symbol.for("wisdom.listingReferenceResolver"),
+    conversationReferenceResolver: Symbol.for("wisdom.conversationReferenceResolver"),
+  },
   extractors: {
     ruleExtractor: Symbol.for("wisdom.ruleExtractor"),
     messageRuleExtractor: Symbol.for("wisdom.messageRuleExtractor"),

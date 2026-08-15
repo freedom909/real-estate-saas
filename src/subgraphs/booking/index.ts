@@ -48,14 +48,9 @@ import { InMemoryEventBus } from "@/shared/eventbus/in-memory-event-bus";
 import { BookingModel, initBookingModel } from "@/core/booking/infrastructure/models/booking.model";
 import { sequelize } from "@/infrastructure/config/seq";
 
-
 //　await initBookingModel(sequelize);// 初始化模型，确保模型已同步
 //await BookingModel.sync(); // 同步模型到数据库
-console.log("BookingModel =", BookingModel);
 
-console.log("typeof =", typeof BookingModel);
-
-console.log("name =", BookingModel?.name);
 const startApolloServer = async () => {
   try {
     // ✅ Robust Path Resolution for Schema

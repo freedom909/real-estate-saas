@@ -3,6 +3,12 @@
 import { AIDomain } from "../shared/enums/domain.enum";
 import { ArtifactType } from "../shared/enums/artifact-type.enum";
 
+export interface VoiceContext {
+  domain: string;
+  entity: string;
+  data: Record<string, unknown>;
+}
+
 export interface WisdomResponse {
   success: boolean;
   domain: AIDomain;
@@ -13,6 +19,7 @@ export interface WisdomResponse {
   summary: string;
   artifacts: WisdomArtifact[];
   metadata?: WisdomMetadata;
+  voice?: VoiceContext;
 }
 
 export interface WisdomArtifact {

@@ -17,4 +17,5 @@ export enum EntityType {
   BOOKING = "BOOKING",
   CHECK_IN_DATE = "CHECK_IN_DATE",
   CHECK_OUT_DATE = "CHECK_OUT_DATE",
+  REFERENCE = "REFERENCE",
 }

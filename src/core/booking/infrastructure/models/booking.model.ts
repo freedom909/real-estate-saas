@@ -7,9 +7,11 @@ import {
 } from "sequelize";
 import { BookingStatus } from "../../domain/value-objects/booking-status"; // Corrected import path
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
+import { ReservationNumber } from "../../domain/entities/booking.entity";
 
 export interface BookingAttributes {
   id: string;
+  reservationNumber: ReservationNumber;
   listingId: string;
   customerId: string;
   tenantId: string;
@@ -34,6 +36,7 @@ export class BookingModel
   extends Model<BookingAttributes, BookingCreationAttributes>
   implements BookingAttributes
 {
+  public reservationNumber!: ReservationNumber;
   public id!: string;
   public listingId!: string;
   public customerId!: string;
@@ -41,7 +44,7 @@ export class BookingModel
   public checkInDate!: Date;
   public checkOutDate!: Date;
   public price!: number;
-  public status!: BookingStatus; // Changed from string to BookingStatus enum
+  public status!: BookingStatus; 
   public cancelReason?: string;
   public confirmedAt?: Date;
   public completedAt?: Date;
@@ -58,6 +61,7 @@ export const initBookingModel = (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         primaryKey: true,
       },
+      reservationNumber: DataTypes.STRING,
       listingId: DataTypes.STRING,
       customerId: DataTypes.STRING,
       tenantId: DataTypes.STRING,

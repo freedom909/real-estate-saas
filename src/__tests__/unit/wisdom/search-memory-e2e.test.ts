@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
 import { BookingStateUpdater } from "@/wisdom/memory/booking-state-updater";
 import { MemorySessionStore } from "@/wisdom/memory/session/session-memory.store";
-import { ReferenceResolver } from "@/wisdom/reference/reference-resolver";
+import { ReferenceResolver } from "@/wisdom/reference/IlistingReference-resolver";
 import { SemanticContext } from "@/wisdom/semantic/semantic-context";
 import { EntityType } from "@/wisdom/shared/enums/entity-type.enum";
 import { AIDomain } from "@/wisdom/shared/enums/domain.enum";

@@ -52,7 +52,7 @@ export class AIRequestFactory {
       session: {},
     };
 
-    const session = this.sessionStore.load(memoryContext);
+    const session = this.sessionStore.getOrCreate(memoryContext.sessionId);
 
     console.log("Loaded session:", session);
 
@@ -106,7 +106,7 @@ export class AIRequestFactory {
       session: {},
     };
 
-    const session = this.sessionStore.load(memoryContext);
+    const session = this.sessionStore.getOrCreate(memoryContext.sessionId);
 
     return {
       message: payload.message,
@@ -161,7 +161,7 @@ export class AIRequestFactory {
       session: {},
     };
 
-    const session = this.sessionStore.load(memoryContext);
+    const session = this.sessionStore.getOrCreate(memoryContext.sessionId);
 
     console.log("Loaded session:", session);
 

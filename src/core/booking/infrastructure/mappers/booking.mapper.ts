@@ -1,4 +1,6 @@
-import { Booking } from "../../domain/entities/booking.entity";
+// FILE: src/subgraphs/booking/infrastructure/mappers/booking.mapper.ts
+
+import { Booking, ReservationNumber } from "../../domain/entities/booking.entity";
 import { BookingState } from "../../domain/state/booking-state";
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
@@ -10,6 +12,8 @@ export class BookingMapper {
     return Booking.restore({
       id: model.id,
 
+      reservationNumber: model.reservationNumber,
+      
       customerId: model.customerId,
 
       listingId: model.listingId,
@@ -35,6 +39,7 @@ export class BookingMapper {
     return {
       id: booking.id,
 
+      reservationNumber: booking.reservationNumber.value,
       customerId: booking.customerId,
 
       listingId: booking.listingId,

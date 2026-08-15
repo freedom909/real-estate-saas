@@ -6,6 +6,7 @@ import { BookingLifecycleStatus } from "../value-objects/booking-lifecycle.statu
 
 export interface BookingProps {
   id: string;
+  reservationNumber: ReservationNumber;
   listingId: string;
   customerId: string;
   dateRange: DateRange;
@@ -24,6 +25,9 @@ export class Booking {
   props: any;
   private constructor( props: BookingProps) {
     this.props = props;
+  }
+  get reservationNumber() {
+    return this.props.reservationNumber;
   }
 
   static create(props: Omit<BookingProps, 'status' | 'createdAt'>): Booking {
@@ -164,5 +168,23 @@ export class Booking {
 
   get completedAt() {
     return this.props.completedAt;
+  }
+}
+
+export class ReservationNumber {
+  private constructor(
+    public readonly value: string,
+  ) {}
+
+  static create(value: string): ReservationNumber {
+    if (!value || value.trim().length === 0) {
+      throw new Error("Reservation number cannot be empty");
+    }
+
+    return new ReservationNumber(value);
+  }
+
+  toString(): string {
+    return this.value;
   }
 }

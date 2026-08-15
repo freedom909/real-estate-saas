@@ -8,7 +8,7 @@
   "seed:categories": "tsx src/seeds/seed-categories.ts",
   "db:sync": "npx prisma migrate dev",
   "db:reset": "npx prisma migrate reset",
-
+   "dev:wisdom": "tsx watch src/wisdom/index.ts",
   "dev:user": "tsx watch src/subgraphs/user/index.ts",
   "dev:picture": "tsx watch src/subgraphs/picture/index.ts",
   "dev:audit": "tsx watch src/subgraphs/audit/index.ts",

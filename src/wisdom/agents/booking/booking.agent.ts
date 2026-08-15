@@ -18,7 +18,7 @@ import { GetBookingsForCustomerUseCase } from "@/core/booking/application/usecas
 import { WISDOM_TOKENS } from "@/wisdom/container/tokens/wisdom.tokens";
 import { MemorySessionStore } from "@/wisdom/memory/session/session-memory.store";
 import { getCachedSearchResults } from "@/wisdom/memory/search-results-cache";
-
+import { BookingVoiceMapper, BookingVoiceInput } from "./bookingPresentation/voice.mapper";
 
 
 @injectable()
@@ -38,7 +38,7 @@ export class BookingAgent implements IDomainAgent {
     private getBookingsForCustomerUseCase: GetBookingsForCustomerUseCase,
 
     @inject(delay(() => GetLatestBookingForCustomerUseCase))
-    private getLatestBookingForCustomerUseCase: GetLatestBookingForCustomerUseCase,//it was not used
+    private getLatestBookingForCustomerUseCase: GetLatestBookingForCustomerUseCase,
 
     @inject(WISDOM_TOKENS.memory.sessionStore)
     private sessionStore: MemorySessionStore,
@@ -55,22 +55,22 @@ export class BookingAgent implements IDomainAgent {
         return this.handleCreateBooking(semantic, context, listingId);
 
       case AgentAction.CANCEL_BOOKING:
-        return this.handleCancelBooking(bookingId);
+        return this.handleCancelBooking(bookingId, semantic, context);
 
       case AgentAction.GET_BOOKING:
-        return this.handleGetBooking(bookingId);
+        return this.handleGetBooking(bookingId, semantic, context);
 
       case AgentAction.GET_MY_BOOKINGS:
         return this.handleGetMyBookings(context);
 
       case AgentAction.CONFIRM_BOOKING:
-        return this.handleConfirmBooking(bookingId);
+        return this.handleConfirmBooking(bookingId, semantic, context);
 
       case AgentAction.COMPLETE_BOOKING:
-        return this.handleCompleteBooking(bookingId);
+        return this.handleCompleteBooking(bookingId, semantic, context);
 
       case AgentAction.GET_LATEST_BOOKING:
-        return this.handleGetBooking(bookingId);
+        return this.handleGetBooking(bookingId, semantic, context);
 
       default:
         return {
@@ -154,15 +154,13 @@ export class BookingAgent implements IDomainAgent {
         domain: semantic.domain as any,
         primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
         summary: `「${listingTitle}」を選びましたね。チェックインとチェックアウトの日程を教えてください。例：「7月25日から7月27日まで」`,
-        artifacts:[
-        {
+        artifacts:[{
             type: ArtifactType.LISTING_SELECTED,
             content:{
                 listingId:resolvedListingId,
                 listingTitle,
             }
-        }
-    ]
+        }]
       };
     }
 
@@ -188,11 +186,27 @@ export class BookingAgent implements IDomainAgent {
         customerCount,
       });
 
+      // Build voice response using mapper
+      const listingName = context.resources?.searchResults?.find(
+        (r: any) => r.id === resolvedListingId,
+      )?.title || "ご宿泊先";
+
+      const voiceInput: BookingVoiceInput = {
+        listingName,
+        price: result.price,
+        checkInDate: new Date(result.dateRange.checkInDate),
+        checkOutDate: new Date(result.dateRange.checkOutDate),
+        status: result.status,
+      };
+
+      const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
+      const summary = BookingVoiceMapper.toSentence(voiceDto);
+
       return {
         success: true,
         domain: semantic.domain as any,
         primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
-        summary: `ご予約を確認しました！予約ID: ${result.id}。チェックイン: ${resolvedCheckIn}、チェックアウト: ${resolvedCheckOut}。`,
+        summary,
         artifacts: [{
           type: ArtifactType.BOOKING_CREATED,
           content: result as unknown as Record<string, unknown>,
@@ -212,52 +226,99 @@ export class BookingAgent implements IDomainAgent {
 
   // ─── CANCEL BOOKING ──────────────────────────────────────────
 
-  private async handleCancelBooking(bookingId: string | undefined): Promise<WisdomResponse> {
+  private async handleCancelBooking(
+    bookingId: string | undefined,
+    _semantic: SemanticContext,
+    context: AIContext,
+  ): Promise<WisdomResponse> {
     if (!bookingId) {
       return {
         success: true,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.CANCEL_BOOKING, confidence: 0.9 },
-        summary: "どの予約をキャンセルしますか？予約IDを教えてください。",
+        summary: "どの予約をキャンセルしますか？予約番号を教えてください。",
         artifacts: [],
       };
     }
 
     const result = await this.cancelBookingUseCase.execute(bookingId, "Cancelled via AI assistant");
+
+    // result is a Booking entity instance
+    const listingName = context.resources?.searchResults?.find(
+      (r: any) => r.id === result.listingId,
+    )?.title || "ご宿泊先";
+
+    const voiceInput: BookingVoiceInput = {
+      listingName,
+      price: result.price,
+      checkInDate: result.dateRange.checkInDate,
+      checkOutDate: result.dateRange.checkOutDate,
+      status: result.status,
+    };
+
+    const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
+    const sentence = BookingVoiceMapper.toSentence(voiceDto);
+
     return {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.CANCEL_BOOKING, confidence: 0.95 },
-      summary: `予約 ${bookingId} をキャンセルしました。`,
+      summary: sentence,
       artifacts: [{
         type: ArtifactType.BOOKING_CANCELLED,
-        content: result as unknown as Record<string, unknown>,
+        content: result.toJSON() as unknown as Record<string, unknown>,
       }],
     };
   }
 
   // ─── GET BOOKING ─────────────────────────────────────────────
 
-  private async handleGetBooking(bookingId: string | undefined): Promise<WisdomResponse> {
+  private async handleGetBooking(
+    bookingId: string | undefined,
+    semantic: SemanticContext,
+    context: AIContext,
+  ): Promise<WisdomResponse> {
     if (!bookingId) {
       return {
         success: true,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.GET_BOOKING, confidence: 0.9 },
-        summary: "どの予約を確認しますか？予約IDを教えてください。",
+        summary: "どの予約を確認しますか？予約番号を教えてください。",
         artifacts: [],
       };
     }
 
     const result = await this.getBookingUseCase.execute(bookingId);
+
+    // result is a toJSON() plain object
+    const listingName = context.resources?.searchResults?.find(
+      (r: any) => r.id === result.listingId,
+    )?.title || "ご宿泊先";
+
+    // Check if user explicitly asked for the booking ID/number
+    const askedForId = /予約番号|予約ID|番号|ID/i.test(semantic.rawInput);
+
+    const voiceInput: BookingVoiceInput = {
+      listingName,
+      price: result.price,
+      checkInDate: new Date(result.dateRange.checkInDate),
+      checkOutDate: new Date(result.dateRange.checkOutDate),
+      status: result.status,
+      // Only include reservation number when user asked for it
+      ...(askedForId ? { reservationNumber: result.reservationNumber ?? result.id } : {}),
+    };
+
+    const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
+    const sentence = BookingVoiceMapper.toSentence(voiceDto);
+
     return {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.GET_BOOKING, confidence: 0.95 },
-      summary: `予約 ${bookingId} のステータス: ${result.status}。`,
+      summary: sentence,
       artifacts: [{
         type: ArtifactType.BOOKING_GET,
-        content: result as unknown as Record<string, unknown>,
+        content: result as Record<string, unknown>,
       }],
     };
   }
@@ -291,52 +352,94 @@ export class BookingAgent implements IDomainAgent {
 
   // ─── CONFIRM BOOKING ─────────────────────────────────────────
 
-  private async handleConfirmBooking(bookingId: string | undefined): Promise<WisdomResponse> {
+  private async handleConfirmBooking(
+    bookingId: string | undefined,
+    _semantic: SemanticContext,
+    context: AIContext,
+  ): Promise<WisdomResponse> {
     if (!bookingId) {
       return {
         success: true,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.CONFIRM_BOOKING, confidence: 0.9 },
-        summary: "どの予約を確定しますか？予約IDを教えてください。",
+        summary: "どの予約を確定しますか？予約番号を教えてください。",
         artifacts: [],
       };
     }
 
     const result = await this.confirmBookingUseCase.execute(bookingId);
+
+    // result is a Booking entity instance
+    const listingName = context.resources?.searchResults?.find(
+      (r: any) => r.id === result.listingId,
+    )?.title || "ご宿泊先";
+
+    const voiceInput: BookingVoiceInput = {
+      listingName,
+      price: result.price,
+      checkInDate: result.dateRange.checkInDate,
+      checkOutDate: result.dateRange.checkOutDate,
+      status: result.status,
+    };
+
+    const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
+    const sentence = BookingVoiceMapper.toSentence(voiceDto);
+
     return {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.CONFIRM_BOOKING, confidence: 0.95 },
-      summary: `予約 ${bookingId} を確定しました。`,
+      summary: sentence,
       artifacts: [{
         type: ArtifactType.BOOKING_CONFIRMED,
-        content: result as unknown as Record<string, unknown>,
+        content: result.toJSON() as unknown as Record<string, unknown>,
       }],
     };
   }
 
   // ─── COMPLETE BOOKING ────────────────────────────────────────
 
-  private async handleCompleteBooking(bookingId: string | undefined): Promise<WisdomResponse> {
+  private async handleCompleteBooking(
+    bookingId: string | undefined,
+    _semantic: SemanticContext,
+    context: AIContext,
+  ): Promise<WisdomResponse> {
     if (!bookingId) {
       return {
         success: true,
         domain: "BOOKING" as any,
         primaryAction: { name: AgentAction.COMPLETE_BOOKING, confidence: 0.9 },
-        summary: "どの予約を完了しますか？予約IDを教えてください。",
+        summary: "どの予約を完了しますか？予約番号を教えてください。",
         artifacts: [],
       };
     }
 
     const result = await this.completeBookingUseCase.execute(bookingId);
+
+    // result is a toJSON() plain object
+    const listingName = context.resources?.searchResults?.find(
+      (r: any) => r.id === result.listingId,
+    )?.title || "ご宿泊先";
+
+    const voiceInput: BookingVoiceInput = {
+      listingName,
+      price: result.price,
+      checkInDate: new Date(result.dateRange.checkInDate),
+      checkOutDate: new Date(result.dateRange.checkOutDate),
+      status: result.status,
+    };
+
+    const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
+    const sentence = BookingVoiceMapper.toSentence(voiceDto);
+
     return {
       success: true,
       domain: "BOOKING" as any,
       primaryAction: { name: AgentAction.COMPLETE_BOOKING, confidence: 0.95 },
-      summary: `予約 ${bookingId} を完了しました。`,
+      summary: sentence,
       artifacts: [{
         type: ArtifactType.BOOKING_COMPLETED,
-        content: result as unknown as Record<string, unknown>,
+        content: result as Record<string, unknown>,
       }],
     };
   }
