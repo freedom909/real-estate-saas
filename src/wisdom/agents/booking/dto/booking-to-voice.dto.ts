@@ -12,4 +12,6 @@ export interface BookingToVoiceDTO {
   statusText: string;     // Japanese status, e.g. "確認待ち"
   /** Only present when user explicitly asked for reservation number */
   reservationNumber?: string;
+  /** Action verb prefix — "確認", "キャンセル", "確定", "完了" */
+  action?: string;
 }

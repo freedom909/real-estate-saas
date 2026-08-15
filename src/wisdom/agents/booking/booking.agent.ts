@@ -13,7 +13,6 @@ import { CreateBookingUseCase } from "@/core/booking/application/usecases/create
 import { GetBookingUseCase } from "@/core/booking/application/usecases/get-booking.usecase";
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
 import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
-import { GetLatestBookingForCustomerUseCase } from "@/core/booking/application/usecases/getLatestBookingForCustomer.useCase";
 import { GetBookingsForCustomerUseCase } from "@/core/booking/application/usecases/getBookingsForCustomer.useCase";
 import { WISDOM_TOKENS } from "@/wisdom/container/tokens/wisdom.tokens";
 import { MemorySessionStore } from "@/wisdom/memory/session/session-memory.store";
@@ -36,9 +35,6 @@ export class BookingAgent implements IDomainAgent {
     private completeBookingUseCase: CompleteBookingUseCase,
     @inject(delay(() => GetBookingsForCustomerUseCase))
     private getBookingsForCustomerUseCase: GetBookingsForCustomerUseCase,
-
-    @inject(delay(() => GetLatestBookingForCustomerUseCase))
-    private getLatestBookingForCustomerUseCase: GetLatestBookingForCustomerUseCase,
 
     @inject(WISDOM_TOKENS.memory.sessionStore)
     private sessionStore: MemorySessionStore,
@@ -197,10 +193,17 @@ export class BookingAgent implements IDomainAgent {
         checkInDate: new Date(result.dateRange.checkInDate),
         checkOutDate: new Date(result.dateRange.checkOutDate),
         status: result.status,
+        action: "確認",
       };
 
       const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
       const summary = BookingVoiceMapper.toSentence(voiceDto);
+
+      // Store booking ID in session so follow-up commands (cancel, confirm, etc.) can find it
+      const sessionId = context.runtime?.sessionId ?? "default";
+      const session = this.sessionStore.getOrCreate(sessionId);
+      session.lastBookingId = result.id;
+      this.sessionStore.set(sessionId, session);
 
       return {
         success: true,
@@ -254,10 +257,17 @@ export class BookingAgent implements IDomainAgent {
       checkInDate: result.dateRange.checkInDate,
       checkOutDate: result.dateRange.checkOutDate,
       status: result.status,
+      action: "キャンセル",
     };
 
     const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
     const sentence = BookingVoiceMapper.toSentence(voiceDto);
+
+    // Update session so follow-up commands track the acted-upon booking
+    const sessionId = context.runtime?.sessionId ?? "default";
+    const session = this.sessionStore.getOrCreate(sessionId);
+    session.lastBookingId = bookingId;
+    this.sessionStore.set(sessionId, session);
 
     return {
       success: true,
@@ -380,10 +390,17 @@ export class BookingAgent implements IDomainAgent {
       checkInDate: result.dateRange.checkInDate,
       checkOutDate: result.dateRange.checkOutDate,
       status: result.status,
+      action: "確定",
     };
 
     const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
     const sentence = BookingVoiceMapper.toSentence(voiceDto);
+
+    // Update session so follow-up commands track the acted-upon booking
+    const sessionId = context.runtime?.sessionId ?? "default";
+    const session = this.sessionStore.getOrCreate(sessionId);
+    session.lastBookingId = bookingId;
+    this.sessionStore.set(sessionId, session);
 
     return {
       success: true,
@@ -427,10 +444,17 @@ export class BookingAgent implements IDomainAgent {
       checkInDate: new Date(result.dateRange.checkInDate),
       checkOutDate: new Date(result.dateRange.checkOutDate),
       status: result.status,
+      action: "完了",
     };
 
     const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
     const sentence = BookingVoiceMapper.toSentence(voiceDto);
+
+    // Update session so follow-up commands track the acted-upon booking
+    const sessionId = context.runtime?.sessionId ?? "default";
+    const session = this.sessionStore.getOrCreate(sessionId);
+    session.lastBookingId = bookingId;
+    this.sessionStore.set(sessionId, session);
 
     return {
       success: true,
@@ -491,10 +515,21 @@ export class BookingAgent implements IDomainAgent {
   }
 
   private extractBookingId(semantic: SemanticContext, context: AIContext): string | undefined {
-    return (
-      semantic.entities.find((e) => e.type === EntityType.BOOKING || e.type === EntityType.BOOKING_ID)?.value as string ??
-      context.resources?.bookingId as string
-    );
+    // 1. Explicit entity from semantic extraction
+    const fromEntity = semantic.entities.find(
+      (e) => e.type === EntityType.BOOKING || e.type === EntityType.BOOKING_ID
+    )?.value as string | undefined;
+    if (fromEntity) return fromEntity;
+
+    // 2. Explicit from context resources
+    if (context.resources?.bookingId) return context.resources.bookingId as string;
+
+    // 3. Fallback: last booking created/acted-on in this session
+    const sessionId = context.runtime?.sessionId ?? "default";
+    const session = this.sessionStore.get(sessionId);
+    if (session?.lastBookingId) return session.lastBookingId;
+
+    return undefined;
   }
 
   private extractListingId(semantic: SemanticContext, context: AIContext): string | undefined {

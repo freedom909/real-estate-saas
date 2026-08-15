@@ -14,6 +14,9 @@ export type SessionMemory = {
 
   bookingDraft?: BookingMemory;
 
+  /** ID of the most recently created/acted-upon booking in this session */
+  lastBookingId?: string;
+
   updatedAt: number;
 };
 

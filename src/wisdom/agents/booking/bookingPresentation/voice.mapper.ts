@@ -27,6 +27,8 @@ export interface BookingVoiceInput {
   status: string;
   /** Optional — only included when user asked for it */
   reservationNumber?: string;
+  /** Action verb prefix — defaults to "確認" (confirmed) */
+  action?: "確認" | "キャンセル" | "確定" | "完了";
 }
 
 export class BookingVoiceMapper {
@@ -41,6 +43,7 @@ export class BookingVoiceMapper {
       priceText: this.formatPrice(input.price),
       statusText: this.formatStatus(input.status),
       reservationNumber: input.reservationNumber, // only set when asked
+      action: input.action ?? "確認",
     };
   }
 
@@ -72,7 +75,8 @@ export class BookingVoiceMapper {
       parts.push(`予約番号：${dto.reservationNumber}`);
     }
 
-    return `ご予約を確認しました！${parts.join("、")}。`;
+    const action = dto.action ?? "確認";
+    return `ご予約を${action}しました。${parts.join("、")}。`;
   }
 
   // ─── Formatting helpers ────────────────────────────────────────
