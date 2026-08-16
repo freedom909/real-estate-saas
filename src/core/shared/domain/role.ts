@@ -13,6 +13,7 @@ export enum Role {
   OWNER = "OWNER",
   ADMIN = "ADMIN",
   SUPER_ADMIN = "SUPER_ADMIN",
+  HOST = "HOST",
 }
 
 /**
@@ -23,10 +24,12 @@ export const ROLE_HIERARCHY: Record<Role, number> = {
   [Role.CUSTOMER]: 1,
   [Role.STAFF]: 2,
   [Role.MODERATOR]: 3,
-  [Role.AGENT]: 4,
-  [Role.OWNER]: 5,
-  [Role.ADMIN]: 6,
-  [Role.SUPER_ADMIN]: 7,
+  [Role.HOST]: 4,
+  [Role.AGENT]: 5,
+  [Role.OWNER]: 6,
+  [Role.ADMIN]: 7,
+  [Role.SUPER_ADMIN]: 8,
+ 
 };
 
 /**

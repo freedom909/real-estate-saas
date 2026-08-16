@@ -34,12 +34,16 @@ await connectMongo(process.env.MONGO_URI ||"mongodb://localhost:27017/nakano");
 console.log("MongoDB connected",process.env.MONGO_URI);
 const collections = await mongoose.connection.db.listCollections().toArray();
 
+console.log("🔥 MONGO DB =", mongoose.connection.name);
+console.log("🔥 MONGO HOST =", mongoose.connection.host);
+
 const docs = await mongoose.connection.db
   .collection("users")
   .find({})
   .toArray();
 
-console.log("USERS =", docs);
+console.log("🔥 USERS COUNT =", docs.length);
+console.log("🔥 USERS =", docs);
 
 // 🧰 2️⃣ Container
 const userContainer = registerUserDependencies(container);
@@ -79,12 +83,24 @@ app.use(
      req.body
    );
       next();
-
  },
-  async (req, _res, next) => {
-    (req as any).user = await getUserFromContext(req);
-    next();
-  },
+async (req, _res, next) => {
+  console.log("======================================");
+  console.log("🔥 USER REQUEST");
+  console.log("METHOD:", req.method);
+  console.log("PATH:", req.path);
+  console.log("AUTHORIZATION:", req.headers.authorization);
+  console.log("COOKIE:", req.headers.cookie);
+
+  const user = await getUserFromContext(req);
+
+  console.log("🔥 getUserFromContext() =", user);
+  console.log("======================================");
+
+  (req as any).user = user;
+
+  next();
+},
   expressMiddleware(server, {
     context: async ({ req }) => ({
       req,
@@ -92,12 +108,13 @@ app.use(
       container,
       userContainer,
     }),
+    
   })
 );
 console.log(
   "USERS =",
   __filename,
-  await UserModel.find()
+  await UserModel.find() //no output
 );
 httpServer.listen(4020, () => {
   console.log(

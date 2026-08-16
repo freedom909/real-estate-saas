@@ -35,7 +35,7 @@ export interface IUserRepo {
   deactivate(id: string): Promise<void>;
 }
 @injectable()
-export default class UserRepo implements IUserRepo {
+export default class UserRepository {
   constructor(
     @inject(TOKENS_USER.models.user)
     private UserModel: Model<IUserDBObject>,

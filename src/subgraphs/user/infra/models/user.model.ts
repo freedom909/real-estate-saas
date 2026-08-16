@@ -6,6 +6,7 @@ import mongoose, { HydratedDocument, Types } from "mongoose";
 
 export type UserDocument = HydratedDocument<IUserDB>;
 export interface IUserDB {
+  
   _id: Types.ObjectId;
   email: string; // Mongoose schema requires it, so it's a string
   name: string;

@@ -10,7 +10,7 @@ export interface AuthPayload {
     user: {
         id: string;
         email: string;
-        role: "CUSTOMER" | "AGENT" | "ADMIN" | "SUPER_ADMIN" | "OWNER" | "STAFF" | "MODERATOR";
+        role: "CUSTOMER" | "AGENT" | "ADMIN" | "SUPER_ADMIN" | "OWNER" | "STAFF" | "MODERATOR" | "HOST" | "GUEST";
         name?: string;
         picture?: string;
     };

@@ -81,10 +81,7 @@ async function start() {
 
         willSendRequest({ request, context }) {
           const auth = context?.authorization;
-            console.log("Gateway context =", context);
-          console.log("GATEWAY AUTH =>", auth);
-           console.log("Gateway auth =", context.authorization);
-           console.log("Gateway user =", context.user);
+
           if (auth) {
 
             request.http.headers.set(
@@ -157,11 +154,11 @@ async function start() {
     graphqlUploadExpress({ maxFileSize: 10_000_000, maxFiles: 10 }),
     async (req, res, next) => {
 
-      console.log("SUBGRAPH AUTH =>", req.headers.authorization);
+      console.log("🔥 GATEWAY AUTH =>", req.headers.authorization);
 
       (req as any).user = await getUserFromContext(req);
 
-      console.log("SUBGRAPH USER =>", (req as any).user);
+      console.log("🔥 GATEWAY USER =>", (req as any).user);
 
       next();
 

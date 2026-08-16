@@ -17,6 +17,8 @@ export default function Navbar() {
   // logout() in auth.service.ts handles redirect
   const logout = () => authLogout();
 
+  const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+
   return (
 
     <nav className="border-b bg-black">
@@ -63,11 +65,15 @@ export default function Navbar() {
 
             </Link>
 
-            {user && (
+            {isAdmin && (
               <Link href="/admin" className="hover:text-red-600 transition text-red-400 font-semibold">
-
                 Admin
+              </Link>
+            )}
 
+            {user && !isAdmin && (
+              <Link href="/account" className="hover:text-blue-600 transition text-blue-400 font-semibold">
+                Account
               </Link>
             )}
 

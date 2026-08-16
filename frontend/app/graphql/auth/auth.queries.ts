@@ -9,6 +9,7 @@ export const ME = gql`
       email
       name
       picture
+      role
     }
   }
 `;

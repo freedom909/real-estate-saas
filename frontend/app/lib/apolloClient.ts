@@ -38,24 +38,34 @@ const authLink = new SetContextLink((prevContext) => {
     }
   }
 
+  const headers = {
+    ...prevContext.headers,
+    "apollo-require-preflight": "true",
+    ...(accessToken
+      ? {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      : {}),
+  };
+
+  console.log("🔥 AUTH LINK FINAL HEADERS =", headers);
+
   return {
-    headers: {
-      ...prevContext.headers,
-      // Required by @apollo/server v4 CSRF prevention for multipart/form-data uploads
-      "apollo-require-preflight": "true",
-      ...(accessToken
-        ? {
-            Authorization: `Bearer ${accessToken}`,
-          }
-        : {}),
-    },
+    headers,
   };
 });
 
+const httpLink = new HttpLink({
+  uri: GATEWAY_URL,
+});
 export const client = new ApolloClient({
-  link: authLink.concat(uploadLink),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
+// export const client = new ApolloClient({
+//   link: authLink.concat(uploadLink),
+//   cache: new InMemoryCache(),
+// });
 
 // Separate upload client that hits listing subgraph directly (bypasses gateway)
 // Apollo Gateway doesn't forward multipart file uploads to subgraphs,
@@ -83,6 +93,7 @@ const uploadAuthLink = new SetContextLink((prevContext) => {
         ? { Authorization: `Bearer ${accessToken}` }
         : {}),
     },
+    
   };
 });
 

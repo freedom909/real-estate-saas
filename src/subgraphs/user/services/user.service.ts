@@ -16,7 +16,7 @@ interface UserRepository {
 @injectable()
 class UserService {
   deactivate(userId: string) {
-    throw new Error("Method not implemented.");
+    return this.userRepository.deactivate(userId);
   }
 
   userRepository: any;

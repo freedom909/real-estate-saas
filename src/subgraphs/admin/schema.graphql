@@ -195,6 +195,7 @@ input UpdateSystemSettingInput {
 
 enum UserRole {
   GUEST
+  HOST
   CUSTOMER
   STAFF
   MODERATOR
@@ -208,6 +209,7 @@ enum UserRole {
 # Query
 # =====================
 type Query {
+  
   adminUsers: [AdminUser!]!
   adminUser(id: ID!): User
   adminAuditLogs(limit: Int, filter: AuditLogFilter): [AdminAuditLog!]!

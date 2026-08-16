@@ -27,6 +27,7 @@ import resolvers from "./resolvers"
 import registerAuthDependencies from "./registerAuthDependencies"
 import  registerSecurityDependencies  from "../../modules/container/security.register";
 import registerAuditDependencies from "../../modules/container/audit.register.js"
+import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 
 
 // ⭐ 注册 DI
@@ -75,6 +76,11 @@ app.use(
   }),
   express.json(),
   cookieParser(),
+  // ✅ Parse gateway-forwarded user from x-gateway-user header (same as account/admin subgraphs)
+  async (req, _res, next) => {
+    (req as any).user = await getUserFromContext(req);
+    next();
+  },
   expressMiddleware(server, {
     context: async ({ req, res }) => ({
       req,

@@ -80,6 +80,7 @@ type Profile @shareable {
 
 enum UserRole {
   GUEST
+  HOST
   CUSTOMER
   STAFF
   MODERATOR
@@ -119,7 +120,7 @@ enum OAuthProvider {
 # ======================
 
 type Query {
-
+  currentUser: User!
   user(id: ID!): User
 
   userByEmail(email: String!): User
@@ -136,7 +137,7 @@ type Query {
 # ======================
 
 type Mutation {
-
+  becomeHost:User!
   createUser(input: CreateUserInput!): User!
 
   createOAuthUser(input: CreateOAuthUserInput!): User!

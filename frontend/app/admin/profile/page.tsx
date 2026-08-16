@@ -1,5 +1,6 @@
 "use client";
 
+//src/app/admin/profile/page.tsx
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { ME } from "../../graphql/auth/auth.queries";
@@ -126,10 +127,6 @@ function AdminProfileContent() {
         {/* Change Other Settings */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">Change Other Settings</h2>
-
-       
-
-
         </div>
       </div>
     </AdminLayout>

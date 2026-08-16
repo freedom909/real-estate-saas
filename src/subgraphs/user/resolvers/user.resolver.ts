@@ -12,6 +12,7 @@ import { TenantACL } from "@/core/account/infra/tenant.acl.js";
 import { TOKENS_TENANT } from "@/modules/tokens/tenant.tokens.js";
 import { TOKENS_ACCOUNT } from "@/modules/tokens/account.token.js";
 import { TenantService } from "@/core/tenant/domain/services/tenant.service.js";
+import { BecomeHostUseCase } from "../application/usecase/becomeHost.usecase.js";
 
 
 interface ResolverContext {
@@ -29,64 +30,70 @@ interface UserReference {
 
 const resolvers = {
 
-Customer: {
-  __resolveReference: async (
-    ref: UserReference,
-    { container }: ResolverContext
-  ) => {
-console.log(
- "🔥🔥 USER REFERENCE CALLED",
- ref
-);
-    console.log(
-      "🔥 Customer __resolveReference",
-      ref
-    );
-
-    const userService =
-      container.resolve<UserService>(
-        TOKENS_USER.services.userService
+  Customer: {
+    __resolveReference: async (
+      ref: UserReference,
+      { container }: ResolverContext
+    ) => {
+      console.log(
+        "🔥🔥 USER REFERENCE CALLED",
+        ref
+      );
+      console.log(
+        "🔥 Customer __resolveReference",
+        ref
       );
 
-    const customer =
-      await userService.findById(ref.id);
+      const userService =
+        container.resolve<UserService>(
+          TOKENS_USER.services.userService
+        );
 
-    console.log(
-      "🔥 Customer Found",
-      customer
-    );
+      const customer =
+        await userService.findById(ref.id);
 
-    return customer;
+      console.log(
+        "🔥 Customer Found",
+        customer
+      );
+
+      return customer;
+    },
   },
-},
-User: {
-  __resolveReference: async (
-    reference: UserReference,
-    { container }: ResolverContext
-  ) => {
-    const userService = container.resolve<UserService>(
+  User: {
+    __resolveReference: async (
+      reference: UserReference,
+      { container }: ResolverContext
+    ) => {
+      const userService = container.resolve<UserService>(
         TOKENS_USER.services.userService
       );
-    const user =await userService.findById(reference.id);
-    return user;
-  },
+      const user = await userService.findById(reference.id);
+      return user;
+    },
 
-},
+  },
   Query: {
-    me: (_: any, __: any, ctx: any) => {
-      if (!ctx.user) {
-        throw new Error("UNAUTHORIZED");
+    currentUser: async (
+      _parent,
+      _args,
+      context
+    ) => {
+      if (!context.user) {
+        throw new Error("Unauthenticated");
       }
 
-      return ctx.user;
+      return context.container
+        .resolve(TOKENS_USER.services.userService)
+        .findById(context.user.userId);
     },
     user: async (_: unknown, { id }: { id: string }) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
-        const user = await userService.findById(id);
-       console.log(
-    "🔥🔥 USER FIND RESULT:",
-    user
-  );
+      const user = await userService.findById(id);
+      console.log(
+        "🔥🔥 USER FIND RESULT:",
+        user
+      );
       return user
     },
 
@@ -134,22 +141,22 @@ User: {
     },
 
     createUser: async (_: any, { input }: any) => {
-        console.log("========== USER QUERY ==========");
-        console.log(input);
-      
+      console.log("========== USER QUERY ==========");
+      console.log(input);
+
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.create(input);
     },
 
-createOAuthUser: async (_: any, { input }: any) => {
+    createOAuthUser: async (_: any, { input }: any) => {
 
-const useCase = container.resolve<CreateOAuthUserUseCase>(TOKENS_USER.usecase.createOAuthUserUseCase);
-console.log(
-    "🔥🔥 CREATE OAUTH USER CALLED",
-    input
-  );
-return await useCase.execute(input);
-}
+      const useCase = container.resolve<CreateOAuthUserUseCase>(TOKENS_USER.usecase.createOAuthUserUseCase);
+      console.log(
+        "🔥🔥 CREATE OAUTH USER CALLED",
+        input
+      );
+      return await useCase.execute(input);
+    },
     // updateLastLogin: async (_: unknown, { userId }: { userId: string }) => {
 
     //   const user = await UserModel.findByIdAndUpdate(
@@ -159,6 +166,17 @@ return await useCase.execute(input);
     //   )
     //   return !!user
     // }
+
+    becomeHost: async (_: unknown, __: any, ctx: any) => {
+  if (!ctx.user) {
+    throw new Error("Unauthenticated");
+  }
+
+  const userId = ctx.user.userId;
+      assertSelfAccess(ctx.user, userId);
+      const useCase = container.resolve<BecomeHostUseCase>(TOKENS_USER.usecase.becomeHostUseCase);
+      return await useCase.execute(userId);
+    }
   },
 }
 
