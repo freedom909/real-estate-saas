@@ -2,20 +2,24 @@ import "reflect-metadata";
 import CreateOAuthUserUseCase from "../../../../../subgraphs/user/application/usecase/createOAuthUserUseCase";
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
-type MockRepo = {
-  createOAuthUser: jest.Mock<any>;
+const mockRepo = {
+  findByEmail: jest.fn(),
+  create: jest.fn(),
+  findById: jest.fn(),
+  findAll: jest.fn(),
+  count: jest.fn(),
+  deactivate: jest.fn(),
+  setUserRole: jest.fn(),
+  save: jest.fn(),
+  activate: jest.fn(),
 };
 
 describe("CreateOAuthUserUseCase", () => {
   let useCase: CreateOAuthUserUseCase;
-  let mockRepo: MockRepo;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRepo = {
-      createOAuthUser: jest.fn(),
-    };
-    useCase = new CreateOAuthUserUseCase(mockRepo as any);
+    useCase = new (CreateOAuthUserUseCase as any)(mockRepo);
   });
 
   it("should create OAuth user with correct payload", async () => {
@@ -28,73 +32,63 @@ describe("CreateOAuthUserUseCase", () => {
       },
     };
 
+    mockRepo.findByEmail.mockResolvedValue(null);
     const expectedResult = { id: "new-user", email: "user@example.com" };
-    mockRepo.createOAuthUser.mockResolvedValue(expectedResult);
+    mockRepo.create.mockResolvedValue(expectedResult);
 
     const result = await useCase.execute(input);
 
-    expect(mockRepo.createOAuthUser).toHaveBeenCalledWith({
+    expect(mockRepo.findByEmail).toHaveBeenCalledWith("user@example.com");
+    expect(mockRepo.create).toHaveBeenCalledWith({
       email: "user@example.com",
       name: "Google User",
+      role: "CUSTOMER",
       picture: "https://example.com/avatar.jpg",
-      provider: "google",
     });
     expect(result).toEqual(expectedResult);
   });
 
+  it("should return existing user if email already exists (idempotent)", async () => {
+    const existingUser = { id: "existing-user", email: "user@example.com" };
+    mockRepo.findByEmail.mockResolvedValue(existingUser);
+
+    const result = await useCase.execute({
+      email: "user@example.com",
+      provider: "google",
+      profile: { name: "Google User" },
+    });
+
+    expect(mockRepo.create).not.toHaveBeenCalled();
+    expect(result).toEqual(existingUser);
+  });
+
   it("should use empty string when avatar is not provided", async () => {
-    const input = {
+    mockRepo.findByEmail.mockResolvedValue(null);
+    mockRepo.create.mockResolvedValue({ id: "new-user" });
+
+    await useCase.execute({
       email: "user@example.com",
       provider: "github",
-      profile: {
-        name: "GitHub User",
-      },
-    };
+      profile: { name: "GitHub User" },
+    });
 
-    mockRepo.createOAuthUser.mockResolvedValue({ id: "new-user" });
-
-    await useCase.execute(input);
-
-    expect(mockRepo.createOAuthUser).toHaveBeenCalledWith({
+    expect(mockRepo.create).toHaveBeenCalledWith({
       email: "user@example.com",
       name: "GitHub User",
+      role: "CUSTOMER",
       picture: "",
-      provider: "github",
     });
   });
 
   it("should propagate repository errors", async () => {
-    const input = {
-      email: "user@example.com",
-      provider: "google",
-      profile: { name: "User" },
-    };
+    mockRepo.findByEmail.mockRejectedValue(new Error("Database error"));
 
-    const error = new Error("Database error");
-    mockRepo.createOAuthUser.mockRejectedValue(error);
-
-    await expect(useCase.execute(input)).rejects.toThrow("Database error");
-  });
-
-  it("should pass through empty profile fields", async () => {
-    const input = {
-      email: "user@example.com",
-      provider: "facebook",
-      profile: {
-        name: "",
-        avatar: undefined,
-      },
-    };
-
-    mockRepo.createOAuthUser.mockResolvedValue({ id: "new-user" });
-
-    await useCase.execute(input);
-
-    expect(mockRepo.createOAuthUser).toHaveBeenCalledWith({
-      email: "user@example.com",
-      name: "",
-      picture: "",
-      provider: "facebook",
-    });
+    await expect(
+      useCase.execute({
+        email: "user@example.com",
+        provider: "google",
+        profile: { name: "User" },
+      })
+    ).rejects.toThrow("Database error");
   });
 });

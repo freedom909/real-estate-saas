@@ -6,11 +6,16 @@ const mockAdminRepo = {
   promoteUserToAdmin: jest.fn(),
   findById: jest.fn(),
   findAll: jest.fn(),
-  create: jest.fn(),
+  createAdmin: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
   countByRole: jest.fn(),
   findByEmail: jest.fn(),
+};
+
+const mockUserRepo = {
+  findById: jest.fn(),
+  setUserRole: jest.fn(),
 };
 
 jest.mock("tsyringe", () => ({
@@ -25,6 +30,18 @@ jest.mock("@/modules/tokens/admin.tokens", () => ({
   },
 }));
 
+jest.mock("@/modules/tokens/user.tokens", () => ({
+  TOKENS_USER: {
+    repos: { userRepository: Symbol.for("UserRepository") },
+  },
+}));
+
+jest.mock("@/core/admin/domain/entities/adminUser", () => ({
+  AdminUser: {
+    fromUser: jest.fn((user) => ({ id: user.id, email: user.email, role: "ADMIN", name: user.name })),
+  },
+}));
+
 import PromoteUserToAdminUseCase from "@/core/admin/application/usecase/promoteUserToAdmin.usecase";
 
 describe("PromoteUserToAdminUseCase", () => {
@@ -32,40 +49,31 @@ describe("PromoteUserToAdminUseCase", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useCase = new (PromoteUserToAdminUseCase as any)(mockAdminRepo);
+    useCase = new (PromoteUserToAdminUseCase as any)(mockAdminRepo, mockUserRepo);
   });
 
-  it("should call repo.promoteUserToAdmin with the given userId", async () => {
-    mockAdminRepo.promoteUserToAdmin.mockResolvedValue(undefined);
+  it("should find user, set role, and create admin", async () => {
+    const mockUser = { id: "user-123", email: "user@test.com", name: "Test User" };
+    mockUserRepo.findById.mockResolvedValue(mockUser);
+    mockUserRepo.setUserRole.mockResolvedValue(undefined);
+    mockAdminRepo.createAdmin.mockResolvedValue(undefined);
 
     await useCase.execute("user-123");
 
-    expect(mockAdminRepo.promoteUserToAdmin).toHaveBeenCalledWith("user-123");
+    expect(mockUserRepo.findById).toHaveBeenCalledWith("user-123");
+    expect(mockUserRepo.setUserRole).toHaveBeenCalledWith("user-123", "ADMIN");
+    expect(mockAdminRepo.createAdmin).toHaveBeenCalled();
   });
 
-  it("should return void", async () => {
-    mockAdminRepo.promoteUserToAdmin.mockResolvedValue(undefined);
+  it("should throw when user not found", async () => {
+    mockUserRepo.findById.mockResolvedValue(null);
 
-    const result = await useCase.execute("user-123");
-
-    expect(result).toBeUndefined();
+    await expect(useCase.execute("missing-user")).rejects.toThrow("User not found");
   });
 
   it("should propagate errors from the repository", async () => {
-    mockAdminRepo.promoteUserToAdmin.mockRejectedValue(
-      new Error("User not found")
-    );
+    mockUserRepo.findById.mockRejectedValue(new Error("Connection refused"));
 
-    await expect(useCase.execute("missing-user")).rejects.toThrow(
-      "User not found"
-    );
-  });
-
-  it("should forward an empty string userId without validation", async () => {
-    mockAdminRepo.promoteUserToAdmin.mockResolvedValue(undefined);
-
-    await useCase.execute("");
-
-    expect(mockAdminRepo.promoteUserToAdmin).toHaveBeenCalledWith("");
+    await expect(useCase.execute("user-123")).rejects.toThrow("Connection refused");
   });
 });

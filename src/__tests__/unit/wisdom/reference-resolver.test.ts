@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
-import { ReferenceResolver } from "@/wisdom/reference/IlistingReference-resolver";
+import { ListingReferenceResolver } from "@/wisdom/reference/IlistingReference-resolver";
 import { SemanticContext } from "@/wisdom/semantic/semantic-context";
 import { EntityType } from "@/wisdom/shared/enums/entity-type.enum";
 import { AIDomain } from "@/wisdom/shared/enums/domain.enum";
@@ -14,12 +14,12 @@ const mockSearchListingUseCase = {
     .mockResolvedValue({ listings: [], total: 0 }),
 };
 
-describe("ReferenceResolver", () => {
-  let resolver: ReferenceResolver;
+describe("ListingReferenceResolver", () => {
+  let resolver: ListingReferenceResolver;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    resolver = new ReferenceResolver(mockSearchListingUseCase as any);
+    resolver = new ListingReferenceResolver(mockSearchListingUseCase as any);
   });
 
   function makeSearchResults() {
@@ -94,10 +94,7 @@ describe("ReferenceResolver", () => {
     });
 
     it("should match Japanese input '花の部屋を予約したい'", async () => {
-      const searchResults = [
-        { id: "listing-1", title: "花の部屋", address: "東京", price: 10000 },
-        { id: "listing-2", title: "庭園ルーム", address: "京都", price: 15000 },
-      ];
+      const searchResults = makeSearchResults();
       const context = makeAIContext(searchResults);
       const semantic = makeBookingSemantic("花の部屋を予約したい");
 
@@ -113,7 +110,7 @@ describe("ReferenceResolver", () => {
     it("should fall back to first listing when no title matches", async () => {
       const searchResults = makeSearchResults();
       const context = makeAIContext(searchResults);
-      const semantic = makeBookingSemantic("book it");
+      const semantic = makeBookingSemantic("book the castle room");
 
       const resolved = await resolver.resolve(semantic, context);
 
@@ -121,7 +118,7 @@ describe("ReferenceResolver", () => {
         (e) => e.type === EntityType.LISTING_ID,
       );
       expect(listingIdEntity).toBeDefined();
-      expect(listingIdEntity!.value).toBe("listing-1"); // First listing
+      expect(listingIdEntity!.value).toBe("listing-1");
     });
 
     it("should not match when no search results exist", async () => {
@@ -143,7 +140,7 @@ describe("ReferenceResolver", () => {
       const context = makeAIContext(searchResults);
       const semantic = new SemanticContext(
         "book the first one",
-        [{ type: EntityType.ORDINAL, value: "first", confidence: 0.95 }],
+        [{ type: EntityType.ORDINAL, value: "first", confidence: 0.9 }],
         { type: AgentAction.CREATE_BOOKING, confidence: 0.9 },
         0.9,
         AIDomain.BOOKING,
@@ -164,7 +161,7 @@ describe("ReferenceResolver", () => {
       const context = makeAIContext(searchResults);
       const semantic = new SemanticContext(
         "book the second one",
-        [{ type: EntityType.ORDINAL, value: "second", confidence: 0.95 }],
+        [{ type: EntityType.ORDINAL, value: "second", confidence: 0.9 }],
         { type: AgentAction.CREATE_BOOKING, confidence: 0.9 },
         0.9,
         AIDomain.BOOKING,
@@ -187,7 +184,7 @@ describe("ReferenceResolver", () => {
       const context = makeAIContext(searchResults);
       const semantic = new SemanticContext(
         "book listing-3",
-        [{ type: EntityType.LISTING_ID, value: "listing-3", confidence: 0.95 }],
+        [{ type: EntityType.LISTING_ID, value: "listing-3", confidence: 1.0 }],
         { type: AgentAction.CREATE_BOOKING, confidence: 0.9 },
         0.9,
         AIDomain.BOOKING,

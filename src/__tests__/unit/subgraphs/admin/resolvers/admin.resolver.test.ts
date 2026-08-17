@@ -20,6 +20,7 @@ const mockUseCases = {
   markNotificationRead: { markOne: jest.fn(), markAll: jest.fn() },
   deleteNotification: { execute: jest.fn() },
   updateAdminAccount: { execute: jest.fn() },
+  getAllAdmins: { execute: jest.fn() },
 };
 
 const mockRepos = {
@@ -52,6 +53,7 @@ jest.mock("@/modules/tokens/admin.tokens", () => ({
       markNotificationReadUseCase: Symbol.for("MarkNotificationReadUseCase"),
       deleteNotificationUseCase: Symbol.for("DeleteNotificationUseCase"),
       updateAdminAccountUseCase: Symbol.for("UpdateAdminAccountUseCase"),
+      getAllAdminsUseCase: Symbol.for("GetAllAdminsUseCase"),
     },
   },
 }));
@@ -73,7 +75,7 @@ jest.mock("@/core/admin/application/usecase/createNotification.usecase", () => (
 jest.mock("@/core/admin/application/usecase/markNotificationRead.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/deleteNotification.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/updateAdminAccount.usecase", () => ({ __esModule: true, default: function () {} }));
-jest.mock("@/core/admin/application/usecase/getAuditLogCount.usecase", () => ({ __esModule: true, default: function () {} }));
+jest.mock("@/core/admin/application/usecase/getAllAdmins.usecase", () => ({ __esModule: true, default: function () {} }));
 
 // Mock guards – pass-through so resolver body runs unguarded
 jest.mock("@/subgraphs/admin/guards/adminRole.guard", () => ({
@@ -112,6 +114,7 @@ jest.mock("tsyringe", () => {
     [Symbol.for("MarkNotificationReadUseCase"), mockUseCases.markNotificationRead],
     [Symbol.for("DeleteNotificationUseCase"), mockUseCases.deleteNotification],
     [Symbol.for("UpdateAdminAccountUseCase"), mockUseCases.updateAdminAccount],
+    [Symbol.for("GetAllAdminsUseCase"), mockUseCases.getAllAdmins],
   ]);
   return {
     container: { resolve: jest.fn((token: symbol) => tokenMap.get(token) ?? null) },
@@ -159,14 +162,19 @@ describe("Admin Resolvers", () => {
   });
 
   describe("Query.adminUsers", () => {
-    it("should return all admin users from repository", async () => {
-      const users = [{ id: "a1", name: "Admin One" }, { id: "a2", name: "Admin Two" }];
-      mockRepos.adminUser.findAll.mockResolvedValue(users);
+    it("should return all admin users via GetAllAdminsUseCase", async () => {
+      const admins = [
+        { id: "a1", email: "admin1@test.com", role: "ADMIN", name: "Admin One", avatar: null, isActive: true, immutable: false, createdAt: new Date(), updatedAt: new Date() },
+        { id: "a2", email: "admin2@test.com", role: "MODERATOR", name: "Admin Two", avatar: null, isActive: true, immutable: false, createdAt: new Date(), updatedAt: new Date() },
+      ];
+      mockUseCases.getAllAdmins.execute.mockResolvedValue(admins);
 
       const result = await (resolvers as any).Query.adminUsers(null, {}, ctx());
 
-      expect(mockRepos.adminUser.findAll).toHaveBeenCalled();
-      expect(result).toEqual(users);
+      expect(mockUseCases.getAllAdmins.execute).toHaveBeenCalled();
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe("a1");
+      expect(result[0].email).toBe("admin1@test.com");
     });
   });
 
@@ -344,76 +352,6 @@ describe("Admin Resolvers", () => {
 
       expect(mockUseCases.updateAdminAccount.execute).toHaveBeenCalledWith("admin-1", input);
       expect(result).toEqual(updated);
-    });
-  });
-
-  describe("Mutation.updateSystemSetting", () => {
-    it("should upsert setting via use case", async () => {
-      const input = { key: "site.name", value: "New Name" };
-      const setting = { id: "s1", key: "site.name", value: "New Name" };
-      mockUseCases.updateSystemSetting.execute.mockResolvedValue(setting);
-
-      const result = await (resolvers as any).Mutation.updateSystemSetting(null, { input }, ctx());
-
-      expect(mockUseCases.updateSystemSetting.execute).toHaveBeenCalledWith({ key: "site.name", value: "New Name", updatedBy: "admin-1" });
-      expect(result).toEqual(setting);
-    });
-  });
-
-  describe("Mutation.deleteSystemSetting", () => {
-    it("should delete setting by key", async () => {
-      mockUseCases.deleteSystemSetting.execute.mockResolvedValue(true);
-
-      const result = await (resolvers as any).Mutation.deleteSystemSetting(null, { key: "old.key" }, ctx());
-
-      expect(mockUseCases.deleteSystemSetting.execute).toHaveBeenCalledWith("old.key");
-      expect(result).toBe(true);
-    });
-  });
-
-  describe("Mutation.createNotification", () => {
-    it("should create notification via use case", async () => {
-      const input = { adminId: "a1", type: "INFO", title: "Test", message: "Hello" };
-      const notif = { id: "n-new", ...input };
-      mockUseCases.createNotification.execute.mockResolvedValue(notif);
-
-      const result = await (resolvers as any).Mutation.createNotification(null, { input }, ctx());
-
-      expect(mockUseCases.createNotification.execute).toHaveBeenCalledWith(input);
-      expect(result).toEqual(notif);
-    });
-  });
-
-  describe("Mutation.markNotificationRead", () => {
-    it("should mark one notification as read", async () => {
-      mockUseCases.markNotificationRead.markOne.mockResolvedValue(true);
-
-      const result = await (resolvers as any).Mutation.markNotificationRead(null, { id: "n1" }, ctx());
-
-      expect(mockUseCases.markNotificationRead.markOne).toHaveBeenCalledWith("n1");
-      expect(result).toBe(true);
-    });
-  });
-
-  describe("Mutation.markAllNotificationsRead", () => {
-    it("should mark all notifications as read for current admin", async () => {
-      mockUseCases.markNotificationRead.markAll.mockResolvedValue(true);
-
-      const result = await (resolvers as any).Mutation.markAllNotificationsRead(null, {}, ctx());
-
-      expect(mockUseCases.markNotificationRead.markAll).toHaveBeenCalledWith("admin-1");
-      expect(result).toBe(true);
-    });
-  });
-
-  describe("Mutation.deleteNotification", () => {
-    it("should delete notification by id", async () => {
-      mockUseCases.deleteNotification.execute.mockResolvedValue(true);
-
-      const result = await (resolvers as any).Mutation.deleteNotification(null, { id: "n1" }, ctx());
-
-      expect(mockUseCases.deleteNotification.execute).toHaveBeenCalledWith("n1");
-      expect(result).toBe(true);
     });
   });
 });

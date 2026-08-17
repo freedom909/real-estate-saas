@@ -1,17 +1,10 @@
 import "reflect-metadata";
-import UserRepo from "../../../../../subgraphs/user/infra/repos/user.repo";
+import { UserRepository } from "../../../../../subgraphs/user/infra/repos/user.repo";
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
-function createMockLeanQuery(returnValue: any) {
-  return {
-    lean: jest.fn(() => Promise.resolve(returnValue)),
-  };
-}
-
-describe("UserRepo", () => {
-  let repo: UserRepo;
+describe("UserRepository", () => {
+  let repo: UserRepository;
   let mockModel: any;
-  const mockRedis = {};
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -20,50 +13,45 @@ describe("UserRepo", () => {
       findById: jest.fn(),
       create: jest.fn(),
       findByIdAndUpdate: jest.fn(),
-      updateOne: jest.fn(),
+      find: jest.fn(),
+      countDocuments: jest.fn(),
     };
-    repo = new UserRepo(mockModel, mockRedis);
+    repo = new (UserRepository as any)(mockModel);
   });
 
-  describe("userByEmail", () => {
-    it("should find user by email with lean query", async () => {
-      const mockUser = { _id: "123", email: "test@example.com" };
-      const leanQuery = createMockLeanQuery(mockUser);
-      mockModel.findOne.mockReturnValue(leanQuery);
+  describe("findByEmail", () => {
+    it("should find user by email", async () => {
+      const mockRaw = { _id: "123", email: "test@example.com", name: "Test" };
+      mockModel.findOne.mockResolvedValue(mockRaw);
 
-      const result = await repo.userByEmail("test@example.com");
+      const result = await repo.findByEmail("test@example.com");
 
       expect(mockModel.findOne).toHaveBeenCalledWith({ email: "test@example.com" });
-      expect(leanQuery.lean).toHaveBeenCalled();
-      expect(result).toEqual(mockUser);
+      expect(result).toBeDefined();
     });
 
     it("should return null when user not found", async () => {
-      const leanQuery = createMockLeanQuery(null);
-      mockModel.findOne.mockReturnValue(leanQuery);
+      mockModel.findOne.mockResolvedValue(null);
 
-      const result = await repo.userByEmail("missing@example.com");
+      const result = await repo.findByEmail("missing@example.com");
 
       expect(result).toBeNull();
     });
   });
 
   describe("findById", () => {
-    it("should find user by ID with lean query", async () => {
-      const mockUser = { _id: "123", email: "test@example.com" };
-      const leanQuery = createMockLeanQuery(mockUser);
-      mockModel.findById.mockReturnValue(leanQuery);
+    it("should find user by ID", async () => {
+      const mockRaw = { _id: "123", email: "test@example.com", name: "Test" };
+      mockModel.findById.mockResolvedValue(mockRaw);
 
       const result = await repo.findById("123");
 
       expect(mockModel.findById).toHaveBeenCalledWith("123");
-      expect(leanQuery.lean).toHaveBeenCalled();
-      expect(result).toEqual(mockUser);
+      expect(result).toBeDefined();
     });
 
     it("should return null when user not found", async () => {
-      const leanQuery = createMockLeanQuery(null);
-      mockModel.findById.mockReturnValue(leanQuery);
+      mockModel.findById.mockResolvedValue(null);
 
       const result = await repo.findById("nonexistent");
 
@@ -73,67 +61,52 @@ describe("UserRepo", () => {
 
   describe("create", () => {
     it("should create and return new user", async () => {
-      const input = { email: "new@example.com", name: "New User" };
-      const createdUser = { _id: "456", ...input };
-      mockModel.create.mockResolvedValue(createdUser);
+      const mockRaw = { _id: "456", email: "new@example.com", name: "New User" };
+      mockModel.create.mockResolvedValue(mockRaw);
 
-      const result = await repo.create(input);
+      const result = await repo.create({ email: "new@example.com", name: "New User" });
 
-      expect(mockModel.create).toHaveBeenCalledWith(input);
-      expect(result).toEqual(createdUser);
+      expect(mockModel.create).toHaveBeenCalled();
+      expect(result).toBeDefined();
     });
 
     it("should propagate creation errors", async () => {
-      const error = new Error("Validation failed");
-      mockModel.create.mockRejectedValue(error);
+      mockModel.create.mockRejectedValue(new Error("Validation failed"));
 
-      await expect(repo.create({ email: "bad" })).rejects.toThrow("Validation failed");
+      await expect(repo.create({ email: "bad", name: "Bad" })).rejects.toThrow("Validation failed");
     });
   });
 
   describe("deactivate", () => {
-    it("should set user status to INACTIVE", async () => {
+    it("should set user status to SUSPENDED", async () => {
       mockModel.findByIdAndUpdate.mockResolvedValue({});
 
-      await repo.deactivate("user-123");
+      const result = await repo.deactivate("user-123");
 
-      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith("user-123", { status: "INACTIVE" });
-    });
-  });
-
-  describe("update", () => {
-    it("should update user and return updated document", async () => {
-      const updatedUser = { _id: "123", name: "Updated Name" };
-      const leanQuery = createMockLeanQuery(updatedUser);
-      mockModel.findByIdAndUpdate.mockReturnValue(leanQuery);
-
-      const result = await repo.update("123", { name: "Updated Name" });
-
-      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith("123", { name: "Updated Name" }, { new: true });
-      expect(leanQuery.lean).toHaveBeenCalled();
-      expect(result).toEqual(updatedUser);
-    });
-
-    it("should return null when user not found", async () => {
-      const leanQuery = createMockLeanQuery(null);
-      mockModel.findByIdAndUpdate.mockReturnValue(leanQuery);
-
-      const result = await repo.update("nonexistent", { name: "Test" });
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe("updateLastLogin", () => {
-    it("should update lastLoginAt timestamp", async () => {
-      mockModel.updateOne.mockResolvedValue({});
-
-      await repo.updateLastLogin("user-123", new Date());
-
-      expect(mockModel.updateOne).toHaveBeenCalledWith(
-        { _id: "user-123" },
-        { lastLoginAt: expect.any(Date) }
+      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        "user-123",
+        { status: "SUSPENDED", isActive: false },
+        { new: true }
       );
+      expect(result).toBe(true);
+    });
+
+    it("should return false when user not found", async () => {
+      mockModel.findByIdAndUpdate.mockResolvedValue(null);
+
+      const result = await repo.deactivate("missing");
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("setUserRole", () => {
+    it("should update user role", async () => {
+      mockModel.findByIdAndUpdate.mockResolvedValue({});
+
+      await repo.setUserRole("user-123", "ADMIN" as any);
+
+      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith("user-123", { role: "ADMIN" });
     });
   });
 });

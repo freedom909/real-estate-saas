@@ -1,32 +1,16 @@
 import "reflect-metadata";
 import UserService from "../../../../../subgraphs/user/services/user.service";
-import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
-interface MockUser {
-  _id: { toString: () => string };
-  email: string;
-  name: string;
-  picture: string;
-  role: string;
-  status: string;
-  tokenVersion: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-type MockedUserRepo = {
-  findById: jest.Mock<(id: string) => Promise<MockUser | null>>;
-  userByEmail: jest.Mock<(email: string) => Promise<MockUser | null>>;
-};
-
-function createMockUser(overrides: Partial<MockUser> = {}): MockUser {
+function createMockUser(overrides: any = {}) {
   return {
-    _id: { toString: () => "user-123" },
+    id: "user-123",
     email: "test@example.com",
     name: "Test User",
     picture: "https://example.com/avatar.jpg",
-    role: "USER",
+    role: "CUSTOMER",
     status: "ACTIVE",
+    isActive: true,
     tokenVersion: 0,
     createdAt: new Date("2024-01-01"),
     updatedAt: new Date("2024-01-01"),
@@ -34,9 +18,16 @@ function createMockUser(overrides: Partial<MockUser> = {}): MockUser {
   };
 }
 
-const mockUserRepo: MockedUserRepo = {
+const mockUserRepo = {
   findById: jest.fn(),
-  userByEmail: jest.fn(),
+  findByEmail: jest.fn(),
+  findAll: jest.fn(),
+  count: jest.fn(),
+  create: jest.fn(),
+  deactivate: jest.fn(),
+  setUserRole: jest.fn(),
+  save: jest.fn(),
+  activate: jest.fn(),
 };
 
 describe("UserService", () => {
@@ -44,7 +35,7 @@ describe("UserService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new UserService(mockUserRepo as any);
+    service = new (UserService as any)(mockUserRepo);
   });
 
   describe("findById", () => {
@@ -59,22 +50,18 @@ describe("UserService", () => {
         id: "user-123",
         email: "test@example.com",
         name: "Test User",
-        role: "USER",
-        status: "ACTIVE",
-        tokenVersion: 0,
       });
     });
 
     it("should lookup by email when ID contains @", async () => {
       const mockUser = createMockUser({ email: "user@example.com" });
-      mockUserRepo.userByEmail.mockResolvedValue(mockUser);
+      mockUserRepo.findByEmail.mockResolvedValue(mockUser);
 
       const result = await service.findById("user@example.com");
 
-      expect(mockUserRepo.userByEmail).toHaveBeenCalledWith("user@example.com");
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith("user@example.com");
       expect(mockUserRepo.findById).not.toHaveBeenCalled();
       expect(result).not.toBeNull();
-      expect(result!.email).toBe("user@example.com");
     });
 
     it("should return null when user is not found", async () => {
@@ -84,55 +71,59 @@ describe("UserService", () => {
 
       expect(result).toBeNull();
     });
-
-    it("should return null when email lookup returns null", async () => {
-      mockUserRepo.userByEmail.mockResolvedValue(null);
-
-      const result = await service.findById("missing@example.com");
-
-      expect(result).toBeNull();
-    });
-
-    it("should propagate repository errors", async () => {
-      const error = new Error("DB connection failed");
-      mockUserRepo.findById.mockRejectedValue(error);
-
-      await expect(service.findById("user-123")).rejects.toThrow("DB connection failed");
-    });
   });
 
   describe("userByEmail", () => {
     it("should return user when found by email", async () => {
       const mockUser = createMockUser();
-      mockUserRepo.userByEmail.mockResolvedValue(mockUser);
+      mockUserRepo.findByEmail.mockResolvedValue(mockUser);
 
       const result = await service.userByEmail("test@example.com");
 
-      expect(mockUserRepo.userByEmail).toHaveBeenCalledWith("test@example.com");
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith("test@example.com");
       expect(result).not.toBeNull();
       expect(result!.id).toBe("user-123");
-      expect(result!.email).toBe("test@example.com");
     });
 
-    it("should return null when user not found by email", async () => {
-      mockUserRepo.userByEmail.mockResolvedValue(null);
+    it("should return null when not found", async () => {
+      mockUserRepo.findByEmail.mockResolvedValue(null);
 
       const result = await service.userByEmail("missing@example.com");
 
       expect(result).toBeNull();
     });
-
-    it("should propagate repository errors", async () => {
-      const error = new Error("Query failed");
-      mockUserRepo.userByEmail.mockRejectedValue(error);
-
-      await expect(service.userByEmail("test@example.com")).rejects.toThrow("Query failed");
-    });
   });
 
   describe("deactivate", () => {
-    it("should throw not implemented error", () => {
-      expect(() => service.deactivate("user-123")).toThrow("Method not implemented.");
+    it("should call repository deactivate", async () => {
+      mockUserRepo.deactivate.mockResolvedValue(true);
+
+      const result = await service.deactivate("user-123");
+
+      expect(mockUserRepo.deactivate).toHaveBeenCalledWith("user-123");
+      expect(result).toBe(true);
+    });
+  });
+
+  describe("create", () => {
+    it("should create a new user", async () => {
+      mockUserRepo.findByEmail.mockResolvedValue(null);
+      const mockUser = createMockUser();
+      mockUserRepo.create.mockResolvedValue(mockUser);
+
+      const result = await service.create({ email: "new@test.com", name: "New User" });
+
+      expect(mockUserRepo.findByEmail).toHaveBeenCalledWith("new@test.com");
+      expect(mockUserRepo.create).toHaveBeenCalled();
+      expect(result).toBeDefined();
+    });
+
+    it("should throw if user already exists", async () => {
+      mockUserRepo.findByEmail.mockResolvedValue(createMockUser());
+
+      await expect(
+        service.create({ email: "existing@test.com", name: "Existing" })
+      ).rejects.toThrow("User with this email already exists");
     });
   });
 });

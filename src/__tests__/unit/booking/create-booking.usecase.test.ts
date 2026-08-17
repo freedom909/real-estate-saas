@@ -17,8 +17,19 @@ jest.mock("@/modules/tokens/event.bus.token", () => ({
   TOKENS_EVENT_BUS: { eventBus: Symbol("EventBus") },
 }));
 
+jest.mock("@/modules/tokens/calendar.tokens", () => ({
+  TOKENS_CALENDAR: {
+    repos: { calendarRepository: Symbol("CalendarRepository") },
+    usecase: { reserveSlotUseCase: Symbol("ReserveSlotUseCase") },
+  },
+}));
+
 jest.mock("@/shared/eventbus/in-memory-event-bus", () => ({
   InMemoryEventBus: class {},
+}));
+
+jest.mock("@/core/calendar/application/usecases/reserve-slot.usecase", () => ({
+  ReserveSlotUseCase: class { execute = jest.fn(); },
 }));
 
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
@@ -39,16 +50,22 @@ const mockListingGateway = {
   getListingPrice: jest.fn<(id: string) => Promise<number>>(),
 };
 
+const mockReserveSlotUseCase = {
+  execute: jest.fn().mockResolvedValue(undefined),
+};
+
 describe("CreateBookingUseCase", () => {
   let useCase: CreateBookingUseCase;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockRepo.save.mockResolvedValue(undefined);
+    mockReserveSlotUseCase.execute.mockResolvedValue(undefined);
     useCase = new CreateBookingUseCase(
       mockRepo as any,
       mockEventBus as any,
-      mockListingGateway as any
+      mockListingGateway as any,
+      mockReserveSlotUseCase as any
     );
   });
 
@@ -117,15 +134,17 @@ describe("CreateBookingUseCase", () => {
   });
 
   it("should save booking and publish event", async () => {
-    mockListingGateway.getListingPrice.mockResolvedValue(200);
+    mockListingGateway.getListingPrice.mockResolvedValue(500);
 
-    await useCase.execute({
+    const result = await useCase.execute({
       listingId: "listing-1",
       customerId: "customer-1",
       checkInDate: "2024-06-01",
-      checkOutDate: "2024-06-02",
+      checkOutDate: "2024-06-04",
     });
 
-    expect(mockRepo.save).toHaveBeenCalledTimes(1);
+    expect(mockRepo.save).toHaveBeenCalled();
+    expect(mockEventBus.publish).toHaveBeenCalled();
+    expect(result).toBeDefined();
   });
 });

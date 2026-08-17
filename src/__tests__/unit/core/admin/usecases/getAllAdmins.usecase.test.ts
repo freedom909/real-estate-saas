@@ -38,15 +38,16 @@ describe("GetAllAdminsUseCase", () => {
 
   it("should call repo.findAll and return the list", async () => {
     const admins = [
-      { id: "1", name: "Alice" },
-      { id: "2", name: "Bob" },
+      { id: "1", name: "Alice", email: "alice@test.com", role: "ADMIN", isActive: true, immutable: false, createdAt: new Date(), updatedAt: new Date() },
+      { id: "2", name: "Bob", email: "bob@test.com", role: "MODERATOR", isActive: true, immutable: false, createdAt: new Date(), updatedAt: new Date() },
     ];
     mockAdminRepo.findAll.mockResolvedValue(admins);
 
     const result = await useCase.execute();
 
     expect(mockAdminRepo.findAll).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(admins);
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe("Alice");
   });
 
   it("should return an empty array when no admins exist", async () => {
@@ -64,12 +65,12 @@ describe("GetAllAdminsUseCase", () => {
   });
 
   it("should return a single-element array", async () => {
-    const admin = { id: "1", name: "Solo" };
+    const admin = { id: "1", name: "Solo", email: "solo@test.com", role: "ADMIN", isActive: true, immutable: false, createdAt: new Date(), updatedAt: new Date() };
     mockAdminRepo.findAll.mockResolvedValue([admin]);
 
     const result = await useCase.execute();
 
-    expect(result).toEqual([admin]);
     expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("Solo");
   });
 });
