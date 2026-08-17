@@ -15,7 +15,7 @@ const CALENDAR_DATA = gql`
       price
       createdAt
       listing { id title }
-      user { id name email }
+      customer { id name email }
     }
     myListings {
       id
