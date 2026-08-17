@@ -39,6 +39,15 @@ export const resolvers = {
       return useCase.execute(userId);
     },
 
+    myListings: async (_: any, __: any, context: any) => {
+      const userId = context.user?.userId || context.user?.id;
+      if (!userId) {
+        throw new Error("Unauthenticated: Please log in to view your listings");
+      }
+      const acl = container.resolve<ListingACL>(TOKENS_ACCOUNT.ListingACL);
+      return acl.getListingsByOwner(userId);
+    },
+
     // --- Business Rule Queries ---
 
     checkCancellationPolicy: (_: any, { input }: any) => {

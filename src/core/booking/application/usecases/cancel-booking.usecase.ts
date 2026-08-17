@@ -6,7 +6,9 @@ import { TOKENS_EVENT_BUS } from "@/modules/tokens/event.bus.token";
 import { IEventBus } from "@/shared/eventbus/IEventBus";
 import { BookingCancelledEvent } from "../../domain/events/booking-cancelled.event";
 
-
+// ── Calendar Integration ──
+import { TOKENS_CALENDAR } from "@/modules/tokens/calendar.tokens";
+import { ReleaseSlotUseCase } from "@/core/calendar/application/usecases/release-slot.usecase";
 
 @injectable()
 export class CancelBookingUseCase {
@@ -20,6 +22,10 @@ export class CancelBookingUseCase {
 
     @inject(TOKENS_EVENT_BUS.eventBus)
     private eventBus: IEventBus,
+
+    // ── Calendar: release slots on cancellation ──
+    @inject(TOKENS_CALENDAR.usecase.releaseSlotUseCase)
+    private releaseSlotUseCase: ReleaseSlotUseCase
   ) {}
 
   async execute(
@@ -39,6 +45,20 @@ export class CancelBookingUseCase {
     await this.bookingRepository
       .save(booking);
 
+    // ── Calendar: release all reserved slots ──
+    try {
+      await this.releaseSlotUseCase.execute({
+        bookingId: booking.id,
+        reason,
+      });
+    } catch (calendarError) {
+      // Log but don't fail the cancellation — calendar release is best-effort
+      console.error(
+        `⚠️ Failed to release calendar slots for booking ${bookingId}:`,
+        calendarError
+      );
+    }
+
     await this.eventBus.publish(new BookingCancelledEvent(
       booking.id,
       booking.customerId,
@@ -54,4 +74,3 @@ return booking;
 
   }
 }
-

@@ -1,0 +1,129 @@
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11",
+    import: ["@key", "@shareable", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
+}
+
+scalar DateTime
+
+# ──────────────────────────────────────────────
+# CalendarSlot Entity
+# ──────────────────────────────────────────────
+type CalendarSlot @key(fields: "id") {
+  id: ID!
+  listingId: ID!
+  date: DateTime!
+  status: SlotStatus!
+  bookingId: ID
+  blockedBy: ID
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+enum SlotStatus {
+  AVAILABLE
+  RESERVED
+  BLOCKED
+  OCCUPIED
+}
+
+# ──────────────────────────────────────────────
+# Availability Result
+# ──────────────────────────────────────────────
+type AvailabilityResult {
+  available: Boolean!
+  listingId: ID!
+  checkIn: String!
+  checkOut: String!
+  totalNights: Int!
+  availableNights: Int!
+  unavailableDates: [String!]!
+  slots: [SlotDetail!]!
+}
+
+type SlotDetail {
+  date: String!
+  status: SlotStatus!
+  bookingId: ID
+}
+
+# ──────────────────────────────────────────────
+# Reserve Result
+# ──────────────────────────────────────────────
+type ReserveResult {
+  reserved: Int!
+  listingId: ID!
+  bookingId: ID!
+  checkIn: String!
+  checkOut: String!
+}
+
+type ReleaseResult {
+  released: Int!
+  bookingId: ID!
+  reason: String
+  message: String
+}
+
+type BlockResult {
+  blocked: Int!
+  listingId: ID!
+  checkIn: String!
+  checkOut: String!
+}
+
+# ──────────────────────────────────────────────
+# Federation — extend Listing
+# ──────────────────────────────────────────────
+extend type Listing @key(fields: "id") {
+  id: ID! @external
+  calendarSlots: [CalendarSlot!]!
+}
+
+# ──────────────────────────────────────────────
+# Inputs
+# ──────────────────────────────────────────────
+input CheckAvailabilityInput {
+  listingId: ID!
+  checkIn: String!
+  checkOut: String!
+}
+
+input ReserveSlotInput {
+  listingId: ID!
+  bookingId: ID!
+  checkIn: String!
+  checkOut: String!
+}
+
+input ReleaseSlotInput {
+  bookingId: ID!
+  reason: String
+}
+
+input BlockDatesInput {
+  listingId: ID!
+  checkIn: String!
+  checkOut: String!
+}
+
+# ──────────────────────────────────────────────
+# Queries
+# ──────────────────────────────────────────────
+type Query {
+  checkAvailability(input: CheckAvailabilityInput!): AvailabilityResult!
+  calendarSlotsByListing(listingId: ID!): [CalendarSlot!]!
+  calendarSlotsByBooking(bookingId: ID!): [CalendarSlot!]!
+}
+
+# ──────────────────────────────────────────────
+# Mutations
+# ──────────────────────────────────────────────
+type Mutation {
+  reserveCalendarSlots(input: ReserveSlotInput!): ReserveResult!
+  releaseCalendarSlots(input: ReleaseSlotInput!): ReleaseResult!
+  blockCalendarDates(input: BlockDatesInput!): BlockResult!
+}

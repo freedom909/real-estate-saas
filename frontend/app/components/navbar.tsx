@@ -17,7 +17,22 @@ export default function Navbar() {
   // logout() in auth.service.ts handles redirect
   const logout = () => authLogout();
 
-  const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const role = user?.role;
+
+  // Role → dashboard path
+  const ROLE_DASHBOARD: Record<string, { href: string; label: string; color: string }> = {
+    SUPER_ADMIN: { href: "/admin", label: "Admin", color: "text-red-400 hover:text-red-600" },
+    ADMIN:       { href: "/admin", label: "Admin", color: "text-red-400 hover:text-red-600" },
+    OWNER:       { href: "/owner", label: "Owner", color: "text-purple-400 hover:text-purple-600" },
+    HOST:        { href: "/host", label: "Host", color: "text-green-400 hover:text-green-600" },
+    AGENT:       { href: "/agent", label: "Agent", color: "text-cyan-400 hover:text-cyan-600" },
+    STAFF:       { href: "/staff", label: "Staff", color: "text-gray-400 hover:text-gray-600" },
+    MODERATOR:   { href: "/moderator", label: "Moderator", color: "text-purple-400 hover:text-purple-600" },
+    CUSTOMER:    { href: "/account", label: "Account", color: "text-blue-400 hover:text-blue-600" },
+    GUEST:       { href: "/account", label: "Account", color: "text-blue-400 hover:text-blue-600" },
+  };
+
+  const dashboardLink = role ? ROLE_DASHBOARD[role] : null;
 
   return (
 
@@ -65,15 +80,9 @@ export default function Navbar() {
 
             </Link>
 
-            {isAdmin && (
-              <Link href="/admin" className="hover:text-red-600 transition text-red-400 font-semibold">
-                Admin
-              </Link>
-            )}
-
-            {user && !isAdmin && (
-              <Link href="/account" className="hover:text-blue-600 transition text-blue-400 font-semibold">
-                Account
+            {dashboardLink && (
+              <Link href={dashboardLink.href} className={`font-semibold transition ${dashboardLink.color}`}>
+                {dashboardLink.label}
               </Link>
             )}
 

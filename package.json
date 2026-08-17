@@ -13,6 +13,7 @@
   "dev:picture": "tsx watch src/subgraphs/picture/index.ts",
   "dev:audit": "tsx watch src/subgraphs/audit/index.ts",
   "dev:auth": "tsx watch src/subgraphs/auth/index.ts",
+  "dev:calendar": "tsx watch src/subgraphs/calendar/index.ts",
   "dev:host": "tsx watch src/subgraphs/host/index.ts",
   "dev:tenant": "tsx watch src/subgraphs/tenant/index.ts",
   "dev:gateway": "tsx watch src/gateway/index.ts",
@@ -27,9 +28,10 @@
   "dev:voice": "tsx watch src/voice/index.ts",
   "dev:cart": "tsx watch src/subgraphs/cart/index.ts",
   "dev:account": "tsx watch src/subgraphs/account/index.ts",
+ 
 
   "dev:service0": "npm-run-all --parallel dev:audit dev:user dev:tenant dev:location dev:amenity dev:listing dev:admin",
-  "dev:service1": "npm-run-all --parallel dev:auth dev:account dev:review dev:ai dev:voice dev:cart dev:booking dev:payment",
+  "dev:service1": "npm-run-all --parallel dev:auth dev:account dev:review dev:ai dev:voice dev:cart dev:booking dev:payment dev:calendar",
   "dev:backend": "npm-run-all --parallel dev:service0 dev:service1 dev:gateway",
   "dev:frontend": "npm --prefix frontend run dev",
   "dev:all": "npm-run-all --parallel dev:backend dev:frontend"

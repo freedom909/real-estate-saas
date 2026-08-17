@@ -77,6 +77,35 @@ export const resolvers = {
       }
     },
 
+    listingsByOwner: async (_: any, { ownerId }: { ownerId: string }) => {
+      const repo =
+        container.resolve<IListingRepository>(
+          TOKENS_LISTING.repos.listingRepository
+        );
+
+      const listings = await repo.findByOwnerId(ownerId);
+      return listings.map(listing => ({
+        id: listing.id,
+        ownerId: listing.ownerId,
+        locationId: listing.locationId,
+        title: listing.title,
+        description: listing.description,
+        address: listing.address,
+        price: listing.price,
+        pricePerNight: listing.pricePerNight,
+        numOfBeds: listing.numOfBeds,
+        numOfCustomers: listing.numOfCustomers,
+        numOfBathrooms: listing.numOfBathrooms,
+        numOfRooms: listing.numOfRooms,
+        isFeatured: listing.isFeatured,
+        categories: listing.categories ?? [],
+        amenityIds: listing.amenityIds ?? [],
+        createdAt: listing.createdAt,
+        updatedAt: listing.updatedAt,
+        pictures: listing.pictures.map(pic => pic.toJson()),
+      }));
+    },
+
     categories: async () => {
       const repo = container.resolve<CategoryRepository>(TOKENS_CATEGORY.categoryRepository);
       const cats = await repo.findAll();

@@ -255,6 +255,7 @@ input ValidateBookingInput {
 
 type Query {
   myDashboard: AccountDashboard!
+  myListings: [Listing!]! @shareable
 
   # Business rule queries
   checkCancellationPolicy(input: CheckCancellationPolicyInput!): CancellationPolicyResult!

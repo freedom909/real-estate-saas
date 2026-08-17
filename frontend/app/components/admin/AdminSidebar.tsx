@@ -70,14 +70,23 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      <div className="mt-8 pt-4 border-t border-gray-700">
+      <div className="mt-8 pt-4 border-t border-gray-700 space-y-1">
         <Link
           href="/dashboard"
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
         >
-          <span>←</span>
+          <span>&#8592;</span>
           <span>Back to Dashboard</span>
         </Link>
+        {role === "SUPER_ADMIN" && (
+          <Link
+            href="/"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors"
+          >
+            <span>&#128682;</span>
+            <span>Back to Home</span>
+          </Link>
+        )}
       </div>
     </aside>
   );

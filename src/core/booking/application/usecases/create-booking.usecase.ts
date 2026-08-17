@@ -19,6 +19,10 @@ import { BookingPricingService } from "../../domain/service/booking-pricing.serv
 import { InMemoryEventBus } from "@/shared/eventbus/in-memory-event-bus";
 import { IListingGateway } from "../../domain/gateways/i-listing.gateway";
 
+// ── Calendar Integration ──
+import { TOKENS_CALENDAR } from "@/modules/tokens/calendar.tokens";
+import { ReserveSlotUseCase } from "@/core/calendar/application/usecases/reserve-slot.usecase";
+
 @injectable()
 export class CreateBookingUseCase {
   constructor(
@@ -27,7 +31,10 @@ export class CreateBookingUseCase {
     @inject(TOKENS_EVENT_BUS.eventBus) 
     private eventBus: InMemoryEventBus,
     @inject(TOKENS_BOOKING.gateway.listingGateway)
-    private listingGateway: IListingGateway
+    private listingGateway: IListingGateway,
+    // ── Calendar: reserve slots on booking creation ──
+    @inject(TOKENS_CALENDAR.usecase.reserveSlotUseCase)
+    private reserveSlotUseCase: ReserveSlotUseCase
   ) {}
 
   async execute(input: any) {
@@ -92,6 +99,21 @@ const booking =
   });
 
     await this.repo.save(booking);
+
+    // ── Calendar: reserve slots (prevents double-booking) ──
+    try {
+      await this.reserveSlotUseCase.execute({
+        listingId: input.listingId,
+        bookingId: booking.id,
+        checkIn: input.checkInDate,
+        checkOut: input.checkOutDate,
+      });
+    } catch (calendarError) {
+      // Calendar reservation failed — booking was already saved,
+      // so we must delete it to keep consistency
+      await this.repo.delete(booking.id);
+      throw calendarError;
+    }
 
     // ✅ 发布领域事件
     await this.eventBus.publish(new BookingCreatedEvent(
