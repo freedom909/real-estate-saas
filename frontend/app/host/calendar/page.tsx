@@ -78,8 +78,8 @@ function HostCalendarContent() {
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Calendar</h1>
-          <p className="text-sm text-gray-500">Guest stays overview for each listing</p>
+          <h1 className="text-2xl font-bold">カレンダー</h1>
+          <p className="text-sm text-gray-500">ご予約の確認 — 物件ごとにカレンダーを表示</p>
         </div>
         <div className="space-y-6">
           {[1, 2].map((i) => (
@@ -100,8 +100,8 @@ function HostCalendarContent() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Calendar</h1>
-        <p className="text-sm text-gray-500">Guest stays overview — one calendar per listing · double-click for details</p>
+        <h1 className="text-2xl font-bold">カレンダー</h1>
+        <p className="text-sm text-gray-500">ご予約の確認 — 物件ごとにカレンダーを表示 · ダブルクリックで詳細</p>
       </div>
 
       {error && (
@@ -114,7 +114,7 @@ function HostCalendarContent() {
       {listings.length === 0 && !loading && !error ? (
         <div className="bg-white rounded-xl shadow-sm p-12 text-center">
           <span className="text-4xl">🏠</span>
-          <p className="mt-3 text-gray-500">You don&apos;t have any listings yet.</p>
+          <p className="mt-3 text-gray-500">まだ物件が登録されていません。</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -154,7 +154,7 @@ function ListingCalendar({
 
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
-  const monthName = currentMonth.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthName = currentMonth.toLocaleString("ja-JP", { month: "long", year: "numeric" });
 
   // Build calendar grid
   const firstDay = new Date(year, month, 1).getDay();
@@ -219,13 +219,13 @@ function ListingCalendar({
             <div>
               <h2 className="text-lg font-bold text-gray-900">{listing.title}</h2>
               <p className="text-xs text-gray-500">
-                {bookings.length} booking{bookings.length !== 1 ? "s" : ""} total
+                {bookings.length}件の予約
               </p>
             </div>
           </div>
           {hasOverbookings && (
             <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
-              ⚠️ Overbooking
+              ⚠️ 重複予約
             </span>
           )}
         </div>
@@ -234,16 +234,18 @@ function ListingCalendar({
       {/* Month Navigation */}
       <div className="px-6 pt-4">
         <div className="flex items-center justify-between mb-4">
-          <button onClick={prevMonth} className="px-3 py-1 rounded-lg hover:bg-gray-100 transition text-sm">← Prev</button>
+          <button onClick={prevMonth} className="px-3 py-1 rounded-lg hover:bg-gray-100 transition text-sm">← 前月</button>
           <h3 className="text-sm font-semibold text-gray-700">{monthName}</h3>
-          <button onClick={nextMonth} className="px-3 py-1 rounded-lg hover:bg-gray-100 transition text-sm">Next →</button>
+          <button onClick={nextMonth} className="px-3 py-1 rounded-lg hover:bg-gray-100 transition text-sm">翌月 →</button>
         </div>
 
         {/* Calendar Grid */}
         <div className="grid grid-cols-7 gap-1 mb-4">
           {/* Day headers */}
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-            <div key={d} className="text-center text-[10px] font-medium text-gray-400 py-1">{d}</div>
+          {["日", "月", "火", "水", "木", "金", "土"].map((d, i) => (
+            <div key={d} className={`text-center text-[10px] font-medium py-1 ${
+              i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-gray-400"
+            }`}>{d}</div>
           ))}
 
           {/* Calendar cells */}
@@ -305,7 +307,7 @@ function ListingCalendar({
                             ? "bg-red-200 text-red-800 font-semibold ring-1 ring-red-300"
                             : `${colors.bg} ${colors.text}`
                         }`}
-                        title={`${guestName}${isConflict ? " ⚠️ CONFLICT" : ""}\n双击查看详情`}
+                        title={`${guestName}${isConflict ? " ⚠️ 重複" : ""}\nダブルクリックで詳細`}
                       >
                         <span className="font-medium">{guestName}</span>
                         {slot.isCheckIn && !slot.isCheckOut && (
@@ -321,7 +323,7 @@ function ListingCalendar({
                     );
                   })}
                   {slots.length > 3 && (
-                    <div className="text-[9px] text-gray-400 pl-1">+{slots.length - 3} more</div>
+                    <div className="text-[9px] text-gray-400 pl-1">他 {slots.length - 3} 件</div>
                   )}
                 </div>
               </div>
@@ -332,11 +334,11 @@ function ListingCalendar({
 
       {/* Legend (compact, per calendar) */}
       <div className="px-6 pb-4 flex items-center gap-3 text-[10px] text-gray-400 flex-wrap">
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-green-100 border border-green-200" /> Confirmed</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-yellow-100 border border-yellow-200" /> Pending</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-blue-100 border border-blue-200" /> Checked In</span>
-        <span className="flex items-center gap-1"><span className="text-green-600 font-bold">▶</span> Check-in</span>
-        <span className="flex items-center gap-1"><span className="text-gray-600 font-bold">■</span> Check-out</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-green-100 border border-green-200" /> 確定</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-yellow-100 border border-yellow-200" /> 仮予約</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-blue-100 border border-blue-200" /> チェックイン済</span>
+        <span className="flex items-center gap-1"><span className="text-green-600 font-bold">▶</span> チェックイン</span>
+        <span className="flex items-center gap-1"><span className="text-gray-600 font-bold">■</span> チェックアウト</span>
       </div>
     </div>
   );
@@ -367,7 +369,7 @@ function BookingDetailModal({ booking, onClose }: { booking: any; onClose: () =>
         {/* Header */}
         <div className="px-6 pt-6 pb-4 border-b bg-gray-50">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-gray-900">Booking Details</h2>
+            <h2 className="text-lg font-bold text-gray-900">予約詳細</h2>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center text-gray-500 transition"
@@ -389,27 +391,27 @@ function BookingDetailModal({ booking, onClose }: { booking: any; onClose: () =>
 
           {/* Guest */}
           <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wide">Guest</label>
+            <label className="text-xs text-gray-500 uppercase tracking-wide">ゲスト</label>
             <p className="text-sm font-medium text-gray-900 mt-0.5">{b.user?.name || "—"}</p>
             <p className="text-xs text-gray-500">{b.user?.email || "—"}</p>
           </div>
 
           {/* Listing */}
           <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wide">Listing</label>
+            <label className="text-xs text-gray-500 uppercase tracking-wide">物件</label>
             <p className="text-sm font-medium text-gray-900 mt-0.5">{b.listing?.title || "—"}</p>
           </div>
 
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wide">Check-in</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wide">チェックイン</label>
               <p className="text-sm font-medium text-gray-900 mt-0.5">
                 {checkIn ? checkIn.toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" }) : "—"}
               </p>
             </div>
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wide">Check-out</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wide">チェックアウト</label>
               <p className="text-sm font-medium text-gray-900 mt-0.5">
                 {checkOut ? checkOut.toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" }) : "—"}
               </p>
@@ -419,11 +421,11 @@ function BookingDetailModal({ booking, onClose }: { booking: any; onClose: () =>
           {/* Duration & Price */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wide">Duration</label>
-              <p className="text-sm font-medium text-gray-900 mt-0.5">{nights} night{nights !== 1 ? "s" : ""}</p>
+              <label className="text-xs text-gray-500 uppercase tracking-wide">宿泊数</label>
+              <p className="text-sm font-medium text-gray-900 mt-0.5">{nights}泊</p>
             </div>
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wide">Price</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wide">料金</label>
               <p className="text-sm font-medium text-gray-900 mt-0.5">¥{(b.price || 0).toLocaleString()}</p>
             </div>
           </div>
@@ -431,7 +433,7 @@ function BookingDetailModal({ booking, onClose }: { booking: any; onClose: () =>
           {/* Created */}
           {b.createdAt && (
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wide">Booked at</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wide">予約日時</label>
               <p className="text-sm text-gray-700 mt-0.5">
                 {new Date(b.createdAt).toLocaleString("ja-JP")}
               </p>
@@ -445,7 +447,7 @@ function BookingDetailModal({ booking, onClose }: { booking: any; onClose: () =>
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
           >
-            Close
+            閉じる
           </button>
         </div>
       </div>
