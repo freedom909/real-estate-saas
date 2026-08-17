@@ -2,6 +2,9 @@
 
 import { PLANS } from "../config/plan";
 
+// Stub type — this hook is not yet wired up
+type Database = any;
+
 export async function checkListingLimit(tenantId: string, db: Database) {
   const tenant = await db.tenant.findById(tenantId);
 

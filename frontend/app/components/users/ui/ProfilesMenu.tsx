@@ -24,7 +24,7 @@ export default function ProfileMenu() {
   alt="User avatar"
   width={32}
   height={32}
-  onError={(e) => (e.target.src = '/default-avatar.png')}
+  onError={(e) => ((e.target as HTMLImageElement).src = '/default-avatar.png')}
   className="rounded-full"
 />
 

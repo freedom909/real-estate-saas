@@ -3,9 +3,18 @@ import { useSession } from "next-auth/react";
 import HeaderClient from "../components/users/ui/HeaderClient";
 import CartComponent from "./CartComponent";
 
-
 export default function CartsPage() {
-  const { data: session, status } = useSession();
+  let session: any = null;
+  let status = "loading";
+
+  try {
+    const result = useSession();
+    session = result?.data ?? null;
+    status = result?.status ?? "loading";
+  } catch {
+    // SessionProvider not available (e.g. during build)
+    status = "unauthenticated";
+  }
 
   if (status === "loading") {
     return <div className="p-6">Loading...</div>;
@@ -21,14 +30,9 @@ export default function CartsPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="flex justify-between items-center p-4 border-b">
-        <h1 className="text-2xl font-semibold">My Cart</h1>
-        <HeaderClient />
-      </div>
-      <div className="p-4">
-        <CartComponent />
-      </div>
+    <div>
+      <HeaderClient />
+      <CartComponent />
     </div>
   );
 }

@@ -1,13 +1,23 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import client from '@/lib/apolloClient';
+import { client } from '@/app/lib/apolloClient';
 import { LIST_LOCATIONS } from '@/graphql/locations';
 
+interface Location {
+  id: string;
+  name?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  description?: string;
+  imageUrl?: string;
+}
+
 export default function LocationsPage() {
-  const [locations, setLocations] = useState([]);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
@@ -15,7 +25,7 @@ export default function LocationsPage() {
       try {
         setLoading(true);
         const { data } = await client.query({ query: LIST_LOCATIONS });
-        setLocations(data?.locations || []);
+        setLocations((data as any)?.locations || []);
       } catch (err) {
         console.error('Error loading locations:', err);
         setError('Failed to load locations');
@@ -100,21 +110,14 @@ export default function LocationsPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((loc) => (
-              <div key={loc.id} className="bg-white rounded-lg shadow p-5">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">{loc.name}</h3>
-                    <p className="text-gray-600">{loc.city}, {loc.state}</p>
-                    <p className="text-gray-500">{loc.country} • {loc.zip}</p>
-                  </div>
-                </div>
-                <div className="mt-4 text-sm text-gray-700">
-                  <p>Lat: {loc.latitude}, Lng: {loc.longitude}</p>
-                  <p>Radius: {loc.radius} {loc.units}</p>
-                </div>
-                <div className="mt-4 flex gap-3">
-                  <a href={`/locations/${loc.id}`} className="text-blue-600 hover:underline">View details</a>
-                  <a href={`/search?city=${encodeURIComponent(loc.city)}`} className="text-green-600 hover:underline">Search listings</a>
+              <div key={loc.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                {loc.imageUrl && (
+                  <img src={loc.imageUrl} alt={loc.name} className="w-full h-48 object-cover" />
+                )}
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg">{loc.name}</h3>
+                  <p className="text-gray-500 text-sm">{loc.city}, {loc.state}, {loc.country}</p>
+                  {loc.description && <p className="text-gray-600 mt-2 text-sm">{loc.description}</p>}
                 </div>
               </div>
             ))}

@@ -4,12 +4,15 @@
 import { PLANS } from "../config/plan";
 import { stripe } from "../lib/stripe";
 
+// Stub type — this controller is not yet wired up
+type Database = any;
+
 export async function createCheckoutSession(req: Request, res: Response, db: Database) {
   const { tenantId, plan } = req.body as unknown as { tenantId: string; plan: string };
 
   const tenant = await db.tenant.findById(tenantId);
 
-  // 1. 创建 Stripe Customer（如果没有）
+  // 1. Create Stripe Customer (if not exists)
   let customerId = tenant.stripeCustomerId;
 
   if (!customerId) {
@@ -25,7 +28,7 @@ export async function createCheckoutSession(req: Request, res: Response, db: Dat
     });
   }
 
-  // 2. 创建 Checkout Session
+  // 2. Create Checkout Session
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,

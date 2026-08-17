@@ -30,6 +30,6 @@ variables: { id },
 
 });
 
-return data?.user;
+return (data as any)?.user;
 
 }

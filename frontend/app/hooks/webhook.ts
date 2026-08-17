@@ -3,6 +3,9 @@
 import express from "express";
 import { stripe } from "../lib/stripe";
 
+// Stub — db is not yet wired up
+const db: any = {};
+
 const router = express.Router();
 
 router.post(
@@ -23,7 +26,7 @@ router.post(
       return res.status(400).send(`Webhook Error`);
     }
 
-    // 💳 订阅成功
+    // Subscription created
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as any;
 
@@ -40,7 +43,7 @@ router.post(
       });
     }
 
-    // 🔁 续费成功
+    // Invoice paid
     if (event.type === "invoice.paid") {
       const invoice = event.data.object as any;
 
@@ -52,7 +55,7 @@ router.post(
       );
     }
 
-    // ❌ 付款失败
+    // Payment failed
     if (event.type === "invoice.payment_failed") {
       const invoice = event.data.object as any;
 
@@ -68,4 +71,4 @@ router.post(
   }
 );
 
-export default router; 
+export default router;

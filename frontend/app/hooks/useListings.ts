@@ -1,8 +1,5 @@
 // src/wisdom-web/app/hooks/useListings.ts
 import { listingService } from "../services/listing.service";
-import { api } from "../lib/apolloClient";
-import { Button } from "@/components/Button";
-import { toast } from "@/components/Toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useQuery } from "@tanstack/react-query";
