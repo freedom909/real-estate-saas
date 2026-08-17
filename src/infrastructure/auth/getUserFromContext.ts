@@ -1,5 +1,6 @@
+// src/infrastructure/auth/getUserFromContext.ts
 import jwt from "jsonwebtoken";
-import { mapLegacyRole } from "@/core/shared/domain/role";
+import { normalizeRole } from "@/core/shared/domain/role";
 
 /**
  * Extract and verify the user from the Authorization header.
@@ -22,7 +23,7 @@ async function getUserFromContext(req: any) {
         sessionId: parsed.sessionId,
         type: parsed.type,
         email: parsed.email,
-        role: parsed.role ?? mapLegacyRole("CUSTOMER"),
+        role: parsed.role ?? normalizeRole("CUSTOMER"),
         tenantId: parsed.tenantId || tenantId,
       };
     } catch {
@@ -59,7 +60,7 @@ async function getUserFromContext(req: any) {
       sessionId: decoded.sessionId,
       type: decoded.type,
       email: decoded.email,
-      role: decoded.role ? mapLegacyRole(decoded.role) : undefined,
+      role: decoded.role ? normalizeRole(decoded.role) : undefined,
       tenantId,
     };
   } catch (err: any) {

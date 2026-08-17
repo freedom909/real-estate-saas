@@ -1,6 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { mapLegacyRole } from "@/core/shared/domain/role";
+import { normalizeRole } from "@/core/shared/domain/role";
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ function decodeUser(req: express.Request) {
     return {
       userId: payload.sub,
       sessionId: payload.sessionId,
-      role: payload.role ? mapLegacyRole(payload.role) : undefined,
+      role: payload.role ? normalizeRole(payload.role) : undefined,
     };
   } catch {
     return null;

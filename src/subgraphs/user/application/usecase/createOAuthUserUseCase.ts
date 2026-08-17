@@ -1,14 +1,12 @@
-// createOAuthUserUseCase.ts
+// src/subgraphs/user/application/usecase/createOAuthUserUseCase.ts
 
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { inject, injectable } from "tsyringe";
-
-import { CreateOAuthUserInput, IUserRepository } from "@/subgraphs/user/domain/entities/IRepo";
-import { UserRole } from "@/core/user/domain/userRole";
+import { IUserRepository } from "../../domain/repository/IUserRepository";
+import { Role } from "@/core/shared/domain/role";
 
 interface GraphQLOAuthInput {
   email: string;
-  
   provider: string;
   profile: {
     name: string;
@@ -18,23 +16,27 @@ interface GraphQLOAuthInput {
 
 @injectable()
 export default class CreateOAuthUserUseCase {
-    constructor(
-        @inject(TOKENS_USER.repos.createOAuthRepository)
-        private repository: IUserRepository
-    ) {}
-async execute(input: GraphQLOAuthInput) {
-  console.log("UseCase received:", input);
+  constructor(
+    @inject(TOKENS_USER.repos.userRepository)
+    private readonly repository: IUserRepository,
+  ) {}
 
-  const payload: CreateOAuthUserInput = {
-    email: input.email,
-    name: input.profile.name,
-    role: UserRole.CUSTOMER,
-    picture: input.profile.avatar ?? "",
-    provider: input.provider,
-  };
+  async execute(input: GraphQLOAuthInput) {
+    console.log("🔥🔥🔥 CreateOAuthUserUseCase CALLED");
+console.log("🔥 OAuth email =", input.email);
+console.log("🔥 OAuth provider =", input.provider);
+console.log("🔥 OAuth profile =", input.profile);
+    // Check if user already exists
+    const existing = await this.repository.findByEmail(input.email);
+    if (existing) {
+      return existing; // idempotent — return existing user
+    }
 
-  console.log("Payload to repo:", payload);
-        return this.repository.createOAuthUser(payload);
-     }
+    return this.repository.create({
+      email: input.email,
+      name: input.profile.name,
+      role: Role.CUSTOMER,
+      picture: input.profile.avatar ?? "",
+    });
+  }
 }
-

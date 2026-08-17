@@ -1,100 +1,94 @@
-// src/subgraphs/user/repos/user.repo.ts
-import { Document, HydratedDocument, Model, Types } from "mongoose";
-import UserModel, { IUserDB } from "../models/user.model.js";
+// src/subgraphs/user/infra/repos/user.repo.ts
+
+import { Model } from "mongoose";
 import { inject, injectable } from "tsyringe";
-import { TOKENS_USER } from "@/modules/tokens/user.tokens.js";
-import { TOKENS_INFRA } from "@/modules/tokens/infra.tokens.js";
 
-export interface IUserDBObject {
+import { TOKENS_USER } from "@/modules/tokens/user.tokens";
+import { UserEntity } from "../../domain/entities/user.entity";
+import { IUserRepository } from "../../domain/repository/IUserRepository";
+import { UserMapper } from "../mappers/user.mapper";
+import { Role } from "@/core/shared/domain/role";
 
- _id:string;
-
- email:string;
-
- name:string;
- 
- picture:string;
-
- role:string;
-
- status:string;
-
- tokenVersion:number;
-
- createdAt:Date;
-
- updatedAt:Date;
-
-}
-export interface IUserRepo {
-  findById(id: string): Promise<IUserDBObject | null>;
-  setUserRole(id: string, role: string): Promise<void>;
-  userByEmail(email: string): Promise<IUserDBObject | null>;
-  create(user: Partial<IUserDBObject>): Promise<IUserDBObject>;
-  update(id: string, user: Partial<IUserDBObject>): Promise<IUserDBObject | null>;
-  deactivate(id: string): Promise<void>;
-}
+/**
+ * Concrete repository for the User aggregate.
+ *
+ * Implements the DDD IUserRepository interface.
+ * All methods map through UserMapper — never exposes DB objects to callers.
+ */
 @injectable()
-export default class UserRepository {
+export class UserRepository implements IUserRepository {
   constructor(
     @inject(TOKENS_USER.models.user)
-    private UserModel: Model<IUserDBObject>,
-    @inject(TOKENS_INFRA.infra.redis)
-    private redis: any
-  ) {
-    // this.UserModel = UserModel;
-  }
-  async setUserRole(id: string, role: string): Promise<void> {
-    await this.UserModel.findByIdAndUpdate(id, { role });
-    await this.redis.del(`user:${id}`);
-  }
+    private readonly model: Model<any>,
+  ) {}
 
-userByEmail(email: string) {
-  console.log("repo userByEmail", email);
-  const user=this.UserModel.findOne({ email }).lean<IUserDBObject>();
-  // console.log("repo userByEmail++", user);
-  return user;
-}
+  // ── Read ───────────────────────────────────────────
 
-async findById(id: string) {
-console.log("DB =", this.UserModel.db.name);
-console.log("COLLECTION =", this.UserModel.collection.name);
-  const user = await this.UserModel.findById(id);
-  console.log("RESULT:", user);
-if (!user) return null;
-  return user.toObject();
-}
-
-async create(data: Partial<IUserDBObject>) {
-  const created = await this.UserModel.create(data);
-  return created;
-}
-
-  async deactivate(id: string): Promise<void> {
-     await this.UserModel.findByIdAndUpdate(id, { status: "INACTIVE" });
+  async findById(id: string): Promise<UserEntity | null> {
+    const raw = await this.model.findById(id);
+    return raw ? UserMapper.toDomain(raw) : null;
   }
 
-async update(id: string, user: Partial<IUserDBObject>): Promise<IUserDBObject | null> {
-  return this.UserModel.findByIdAndUpdate(id, user, { new: true }).lean<IUserDBObject>();
-}
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    const raw = await this.model.findOne({ email: email.toLowerCase() });
+    return raw ? UserMapper.toDomain(raw) : null;
+  }
 
-async updateLastLogin(userId: string, lastLoginAt: Date) {
+  async findAll(limit: number = 50, offset: number = 0): Promise<UserEntity[]> {
+    const raws = await this.model.find().sort({ createdAt: -1 }).skip(offset).limit(limit);
+    return raws.map(UserMapper.toDomain);
+  }
 
-  return this.UserModel.updateOne(
-    { _id: userId },
-    { lastLoginAt: new Date() }
-  );
-}
+  async count(): Promise<number> {
+    return this.model.countDocuments();
+  }
 
-async findAll(limit: number = 50, offset: number = 0): Promise<IUserDBObject[]> {
-  return this.UserModel.find()
-    .sort({ createdAt: -1 })
-    .skip(offset)
-    .limit(limit)
-    .lean<IUserDBObject[]>();
-}
+  // ── Write ──────────────────────────────────────────
 
-async count(): Promise<number> {
-  return this.UserModel.countDocuments();
-}
+  async create(data: {
+    email: string;
+    name: string;
+    role?: Role;
+    picture?: string;
+  }): Promise<UserEntity> {
+    const raw = await this.model.create({
+      email: data.email.toLowerCase(),
+      name: data.name,
+      role: data.role ?? Role.CUSTOMER,
+      picture: data.picture ?? "",
+      status: "ACTIVE",
+      isActive: true,
+      tokenVersion: 0,
+    });
+    return UserMapper.toDomain(raw);
+  }
+
+  async save(user: UserEntity): Promise<void> {
+    await this.model.findByIdAndUpdate(
+      user.id,
+      { $set: UserMapper.toPersistence(user) },
+    );
+  }
+
+  async setUserRole(userId: string, role: Role): Promise<void> {
+    await this.model.findByIdAndUpdate(userId, { role });
+  }
+
+  async deactivate(userId: string): Promise<boolean> {
+    const result = await this.model.findByIdAndUpdate(
+      userId,
+      { status: "SUSPENDED", isActive: false },
+      { new: true },
+    );
+    return !!result;
+  }
+
+  async activate(userId: string): Promise<boolean> {
+    const result = await this.model.findByIdAndUpdate(
+      userId,
+      { status: "ACTIVE", isActive: true },
+      { new: true },
+    );
+    return !!result;
+  }
 }

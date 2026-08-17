@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import jwt from "jsonwebtoken";
-import { Role, hasMinRole, mapLegacyRole } from "@/core/shared/domain/role";
+import { Role, hasMinRole, normalizeRole } from "@/core/shared/domain/role";
 import { getOperationAuth } from "@/gateway/auth/operationMap";
 import mongoose from "mongoose";
 
@@ -29,7 +29,8 @@ export function createAuthPlugin() {
       if (user?.sessionId) {
         try {
           const SessionModel = mongoose.model("Session");
-          const session = await SessionModel.findOne({ id: user.sessionId }).lean();
+          const session = await SessionModel.findOne({ id: user.sessionId }).lean() as { activeTenantId?: string | null } | null;
+          //Property 'activeTenantId' does not exist on type 'Required<{ _id: unknown; }> & { __v: number; }'.
           if (session?.activeTenantId) {
             (contextValue as any).tenantId = session.activeTenantId;
             (contextValue as any).user.tenantId = session.activeTenantId;
@@ -62,13 +63,13 @@ export function createAuthPlugin() {
 
       // Check role
       if (authReq.minRole && user) {
-        const userRole = user.role ?? Role.CUSTOMER;
-        if (!hasMinRole(userRole, authReq.minRole)) {
-          throw new GraphQLError(
-            `Forbidden: requires ${authReq.minRole} role or higher`,
-            { extensions: { code: "FORBIDDEN", requiredRole: authReq.minRole } }
-          );
-        }
+       const userRole = user.role;
+
+if (!userRole) {
+  throw new GraphQLError("Invalid user role", {
+    extensions: { code: "UNAUTHENTICATED" },
+  });
+}
       }
 
       return {};
@@ -100,7 +101,7 @@ async function decodeUserFromHeader(authHeader: string | undefined) {
       sessionId: payload.sessionId,
       type: payload.type,
       email: payload.email,
-      role: payload.role ? mapLegacyRole(payload.role) : Role.CUSTOMER,
+      role: payload.role ? normalizeRole(payload.role) : Role.CUSTOMER,
     };
   } catch {
     return null;

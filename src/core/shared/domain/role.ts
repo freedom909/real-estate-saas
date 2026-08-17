@@ -2,7 +2,7 @@
  * Unified role enum used across all subgraphs, GraphQL schemas, and frontend.
  *
  * Hierarchy (lowest to highest):
- *   GUEST < CUSTOMER < STAFF < MODERATOR < AGENT < OWNER < ADMIN < SUPER_ADMIN
+ *   GUEST < CUSTOMER < STAFF < MODERATOR < HOST < AGENT < OWNER < ADMIN < SUPER_ADMIN
  */
 export enum Role {
   GUEST = "GUEST",
@@ -43,18 +43,26 @@ export function hasMinRole(userRole: Role, requiredRole: Role): boolean {
  * Map legacy role strings to the unified Role enum.
  * Use during migration; delete once all data is normalized.
  */
-export function mapLegacyRole(legacy: string): Role {
+export function normalizeRole(value: string): Role {
+  const normalized = value.trim().toUpperCase();
+
   const map: Record<string, Role> = {
-    SUPER_ADMIN: Role.SUPER_ADMIN,
-    ADMIN: Role.ADMIN,
-    STAFF: Role.STAFF,
-    AGENT: Role.AGENT,
+    // Current roles
+    GUEST: Role.GUEST,
     CUSTOMER: Role.CUSTOMER,
-    USER: Role.CUSTOMER,
+    STAFF: Role.STAFF,
+    MODERATOR: Role.MODERATOR,
+    HOST: Role.HOST,
+    AGENT: Role.AGENT,
     OWNER: Role.OWNER,
+    ADMIN: Role.ADMIN,
+    SUPER_ADMIN: Role.SUPER_ADMIN,
+
+    // Legacy aliases
+    USER: Role.CUSTOMER,
     MEMBER: Role.CUSTOMER,
     TENANT_ADMIN: Role.ADMIN,
-    MODERATOR: Role.MODERATOR,
   };
-  return map[legacy] ?? Role.CUSTOMER;
+
+  return map[normalized] ?? Role.CUSTOMER;
 }

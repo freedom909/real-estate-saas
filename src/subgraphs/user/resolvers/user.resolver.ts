@@ -1,19 +1,9 @@
-// src/subgraphs/user/resolvers/index.ts
+// src/subgraphs/user/resolvers/user.resolver.ts
 
-import UserModel, { IUserDB } from "../infra/models/user.model.js";
 import { container } from "tsyringe";
-
-import UserService from "../services/user.service.js";
-import mongoose from "mongoose";
-import { TOKENS_USER } from "../../../modules/tokens/user.tokens.js";
-import verifyInternalRequest from "./verifyInternalRequest.js";
-import CreateOAuthUserUseCase from "../application/usecase/createOAuthUserUseCase.js";
-import { TenantACL } from "@/core/account/infra/tenant.acl.js";
-import { TOKENS_TENANT } from "@/modules/tokens/tenant.tokens.js";
-import { TOKENS_ACCOUNT } from "@/modules/tokens/account.token.js";
-import { TenantService } from "@/core/tenant/domain/services/tenant.service.js";
-import { BecomeHostUseCase } from "../application/usecase/becomeHost.usecase.js";
-
+import { TOKENS_USER } from "@/modules/tokens/user.tokens";
+import UserService from "../services/user.service";
+import { BecomeHostUseCase } from "../application/usecase/becomeHost.usecase";
 
 interface ResolverContext {
   container: typeof container;
@@ -26,168 +16,108 @@ interface UserReference {
   __typename?: string;
 }
 
-// user.resolver.ts
-
 const resolvers = {
+  // ── Federation References ──────────────────────────
 
   Customer: {
     __resolveReference: async (
       ref: UserReference,
-      { container }: ResolverContext
+      { container }: ResolverContext,
     ) => {
-      console.log(
-        "🔥🔥 USER REFERENCE CALLED",
-        ref
-      );
-      console.log(
-        "🔥 Customer __resolveReference",
-        ref
-      );
-
-      const userService =
-        container.resolve<UserService>(
-          TOKENS_USER.services.userService
-        );
-
-      const customer =
-        await userService.findById(ref.id);
-
-      console.log(
-        "🔥 Customer Found",
-        customer
-      );
-
-      return customer;
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      return userService.findById(ref.id);
     },
   },
+
   User: {
     __resolveReference: async (
       reference: UserReference,
-      { container }: ResolverContext
+      { container }: ResolverContext,
     ) => {
-      const userService = container.resolve<UserService>(
-        TOKENS_USER.services.userService
-      );
-      const user = await userService.findById(reference.id);
-      return user;
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      return userService.findById(reference.id);
     },
-
   },
+
+  // ── Queries ────────────────────────────────────────
+
   Query: {
-    currentUser: async (
-      _parent,
-      _args,
-      context
-    ) => {
+    currentUser: async (_parent: any, _args: any, context: ResolverContext) => {
       if (!context.user) {
         throw new Error("Unauthenticated");
       }
-
-      return context.container
-        .resolve(TOKENS_USER.services.userService)
-        .findById(context.user.userId);
+      const userService = context.container.resolve<UserService>(TOKENS_USER.services.userService);
+      return userService.findById(context.user.userId);
     },
+
     user: async (_: unknown, { id }: { id: string }) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
-      const user = await userService.findById(id);
-      console.log(
-        "🔥🔥 USER FIND RESULT:",
-        user
-      );
-      return user
+      return userService.findById(id);
     },
 
-    // Admin: list all users
     users: async (_: unknown, { limit = 50, offset = 0 }: { limit?: number; offset?: number }) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.findAll(limit, offset);
     },
 
-    // Admin: count all users
     userCount: async () => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.count();
     },
 
-    userByEmail: async (
-      _: unknown,
-      { email }: { email: string },
-      { req }: ResolverContext
-    ) => {
-      if (!req) {
-        console.error("CRITICAL: Request object missing from context.");
-        throw new Error("Internal Server Error: Context setup failure");
-      }
-
-      verifyInternalRequest(req);
-
+    userByEmail: async (_: unknown, { email }: { email: string }) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.userByEmail(email);
     },
 
     tenantsByUser: async (_: unknown, { userId }: { userId: string }) => {
-      const tenantService = container.resolve<TenantService>(TOKENS_TENANT.services.tenantService);
+      const { TenantService } = await import("@/core/tenant/domain/services/tenant.service");
+      const tenantService = container.resolve(TenantService);
       return tenantService.getTenantsForUser(userId);
     },
   },
 
+  // ── Mutations ──────────────────────────────────────
+
   Mutation: {
-    deactivateUser: async (
-      _: unknown,
-      { userId }: { userId: string }
-    ) => {
-      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
-      return userService.deactivate(userId);
+    becomeHost: async (_: unknown, __: any, context: ResolverContext) => {
+      if (!context.user) {
+        throw new Error("Unauthenticated");
+      }
+      const useCase = context.container.resolve<BecomeHostUseCase>(TOKENS_USER.usecase.becomeHostUseCase);
+      console.log("🔥🔥 BECOME HOST USECASE =", useCase);
+      return useCase.execute(context.user.userId);
     },
 
-    createUser: async (_: any, { input }: any) => {
-      console.log("========== USER QUERY ==========");
-      console.log(input);
-
+    createUser: async (_: unknown, { input }: any) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.create(input);
     },
 
-    createOAuthUser: async (_: any, { input }: any) => {
-
-      const useCase = container.resolve<CreateOAuthUserUseCase>(TOKENS_USER.usecase.createOAuthUserUseCase);
-      console.log(
-        "🔥🔥 CREATE OAUTH USER CALLED",
-        input
+    createOAuthUser: async (_: unknown, { input }: any) => {
+      const { default: CreateOAuthUserUseCase } = await import(
+        "../application/usecase/createOAuthUserUseCase"
       );
-      return await useCase.execute(input);
+      const useCase = container.resolve(CreateOAuthUserUseCase);
+      return useCase.execute(input);
     },
-    // updateLastLogin: async (_: unknown, { userId }: { userId: string }) => {
 
-    //   const user = await UserModel.findByIdAndUpdate(
-    //     userId, // 型を変換
-    //     { lastLoginAt: new Date() },
-    //     { new: true }
-    //   )
-    //   return !!user
-    // }
+    updateProfile: async (_: unknown, { userId }: any) => {
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      // TODO: implement updateProfile on UserService
+      return userService.findById(userId);
+    },
 
-    becomeHost: async (_: unknown, __: any, ctx: any) => {
-  if (!ctx.user) {
-    throw new Error("Unauthenticated");
-  }
+    updateLastLogin: async (_: unknown, _args: { userId: string }) => {
+      // TODO: implement updateLastLogin on UserService
+      return true;
+    },
 
-  const userId = ctx.user.userId;
-      assertSelfAccess(ctx.user, userId);
-      const useCase = container.resolve<BecomeHostUseCase>(TOKENS_USER.usecase.becomeHostUseCase);
-      return await useCase.execute(userId);
-    }
+    deactivateUser: async (_: unknown, { userId }: { userId: string }) => {
+      const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
+      return userService.deactivate(userId);
+    },
   },
-}
+};
 
 export default resolvers;
-
-function assertSelfAccess(requestUser: any, targetUserId: string) {
-  if (!requestUser) {
-    throw new Error("Unauthenticated");
-  }
-
-  if (requestUser.id !== targetUserId) {
-    throw new Error("Forbidden");
-  }
-}

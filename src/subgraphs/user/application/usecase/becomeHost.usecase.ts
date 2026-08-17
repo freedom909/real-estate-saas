@@ -1,13 +1,9 @@
 // src/subgraphs/user/application/usecase/becomeHost.usecase.ts
 
 import { inject, injectable } from "tsyringe";
-
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
-
 import { IUserRepository } from "../../domain/repository/IUserRepository";
-
 import { UserEntity } from "../../domain/entities/user.entity";
-import { UserRole } from "@/core/user/domain/userRole";
 
 @injectable()
 export class BecomeHostUseCase {
@@ -17,16 +13,14 @@ export class BecomeHostUseCase {
   ) {}
 
   async execute(userId: string): Promise<UserEntity> {
-     console.log("[BecomeHost] searching user:", userId);
+    console.log("🔥 [BecomeHost] searching user:", userId);
     const user = await this.userRepository.findById(userId);
-  
-   console.log("[BecomeHost] found user:", user);
+    console.log("🔥 [BecomeHost] found user:", user);
     if (!user) {
       throw new Error("User not found");
     }
 
-    user.becomeHost();
-
+    user.becomeHost(); // domain logic — guarded inside entity
     await this.userRepository.save(user);
 
     return user;

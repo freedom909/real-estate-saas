@@ -1,41 +1,73 @@
+// src/subgraphs/user/services/user.service.ts
+
 import { injectable, inject } from "tsyringe";
-import { TOKENS_USER} from "../../../modules/tokens/user.tokens";
+import { TOKENS_USER } from "@/modules/tokens/user.tokens";
+import { IUserRepository } from "../domain/repository/IUserRepository";
 import { UserResponse } from "./user.dto";
+import { Role } from "@/core/shared/domain/role";
 
-type User = {
-  id: string;
-  
-  [key: string]: any;
-}
-
-interface UserRepository {
-  findById(id: string): Promise<User | null>;
-  userByEmail(email: string): Promise<User | null>;
-}
-
+/**
+ * Application service for User queries and commands.
+ *
+ * Thin orchestration layer — resolves the DDD repository,
+ * delegates business logic to the entity, returns DTOs.
+ */
 @injectable()
-class UserService {
-  deactivate(userId: string) {
+export default class UserService {
+  constructor(
+    @inject(TOKENS_USER.repos.userRepository)
+    private readonly userRepository: IUserRepository,
+  ) {}
+
+  // ── Queries ────────────────────────────────────────
+
+  async findById(id: string): Promise<UserResponse | null> {
+    // Support email-as-id (used by some legacy callers)
+    const user = id.includes("@")
+      ? await this.userRepository.findByEmail(id)
+      : await this.userRepository.findById(id);
+    return user ? this.toResponse(user) : null;
+  }
+
+  async userByEmail(email: string): Promise<UserResponse | null> {
+    const user = await this.userRepository.findByEmail(email);
+    return user ? this.toResponse(user) : null;
+  }
+
+  async findAll(limit: number = 50, offset: number = 0): Promise<UserResponse[]> {
+    const users = await this.userRepository.findAll(limit, offset);
+    return users.map(this.toResponse);
+  }
+
+  async count(): Promise<number> {
+    return this.userRepository.count();
+  }
+
+  // ── Commands ───────────────────────────────────────
+
+  async create(input: {
+    email: string;
+    name: string;
+    role?: Role;
+    picture?: string;
+  }): Promise<UserResponse> {
+    const existing = await this.userRepository.findByEmail(input.email);
+    if (existing) {
+      throw new Error("User with this email already exists");
+    }
+    const user = await this.userRepository.create(input);
+    return this.toResponse(user);
+  }
+
+  async deactivate(userId: string): Promise<boolean> {
     return this.userRepository.deactivate(userId);
   }
 
-  userRepository: any;
-  constructor(
-    @inject(TOKENS_USER.repos.userRepo)
-    userRepository: UserRepository
-  ) {
-    this.userRepository = userRepository;
-  }
+  // ── Mapping ────────────────────────────────────────
 
-  async findById(id: string): Promise<UserResponse | null> {
-    // If id looks like an email, look up by email instead of _id
-    const user = id.includes("@")
-      ? await this.userRepository.userByEmail(id)
-      : await this.userRepository.findById(id);
-    if (!user) return null;
-    console.log("Repository user =", user); //no output
+  private toResponse(user: any): UserResponse {
     return {
-      id: user._id.toString(),
+      id: user.id,
       email: user.email,
       name: user.name,
       isActive: user.isActive,
@@ -44,64 +76,7 @@ class UserService {
       status: user.status,
       tokenVersion: user.tokenVersion,
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
-  }
-
-  async userByEmail(email: string): Promise<User | null> {
-    console.log("email++",email)
-     const user = await this.userRepository.userByEmail(email);
-     if(!user) return null
-
-    console.log(JSON.stringify(user, null, 2))
-    return {
-      id: user._id.toString(),
-      ...user
-    };
-  }
-
-  async findAll(limit: number = 50, offset: number = 0): Promise<any[]> {
-    const users = await this.userRepository.findAll(limit, offset);
-    return users.map((u: any) => ({
-      id: u._id.toString(),
-      isActive: u.isActive,
-      name: u.name,
-      picture: u.picture,
-      role: u.role,
-      status: u.status,
-      createdAt: u.createdAt,
-      updatedAt: u.updatedAt,
-    }));
-  }
-
-  async count(): Promise<number> {
-    return this.userRepository.count();
-  }
-
-  async create(input: { email: string; name: string; role?: string; picture?: string }): Promise<any> {
-    const existing = await this.userRepository.userByEmail(input.email);
-    if (existing) {
-      throw new Error("User with this email already exists");
-    }
-
-    const user = await this.userRepository.create({
-      email: input.email,
-      name: input.name,
-      role: input.role || "CUSTOMER",
-      status: "ACTIVE",
-      picture: "",
-      tokenVersion: 0,
-    });
-
-    return {
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      status: user.status,
-      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 }
-
-export default UserService;

@@ -3,7 +3,7 @@
 import { DependencyContainer } from 'tsyringe';
 
 import  UserModel  from '../../subgraphs/user/infra/models/user.model';
-import UserRepository from '../../subgraphs/user/infra/repos/user.repo';
+import { UserRepository } from '../../subgraphs/user/infra/repos/user.repo';
 import { TOKENS_USER } from '@/modules/tokens/user.tokens';
 import MembershipModel from '@/subgraphs/user/infra/models/membership.model';
 
@@ -22,7 +22,7 @@ function registerTenantDependencies(container: DependencyContainer): DependencyC
   container.register(TOKENS_TENANT.repos.tenantRepo, { useClass: TenantRepository });
   container.register(TOKENS_TENANT.repos.membershipRepo, { useClass: MembershipRepository });
   
-  container.register(TOKENS_USER.repos.userRepo, { useClass: UserRepository });
+  container.register(TOKENS_USER.repos.userRepository, { useClass: UserRepository });
   container.register(TOKENS_TENANT.repos.tenantRepo, { useClass: TenantRepository });
   container.register(TOKENS_TENANT.adapters.userAdapter, { useClass: UserAdapter });
   
