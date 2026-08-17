@@ -11,7 +11,7 @@ export interface ListingExternalDTO {
   numOfBeds: number;
   numOfCustomers: number;
   numOfRooms: number;
-  picture: string[];
+  pictures: { url: string }[];
 }
 
 @injectable()
@@ -38,7 +38,7 @@ export class ListingGateway extends BaseGateway {
         numOfBeds
         numOfCustomers
         numOfRooms
-        picture
+        pictures { url }
       }
     }
   `;
@@ -53,7 +53,7 @@ export class ListingGateway extends BaseGateway {
         numOfBeds
         numOfCustomers
         numOfRooms
-        picture
+        pictures { url }
       }
     }
   `;
