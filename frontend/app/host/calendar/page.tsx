@@ -53,7 +53,7 @@ export default function HostCalendarPage() {
 }
 
 function HostCalendarContent() {
-  const { data, loading } = useQuery<any>(CALENDAR_DATA);
+  const { data, loading, error } = useQuery<any>(CALENDAR_DATA);
   const bookings = data?.myBookings ?? [];
   const listings = data?.myListings ?? [];
 
@@ -104,7 +104,14 @@ function HostCalendarContent() {
         <p className="text-sm text-gray-500">Guest stays overview — one calendar per listing · double-click for details</p>
       </div>
 
-      {listings.length === 0 ? (
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+          <p className="text-sm text-red-700 font-medium">⚠️ Failed to load calendar data</p>
+          <p className="text-xs text-red-500 mt-1">{error.message}</p>
+        </div>
+      )}
+
+      {listings.length === 0 && !loading && !error ? (
         <div className="bg-white rounded-xl shadow-sm p-12 text-center">
           <span className="text-4xl">🏠</span>
           <p className="mt-3 text-gray-500">You don&apos;t have any listings yet.</p>

@@ -56,6 +56,10 @@ const AUTH_MAP: Record<string, OperationAuthRequirement> = {
   updateBooking:            { authenticated: true, minRole: Role.OWNER },
   analyzeBookingFraud:      { authenticated: true, minRole: Role.ADMIN },
 
+  // ========== Account Subgraph ==========
+  myListings:               { authenticated: true, minRole: Role.CUSTOMER },
+  myDashboard:              { authenticated: true, minRole: Role.CUSTOMER },
+
   // ========== Payment Subgraph ==========
   paymentByBooking:  { authenticated: true, minRole: Role.CUSTOMER },
   payment:           { authenticated: true, minRole: Role.CUSTOMER },

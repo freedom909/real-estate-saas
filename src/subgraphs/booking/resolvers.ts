@@ -49,8 +49,8 @@ export const resolvers = {
         return allBookings.items;
       }
 
-      // OWNER: return bookings for their listings + their own bookings as customer
-      if (role === Role.OWNER) {
+      // OWNER/HOST: return bookings for their listings + their own bookings as customer
+      if (role === Role.OWNER || role === Role.HOST) {
         // Find listings owned by this user
         const listings = await ListingModel.findAll({
           where: { ownerId: userId },
