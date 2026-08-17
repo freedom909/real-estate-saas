@@ -1,7 +1,6 @@
 "use client";
 
 import RoleGuard from "../../components/shared/RoleGuard";
-import HostLayout from "../layout";
 import { useQuery } from "@apollo/client/react";
 import { gql } from "@apollo/client/core";
 
@@ -22,9 +21,7 @@ const REVENUE_DATA = gql`
 export default function HostRevenuePage() {
   return (
     <RoleGuard allowedRoles={["HOST", "OWNER", "ADMIN", "SUPER_ADMIN"]}>
-      <HostLayout>
-        <HostRevenueContent />
-      </HostLayout>
+      <HostRevenueContent />
     </RoleGuard>
   );
 }

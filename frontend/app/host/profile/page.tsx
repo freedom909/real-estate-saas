@@ -1,0 +1,127 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@apollo/client/react";
+import { ME } from "../../graphql/auth/auth.queries";
+import { UPDATE_ADMIN_ACCOUNT } from "../../graphql/admin/mutations/update.admin.account";
+import RoleGuard from "../../components/shared/RoleGuard";
+
+export default function HostProfilePage() {
+  return (
+    <RoleGuard allowedRoles={["HOST", "OWNER", "ADMIN", "SUPER_ADMIN"]}>
+      <HostProfileContent />
+    </RoleGuard>
+  );
+}
+
+function HostProfileContent() {
+  const { data, loading, error, refetch } = useQuery<any>(ME);
+  const [updateAdminAccount, { loading: updating }] = useMutation<any>(UPDATE_ADMIN_ACCOUNT, {
+    onCompleted: () => {
+      setProfileMsg("Profile updated successfully!");
+      refetch();
+    },
+    onError: (err) => setProfileMsg(err.message),
+  });
+
+  const [profileForm, setProfileForm] = useState({ name: "", avatar: "" });
+  const [profileMsg, setProfileMsg] = useState("");
+
+  const me = data?.me;
+
+  useEffect(() => {
+    if (me) {
+      setProfileForm({ name: me.name || "", avatar: me.picture || "" });
+    }
+  }, [me]);
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileMsg("");
+    await updateAdminAccount({ variables: { input: { name: profileForm.name, avatar: profileForm.avatar } } });
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-500">Error: {error.message}</p>;
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">My Profile</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Profile Info */}
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-lg font-semibold mb-4">Profile Information</h2>
+
+          {profileMsg && (
+            <div className={`mb-4 p-3 rounded-lg text-sm ${
+              profileMsg.includes("success") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+            }`}>
+              {profileMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleProfileSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                value={me?.email || ""}
+                disabled
+                className="mt-1 block w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-500"
+              />
+              <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Name</label>
+              <input
+                type="text"
+                value={profileForm.name}
+                onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                className="mt-1 block w-full border rounded-lg px-3 py-2"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Avatar URL</label>
+              <input
+                type="url"
+                value={profileForm.avatar}
+                onChange={(e) => setProfileForm({ ...profileForm, avatar: e.target.value })}
+                className="mt-1 block w-full border rounded-lg px-3 py-2"
+                placeholder="https://example.com/avatar.jpg"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={updating}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+            >
+              {updating ? "Saving..." : "Save Changes"}
+            </button>
+          </form>
+        </div>
+
+        {/* Account Info */}
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-lg font-semibold mb-4">Account Details</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-500">Role</span>
+              <span className="text-sm font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                {me?.role || "—"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-500">User ID</span>
+              <span className="text-sm font-mono text-gray-700">{me?.id || "—"}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

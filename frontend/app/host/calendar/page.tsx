@@ -1,7 +1,6 @@
 "use client";
 
 import RoleGuard from "../../components/shared/RoleGuard";
-import HostLayout from "../layout";
 import { useQuery } from "@apollo/client/react";
 import { gql } from "@apollo/client/core";
 import { useState, useCallback, useMemo } from "react";
@@ -48,9 +47,7 @@ interface BookingSlotInfo {
 export default function HostCalendarPage() {
   return (
     <RoleGuard allowedRoles={["HOST", "OWNER", "ADMIN", "SUPER_ADMIN"]}>
-      <HostLayout>
-        <HostCalendarContent />
-      </HostLayout>
+      <HostCalendarContent />
     </RoleGuard>
   );
 }

@@ -9,7 +9,6 @@ import { Listing } from "@/app/types/listing";
 import { ALL_CATEGORIES } from "@/app/graphql/category/queries/category";
 import { ALL_LOCATIONS } from "@/app/graphql/location/queries/location";
 import RoleGuard from "@/app/components/shared/RoleGuard";
-import HostLayout from "../../layout";
 import { uploadClient } from "@/app/lib/apolloClient";
 
 interface Category {
@@ -60,9 +59,7 @@ type UploadImageResponse = {
 export default function HostCreateListingPage() {
   return (
     <RoleGuard allowedRoles={["HOST", "OWNER", "ADMIN", "SUPER_ADMIN"]}>
-      <HostLayout>
-        <CreateListingContent />
-      </HostLayout>
+      <CreateListingContent />
     </RoleGuard>
   );
 }

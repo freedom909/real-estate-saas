@@ -1,7 +1,6 @@
 "use client";
 
 import RoleGuard from "../../components/shared/RoleGuard";
-import HostLayout from "../layout";
 import { useQuery } from "@apollo/client/react";
 import { gql } from "@apollo/client/core";
 import Link from "next/link";
@@ -63,9 +62,7 @@ function detectOverbooking(listingId: string, bookings: any[]): { hasConflict: b
 export default function HostListingsPage() {
   return (
     <RoleGuard allowedRoles={["HOST", "OWNER", "ADMIN", "SUPER_ADMIN"]}>
-      <HostLayout>
-        <HostListingsContent />
-      </HostLayout>
+      <HostListingsContent />
     </RoleGuard>
   );
 }
