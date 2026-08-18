@@ -27,7 +27,7 @@ import { generateReservationNumber} from "../reservation.number";
 
 interface BookingActor {
   customerId: string;
-  tenantId: string;
+  tenantId?: string | null;
 }
 
 
@@ -59,8 +59,8 @@ async execute(input: CreateBookingInput, actor: BookingActor) {
     );
   }
 
-  if (!actor?.customerId || !actor?.tenantId) {
-    throw new Error("Missing required authentication: customerId or tenantId");
+  if (!actor?.customerId) {
+    throw new Error("Missing required authentication: customerId");
   }
 
   const checkIn = new Date(input.checkInDate);
@@ -107,7 +107,7 @@ async execute(input: CreateBookingInput, actor: BookingActor) {
       listingId: input.listingId,
       reservationNumber: reservationNumber,
       customerId: actor.customerId,
-      tenantId: actor.tenantId,
+      tenantId: actor.tenantId || actor.customerId,
       
       dateRange: new DateRange(
         checkIn,
@@ -144,8 +144,8 @@ async execute(input: CreateBookingInput, actor: BookingActor) {
       await this.calendarClient.releaseSlot({
         listingId: input.listingId,
         bookingId,
-        checkIn: input.checkIn,
-        checkOut: input.checkOut,
+        checkIn: input.checkInDate,
+        checkOut: input.checkOutDate,
       });
     } catch (releaseError) {
       console.error(

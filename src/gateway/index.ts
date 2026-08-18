@@ -50,6 +50,28 @@ async function start() {
   await mongoose.connect(mongoUri);
   console.log("✅ MongoDB connected for gateway");
 
+  // Register Session model so auth.plugin can look up activeTenantId
+  const sessionSchema = new mongoose.Schema(
+    {
+      id: String,
+      userId: String,
+      familyId: String,
+      deviceId: String,
+      userAgentHash: String,
+      ipHash: String,
+      refreshTokenId: String,
+      revoked: { type: Boolean, default: false },
+      revokedAt: Date,
+      lastSeenAt: Date,
+      expiresAt: Date,
+      status: { type: String, default: "ACTIVE" },
+      activeTenantId: { type: String, default: null },
+    },
+    { timestamps: true }
+  );
+  mongoose.model("Session", sessionSchema);
+  console.log("✅ Session model registered in gateway");
+
   console.log("start gateway")
   const gateway = new ApolloGateway({
     supergraphSdl: new IntrospectAndCompose({
