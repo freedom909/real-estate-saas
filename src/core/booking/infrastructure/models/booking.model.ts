@@ -7,11 +7,11 @@ import {
 } from "sequelize";
 import { BookingStatus } from "../../domain/value-objects/booking-status"; // Corrected import path
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
-import { ReservationNumber } from "../../domain/entities/booking.entity";
+
 
 export interface BookingAttributes {
   id: string;
-  reservationNumber: ReservationNumber;
+  reservationNumber: string;
   listingId: string;
   customerId: string;
   tenantId: string;
@@ -36,7 +36,7 @@ export class BookingModel
   extends Model<BookingAttributes, BookingCreationAttributes>
   implements BookingAttributes
 {
-  public reservationNumber!: ReservationNumber;
+  public reservationNumber!: string;
   public id!: string;
   public listingId!: string;
   public customerId!: string;

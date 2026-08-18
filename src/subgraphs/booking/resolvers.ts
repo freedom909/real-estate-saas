@@ -79,44 +79,33 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createBooking: withAuthorization(Action.CREATE, Resource.BOOKING, async (_: any, { input }: any, context: any) => {
-      console.log("FULL CONTEXT:", context);
+    createBooking: withAuthorization(
+  Action.CREATE,
+  Resource.BOOKING,
+  async (_: any, { input }: any, context: any) => {
 
-      console.log("CONTEXT USER:", context.user);
+    const user = context.user;
 
-      const user = context.user;
+    if (!user) {
+      throw new Error("Unauthenticated");
+    }
 
-      if (!user) {
+    const booking = await container.resolve<CreateBookingUseCase>(
+        TOKENS_BOOKING.usecase.createBookingUseCase
+      )
+      .execute(input, {
+        customerId: user.userId,
+        tenantId: user.tenantId,     
+      });
 
-        throw new Error("Unauthenticated: context.user is null");
-
-      }
-      const tenantId = user.tenantId;
-      const userId = user.userId;
-
-      // Fallback to input.tenantId if context user doesn't have it
-
-      const price = input.price !== undefined ? Number(input.price) : undefined; // Let use case calculate from listing price
-      const booking = await container
-        .resolve<CreateBookingUseCase>(TOKENS_BOOKING.usecase.createBookingUseCase)
-        .execute({
-          listingId: input.listingId, // Explicitly pass required fields
-          customerId: userId,
-          checkInDate: input.checkInDate,
-          checkOutDate: input.checkOutDate,
-          tenantId: tenantId,
-          price: price,
-          // Other optional fields from input can be spread if needed, but ensure required are explicit
-          // ...input // Be careful with spreading if it might overwrite explicit values
-        });
-
-      return {
-        code: 200,
-        success: true,
-        message: "Your booking has been successfully created",
-        booking,
-      };
-    }),
+    return {
+      code: 200,
+      success: true,
+      message: "Your booking has been successfully created",
+      booking,
+    };
+  }
+),
 
     cancelBooking: withAuthorization(Action.CANCEL, Resource.BOOKING, async (_: any, { id, reason }: any) => {
       const usecase = container.resolve<CancelBookingUseCase>(TOKENS_BOOKING.usecase.cancelBookingUseCase);

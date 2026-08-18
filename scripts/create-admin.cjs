@@ -1,13 +1,13 @@
 const mysql = require('mysql2/promise');
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/saas';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/nakano';
 const MYSQL_CONFIG = {
   host: 'localhost',
   port: 3307,
   user: 'root',
   password: 'princess',
-  database: 'saas'
+  database: 'nakano'
 };
 
 async function createAdmins() {

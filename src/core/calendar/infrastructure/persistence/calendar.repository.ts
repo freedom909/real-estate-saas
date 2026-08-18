@@ -9,6 +9,9 @@ import { SlotStatus } from "../../domain/value-objects/slot-status";
 
 @injectable()
 export class CalendarRepository implements ICalendarRepository {
+  getSlotsByListing(listingId: string): Promise<CalendarSlot[]> {
+    throw new Error("Method not implemented.");
+  }
 
   async findSlots(
     listingId: string,

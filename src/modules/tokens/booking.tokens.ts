@@ -7,6 +7,7 @@ export const TOKENS_BOOKING = {
 
   acl: {
     bookingACL: Symbol.for("BookingACL"),
+    calendarClient: Symbol.for("CalendarClient"),
   },
   state: {
     bookingStateMachine: Symbol.for("BookingStateMachine"),

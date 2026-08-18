@@ -31,7 +31,7 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: princess
-      MYSQL_DATABASE: saas
+      MYSQL_DATABASE: nakano
     volumes:
       - mysql_data:/var/lib/mysql
 

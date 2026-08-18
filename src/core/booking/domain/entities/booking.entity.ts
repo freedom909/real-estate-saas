@@ -1,133 +1,64 @@
 import { BookingStatus } from "../value-objects/booking-status"; // Corrected import to use domain BookingStatus
 import { DateRange } from "../value-objects/date-range.vo";
-import { BookingTransitionService } from "../service/booking-transition.service";
 import { BookingLifecycleStatus } from "../value-objects/booking-lifecycle.status";
-
 
 export interface BookingProps {
   id: string;
-  reservationNumber: ReservationNumber;
+  reservationNumber: string;
+
   listingId: string;
   customerId: string;
+  tenantId?: string;
+
   dateRange: DateRange;
-  tenantId: string;
+
   price: number;
+
   status: BookingStatus;
+  lifecycleStatus: BookingLifecycleStatus;
+
   createdAt: Date;
   confirmedAt?: Date;
   updatedAt?: Date;
   cancelReason?: string;
   completedAt?: Date;
-  lifecycleStatus: BookingLifecycleStatus;
 }
 
 export class Booking {
-  props: any;
-  private constructor( props: BookingProps) {
-    this.props = props;
+  static restore(arg0: { id: string; reservationNumber: string; customerId: string; listingId: string; dateRange: DateRange; price: number; status: BookingStatus; tenantId: string; createdAt: undefined; lifecycleStatus: BookingLifecycleStatus; }): Booking {
+    throw new Error("Method not implemented.");
   }
-  get reservationNumber() {
-    return this.props.reservationNumber;
+  cancel(reason: string) {
+    throw new Error("Method not implemented.");
   }
+  private constructor(
+    private props: BookingProps
+  ) {}
 
-  static create(props: Omit<BookingProps, 'status' | 'createdAt'>): Booking {
+  static create( props: Omit< BookingProps, "status" | "createdAt">): Booking {
+
     return new Booking({
       ...props,
+
       status: BookingStatus.PENDING,
+
       createdAt: new Date(),
     });
   }
 
-  static restore(props: BookingProps): Booking {
-    return new Booking({
-      ...props,
-      status: BookingStatus.PENDING,
-      createdAt: new Date(),
-      lifecycleStatus: BookingLifecycleStatus.UPCOMING,
-    });
-  }
+  static rehydrate(
+    props: BookingProps
+  ): Booking {
 
-  static rehydrate(props: BookingProps): Booking {
     return new Booking(props);
-  }
-
-  update(fields: { checkInDate?: Date; checkOutDate?: Date; price?: number }): void {
-    if (this.props.status === BookingStatus.CANCELLED || this.props.status === BookingStatus.COMPLETED) {
-      throw new Error("Cannot modify a cancelled or completed booking");
-    }
-
-    if (fields.checkInDate && fields.checkOutDate) {
-      if (fields.checkInDate >= fields.checkOutDate) {
-        throw new Error("checkInDate must be before checkOutDate");
-      }
-      this.props.dateRange = new DateRange(fields.checkInDate, fields.checkOutDate);
-    } else if (fields.checkInDate || fields.checkOutDate) {
-      throw new Error("Both checkInDate and checkOutDate must be provided together");
-    }
-
-    if (fields.price !== undefined) {
-      this.props.price = fields.price;
-    }
-
-    this.props.updatedAt = new Date();
-  }
-
-  cancel(reason: string): void {
-    BookingTransitionService.ensureTransition(
-      this.props.status,
-      BookingStatus.CANCELLED
-    );
-
-    if (this.props.dateRange.checkInDate < new Date()) {
-      throw new Error("Cannot cancel after check-in");
-    }
-
-    this.props.status = BookingStatus.CANCELLED;
-    this.props.updatedAt = new Date();
-    this.props.cancelReason = reason;
-  }
-
-  complete(): void {
-    BookingTransitionService.ensureTransition(this.props.status, BookingStatus.COMPLETED);
-
-    if (this.props.status !== BookingStatus.CHECKED_IN) {
-      throw new Error("Only checked-in bookings can be completed");
-    }
-
-    this.props.status = BookingStatus.COMPLETED;
-    this.props.completedAt = new Date();
-    this.props.updatedAt = new Date();
-  }
-
-  checkIn(): void {
-    BookingTransitionService.ensureTransition(this.props.status, BookingStatus.CHECKED_IN);
-
-    if (this.props.status !== BookingStatus.CONFIRMED) {
-      throw new Error("Only confirmed bookings can be checked in");
-    }
-
-    this.props.status = BookingStatus.CHECKED_IN;
-    this.props.updatedAt = new Date();
-  }
-
-  confirm(): void {
-    BookingTransitionService.ensureTransition(this.props.status, BookingStatus.CONFIRMED);
-    this.props.status = BookingStatus.CONFIRMED;
-    this.props.confirmedAt = new Date();
-    this.props.updatedAt = new Date();
-  }
-
-  toJSON() {
-    return {
-      ...this.props,
-      dateRange: this.props.dateRange
-        ? (typeof this.props.dateRange.toJSON === 'function' ? this.props.dateRange.toJSON() : this.props.dateRange)
-        : undefined,
-    };
   }
 
   get id() {
     return this.props.id;
+  }
+
+  get reservationNumber() {
+    return this.props.reservationNumber;
   }
 
   get customerId() {
@@ -141,9 +72,13 @@ export class Booking {
   get listingId() {
     return this.props.listingId;
   }
-
+ 
   get status() {
     return this.props.status;
+  }
+
+  get lifecycleStatus() {
+    return this.props.lifecycleStatus;
   }
 
   get price() {
@@ -169,22 +104,14 @@ export class Booking {
   get completedAt() {
     return this.props.completedAt;
   }
-}
 
-export class ReservationNumber {
-  private constructor(
-    public readonly value: string,
-  ) {}
+  toJSON() {
+    return {
+      ...this.props,
 
-  static create(value: string): ReservationNumber {
-    if (!value || value.trim().length === 0) {
-      throw new Error("Reservation number cannot be empty");
-    }
-
-    return new ReservationNumber(value);
-  }
-
-  toString(): string {
-    return this.value;
+      dateRange:
+        this.props.dateRange?.toJSON?.()
+        ?? this.props.dateRange,
+    };
   }
 }

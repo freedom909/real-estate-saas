@@ -1,6 +1,6 @@
 // FILE: src/subgraphs/booking/infrastructure/mappers/booking.mapper.ts
 
-import { Booking, ReservationNumber } from "../../domain/entities/booking.entity";
+import { Booking} from "../../domain/entities/booking.entity";
 import { BookingState } from "../../domain/state/booking-state";
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
@@ -15,7 +15,7 @@ export class BookingMapper {
       reservationNumber: model.reservationNumber,
       
       customerId: model.customerId,
-
+      tenantId: model.tenantId,
       listingId: model.listingId,
 
       dateRange: new DateRange(
@@ -26,8 +26,6 @@ export class BookingMapper {
       price: model.price,
 
       status: model.status,
-
-      tenantId: model.tenantId,
       createdAt: undefined,
       lifecycleStatus: BookingLifecycleStatus.UPCOMING
     }) 
@@ -39,25 +37,22 @@ export class BookingMapper {
     return {
       id: booking.id,
 
-      reservationNumber: booking.reservationNumber.value,
+      reservationNumber: booking.reservationNumber,
       customerId: booking.customerId,
 
       listingId: booking.listingId,
 
       checkInDate:
         booking.dateRange.checkInDate,
-
+      tenantId: booking.tenantId,
       checkOutDate:
         booking.dateRange.checkOutDate,
 
       price:
-        booking.price.amount,// Property 'amount' does not exist on type 'number'.
+        booking.price,
 
       status:
         booking.status,
-
-      tenantId:
-        booking.tenantId
 
     };
   }

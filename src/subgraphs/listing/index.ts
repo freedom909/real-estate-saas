@@ -46,7 +46,7 @@ const startApolloServer = async () => {
   try {
     console.info("Connecting to MySQL...");
 
-    await sequelize.authenticate();
+    await sequelize.sync({ alter: true });
 
     // Clean up orphaned pictures before sync to avoid FK constraint errors
     await sequelize.query(`

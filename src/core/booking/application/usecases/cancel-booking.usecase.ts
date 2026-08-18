@@ -33,8 +33,7 @@ export class CancelBookingUseCase {
     reason: string
   ) {
     const booking =
-      await this.bookingRepository
-        .findById(bookingId);
+      await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
       throw new Error("Booking not found");

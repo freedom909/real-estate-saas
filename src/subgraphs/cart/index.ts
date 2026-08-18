@@ -31,8 +31,8 @@ const startApolloServer = async () => {
     const typeDefs = gql(readFileSync(schemaPath, { encoding: "utf-8" }));
 
     await sequelize.authenticate();
-    await CartModel.sync({ alter: true });
-    await CartItemModel.sync({ alter: true });
+    // await CartModel.sync({ alter: true });
+    // await CartItemModel.sync({ alter: true });
     console.log("✅ Cart subgraph MySQL connected & models synced");
 
     const app = express();

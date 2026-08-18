@@ -68,11 +68,8 @@ export default function Navbar() {
 
             </Link>
 
-            <Link href="/assistant" className="hover:text-blue-600 transition">
 
-              AI Assistant
 
-            </Link>
 
             <Link href="/campaign" className="hover:text-blue-600 transition">
 

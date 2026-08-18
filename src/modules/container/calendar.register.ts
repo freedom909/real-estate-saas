@@ -9,6 +9,7 @@ import { ReleaseSlotUseCase } from "@/core/calendar/application/usecases/release
 import { GetAvailabilityUseCase } from "@/core/calendar/application/usecases/get-availability.usecase";
 import { BlockDatesUseCase } from "@/core/calendar/application/usecases/block-dates.usecase";
 import { CalendarAvailabilityService } from "@/core/calendar/domain/service/availability.service";
+import { GetSlotsByListingUseCase } from "@/core/calendar/application/usecases/getSlotsByListing.usecase";
 
 export default function registerCalendarDependencies() {
   // ── Repository ──
@@ -37,6 +38,11 @@ export default function registerCalendarDependencies() {
   container.register(TOKENS_CALENDAR.usecase.blockDatesUseCase, {
     useClass: BlockDatesUseCase,
   });
-
+ 
+  container.register(
+  TOKENS_CALENDAR.usecase.getSlotsByListingUseCase,{
+    useClass: GetSlotsByListingUseCase,
+  }
+);
   console.info("✅ Calendar dependencies registered");
 }

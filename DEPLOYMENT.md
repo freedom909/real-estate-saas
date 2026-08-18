@@ -174,7 +174,7 @@ app.use(cors({
 | `MONGO_URI` | MongoDB connection | Auto-provided by Railway |
 | `DB_HOST` | MySQL host | Auto-provided by Railway |
 | `DB_PORT` | MySQL port | `3306` |
-| `DB_NAME` | MySQL database | `saas` |
+| `DB_NAME` | MySQL database | `nakano` |
 | `DB_USER` | MySQL user | `root` |
 | `DB_PASSWORD` | MySQL password | Auto-provided by Railway |
 | `REDIS_URL` | Redis connection | Auto-provided by Railway |

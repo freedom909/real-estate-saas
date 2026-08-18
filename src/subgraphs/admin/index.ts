@@ -39,7 +39,7 @@ const startApolloServer = async () => {
 if (process.env.NODE_ENV === "development") {
     await sequelize.authenticate()
 }
-await sequelize.authenticate();
+await sequelize.sync({alter:true});
     console.info("MySQL connected");
 
     const app = express();

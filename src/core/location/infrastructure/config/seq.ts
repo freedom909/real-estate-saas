@@ -2,7 +2,7 @@ import { Sequelize } from "sequelize";
 
 export const sequelize = new Sequelize(
 
-process.env.MYSQL_DATABASE || "saas",
+process.env.MYSQL_DATABASE || "nakano",
 
 process.env.MYSQL_USER || "root",
 

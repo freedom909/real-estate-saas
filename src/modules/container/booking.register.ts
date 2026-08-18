@@ -16,6 +16,7 @@ import { CheckInBookingUseCase } from "@/core/booking/application/usecases/check
 import { ListingGateway } from "@/core/booking/infrastructure/gateways/listing.gateway";
 import { TOKENS_PAYMENT } from "../tokens/payment.tokens";
 import { PaymentRepository } from "@/core/payment/infra/repository/payment.repository";
+import { CalendarClient } from "@/core/booking/application/adapter/calendar";
 
 export const BookingRegister = () => {
   // Repositories
@@ -25,12 +26,20 @@ export const BookingRegister = () => {
   container.register(TOKENS_PAYMENT.repos.paymentRepository, {
     useClass: PaymentRepository,
   });
-
+  // ACL
+  // container.register(TOKENS_BOOKING.acl.bookingACL, {
+  //   useClass: BookingACL,
+  // });
+  
+  container.register(TOKENS_BOOKING.acl.calendarClient, {
+    useClass: CalendarClient,
+  });
   // State Machine
   // container.register(TOKENS_BOOKING.state.bookingStateMachine, {
   //   useClass: BookingStateMachine,
   // });
   // Use Cases
+
   container.register(TOKENS_BOOKING.usecase.confirmBookingUseCase, {
     useClass: ConfirmBookingUseCase,
   });

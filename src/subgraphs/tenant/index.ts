@@ -13,7 +13,7 @@ import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
 import { buildSubgraphSchema } from "@apollo/subgraph"
 import { connectMongo } from "../../shared/db/mongo";
-import mongoose from "mongoose"
+
 import { container } from "tsyringe"
 import { registerTenantDependencies } from "../../modules/container/tenant.container"
 import { resolvers } from "./resolvers/tenant.resolver"

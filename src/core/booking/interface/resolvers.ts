@@ -13,9 +13,10 @@ export const resolvers = {
 
   Mutation: {
     createBooking: async (_: any, { input }: any, { user }: any) => {
+      if (!user) throw new Error("Authentication required");
       return container
         .resolve(CreateBookingUseCase)
-        .execute({ ...input, customerId: user.id });
+        .execute(input, { customerId: user.userId, tenantId: user.tenantId || user.userId });
     },
 
     cancelBooking: async (_: any, { id, reason }: any) => {

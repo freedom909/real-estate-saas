@@ -20,8 +20,17 @@ import { InMemoryEventBus } from "@/shared/eventbus/in-memory-event-bus";
 import { IListingGateway } from "../../domain/gateways/i-listing.gateway";
 
 // ── Calendar Integration ──
-import { TOKENS_CALENDAR } from "@/modules/tokens/calendar.tokens";
-import { ReserveSlotUseCase } from "@/core/calendar/application/usecases/reserve-slot.usecase";
+
+import { CalendarClient } from "../adapter/calendar";
+import { CreateBookingInput } from "frontend/app/types/booking.types";
+import { generateReservationNumber} from "../reservation.number";
+
+interface BookingActor {
+  customerId: string;
+  tenantId: string;
+}
+
+
 
 @injectable()
 export class CreateBookingUseCase {
@@ -33,99 +42,119 @@ export class CreateBookingUseCase {
     @inject(TOKENS_BOOKING.gateway.listingGateway)
     private listingGateway: IListingGateway,
     // ── Calendar: reserve slots on booking creation ──
-    @inject(TOKENS_CALENDAR.usecase.reserveSlotUseCase)
-    private reserveSlotUseCase: ReserveSlotUseCase
+    @inject(TOKENS_BOOKING.acl.calendarClient)
+    private calendarClient: CalendarClient,
   ) {}
 
-  async execute(input: any) {
-    // Validate input to ensure all required fields are present
-    
-const required = [
-  "listingId",
-  "customerId",
-  "checkInDate",
-  "checkOutDate"
-];
+async execute(input: CreateBookingInput, actor: BookingActor) {
+  // 1. Validate — dates + listing come from input; customerId/tenantId from actor
+  const missingInput: string[] = [];
+  if (!input.listingId) missingInput.push("listingId");
+  if (!input.checkInDate) missingInput.push("checkInDate");
+  if (!input.checkOutDate) missingInput.push("checkOutDate");
 
-const missing =
-  required.filter(field => !input[field]);
+  if (missingInput.length > 0) {
+    throw new Error(
+      `Missing required booking information: ${missingInput.join(", ")}`
+    );
+  }
 
-if (missing.length > 0) {
-  throw new Error(
-    `Missing required booking information: ${missing.join(", ")}`
-  );
-}
+  if (!actor?.customerId || !actor?.tenantId) {
+    throw new Error("Missing required authentication: customerId or tenantId");
+  }
 
-const checkIn =
-  new Date(input.checkInDate);
+  const checkIn = new Date(input.checkInDate);
+  const checkOut = new Date(input.checkOutDate);
 
-const checkOut =
-  new Date(input.checkOutDate);
+  if (isNaN(checkIn.getTime())) {
+    throw new Error("Invalid checkInDate");
+  }
 
-if (isNaN(checkIn.getTime())) {
-  throw new Error(
-    "Invalid checkInDate"
-  );
-}
+  if (isNaN(checkOut.getTime())) {
+    throw new Error("Invalid checkOutDate");
+  }
 
-if (isNaN(checkOut.getTime())) {
-  throw new Error(
-    "Invalid checkOutDate"
-  );
-}
+  if (checkIn >= checkOut) {
+    throw new Error("checkInDate must be before checkOutDate");
+  }
 
-if (checkIn.getTime() >= checkOut.getTime()) {
-  throw new Error(
-    "checkInDate must be before checkOutDate"
-  );
-}
+  // 2. Generate ONE booking ID
+  const bookingId = uuidv4();
 
-const nightlyPrice = await this.listingGateway.getListingPrice(input.listingId);
-const price = BookingPricingService.calculatePrice(nightlyPrice, checkIn, checkOut);
-const booking =
-  Booking.create({
-    id: uuidv4(),
+  // 3. Reserve Calendar
+  await this.calendarClient.reserveSlot({
     listingId: input.listingId,
-    customerId: input.customerId,
-    tenantId: input.tenantId ?? "tenant-dev",
-    dateRange: new DateRange(
-      new Date(input.checkInDate),
-      new Date(input.checkOutDate)
-    ),
-    price,
-    lifecycleStatus:
-      BookingLifecycleStatus.UPCOMING,
-    cancelReason: null
+    bookingId,
+    checkIn: input.checkInDate,
+    checkOut: input.checkOutDate,
   });
 
+  try {
+    // 4. Get price
+    const nightlyPrice =
+      await this.listingGateway.getListingPrice(input.listingId);
+
+    const price =BookingPricingService.calculatePrice(
+        nightlyPrice,
+        checkIn,
+        checkOut
+      );
+
+    // 5. Create Booking
+    const reservationNumber = generateReservationNumber();
+    const booking = Booking.create({
+      id: bookingId,
+      listingId: input.listingId,
+      reservationNumber: reservationNumber,
+      customerId: actor.customerId,
+      tenantId: actor.tenantId,
+      
+      dateRange: new DateRange(
+        checkIn,
+        checkOut
+      ),
+      price,
+      lifecycleStatus:
+        BookingLifecycleStatus.UPCOMING,
+      cancelReason: null,
+    });
+
+    // 6. Save
     await this.repo.save(booking);
 
-    // ── Calendar: reserve slots (prevents double-booking) ──
-    try {
-      await this.reserveSlotUseCase.execute({
-        listingId: input.listingId,
-        bookingId: booking.id,
-        checkIn: input.checkInDate,
-        checkOut: input.checkOutDate,
-      });
-    } catch (calendarError) {
-      // Calendar reservation failed — booking was already saved,
-      // so we must delete it to keep consistency
-      await this.repo.delete(booking.id);
-      throw calendarError;
-    }
-
-    // ✅ 发布领域事件
-    await this.eventBus.publish(new BookingCreatedEvent(
-      booking.id,
-      booking.customerId,
-      booking.tenantId, // Use the tenantId from the created booking entity
-      booking.listingId,
-      booking.price,
-      booking.dateRange.checkInDate,
-      booking.dateRange.checkOutDate
-    ));
+    // 7. Event
+    await this.eventBus.publish(
+      new BookingCreatedEvent(
+        booking.id,
+        booking.customerId,
+        booking.tenantId,
+        booking.listingId,
+        booking.price,
+        booking.dateRange.checkInDate,
+        booking.dateRange.checkOutDate
+      )
+    );
 
     return booking.toJSON();
+
+  } catch (error) {
+    // Booking creation failed after Calendar reservation.
+    // Release the reservation.
+    try {
+      await this.calendarClient.releaseSlot({
+        listingId: input.listingId,
+        bookingId,
+        checkIn: input.checkIn,
+        checkOut: input.checkOut,
+      });
+    } catch (releaseError) {
+      console.error(
+        "CRITICAL: Failed to release calendar reservation",
+        releaseError
+      );
+    }
+
+    throw error;
   }
+}
 }

@@ -1,5 +1,7 @@
 import "reflect-metadata";
 
+import dotenv from "dotenv";
+dotenv.config();
 import { ApolloServer } from "@apollo/server";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { gql } from "graphql-tag";
@@ -10,7 +12,7 @@ import { expressMiddleware } from "@as-integrations/express4"
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import type { RequestHandler } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+
 
 import { reviewResolvers as resolvers} from "./review.resolver";
 import { initMongoContainer } from "@/infrastructure/container/initMongoContainer";
@@ -21,9 +23,6 @@ import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import { registerReviewDependencies } from "@/modules/container/review.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
-
-dotenv.config();
-
 const typeDefs = gql(
   readFileSync("./src/subgraphs/review/schema.graphql", { encoding: "utf-8" })
 );
@@ -33,7 +32,7 @@ const startApolloServer = async () => {
     // ✅ 初始化 DI（全局 container）
     console.log("⏳ Initializing containers...");
     await registerReviewDependencies();
-    await initMongoContainer();
+    await initMongoContainer();// 
     console.log("✅ Containers initialized");
 
     const app = express();

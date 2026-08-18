@@ -36,7 +36,7 @@ registerTenantDependencies(container);
 registerAccountDependencies();
 
 console.info("Account subgraph configuration loaded");
-
+await sequelize.sync({alter:true})
 const typeDefs = gql(
   readFileSync(
     path.resolve(__dirname, "schema.graphql"),

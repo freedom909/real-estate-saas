@@ -4,6 +4,7 @@ import { CalendarSlot } from "../entities/calendar-slot";
 import { SlotStatus } from "../value-objects/slot-status";
 
 export interface ICalendarRepository {
+  getSlotsByListing(listingId: string): Promise<CalendarSlot[]>;
   /**
    * Find all slots for a listing within a date range.
    * Used for availability checks and overlap detection.

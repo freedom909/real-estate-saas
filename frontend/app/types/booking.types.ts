@@ -4,11 +4,9 @@ export interface CreateBookingInput {
 
 listingId: string;
 
-checkIn: string;
+checkInDate: string;
 
-checkOut: string;
-
-customer: number;
+checkOutDate: string;
 
 price?: number;
 

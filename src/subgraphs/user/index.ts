@@ -17,13 +17,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
-import mongoose, { connectMongo } from "../../shared/db/mongo";
+import  { connectMongo } from "../../shared/db/mongo";
 import { registerUserDependencies } from "./registerUserDependencies";
 import resolvers from "./resolvers/user.resolver";
 import { container } from "tsyringe";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import userRegister from "@/modules/container/user.register";
+import dns from "node:dns";
+import mongoose from "mongoose";
 
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 // ── 1. Module-level DI registration ──────────────────
 userRegister();
 
