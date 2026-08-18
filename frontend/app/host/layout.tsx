@@ -6,7 +6,7 @@ import type { NavItem } from "../components/shared/DashboardSidebar";
 const navItems: NavItem[] = [
   { href: "/host", label: "Overview", icon: "📊" },
   { href: "/host/listings", label: "My Listings", icon: "🏠" },
-  { href: "/host/listing/new", label: "New Listing", icon: "➕" },
+  { href: "/host/listings/new", label: "New Listing", icon: "➕" },
   { href: "/host/bookings", label: "My Bookings", icon: "📅" },
   { href: "/host/revenue", label: "Revenue", icon: "💰" },
   { href: "/host/calendar", label: "Calendar", icon: "📆" },
