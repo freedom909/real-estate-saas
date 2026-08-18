@@ -97,7 +97,7 @@ describe("ConfirmBookingUseCase", () => {
     mockBookingRepo.findById.mockResolvedValue(booking);
 
     await expect(useCase.execute("booking-1")).rejects.toThrow(
-      "Invalid transition from CONFIRMED to CONFIRMED"
+      "Cannot confirm a booking in CONFIRMED status"
     );
   });
 
@@ -107,7 +107,7 @@ describe("ConfirmBookingUseCase", () => {
     mockBookingRepo.findById.mockResolvedValue(booking);
 
     await expect(useCase.execute("booking-1")).rejects.toThrow(
-      "Invalid transition from CANCELLED to CONFIRMED"
+      "Cannot confirm a booking in CANCELLED status"
     );
   });
 
