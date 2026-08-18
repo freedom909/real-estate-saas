@@ -123,11 +123,8 @@ export const resolvers = {
         const repo = container.resolve<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository);
         const booking = await repo.findById(id);
         if (!booking) return null;
-        // Allow both the customer AND the listing owner to cancel
-        const listing = await ListingModel.findByPk(booking.listingId);
-        const ownerId = (listing as any)?.ownerId;
-        // Return the listing owner so the host can cancel; the policy also allows the customer
-        return ownerId ?? booking.customerId;
+        // Return the customer (booking creator) — the RBAC policy also allows HOST role via hasMinRole check
+        return booking.customerId;
       },
     }),
 
