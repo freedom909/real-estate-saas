@@ -25,11 +25,25 @@ export interface BookingProps {
 }
 
 export class Booking {
-  static restore(arg0: { id: string; reservationNumber: string; customerId: string; listingId: string; dateRange: DateRange; price: number; status: BookingStatus; tenantId: string; createdAt: undefined; lifecycleStatus: BookingLifecycleStatus; }): Booking {
-    throw new Error("Method not implemented.");
-  }
   cancel(reason: string) {
-    throw new Error("Method not implemented.");
+    if (this.props.status === BookingStatus.CANCELLED) {
+      throw new Error("Booking is already cancelled");
+    }
+    if (this.props.status === BookingStatus.COMPLETED) {
+      throw new Error("Cannot cancel a completed booking");
+    }
+    this.props.status = BookingStatus.CANCELLED;
+    this.props.cancelReason = reason;
+    this.props.updatedAt = new Date();
+  }
+
+  confirm() {
+    if (this.props.status !== BookingStatus.PENDING) {
+      throw new Error(`Cannot confirm a booking in ${this.props.status} status`);
+    }
+    this.props.status = BookingStatus.CONFIRMED;
+    this.props.confirmedAt = new Date();
+    this.props.updatedAt = new Date();
   }
   private constructor(
     private props: BookingProps
