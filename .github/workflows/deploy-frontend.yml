@@ -12,10 +12,24 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+      - name: Check for Vercel token
+        id: check-token
+        run: |
+          if [ -n "$VERCEL_TOKEN" ]; then
+            echo "has_token=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_token=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::VERCEL_TOKEN secret not configured — skipping deployment"
+          fi
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
       - name: Checkout repository
+        if: steps.check-token.outputs.has_token == 'true'
         uses: actions/checkout@v4
 
       - name: Deploy to Vercel
+        if: steps.check-token.outputs.has_token == 'true'
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
