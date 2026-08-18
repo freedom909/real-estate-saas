@@ -122,7 +122,12 @@ export const resolvers = {
       resolveOwnerId: async (_ctx, { id }) => {
         const repo = container.resolve<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository);
         const booking = await repo.findById(id);
-        return booking?.customerId ?? null;
+        if (!booking) return null;
+        // Allow both the customer AND the listing owner to cancel
+        const listing = await ListingModel.findByPk(booking.listingId);
+        const ownerId = (listing as any)?.ownerId;
+        // Return the listing owner so the host can cancel; the policy also allows the customer
+        return ownerId ?? booking.customerId;
       },
     }),
 

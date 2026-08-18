@@ -1,9 +1,11 @@
 "use client";
 
 import RoleGuard from "../../components/shared/RoleGuard";
-import { useQuery } from "@apollo/client/react";
+import { useQuery, useMutation } from "@apollo/client/react";
 import { gql } from "@apollo/client/core";
 import { useState, useCallback, useMemo } from "react";
+import { CONFIRM_BOOKING } from "../../graphql/booking/mutations/confirmBooking";
+import { CANCEL_BOOKING } from "../../graphql/booking/mutations/cancelBooking";
 
 const CALENDAR_DATA = gql`
   query HostCalendar {
@@ -357,6 +359,38 @@ function BookingDetailModal({ booking, onClose }: { booking: any; onClose: () =>
     nights = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
   }
 
+  const [confirmBooking, { loading: confirming }] = useMutation(CONFIRM_BOOKING, {
+    refetchQueries: ["HostCalendar"],
+  });
+  const [cancelBooking, { loading: cancelling }] = useMutation(CANCEL_BOOKING, {
+    refetchQueries: ["HostCalendar"],
+  });
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const canConfirm = b.status === "PENDING";
+  const canCancel = b.status === "PENDING" || b.status === "CONFIRMED";
+
+  const handleConfirm = async () => {
+    setActionError(null);
+    try {
+      await confirmBooking({ variables: { id: b.id } });
+      onClose();
+    } catch (err: any) {
+      setActionError(err?.message || "確認に失敗しました");
+    }
+  };
+
+  const handleCancel = async () => {
+    setActionError(null);
+    if (!confirm("本当にこの予約をキャンセルしますか？")) return;
+    try {
+      await cancelBooking({ variables: { id: b.id, reason: "ホストによるキャンセル" } });
+      onClose();
+    } catch (err: any) {
+      setActionError(err?.message || "キャンセルに失敗しました");
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
@@ -439,10 +473,37 @@ function BookingDetailModal({ booking, onClose }: { booking: any; onClose: () =>
               </p>
             </div>
           )}
+
+          {/* Action Error */}
+          {actionError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <p className="text-xs text-red-700">⚠️ {actionError}</p>
+            </div>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t bg-gray-50 flex justify-end">
+        {/* Footer — Action Buttons */}
+        <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {canConfirm && (
+              <button
+                onClick={handleConfirm}
+                disabled={confirming}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 transition"
+              >
+                {confirming ? "確認中..." : "✅ 予約を確定"}
+              </button>
+            )}
+            {canCancel && (
+              <button
+                onClick={handleCancel}
+                disabled={cancelling}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition"
+              >
+                {cancelling ? "キャンセル中..." : "❌ キャンセル"}
+              </button>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"

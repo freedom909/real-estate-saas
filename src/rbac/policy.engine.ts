@@ -144,6 +144,11 @@ export default class PolicyEngine implements IPolicy {
           return true;
         }
 
+        // listing owner/host can cancel bookings on their listings
+        if (hasMinRole(ctx.user.role, Role.HOST)) {
+          return true;
+        }
+
         // admin/agent can cancel
         return hasMinRole(ctx.user.role, Role.AGENT);
       },
