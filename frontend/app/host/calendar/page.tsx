@@ -291,7 +291,7 @@ function ListingCalendar({
                 <div className="space-y-px">
                   {slots.slice(0, 3).map((slot, i) => {
                     const b = slot.booking;
-                    const guestName = b.user?.name || "Guest";
+                    const guestName = b.customer?.name || b.customer?.email || "ゲスト";
                     const colors = STATUS_COLORS[b.status] || STATUS_COLORS.COMPLETED;
                     const isConflict = isOverbooked && ACTIVE_STATUSES.has(b.status);
 
@@ -392,8 +392,8 @@ function BookingDetailModal({ booking, onClose }: { booking: any; onClose: () =>
           {/* Guest */}
           <div>
             <label className="text-xs text-gray-500 uppercase tracking-wide">ゲスト</label>
-            <p className="text-sm font-medium text-gray-900 mt-0.5">{b.user?.name || "—"}</p>
-            <p className="text-xs text-gray-500">{b.user?.email || "—"}</p>
+            <p className="text-sm font-medium text-gray-900 mt-0.5">{b.customer?.name || "—"}</p>
+            <p className="text-xs text-gray-500">{b.customer?.email || "—"}</p>
           </div>
 
           {/* Listing */}
