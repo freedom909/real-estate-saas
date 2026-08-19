@@ -72,8 +72,8 @@ const startApolloServer = async () => {
       })
     );
 
-    httpServer.listen({ port: 4103 }, () => {
-      console.log("🚀 Cart Subgraph running at http://localhost:4103/graphql");
+    httpServer.listen({ port: 4103, host: "0.0.0.0" }, () => {
+      console.log("🚀 Cart Subgraph running at http://0.0.0.0:4103/graphql");
     });
   } catch (error) {
     console.error("❌ Cart subgraph start error:", error);

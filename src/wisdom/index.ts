@@ -114,5 +114,5 @@ app.use(
 
 
 httpServer.listen(4200, () => {
-  console.log("🔐 wisdom running at http://localhost:4200/graphql")
+  console.log("🔐 wisdom running at http://0.0.0.0:4200/graphql")
 })

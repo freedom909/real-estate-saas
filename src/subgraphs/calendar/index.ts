@@ -82,9 +82,9 @@ const startApolloServer = async () => {
       })
     );
 
-    httpServer.listen({ port: 4100 }, () =>
+    httpServer.listen({ port: 4100, host: "0.0.0.0" }, () =>
       console.info(
-        "📅 Calendar Subgraph running on http://localhost:4100/graphql"
+        "📅 Calendar Subgraph running on http://0.0.0.0:4100/graphql"
       )
     );
   } catch (error) {

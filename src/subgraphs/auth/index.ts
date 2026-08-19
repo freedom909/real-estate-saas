@@ -91,6 +91,6 @@ app.use(
   })
 )
 
-httpServer.listen(4010, () => {
-  console.log("🔐 Auth subgraph running at http://localhost:4010/graphql")
+httpServer.listen(4010, "0.0.0.0", () => {
+  console.log("🔐 Auth subgraph running at http://0.0.0.0:4010/graphql")
 })

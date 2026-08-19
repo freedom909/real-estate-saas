@@ -87,8 +87,8 @@ const startApolloServer = async () => {
       })
     );
 
-    httpServer.listen({ port: 4102 }, () =>
-      console.info("Account Subgraph running on http://localhost:4102/graphql")
+    httpServer.listen({ port: 4102, host: "0.0.0.0" }, () =>
+      console.info("Account Subgraph running on http://0.0.0.0:4102/graphql")
     );
   } catch (error) {
     console.error("Error starting Apollo Server for Account Subgraph:", error);

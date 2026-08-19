@@ -64,9 +64,9 @@ const startServer = async () => {
       })
     );
 
-    const PORT = process.env.LOCATION_PORT || 4080;
-    httpServer.listen(PORT, () => {
-      console.log(`🔐 Location subgraph running at http://localhost:${PORT}/graphql`);
+    const PORT = Number(process.env.LOCATION_PORT) || 4080;
+    httpServer.listen(PORT, "0.0.0.0", () => {// 
+      console.log(`🔐 Location subgraph running at http://0.0.0.0:${PORT}/graphql`);
     });
   } catch (error) {
     console.error("Failed to start Location Subgraph:", error);

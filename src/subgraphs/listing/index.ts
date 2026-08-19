@@ -98,8 +98,8 @@ const startApolloServer = async () => {
       })
     );
 
-    httpServer.listen({ port: 4101 }, () =>
-      console.info('Listing Subgraph running on http://localhost:4101/graphql')
+    httpServer.listen({ port: 4101, host: "0.0.0.0" }, () =>
+      console.info('Listing Subgraph running on http://0.0.0.0:4101/graphql')
     );
   } catch (error) {
     console.error('Error starting Apollo Server for Listing Subgraph:', error);

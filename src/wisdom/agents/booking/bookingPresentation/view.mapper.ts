@@ -22,7 +22,7 @@ export class BookingViewMapper {
   static toView(booking: Booking, listingName: string): BookingView {
     return {
       id: booking.id,
-      reservationNumber: booking.reservationNumber?.value ?? "",
+      reservationNumber: booking.reservationNumber,
       customerId: booking.customerId,
       tenantId: booking.tenantId,
       listingId: booking.listingId,

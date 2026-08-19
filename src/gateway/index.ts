@@ -82,7 +82,6 @@ async function start() {
         { name: "booking", url: "http://localhost:4030/graphql" },
         { name: "review", url: "http://localhost:4040/graphql" },
         { name: "payment", url: "http://localhost:4050/graphql" },
-        { name: "tenant", url: "http://localhost:4060/graphql" },
         { name: "audit", url: "http://localhost:4070/graphql" },
         { name: "location", url: "http://localhost:4080/graphql" },
         { name: "amenity", url: "http://localhost:4090/graphql" },
@@ -194,8 +193,8 @@ context: async ({ req }) => ({
     }))
 
   const PORT = parseInt(process.env.PORT || "4000", 10);
-  app.listen(PORT, () => {
-    console.log(`🚀 Gateway running at http://localhost:${PORT}/graphql`)
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Gateway running at http://0.0.0.0:${PORT}/graphql`)
   })
 }
 start()

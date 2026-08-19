@@ -126,7 +126,7 @@ app.use(
 
 
 httpServer.listen(4300, () => {
-  console.log("🎙️ Voice subgraph running at http://localhost:4300/graphql")
-  console.log("🎙️ Voice REST API running at http://localhost:4300/api/voice")
-  console.log("🎙️ Voice WebSocket running at ws://localhost:4300/ws/voice")
+  console.log("🎙️ Voice subgraph running at http://0.0.0.0:4300/graphql")
+  console.log("🎙️ Voice REST API running at http://0.0.0.0:4300/api/voice")
+  console.log("🎙️ Voice WebSocket running at ws://0.0.0.0:4300/ws/voice")
 })

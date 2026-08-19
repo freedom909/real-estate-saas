@@ -133,8 +133,8 @@ const startApolloServer = async () => {
 
 
     // ✅ 启动 HTTP
-    httpServer.listen({ port: 4030 }, async () => {
-      console.log("🚀 Server ready at http://localhost:4030/graphql");
+    httpServer.listen({ port: 4030, host: "0.0.0.0" }, async () => {
+      console.log("🚀 Server ready at http://0.0.0.0:4030/graphql");
 
       // ✅ MQ consumer
       try {

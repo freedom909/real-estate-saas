@@ -76,8 +76,8 @@ const startApolloServer = async () => {
     );
 
     // ✅ 启动 HTTP
-    httpServer.listen({ port: 4040 }, async () => {
-      console.log("🚀 Review Subgraph ready at http://localhost:4040/graphql");
+    httpServer.listen({ port: 4040, host: "0.0.0.0" }, async () => {
+      console.log("🚀 Review Subgraph ready at http://0.0.0.0:4040/graphql");
     });
   } catch (error) {
     console.error("❌ Server start error:", error);

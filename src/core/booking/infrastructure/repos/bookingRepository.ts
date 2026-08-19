@@ -135,6 +135,7 @@ export class BookingRepository implements IBookingRepository {
         new Date(model.checkInDate),
         new Date(model.checkOutDate)
       ),
+      reservationNumber: model.reservationNumber,
       price: model.price,
       status: model.status as BookingStatus, // Explicitly cast to BookingStatus
       cancelReason: model.cancelReason,

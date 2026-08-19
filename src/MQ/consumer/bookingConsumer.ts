@@ -4,7 +4,7 @@
 
 import amqp from "amqplib";
 
-const RABBIT_URL = "amqp://localhost";
+const RABBIT_URL = "amqp://localhost:5672";
 const EXCHANGE_NAME = "booking_exchange";
 
 // routing keys（替代 Kafka topic）

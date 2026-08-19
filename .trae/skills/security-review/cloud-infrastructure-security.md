@@ -107,14 +107,14 @@ resource "aws_security_group" "app" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]  # Internal VPC only
+    cidr_blocks = ["1localhost/16"]  # Internal VPC only
   }
 
   egress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Only HTTPS outbound
+    cidr_blocks = ["localhost/0"]  # Only HTTPS outbound
   }
 }
 
@@ -124,7 +124,7 @@ resource "aws_security_group" "bad" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # All ports, all IPs!
+    cidr_blocks = ["localhost/0"]  # All ports, all IPs!
   }
 }
 ```

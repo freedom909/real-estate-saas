@@ -8,7 +8,7 @@ import { TOKENS_PAYMENT } from "@/modules/tokens/payment.tokens";
 import amqp from "amqplib";
 import { container } from "tsyringe";
 
-const RABBIT_URL = "amqp://localhost";
+const RABBIT_URL = "amqp://localhost:5672";
 const EXCHANGE_NAME = "payment_exchange";
 
 type BookingCreatedEvent = {

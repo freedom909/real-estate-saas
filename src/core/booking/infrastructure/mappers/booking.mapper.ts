@@ -1,7 +1,6 @@
 // FILE: src/subgraphs/booking/infrastructure/mappers/booking.mapper.ts
 
 import { Booking} from "../../domain/entities/booking.entity";
-import { BookingState } from "../../domain/state/booking-state";
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
 import { BookingModel } from "../models/booking.model";
@@ -9,11 +8,9 @@ import { BookingModel } from "../models/booking.model";
 export class BookingMapper {
 
   static toDomain(model: BookingModel): Booking {
-    return Booking.restore({
+    return Booking.create({
       id: model.id,
-
-      reservationNumber: model.reservationNumber,
-      
+      reservationNumber: model.reservationNumber,      
       customerId: model.customerId,
       tenantId: model.tenantId,
       listingId: model.listingId,
@@ -24,9 +21,6 @@ export class BookingMapper {
       ),
 
       price: model.price,
-
-      status: model.status,
-      createdAt: undefined,
       lifecycleStatus: BookingLifecycleStatus.UPCOMING
     }) 
   };

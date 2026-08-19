@@ -68,6 +68,6 @@ app.use(
   }),
 );
 
-httpServer.listen(4020, () => {
-  console.log("User subgraph running on http://localhost:4020/graphql");
+httpServer.listen(4020, "0.0.0.0", () => {
+  console.log("User subgraph running on http://0.0.0.0:4020/graphql");
 });

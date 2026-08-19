@@ -36,7 +36,7 @@ console.log(
 
 // ⭐ Mongo
 await mongoose.connect(
-  process.env.MONGO_URI || "mongodb://localhost:27017/air"
+  process.env.MONGO_URI || "mongodb://localhost:27017/nakano"
 )
 console.log("Mongo connected")
 // ⭐ schema
@@ -77,6 +77,6 @@ app.use(
   })
 )
 
-httpServer.listen(4090, () => {
-  console.log("🔐 Amenity subgraph running at http://localhost:4090/graphql")
+httpServer.listen(4090, "0.0.0.0", () => {
+  console.log("🔐 Amenity subgraph running at http://0.0.0.0:4090/graphql")
 })

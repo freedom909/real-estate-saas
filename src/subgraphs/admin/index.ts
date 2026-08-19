@@ -78,9 +78,9 @@ await sequelize.sync({alter:true});
       })
     );
 
-    httpServer.listen({ port: 4104 }, () =>
+    httpServer.listen({ port: 4104, host: "0.0.0.0" }, () =>
       console.info(
-        "Admin Subgraph running on http://localhost:4104/graphql"
+        "Admin Subgraph running on http://0.0.0.0:4104/graphql"
       )
     );
   } catch (error) {

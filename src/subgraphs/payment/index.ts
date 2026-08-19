@@ -135,8 +135,8 @@ const startApolloServer = async () => {
     );
 
     const PORT = process.env.PAYMENT_PORT || 4050;
-    httpServer.listen({ port: PORT }, () => {
-      console.log(`💳 Payment subgraph running on http://localhost:${PORT}/graphql`);
+    httpServer.listen({ port: PORT, host: "0.0.0.0" }, () => {
+      console.log(`💳 Payment subgraph running on http://0.0.0.0:${PORT}/graphql`);
     });
   } catch (error) {
     console.error("❌ Failed to start Payment Subgraph:", error);

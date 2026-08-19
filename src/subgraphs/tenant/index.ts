@@ -69,8 +69,8 @@ app.use(
   })
 );
 
-httpServer.listen(4060, () => {
+httpServer.listen(4060, "0.0.0.0", () => {
   console.log(
-    "👤 Tenant Subgraph running at http://localhost:4060/graphql"
+    "👤 Tenant Subgraph running at http://0.0.0.0:4060/graphql"
   );
 });
