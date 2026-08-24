@@ -1,5 +1,5 @@
 // src/subgraphs/user/index.ts
-
+import dns from "node:dns";
 import "reflect-metadata";
 import express from "express";
 import http from "http";
@@ -10,6 +10,7 @@ import { buildSubgraphSchema } from "@apollo/subgraph";
 import { gql } from "graphql-tag";
 import { readFileSync } from "fs";
 import dotenv from "dotenv";
+dotenv.config();
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -23,8 +24,7 @@ import resolvers from "./resolvers/user.resolver";
 import { container } from "tsyringe";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import userRegister from "@/modules/container/user.register";
-import dns from "node:dns";
-import mongoose from "mongoose";
+
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 // ── 1. Module-level DI registration ──────────────────

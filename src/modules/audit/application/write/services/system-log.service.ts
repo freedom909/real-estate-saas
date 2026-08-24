@@ -7,7 +7,7 @@ import { CreateSystemLogDTO } from "../dto/create-system-log.dto";
 
 
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
-import { SystemLogDocument } from "@/modules/audit/infrastructure/database/models/system-log.model";
+import { SystemLogDocument } from "@/modules/audit/infrastructure/models/system-log.model";
 
 @injectable()
 export class SystemLogService {

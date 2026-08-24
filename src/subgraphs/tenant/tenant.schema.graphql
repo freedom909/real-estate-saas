@@ -1,113 +1,188 @@
 schema
-
-@link(
-
-url: "https://specs.apollo.dev/federation/v2.11"
-,
-
-import: ["@key", "@shareable", "@external"]
-
-) {
-
-query: Query
-
-mutation: Mutation
-
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@shareable", "@external"]
+  ) {
+  query: Query
+  mutation: Mutation
 }
 
 scalar DateTime
 
 enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
 
-ACTIVE
+enum MembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
 
-SUSPENDED
-
-DELETED
-
+enum MembershipStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+  REMOVED
 }
 
 extend type User @key(fields: "id") {
-
-id: ID! @external
-
+  id: ID! @external
 }
+
+# =========================
+# Tenant
+# =========================
 
 type Tenant @key(fields: "id") {
-
-id: ID! @shareable
-
-name: String! @shareable
-
-slug: String!
-
-status: TenantStatus!
-
-owner: User! # 一对一关系
-
-createdAt: DateTime
-
-updatedAt: DateTime
-
+  id: ID!
+  name: String!
+  slug: String!
+  status: TenantStatus!
+  owner: User!
+  memberships: [Membership!]!
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
+# =========================
+# Membership
+# =========================
+
+type Membership @key(fields: "id") {
+  id: ID!
+  tenant: Tenant!
+  user: User!
+  role: MembershipRole!
+  status: MembershipStatus!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# =========================
+# Pagination
+# =========================
+
 type PageInfo {
-
-total: Int!
-
-hasNextPage: Boolean!
-
+  total: Int!
+  hasNextPage: Boolean!
 }
 
 type TenantConnection {
-
-items: [Tenant!]!
-
-pageInfo: PageInfo!
-
+  items: [Tenant!]!
+  pageInfo: PageInfo!
 }
 
+type MembershipConnection {
+  items: [Membership!]!
+  pageInfo: PageInfo!
+}
+
+# =========================
+# Inputs
+# =========================
+
 input CreateTenantInput {
+  name: String!
+  slug: String!
+}
 
-name: String!
-
-slug: String!
-
-ownerUserId: ID!
-
+input UpdateTenantInput {
+  name: String!
 }
 
 input TenantFilterInput {
-
-keyword: String
-
-status: TenantStatus
-
-limit: Int
-
-offset: Int
-
+  keyword: String
+  status: TenantStatus
+  limit: Int
+  offset: Int
 }
+
+input CreateMembershipInput {
+  tenantId: ID!
+  userId: ID!
+  role: MembershipRole!
+}
+
+input UpdateMembershipInput {
+  role: MembershipRole
+  status: MembershipStatus
+}
+
+input MembershipFilterInput {
+  tenantId: ID!
+  userId: ID
+  role: MembershipRole
+  status: MembershipStatus
+  limit: Int
+  offset: Int
+}
+
+# =========================
+# Query
+# =========================
 
 type Query {
+  getTenant(id: ID!): Tenant
 
-getTenant(id: ID!): Tenant
+  getTenants(
+    filter: TenantFilterInput
+  ): TenantConnection!
 
-getTenants(filter: TenantFilterInput): TenantConnection!
+  getMembership(id: ID!): Membership
 
+  getMemberships(
+    filter: MembershipFilterInput!
+  ): MembershipConnection!
+
+  getMyTenants: [Tenant!]!
+
+  getMyMembership(
+    tenantId: ID!
+  ): Membership
 }
+
+# =========================
+# Mutation
+# =========================
 
 type Mutation {
+  createTenant(
+    input: CreateTenantInput!
+  ): Tenant!
 
-createTenant(input: CreateTenantInput!): Tenant!
+  updateTenant(
+    id: ID!
+    input: UpdateTenantInput!
+  ): Tenant!
 
-updateTenant(id: ID!, name: String!): Tenant!
+  suspendTenant(
+    id: ID!
+  ): Tenant!
 
-suspendTenant(id: ID!): Tenant!
+  switchTenant(
+    tenantId: ID!
+  ): SwitchTenantPayload!
 
-switchTenant(tenantId: ID!): SwitchTenantPayload!
+  createMembership(
+    input: CreateMembershipInput!
+  ): Membership!
 
+  updateMembership(
+    id: ID!
+    input: UpdateMembershipInput!
+  ): Membership!
+
+  removeMembership(
+    id: ID!
+  ): Membership!
 }
+
+# =========================
+# Switch Tenant
+# =========================
 
 type SwitchTenantPayload {
   tenant: Tenant!

@@ -8,14 +8,14 @@ from "tsyringe";
 import {
   IAuditLogRepository
 }
-from "../../../domain/repositories/interface/audit-log.repository.interface";
+from "../../../domain/interface/audit-log.repository.interface";
 
 import {
   CreateAuditLogDTO
 }
 from "../dto/create-audit-log.dto";
 
-import { AuditLogDocument } from "@/modules/audit/infrastructure/database/models/audit-log.model";
+import { AuditLogDocument } from "@/modules/audit/infrastructure/models/audit-log.model";
 import { AuditLog } from "@/modules/audit/domain/types/audit-log.type";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 

@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import dns from "node:dns";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -42,7 +43,7 @@ import PaymentModel from "@/core/payment/infra/model/payment.model";
 import { initBookingModel } from "@/core/booking/infrastructure/models/booking.model";
 import { Sequelize } from "sequelize";
 
-
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const startApolloServer = async () => {
   try {
     // ✅ Robust Path Resolution for Schema

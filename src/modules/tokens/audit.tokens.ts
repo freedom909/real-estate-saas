@@ -8,6 +8,7 @@ export const TOKENS_AUDIT = {
       audit: Symbol.for("audit.models.audit"),
       decisionLog: Symbol.for("audit.models.decisionLog"),
       systemLogModel: Symbol.for("audit.models.systemLogModel"),
+      auditLogModel: Symbol.for("audit.models.auditLogModel"),
     },
 
     repos: {

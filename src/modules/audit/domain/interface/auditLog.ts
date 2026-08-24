@@ -1,8 +1,7 @@
-//
-
 import { AuditStatus, ResourceType } from "@/modules/audit/infrastructure/models/audit-log.model";
 
-export interface CreateAuditLogDTO {
+export interface AuditLog {
+  id: string;
 
   userId?: string;
 
@@ -12,22 +11,17 @@ export interface CreateAuditLogDTO {
 
   action: string;
 
-  resourceId: string;
+  resourceId?: string;
 
-  resourceType: ResourceType;
+  resourceType?: ResourceType;
 
-  status: AuditStatus;
+  status?: AuditStatus;
 
   requestId?: string;
 
   correlationId?: string;
 
-  meta?: {
-  deviceId?: string;
-  ip?: string;
-  userAgent?: string;
-  provider?: string;
-  reason?: string;
-  
-  };
+  meta?: Record<string, unknown>;
+
+  createdAt: Date;
 }

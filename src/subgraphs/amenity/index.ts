@@ -13,19 +13,21 @@ import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
 import { buildSubgraphSchema } from "@apollo/subgraph"
 
-import mongoose from "mongoose"
+
 import { container } from "tsyringe"
 import resolvers from "./resolvers"
 
 import  registerSecurityDependencies  from "../../modules/container/security.register";
-import registerAuditDependencies from "../../modules/container/audit.register"
+
 import registerAmenityDependencies from "@/modules/container/amenity.register"
 
 import { TOKENS_AMENITY } from "@/modules/tokens/amenity.tokens";
 import AmenityModel from "@/core/amenity/infrastructure/models/amenityModel"
+import { registerAuditClientDependencies } from "@/modules/container/audit-client.register"
 await AmenityModel.sync();
 // ⭐ 注册 DI
-registerAuditDependencies(container)
+
+registerAuditClientDependencies(container)
 registerSecurityDependencies();
 registerAmenityDependencies()
 console.log("Amenity container loaded")
@@ -34,11 +36,7 @@ console.log(
   process.env.INTERNAL_SERVICE_TOKEN
 );
 
-// ⭐ Mongo
-await mongoose.connect(
-  process.env.MONGO_URI || "mongodb://localhost:27017/nakano"
-)
-console.log("Mongo connected")
+
 // ⭐ schema
 const typeDefs = gql(
   readFileSync("./src/subgraphs/amenity/schema.graphql", "utf-8")
