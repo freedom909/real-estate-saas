@@ -35,8 +35,7 @@ export default function LoginPage() {
 
         const script = document.createElement("script");
 
-        script.src = "https://accounts.google.com/gsi/client"
-            ;
+        script.src = "https://accounts.google.com/gsi/client";
 
         script.async = true;
 

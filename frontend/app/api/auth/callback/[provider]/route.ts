@@ -52,34 +52,11 @@ async function exchangeGithubCode(code: string): Promise<string> {
   return data.access_token;
 }
 
-async function exchangeGoogleCode(code: string): Promise<string> {
-  // Google OAuth2 code exchange (for redirect-based flow)
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      code,
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/auth/callback/google`,
-      grant_type: "authorization_code",
-    }),
-  });
-
-  const data = await res.json();
-
-  if (data.error) {
-    throw new Error(`Google token exchange failed: ${data.error}`);
-  }
-
-  return data.id_token;
-}
-
 async function exchangeFacebookCode(code: string): Promise<string> {
   const params = new URLSearchParams({
   client_id: process.env.FACEBOOK_CLIENT_ID!,
   client_secret: process.env.FACEBOOK_CLIENT_SECRET!,
-  redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/auth/callback/facebook`,
+  redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/callback/facebook`,
   code,
 });
 
@@ -113,7 +90,13 @@ async function authenticateWithBackend(
   });
 
   const authData = await authResponse.json();
-
+  console.log("[oauth] Backend response:", {
+  hasData: !!authData?.data,
+  hasOauthLogin: !!authData?.data?.oauthLogin,
+  hasAccessToken: !!authData?.data?.oauthLogin?.accessToken,
+  hasRefreshToken: !!authData?.data?.oauthLogin?.refreshToken,
+  errors: authData?.errors?.map((e: any) => e.message),
+});
   if (authData.errors) {
     throw new Error(authData.errors[0]?.message || "Auth failed");
   }
@@ -125,24 +108,29 @@ function setAuthCookies(
   response: NextResponse,
   accessToken: string,
   refreshToken: string,
-  user: { name?: string; email?: string; picture?: string; role:Role }
+  user: {
+    name?: string;
+    email?: string;
+    picture?: string;
+    role: Role;
+  }
 ) {
   const secure = process.env.NODE_ENV === "production";
 
- response.cookies.set(
- "userRole",
- user.role,
-    {
-      httpOnly:false,
-      sameSite:"lax",
-      maxAge:60 * 60 * 24 * 7,
-    }
-);
+  console.log("[cookies] NODE_ENV =", process.env.NODE_ENV);
+  console.log("[cookies] secure =", secure);
+  console.log("[cookies] accessToken =", !!accessToken);
+  console.log("[cookies] refreshToken =", !!refreshToken);
+  console.log("[cookies] user =", {
+    email: user.email,
+    role: user.role,
+  });
 
   response.cookies.set("accessToken", accessToken, {
     httpOnly: false,
     secure,
     sameSite: "lax",
+    path: "/",
     maxAge: 60 * 60,
   });
 
@@ -150,26 +138,49 @@ function setAuthCookies(
     httpOnly: false,
     secure,
     sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
+
+  response.cookies.set("userRole", user.role, {
+    httpOnly: false,
+    secure,
+    sameSite: "lax",
+    path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
 
   response.cookies.set("userName", user.name || "", {
     httpOnly: false,
+    secure,
     sameSite: "lax",
+    path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
 
   response.cookies.set("userEmail", user.email || "", {
     httpOnly: false,
+    secure,
     sameSite: "lax",
+    path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
 
   response.cookies.set("userPicture", user.picture || "", {
     httpOnly: false,
+    secure,
     sameSite: "lax",
+    path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
+
+console.log(
+  "[oauth] FINAL response cookies:",
+  response.cookies.getAll().map(cookie => ({
+    name: cookie.name,
+    path: cookie.path,
+  }))
+);
 
   return response;
 }
@@ -178,7 +189,7 @@ function setAuthCookies(
 
 const exchangeFns: Record<string, (code: string) => Promise<string>> = {
   github: exchangeGithubCode,
-  google: exchangeGoogleCode,
+  // google: exchangeGoogleCode,
   facebook: exchangeFacebookCode,
 };
 
@@ -225,12 +236,18 @@ export async function GET(
       request.url
     );
     console.log(`[${provider}] Backend auth succeeded, user: ${user?.email}`);
-
+    console.log("[oauth] accessToken exists:", !!accessToken);
+    console.log("[oauth] refreshToken exists:", !!refreshToken);
+    console.log("[oauth] user:", user);
     // 3️⃣ Set cookies and redirect
     const response = NextResponse.redirect(
       new URL("/dashboard", request.url)
     );
-
+console.log("[oauth] Setting auth cookies:", {
+  accessToken: !!accessToken,
+  refreshToken: !!refreshToken,
+  userRole: user?.role,
+});
     setAuthCookies(response, accessToken, refreshToken, user);
 
     return response;

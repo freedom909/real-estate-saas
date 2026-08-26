@@ -43,6 +43,9 @@ import imageRouter from "@/gateway/routes/imageRouter"
 
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs"
+import dns from 'dns';
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 async function start() {
   // Connect to MongoDB for REST routes (tenant API)
   const { default: mongoose } = await import("mongoose");

@@ -53,8 +53,12 @@ const authLink = new SetContextLink((prevContext) => {
         }
       : {}),
   };
-
-  console.log("🔥 AUTH LINK FINAL HEADERS =", headers);
+console.log("🔥 AUTH LINK:", {
+  hasAccessToken: !!accessToken,
+  role: accessToken
+    ? JSON.parse(atob(accessToken.split(".")[1])).role
+    : null,
+});
 
   return {
     headers,

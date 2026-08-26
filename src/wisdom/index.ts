@@ -25,9 +25,10 @@ import getUserFromToken from "@/infrastructure/auth/getUserFromToken"
 import { sequelize, connectMySQL } from "@/infrastructure/config/seq"
 import { initBookingModel } from "@/core/booking/infrastructure/models/booking.model"
 import { registerWisdom } from "./container/registrations/wisdom.register"
-
+import dns from 'dns';
 import { registerEventBus } from "@/modules/container/event.bus.register"
 
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 // ⭐ 注册 DI
 registerAuditDependencies(container)
 console.log("  ✅ Audit container loaded")

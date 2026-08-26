@@ -13,7 +13,6 @@ import cors from 'cors';
 import { container } from "tsyringe";
 
 import { sequelize } from "@/infrastructure/config/seq";
-import ListingModel from "@/core/listing/infrastructure/models/listing.model";
 import { initAssociations } from "@/core/listing/infrastructure/models/associations";
 import { resolvers } from './resolvers/listing.resolver';
 import registerAuthDependencies from "../auth/registerAuthDependencies";

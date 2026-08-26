@@ -3,6 +3,7 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { readFileSync } from 'fs';
+import dns from 'dns';
 
 import gql from 'graphql-tag';
 import dotenv from 'dotenv';
@@ -15,7 +16,9 @@ import registerAuditDependencies from '@/modules/container/audit.register';
 import { registerEventBus } from '@/modules/container/event.bus.register';
 import { AuditConsumer } from '@/MQ/consumer/audit.consumer';
 
-
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+// ── 1. Module-level DI registration ──────────────────
+registerAuditDependencies(container);
 
 async function bootstrap() {
  console.log('MONGO_URI =', process.env.MONGO_URI);

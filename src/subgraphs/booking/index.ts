@@ -36,6 +36,8 @@ import { initMongoContainer } from "@/infrastructure/container/initMongoContaine
 import { container } from "tsyringe";
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken";
 import bookingConsumer from "@/MQ/consumer/bookingConsumer";
+import dns from 'dns';
+
 
 
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
@@ -52,6 +54,7 @@ import { sequelize } from "@/infrastructure/config/seq";
 //　await initBookingModel(sequelize);// 初始化模型，确保模型已同步
 //await BookingModel.sync(); // 同步模型到数据库
 
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const startApolloServer = async () => {
   try {
     // ✅ Robust Path Resolution for Schema

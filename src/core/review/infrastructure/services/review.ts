@@ -29,6 +29,7 @@ export interface ReviewProps {
 }
 
 export class Review {
+  ownerId: null;
   constructor(public readonly props: ReviewProps) {
     this.validate();
   }

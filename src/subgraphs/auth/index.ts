@@ -23,13 +23,16 @@ import { buildSubgraphSchema } from "@apollo/subgraph"
 import mongoose from "mongoose"
 import { container } from "tsyringe"
 import resolvers from "./resolvers"
+import dns from 'dns';
 
 import registerAuthDependencies from "./registerAuthDependencies"
 import  registerSecurityDependencies  from "../../modules/container/security.register";
 import registerAuditDependencies from "../../modules/container/audit.register.js"
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 
-
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+// ── 1. Module-level DI registration ──────────────────
+registerAuthDependencies(container);
 // ⭐ 注册 DI
 registerAuditDependencies(container)
 registerSecurityDependencies();

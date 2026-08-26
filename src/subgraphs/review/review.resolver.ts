@@ -40,7 +40,7 @@ export const reviewResolvers = {
       resolveOwnerId: async (_ctx, { id }) => {
         const repo = container.resolve<IReviewRepository>(TOKENS_REVIEW.repository.reviewRepository);
         const review = await repo.findById(id);
-        return review?.customerId ?? null;
+        return review?.ownerId ?? null;
       },
     }),
 

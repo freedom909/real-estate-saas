@@ -17,7 +17,21 @@ export async function oauthLogin(
   });
 
   const authPayload = data!.oauthLogin;
-  useAuthStore.getState().setAuth(authPayload);
+  console.log("[oauth] BEFORE setAuth:", {
+  hasAccessToken: !!authPayload?.accessToken,
+  hasRefreshToken: !!authPayload?.refreshToken,
+  user: authPayload?.user,
+});
+
+useAuthStore.getState().setAuth(authPayload);
+
+const state = useAuthStore.getState();
+
+console.log("[oauth] AFTER setAuth:", {
+  hasAccessToken: !!state.accessToken,
+  hasRefreshToken: !!state.refreshToken,
+  user: state.user,
+});
 
   return authPayload;
 }

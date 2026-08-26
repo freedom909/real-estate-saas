@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser"
 
 import { gql } from "graphql-tag"
 import { readFileSync } from "fs"
+import dns from 'dns';
 
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
@@ -19,7 +20,9 @@ import { registerTenantDependencies } from "../../modules/container/tenant.conta
 import { resolvers } from "./resolvers/tenant.resolver"
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 
-
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+// ── 1. Module-level DI registration ──────────────────
+registerTenantDependencies(container);
 // 🔍 启动时验证 env
 console.log(
   "BOOT USER_SUBGRAPH_URL =",

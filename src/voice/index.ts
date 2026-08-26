@@ -46,12 +46,13 @@ registerVoice()
 console.log("  ✅ Voice container loaded")
 registerEventBus()
 console.log("  ✅ Event Bus container loaded")
+import dns from 'dns';
 
 // ⭐ MySQL — initialize BookingModel so SequelizeBookingRepository works
 await connectMySQL()
 initBookingModel(sequelize)
 console.log("✅ MySQL connected & BookingModel initialized")
-
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 // ⭐ Mongo
 await mongoose.connect(
   process.env.MONGO_URI || "mongodb://localhost:27017/kawaka"

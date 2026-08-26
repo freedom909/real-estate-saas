@@ -10,9 +10,9 @@ import express from "express";
 import http from "http";
 import { expressMiddleware } from "@as-integrations/express4"
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
-import type { RequestHandler } from "express";
-import cors from "cors";
 
+import cors from "cors";
+import dns from 'dns';
 
 import { reviewResolvers as resolvers} from "./review.resolver";
 import { initMongoContainer } from "@/infrastructure/container/initMongoContainer";
@@ -27,7 +27,9 @@ const typeDefs = gql(
   readFileSync("./src/subgraphs/review/schema.graphql", { encoding: "utf-8" })
 );
 
-
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+// ── 1. Module-level DI registration ──────────────────
+registerReviewDependencies();
 const startApolloServer = async () => {
   try {
     // ✅ 初始化 DI（全局 container）
