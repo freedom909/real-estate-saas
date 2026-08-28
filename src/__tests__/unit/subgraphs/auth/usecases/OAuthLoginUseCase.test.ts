@@ -119,7 +119,7 @@ describe("OAuthLoginUseCase", () => {
   };
 
   it("should return SUCCESS for existing user with ALLOW risk", async () => {
-    const mockProvider = { verify: jest.fn<any>().mockResolvedValue(mockProfile) };
+    const mockProvider = { authenticate: jest.fn<any>().mockResolvedValue(mockProfile) };
     mockRegistry.get.mockReturnValue(mockProvider);
     mockIdentityRepo.findByProvider.mockResolvedValue({ userId: "user-1" });
     mockUserGateway.findById.mockResolvedValue(mockUser);
@@ -131,17 +131,18 @@ describe("OAuthLoginUseCase", () => {
 
     const result = await useCase.execute({
       provider: "google",
-      idToken: "token-123",
+      credential: "token-123",
       request: { ip: "127.0.0.1", userAgent: "Chrome", deviceId: "dev-1" },
     });
 
+    expect(mockProvider.authenticate).toHaveBeenCalledWith("token-123");
     expect(result.status).toBe("SUCCESS");
     expect(result.accessToken).toBe("access-123");
     expect(result.refreshToken).toBe("refresh-123");
   });
 
   it("should create new user when identity not found", async () => {
-    const mockProvider = { verify: jest.fn<any>().mockResolvedValue(mockProfile) };
+    const mockProvider = { authenticate: jest.fn<any>().mockResolvedValue(mockProfile) };
     mockRegistry.get.mockReturnValue(mockProvider);
     mockIdentityRepo.findByProvider.mockResolvedValue(null);
     mockUserGateway.findByEmail.mockResolvedValue(null);
@@ -154,7 +155,7 @@ describe("OAuthLoginUseCase", () => {
 
     const result = await useCase.execute({
       provider: "google",
-      idToken: "token-123",
+      credential: "token-123",
       request: { ip: "127.0.0.1", userAgent: "Chrome", deviceId: "dev-1" },
     });
 
@@ -165,7 +166,7 @@ describe("OAuthLoginUseCase", () => {
 
   it("should merge with existing user by email", async () => {
     const existingUser = { ...mockUser, id: "existing-user" };
-    const mockProvider = { verify: jest.fn<any>().mockResolvedValue(mockProfile) };
+    const mockProvider = { authenticate: jest.fn<any>().mockResolvedValue(mockProfile) };
     mockRegistry.get.mockReturnValue(mockProvider);
     mockIdentityRepo.findByProvider.mockResolvedValue(null);
     mockUserGateway.findByEmail.mockResolvedValue(existingUser);
@@ -177,7 +178,7 @@ describe("OAuthLoginUseCase", () => {
 
     const result = await useCase.execute({
       provider: "google",
-      idToken: "token-123",
+      credential: "token-123",
       request: { ip: "127.0.0.1", userAgent: "Chrome", deviceId: "dev-1" },
     });
 
@@ -186,7 +187,7 @@ describe("OAuthLoginUseCase", () => {
   });
 
   it("should return BLOCKED when risk decision is BLOCK", async () => {
-    const mockProvider = { verify: jest.fn<any>().mockResolvedValue(mockProfile) };
+    const mockProvider = { authenticate: jest.fn<any>().mockResolvedValue(mockProfile) };
     mockRegistry.get.mockReturnValue(mockProvider);
     mockIdentityRepo.findByProvider.mockResolvedValue({ userId: "user-1" });
     mockUserGateway.findById.mockResolvedValue(mockUser);
@@ -194,7 +195,7 @@ describe("OAuthLoginUseCase", () => {
 
     const result = await useCase.execute({
       provider: "google",
-      idToken: "token-123",
+      credential: "token-123",
       request: { ip: "127.0.0.1", userAgent: "Chrome", deviceId: "dev-1" },
     });
 
@@ -202,7 +203,7 @@ describe("OAuthLoginUseCase", () => {
   });
 
   it("should return CHALLENGE when risk decision is CHALLENGE", async () => {
-    const mockProvider = { verify: jest.fn<any>().mockResolvedValue(mockProfile) };
+    const mockProvider = { authenticate: jest.fn<any>().mockResolvedValue(mockProfile) };
     mockRegistry.get.mockReturnValue(mockProvider);
     mockIdentityRepo.findByProvider.mockResolvedValue({ userId: "user-1" });
     mockUserGateway.findById.mockResolvedValue(mockUser);
@@ -211,7 +212,7 @@ describe("OAuthLoginUseCase", () => {
 
     const result = await useCase.execute({
       provider: "google",
-      idToken: "token-123",
+      credential: "token-123",
       request: { ip: "127.0.0.1", userAgent: "Chrome", deviceId: "dev-1" },
     });
 
@@ -227,7 +228,7 @@ describe("OAuthLoginUseCase", () => {
     await expect(
       useCase.execute({
         provider: "unknown",
-        idToken: "token",
+        credential: "token",
         request: {},
       })
     ).rejects.toThrow("Unknown provider");

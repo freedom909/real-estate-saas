@@ -20,6 +20,13 @@ jest.mock("tsyringe", () => ({
   },
 }));
 
+jest.mock("@/rbac/policy.engine", () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
+    can: jest.fn(() => true),
+  })),
+}));
+
 import { reviewResolvers } from "@/subgraphs/review/review.resolver";
 import { container } from "tsyringe";
 

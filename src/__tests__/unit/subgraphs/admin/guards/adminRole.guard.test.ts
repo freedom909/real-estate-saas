@@ -71,7 +71,7 @@ describe("adminRole.guard", () => {
       ).rejects.toThrow("Unauthenticated");
     });
 
-    it("should throw UNAUTHORIZED when user has no userId", async () {
+    it("should throw UNAUTHORIZED when user has no userId", async () => {
       const guard = requireAdminRole("ADMIN");
 
       await expect(
