@@ -1,6 +1,7 @@
-import { generateTests } from "../../__tests__/audit/ai/generator";
-import { runTests } from "../../__tests__/audit/ai/runner";
-import { analyzeResult } from "../../__tests__/audit/ai/analyzer";
+
+import { analyzeResult } from "@/subgraphs/__tests__/audit/ai/analyzer";
+import { generateTests } from "@/subgraphs/__tests__/audit/ai/generator";
+import { runTests } from "@/subgraphs/__tests__/audit/ai/runner";
 import { injectable } from "tsyringe";
 
 @injectable()
@@ -19,7 +20,7 @@ export class AuditTestAgent {
     const result = await runTests(tests);
 
     // 3. AI-driven analysis of failure patterns
-    const analysis = await analyzeResult(result);
+    const analysis = analyzeResult(result, tests);
     return analysis;
   }
 }

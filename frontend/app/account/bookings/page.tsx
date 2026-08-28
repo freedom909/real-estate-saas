@@ -167,15 +167,23 @@ function AccountBookingsContent() {
               </div>
               <div className="text-right flex-shrink-0">
                 <div className="text-lg font-bold">¥{booking.price?.toLocaleString()}</div>
-                {["PENDING", "CONFIRMED"].includes(booking.status) && (
-                  <button
-                    onClick={() => handleCancel(booking.id)}
-                    disabled={cancellingId === booking.id}
-                    className="mt-2 text-xs text-red-600 hover:text-red-800 hover:underline disabled:opacity-50"
+                <div className="mt-2 flex flex-col items-end gap-1">
+                  <Link
+                    href={`/bookings/${booking.id}`}
+                    className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
                   >
-                    {cancellingId === booking.id ? "Cancelling..." : "Cancel"}
-                  </button>
-                )}
+                    View Details →
+                  </Link>
+                  {["PENDING", "CONFIRMED"].includes(booking.status) && (
+                    <button
+                      onClick={() => handleCancel(booking.id)}
+                      disabled={cancellingId === booking.id}
+                      className="text-xs text-red-600 hover:text-red-800 hover:underline disabled:opacity-50"
+                    >
+                      {cancellingId === booking.id ? "Cancelling..." : "Cancel"}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}

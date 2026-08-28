@@ -32,13 +32,15 @@ extend type Tenant @key(fields: "id") {
 # Role
 # =====================
 enum Role {
-  ADMIN
-  OWNER
-  AGENT
+  GUEST
   CUSTOMER
+  STAFF
+  MODERATOR
   HOST
-  USER
-  PENDING_HOST
+  AGENT
+  OWNER
+  ADMIN
+  SUPER_ADMIN
 }
 
 # =====================
