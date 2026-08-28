@@ -5,6 +5,7 @@ import { TOKENS_USER } from "../tokens/user.tokens";
 import { UserRepository } from "@/subgraphs/user/infra/repos/user.repo";
 import { BecomeHostUseCase } from "@/subgraphs/user/application/usecase/becomeHost.usecase";
 import CreateOAuthUserUseCase from "@/subgraphs/user/application/usecase/createOAuthUserUseCase";
+import { ProfileRepository } from "@/subgraphs/user/infra/repos/profileRepository";
 
 /**
  * Registers user subgraph dependencies at the module level.
@@ -13,6 +14,7 @@ import CreateOAuthUserUseCase from "@/subgraphs/user/application/usecase/createO
 export default function userRegister() {
   // Single DDD repository — all consumers use this token
   container.register(TOKENS_USER.repos.userRepository, { useClass: UserRepository });
+  container.register(TOKENS_USER.repos.profileRepository, { useClass: ProfileRepository });
 
   // Use Cases
   container.register(TOKENS_USER.usecase.becomeHostUseCase, { useClass: BecomeHostUseCase });

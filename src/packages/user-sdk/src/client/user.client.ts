@@ -1,4 +1,5 @@
 // src/packages/user-sdk/src/client/user.client.ts
+
 import { GraphQLClient } from "graphql-request";
 
 export class UserClient {
@@ -6,14 +7,26 @@ export class UserClient {
     private url: string,
     private serviceToken?: string
   ) {
-    console.log("[UserClient] Initialized with URL:", url, "token present:", !!serviceToken);
+    console.log(
+      "[UserClient] Initialized with URL:",
+      url,
+      "token present:",
+      !!serviceToken
+    );
   }
 
   private get client() {
     const headers: Record<string, string> = this.serviceToken
       ? { "x-service-token": this.serviceToken }
       : {};
-    console.log("[UserClient] Making request to:", this.url, "headers:", headers);
+
+    console.log(
+      "[UserClient] Making request to:",
+      this.url,
+      "headers:",
+      headers
+    );
+
     return new GraphQLClient(this.url, { headers });
   }
 
@@ -25,22 +38,32 @@ export class UserClient {
           id
           role
           email
-          
-          profile {
-      name
-      avatar
-    }
+
         }
       }
     `;
 
-    console.log("[UserClient] findByEmail:", email, "url:", this.url);
+    console.log(
+      "[UserClient] findByEmail:",
+      email,
+      "url:",
+      this.url
+    );
+
     try {
       const data = await this.client.request(query, { email });
-      console.log("[UserClient] findByEmail result:", JSON.stringify(data));
+
+      console.log(
+        "[UserClient] findByEmail result:",
+        JSON.stringify(data)
+      );
+
       return data.userByEmail;
     } catch (err: any) {
-      console.error("[UserClient] findByEmail error:", err.message);
+      console.error(
+        "[UserClient] findByEmail error:",
+        err.message
+      );
       throw err;
     }
   }
@@ -55,17 +78,30 @@ export class UserClient {
           email
           name
           picture
+          profile {
+            name
+            avatar
+          }
         }
       }
     `;
 
     console.log("[UserClient] findById:", userId);
+
     try {
       const data = await this.client.request(query, { id: userId });
-      console.log("[UserClient] findById result:", JSON.stringify(data));
+
+      console.log(
+        "[UserClient] findById result:",
+        JSON.stringify(data)
+      );
+
       return data.user;
     } catch (err: any) {
-      console.error("[UserClient] findById error:", err.message);
+      console.error(
+        "[UserClient] findById error:",
+        err.message
+      );
       throw err;
     }
   }
@@ -75,12 +111,13 @@ export class UserClient {
     const normalizeProvider = (p: string) => {
       const providerMap: Record<string, string> = {
         "https://accounts.google.com": "GOOGLE",
-        "google": "GOOGLE",
-        "apple": "APPLE",
-        "github": "GITHUB",
-        "facebook": "FACEBOOK",
-        "line": "LINE",
+        google: "GOOGLE",
+        apple: "APPLE",
+        github: "GITHUB",
+        facebook: "FACEBOOK",
+        line: "LINE",
       };
+
       return providerMap[p] || p.toUpperCase();
     };
 
@@ -92,6 +129,10 @@ export class UserClient {
           email
           name
           picture
+          profile {
+            name
+            avatar
+          }
         }
       }
     `;
@@ -108,14 +149,33 @@ export class UserClient {
       },
     };
 
-    console.log("[UserClient] createUserFromOAuth input:", JSON.stringify(variables));
-    console.log("[UserClient] createUserFromOAuth url:", this.url);
+    console.log(
+      "[UserClient] createUserFromOAuth input:",
+      JSON.stringify(variables)
+    );
+
+    console.log(
+      "[UserClient] createUserFromOAuth url:",
+      this.url
+    );
+
     try {
-      const data = await this.client.request(mutation, variables);
-      console.log("[UserClient] createUserFromOAuth result:", JSON.stringify(data));
+      const data = await this.client.request(
+        mutation,
+        variables
+      );
+
+      console.log(
+        "[UserClient] createUserFromOAuth result:",
+        JSON.stringify(data)
+      );
+
       return data.createOAuthUser;
     } catch (err: any) {
-      console.error("[UserClient] createUserFromOAuth error:", err.message);
+      console.error(
+        "[UserClient] createUserFromOAuth error:",
+        err.message
+      );
       throw err;
     }
   }

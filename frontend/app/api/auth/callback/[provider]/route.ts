@@ -8,8 +8,8 @@ const AUTH_GRAPHQL_ENDPOINT =
   process.env.AUTH_GRAPHQL_ENDPOINT || "http://127.0.0.1:4010/graphql";
 
 const OAUTH_LOGIN_MUTATION = `
-  mutation OAuthLogin($provider: OAuthProvider!, $idToken: String!) {
-    oauthLogin(provider: $provider, idToken: $idToken) {
+  mutation OAuthLogin($provider: OAuthProvider!, $credential: OAuthCredentialInput!) {
+    oauthLogin(provider: $provider, credential: $credential) {
       accessToken
       refreshToken
       user {
@@ -23,82 +23,44 @@ const OAUTH_LOGIN_MUTATION = `
   }
 `;
 
-// ── Provider-specific token exchange ──────────────────────────
-
-async function exchangeGithubCode(code: string): Promise<string> {
-  console.log("[github] Exchanging code, client_id:", process.env.GITHUB_CLIENT_ID ? "set" : "MISSING");
-  console.log("[github] client_secret:", process.env.GITHUB_CLIENT_SECRET ? "set" : "MISSING");
-
-  const res = await fetch("https://github.com/login/oauth/access_token", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      client_id: process.env.GITHUB_CLIENT_ID,
-      client_secret: process.env.GITHUB_CLIENT_SECRET,
-      code,
-    }),
-  });
-
-  const data = await res.json();
-  console.log("[github] Exchange response:", JSON.stringify({ error: data.error, has_token: !!data.access_token }));
-
-  if (data.error) {
-    throw new Error(`GitHub token exchange failed: ${data.error} - ${data.error_description || ""}`);
-  }
-
-  return data.access_token;
-}
-
-async function exchangeFacebookCode(code: string): Promise<string> {
-  const params = new URLSearchParams({
-  client_id: process.env.FACEBOOK_CLIENT_ID!,
-  client_secret: process.env.FACEBOOK_CLIENT_SECRET!,
-  redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/callback/facebook`,
-  code,
-});
-
-const res = await fetch(
-  `https://graph.facebook.com/v25.0/oauth/access_token?${params.toString()}`
-);
-
-const data = await res.json();
-
-  if (data.error) {
-    throw new Error(`Facebook token exchange failed: ${data.error.message}`);
-  }
-
-  return data.access_token;
-}
-
 // ── Shared: call backend + set cookies ────────────────────────
 
 async function authenticateWithBackend(
   provider: string,
-  idToken: string,
-  origin: string
+  code: string
 ) {
-  const authResponse = await fetch(AUTH_GRAPHQL_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: OAUTH_LOGIN_MUTATION,
-      variables: { provider: provider.toUpperCase(), idToken },
-    }),
-  });
+  const authResponse =
+    await fetch(AUTH_GRAPHQL_ENDPOINT, {
+      method: "POST",
 
-  const authData = await authResponse.json();
-  console.log("[oauth] Backend response:", {
-  hasData: !!authData?.data,
-  hasOauthLogin: !!authData?.data?.oauthLogin,
-  hasAccessToken: !!authData?.data?.oauthLogin?.accessToken,
-  hasRefreshToken: !!authData?.data?.oauthLogin?.refreshToken,
-  errors: authData?.errors?.map((e: any) => e.message),
-});
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+
+      body: JSON.stringify({
+        query:
+          OAUTH_LOGIN_MUTATION,
+
+        variables: {
+          provider:
+            provider.toUpperCase(),
+
+          credential: {
+            code,
+          },
+        },
+      }),
+    });
+
+  const authData =
+    await authResponse.json();
+
   if (authData.errors) {
-    throw new Error(authData.errors[0]?.message || "Auth failed");
+    throw new Error(
+      authData.errors[0]?.message ||
+      "Auth failed"
+    );
   }
 
   return authData.data.oauthLogin;
@@ -187,75 +149,96 @@ console.log(
 
 // ── Route handler ─────────────────────────────────────────────
 
-const exchangeFns: Record<string, (code: string) => Promise<string>> = {
-  github: exchangeGithubCode,
-  // google: exchangeGoogleCode,
-  facebook: exchangeFacebookCode,
-};
-
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ provider: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ provider: string }>;
+  }
 ) {
   const { provider } = await params;
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get("code");
-  const error = searchParams.get("error");
+  provider.toUpperCase()
+  const { searchParams } =
+    new URL(request.url);
+
+  const code =
+    searchParams.get("code");
+
+  const error =
+    searchParams.get("error");
 
   if (error) {
     return NextResponse.redirect(
-      new URL(`/login?error=${error}`, request.url)
+      new URL(
+        `/login?error=${encodeURIComponent(error)}`,
+        request.url
+      )
     );
   }
 
   if (!code) {
     return NextResponse.redirect(
-      new URL("/login?error=no_code", request.url)
-    );
-  }
-
-  const exchangeFn = exchangeFns[provider];
-
-  if (!exchangeFn) {
-    return NextResponse.redirect(
-      new URL(`/login?error=unsupported_provider`, request.url)
+      new URL(
+        "/login?error=no_code",
+        request.url
+      )
     );
   }
 
   try {
-    // 1️⃣ Provider-specific token exchange
-    console.log(`[${provider}] Exchanging code for token...`);
-    const idToken = await exchangeFn(code);
-    console.log(`[${provider}] Token exchange succeeded, token length: ${idToken?.length}`);
+    // ⭐ Route 不负责 OAuth Provider
+    // ⭐ Route 不 exchange code
+    // ⭐ Route 不 get profile
+    // ⭐ Route 只把 code 交给 Auth Backend
 
-    // 2️⃣ Authenticate with backend
-    console.log(`[${provider}] Authenticating with backend...`);
-    const { accessToken, refreshToken, user } = await authenticateWithBackend(
+    const {
+      accessToken,
+      refreshToken,
+      user,
+    } = await authenticateWithBackend(
       provider,
-      idToken,
-      request.url
+      code
     );
-    console.log(`[${provider}] Backend auth succeeded, user: ${user?.email}`);
-    console.log("[oauth] accessToken exists:", !!accessToken);
-    console.log("[oauth] refreshToken exists:", !!refreshToken);
-    console.log("[oauth] user:", user);
-    // 3️⃣ Set cookies and redirect
-    const response = NextResponse.redirect(
-      new URL("/dashboard", request.url)
+
+    console.log(
+      `[${provider}] Backend auth succeeded`
     );
-console.log("[oauth] Setting auth cookies:", {
-  accessToken: !!accessToken,
-  refreshToken: !!refreshToken,
-  userRole: user?.role,
-});
-    setAuthCookies(response, accessToken, refreshToken, user);
+
+    const response =
+      NextResponse.redirect(
+        new URL(
+          "/dashboard",
+          request.url
+        )
+      );
+
+    setAuthCookies(
+      response,
+      accessToken,
+      refreshToken,
+      user
+    );
 
     return response;
-  } catch (err: any) {
-    const errorMsg = err?.message || String(err);
-    console.error(`[${provider}] OAuth callback error:`, errorMsg);
+
+  } catch (err: unknown) {
+
+    const errorMsg =
+      err instanceof Error
+        ? err.message
+        : String(err);
+
+    console.error(
+      `[${provider}] OAuth callback error:`,
+      errorMsg
+    );
+
     return NextResponse.redirect(
-      new URL(`/login?error=auth_failed&detail=${encodeURIComponent(errorMsg)}`, request.url)
+      new URL(
+        `/login?error=auth_failed&detail=${encodeURIComponent(errorMsg)}`,
+        request.url
+      )
     );
   }
 }

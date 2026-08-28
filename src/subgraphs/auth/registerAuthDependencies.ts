@@ -31,11 +31,7 @@ import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevi
 import TrustedDeviceModel from "@/security/infrastructure/models/trusted.device.model";
 import { UserClient } from "@/packages/user-sdk/src/client/user.client";
 import { ProviderRegistry } from "./infrastructure/oauth/provider.registry";
-import { GoogleProvider } from "./infrastructure/oauth/google.provider";
-import { GitHubProvider } from "./infrastructure/oauth/github.provider";
-import { FacebookProvider } from "./infrastructure/oauth/facebook.provider";
 
-import { UserGateway } from "./infrastructure/gateways/user.gateway.impl";
 import EvaluateRiskUseCase from "@/security/application/evaluateRisk.usecase";
 import { ChallengeModel } from "./infrastructure/models/challenge.model";
 import ChallengeRepo from "./infrastructure/repos/challenge.repo";
@@ -46,6 +42,10 @@ import { IdentityRepository } from "./infrastructure/repos/identity.repo";
 import { IdentityModel } from "./infrastructure/models/identity.model";
 import { JwtService } from "./infrastructure/services/jwt.service";
 import SessionModel from "./infrastructure/models/session.model";
+import { GoogleOAuthProvider } from "./infrastructure/oauth/google.oauthProvider";
+import { GitHubOAuthProvider } from "./infrastructure/oauth/github.oauthProvider";
+import { FacebookOAuthProvider } from "./infrastructure/oauth/facebook.oauthProvider";
+import { UserGateway } from "./infrastructure/gateways/user.gateway.impl";
 
 export default function registerAuthDependencies(container: DependencyContainer) {
 
@@ -75,15 +75,15 @@ export default function registerAuthDependencies(container: DependencyContainer)
   
   // ================= PROVIDERS =================
   container.register("GoogleProvider", {
-    useClass: GoogleProvider
+    useClass: GoogleOAuthProvider
   });
 
   container.register("GitHubProvider", {
-    useClass: GitHubProvider
+    useClass: GitHubOAuthProvider
   });
 
   container.register("FacebookProvider", {
-    useClass: FacebookProvider
+    useClass: FacebookOAuthProvider
   });
 
   container.register(TOKENS_AUTH.usecases.providerRegistry, {

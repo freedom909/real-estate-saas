@@ -4,7 +4,7 @@ export const handleGitHubLogin = () => {
   console.log("GitHub Login clicked");
 
   const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
-  const redirectUri = `${window.location.origin}/auth/callback/github`;
+  const redirectUri = `${window.location.origin}/api/auth/callback/github`;
 
   console.log("GitHub clientId:", clientId ? `${clientId.substring(0, 6)}...` : "MISSING");
   console.log("GitHub redirectUri:", redirectUri);

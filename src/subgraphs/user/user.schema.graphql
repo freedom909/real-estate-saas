@@ -40,7 +40,7 @@ type User @key(fields: "id") {
   lastLoginAt: DateTime @shareable
   isActive: Boolean! @shareable
   avatar: String
-  profile: Profile! @shareable
+  profile: Profile @shareable
   tenant: Tenant @shareable
 
   bookings: [Booking!]! @shareable

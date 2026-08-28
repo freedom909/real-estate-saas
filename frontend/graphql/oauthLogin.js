@@ -1,12 +1,22 @@
 import { gql } from "@apollo/client";
 
 export const OAUTH_LOGIN = gql`
-  mutation OAuthLogin($provider: OAuthProvider!, $idToken: String!) {
-    oauthLogin(provider: $provider, idToken: $idToken) {
+ mutation OAuthLogin(
+    $provider: OAuthProvider!,
+    $credential: OAuthCredentialInput!
+  ) {
+    oauthLogin(
+      provider: $provider,
+      credential: $credential
+    ) {
       accessToken
       refreshToken
+
       user {
         id
+        email
+        name
+        picture
         role
       }
     }

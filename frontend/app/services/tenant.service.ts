@@ -1,3 +1,6 @@
+//src/services/tenant.service.ts
+"use server";
+
 import { useAuthStore } from "../store/auth.store";
 
 const API_BASE = "http://localhost:4000/api/tenants";

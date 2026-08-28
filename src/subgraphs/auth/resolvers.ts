@@ -113,57 +113,119 @@ export default {
   },
 
   Mutation: {
-    oauthLogin: async (
-      _: unknown,
-      { provider, idToken }: { provider: string; idToken: string },
-      ctx: Context
-    ) => {
-      console.log(
-        "========== AUTH OAUTH LOGIN CALLED =========="
-      );
+   oauthLogin: async (
+  _,
+  {
+    provider,
+    credential,
+  }: {
+    provider: string;
+    credential: {
+      code?: string;
+      accessToken?: string;
+      idToken?: string;
+    };
+  },
+  ctx: Context
+) => {
 
-      console.log(
-        "provider:",
-        provider
-      );
+  console.log(
+    "========== AUTH OAUTH LOGIN CALLED =========="
+  );
 
-      console.log(
-        "token length:",
-        idToken?.length
-      );
-      const usecase = ctx.container.resolve<OAuthLoginUseCase>(
-        TOKENS_AUTH.usecases.oauthLoginUseCase
-      );
+  console.log(
+    "provider:",
+    provider
+  );
 
-      const result = await usecase.execute({
-        provider,
-        idToken,
-        request: {
-          ip: ctx.req.ip || (ctx.req.headers["x-forwarded-for"] as string) || "127.0.0.1",
-          userAgent: ctx.req.headers["user-agent"] || "unknown",
-          deviceId: (ctx.req.headers["x-device-id"] as string) || "unknown",
-        },
-      });
+  console.log(
+    "credential:",
+    {
+      hasCode: !!credential?.code,
+      hasAccessToken: !!credential?.accessToken,
+      hasIdToken: !!credential?.idToken,
+    }
+  );
+console.log(
+  "[GitHub OAuth] CLIENT_ID:",
+  process.env.GITHUB_CLIENT_ID
+);
 
-      console.log("__typename:", result)
-      if (result.status === "SUCCESS") {
-        return {
-          __typename: "AuthPayload",
+console.log(
+  "[GitHub OAuth] SECRET PRESENT:",
+  !!process.env.GITHUB_CLIENT_SECRET
+);
+  const usecase =
+    ctx.container.resolve<OAuthLoginUseCase>(
+      TOKENS_AUTH.usecases.oauthLoginUseCase
+    );
 
-          accessToken: result.accessToken,
-          refreshToken: result.refreshToken,
+  const result =
+    await usecase.execute({
+      provider,
+      credential,
 
-          user: {
-            __typename: "AuthUser",
-            id: result.user.id,
-            email: result.user.email,
-            name: result.user.name,
-            picture: result.user.picture,
-             role:result.user.role ?? "CUSTOMER"
-          },
-        };
-      }
-    },
+      request: {
+        ip:
+          ctx.req.ip ||
+          (ctx.req.headers[
+            "x-forwarded-for"
+          ] as string) ||
+          "127.0.0.1",
+
+        userAgent:
+          ctx.req.headers[
+            "user-agent"
+          ] || "unknown",
+
+        deviceId:
+          (ctx.req.headers[
+            "x-device-id"
+          ] as string) || "unknown",
+      },
+    });
+
+  console.log(
+    "OAuth result:",
+    result.status
+  );
+
+  if (result.status === "SUCCESS") {
+    return {
+      __typename: "AuthPayload",
+
+      accessToken:
+        result.accessToken,
+
+      refreshToken:
+        result.refreshToken,
+
+      user: {
+        __typename: "AuthUser",
+
+        id:
+          result.user.id,
+
+        email:
+          result.user.email,
+
+        name:
+          result.user.name,
+
+        picture:
+          result.user.picture,
+
+        role:
+          result.user.role ??
+          "CUSTOMER",
+      },
+    };
+  }
+
+  // BLOCK / CHALLENGE
+
+  // 这里暂时按照你当前 GraphQL 的设计继续处理
+},
 
     // ── Refresh Token ──────────────────────────────────────────
     refreshToken: async (

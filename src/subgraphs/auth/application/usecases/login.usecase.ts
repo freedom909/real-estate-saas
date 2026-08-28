@@ -25,7 +25,7 @@ export class OAuthLoginUseCase {
     @inject(TOKENS_AUTH.ports.userGateway)
     private userGateway: IUserGateway,
 
-    @inject(TOKENS_SECURITY.evaluateRiskUseCase)//it belongs to the 'security layer'
+    @inject(TOKENS_SECURITY.evaluateRiskUseCase)
     private riskUseCase: EvaluateRiskUseCase,
 
     @inject(TOKENS_AUTH.repos.challengeRepo)
@@ -42,7 +42,7 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
 
   // 1️⃣ provider verify
   const provider = this.registry.get(cmd.provider.toLowerCase());
-  const profile = await provider.verify(cmd.idToken);
+  const profile = await provider.authenticate(cmd.credential);
   console.log("[login] Provider profile:", JSON.stringify({ provider: profile.provider, providerId: profile.providerId, email: profile.email }));
 
   // 2️⃣ 查 identity（核心！！！）

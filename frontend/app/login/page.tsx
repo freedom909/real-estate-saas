@@ -23,7 +23,7 @@ const socialButtonStyle: CSSProperties = {
 };
 
 export default function LoginPage() {
-    console.log(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID, process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET)
+    console.log(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID)
     const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
 
     const initialized = useRef(false);
@@ -57,7 +57,7 @@ export default function LoginPage() {
 
                         const idToken = response.credential;
 
-                        const result = await oauthLogin("GOOGLE", idToken);
+                        const result = await oauthLogin("GOOGLE", {idToken});
 
                         if (!result?.accessToken) return;
 

@@ -4,7 +4,7 @@
 
 import { ApolloProvider } from "@apollo/client/react";
 import { client } from "../lib/apolloClient";
-import TenantSync from "./tenant-sync";
+// import TenantSync from "./tenant-sync";
 import { useAuthStore } from "../store/auth.store";
 import { useEffect } from "react";
 
@@ -106,7 +106,7 @@ export default function Providers({
   return (
     <ApolloProvider client={client}>
       <SyncAuthFromCookies />
-      <TenantSync />
+      {/* <TenantSync /> */}
       {children}
     </ApolloProvider>
   );

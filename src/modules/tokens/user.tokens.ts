@@ -18,6 +18,7 @@ export const TOKENS_USER = {
     /** Single DDD repository — all consumers use this. */
     userRepository: Symbol.for("user.repos.userRepository"),
     profileRepo: Symbol.for("user.repos.profileRepo"),
+    profileRepository: Symbol.for("user.repos.profileRepository"),
   },
 
   services: {
@@ -28,6 +29,7 @@ export const TOKENS_USER = {
     createOAuthUserUseCase: Symbol.for("user.usecase.createOAuthUserUseCase"),
     becomeHostUseCase: Symbol.for("user.usecase.becomeHostUseCase"),
     mergeAccountUseCase: Symbol.for("user.usecase.mergeAccountUseCase"),
+    profileServiceUseCase: Symbol.for("user.usecase.profileServiceUseCase"),
   },
 
   mergeAccountService: Symbol.for("user.services.mergeAccountService"),

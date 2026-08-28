@@ -77,6 +77,7 @@ export default class UserService {
       tokenVersion: user.tokenVersion,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      profile: user.profile,
     };
   }
 }

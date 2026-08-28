@@ -1,7 +1,7 @@
 // domain/services/oauthProvider.interface.ts
 
 export interface OAuthProfile {
-  provider: string;
+  provider: OAuthProviderType;
   providerId: string; // ⭐ 必须
   email?: string;
   name?: string;
@@ -12,5 +12,13 @@ export interface OAuthProfile {
 }
 
 export interface OAuthProvider {
-  verify(idToken: string): Promise<OAuthProfile>;
+authenticate(credential: OAuthCredential): Promise<OAuthProfile>;
+}
+
+export type OAuthProviderType = "google" | "github" | "facebook";
+
+export interface OAuthCredential {
+  code?: string;
+  accessToken?: string;
+  idToken?: string;
 }

@@ -4,7 +4,7 @@ export const handleFacebookLogin = () => {
   console.log("Facebook Login");
 
   const clientId = process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID || process.env.FACEBOOK_CLIENT_ID;
-  const redirectUri = `${window.location.origin}/auth/callback/facebook`;
+  const redirectUri = `${window.location.origin}/api/auth/callback/facebook`;
 
   if (!clientId) {
     console.error("FACEBOOK_CLIENT_ID is not configured");

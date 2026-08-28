@@ -4,6 +4,8 @@ import { container } from "tsyringe";
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import UserService from "../services/user.service";
 import { BecomeHostUseCase } from "../application/usecase/becomeHost.usecase";
+import { ProfileServiceUseCase } from "../application/usecase/profileService.usercase";
+import { ProfileRepository } from "../infra/repos/profileRepository";
 
 interface ResolverContext {
   container: typeof container;
@@ -36,6 +38,11 @@ const resolvers = {
     ) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.findById(reference.id);
+    },
+
+    profile: async (_parent: UserReference, _args: unknown, { container }: ResolverContext) => {
+      const profileService = container.resolve<ProfileServiceUseCase>(TOKENS_USER.usecase.profileServiceUseCase);
+      return profileService.findByUserId(_parent.id);
     },
   },
 

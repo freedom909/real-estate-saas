@@ -1,6 +1,7 @@
 // user.dto.ts
 
 import { Role } from "@/core/shared/domain/role";
+import { Profile } from "../domain/entities/profile";
 
 
 export interface UserResponse {
@@ -16,6 +17,7 @@ export interface UserResponse {
  picture:string;
 
  role:Role;
+ profile:Profile | undefined;
 
  status:string;
 

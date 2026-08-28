@@ -6,14 +6,18 @@ import { OAUTH_LOGIN, REFRESH_TOKEN, LOGOUT } from "../graphql/auth/auth.mutatio
 import { AuthPayload, useAuthStore } from "../store/auth.store";
 
 // ── OAuth Login ───────────────────────────────────────────────
-
+export interface OAuthCredentialInput {
+  code?: string;
+  accessToken?: string;
+  idToken?: string;
+}
 export async function oauthLogin(
   provider: string,
-  idToken: string
+  credential: OAuthCredentialInput // Cannot find name 'OAuthCredential'. Did you mean 'Credential'?
 ): Promise<AuthPayload> {
   const { data } = await client.mutate<{ oauthLogin: AuthPayload }>({
     mutation: OAUTH_LOGIN,
-    variables: { provider, idToken },
+    variables: { provider, credential },
   });
 
   const authPayload = data!.oauthLogin;

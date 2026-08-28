@@ -19,6 +19,7 @@ import { TenantModel } from "@/core/tenant/infrastructure/models/tenant.model";
 import MembershipModel from "@/core/tenant/infrastructure/models/membership.model";
 import { UserAdapter } from "@/core/tenant/adapter/user.adapter";
 import { TOKENS_TENANT } from "@/modules/tokens/tenant.tokens";
+import { ProfileServiceUseCase } from "./application/usecase/profileService.usercase";
 
 export function registerUserDependencies(container: DependencyContainer) {
   // ── Models ─────────────────────────────────────────
@@ -30,6 +31,7 @@ export function registerUserDependencies(container: DependencyContainer) {
   // ── Use Cases ──────────────────────────────────────
   container.register(TOKENS_USER.usecase.becomeHostUseCase, { useClass: BecomeHostUseCase });
   container.register(TOKENS_USER.usecase.createOAuthUserUseCase, { useClass: CreateOAuthUserUseCase });
+  container.register(TOKENS_USER.usecase.profileServiceUseCase, { useClass: ProfileServiceUseCase });
 
   // ── Service ────────────────────────────────────────
   container.register(TOKENS_USER.services.userService, { useClass: UserService });

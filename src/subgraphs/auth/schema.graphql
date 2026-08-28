@@ -182,6 +182,11 @@ type OAuthLoginResponse {
   requiresChallenge: Boolean
 }
 
+input OAuthCredentialInput {
+  code: String
+  accessToken: String
+  idToken: String
+}
 # =====================
 # Mutation
 # =====================
@@ -192,7 +197,7 @@ type Mutation {
   verifyOtp(challengeId: ID!, code: String!): AuthPayload
   bindOAuthAccount(provider: OAuthProvider!, idToken: String!): Boolean!
   unbindOAuthAccount(provider: OAuthProvider!): Boolean!
-  oauthLogin(provider: OAuthProvider!, idToken: String!): AuthPayload!
+  oauthLogin(provider: OAuthProvider!, credential: OAuthCredentialInput!): AuthPayload!
   bindOAuth(provider: OAuthProvider!, idToken: String!): Boolean!
   unbindOAuth(provider: OAuthProvider!): Boolean!
 }
