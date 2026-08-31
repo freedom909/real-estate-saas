@@ -56,7 +56,7 @@ const startApolloServer = async () => {
       WHERE l.id IS NULL
     `);
 
-    await sequelize.sync({ alter: true });
+    //await sequelize.sync({ alter: true });
 
     console.info("MySQL connected");
 
