@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy (Backend)
 
 on:
   workflow_run:
@@ -6,10 +6,16 @@ on:
     types: [completed]
     branches: [main]
 
+concurrency:
+  group: deploy-backend-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
+    name: Deploy backend to Railway
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    timeout-minutes: 20
+    if: github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Check for Railway token
@@ -19,7 +25,7 @@ jobs:
             echo "has_token=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_token=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::RAILWAY_TOKEN secret not configured — skipping deployment"
+            echo "::notice::RAILWAY_TOKEN secret not configured — skipping backend deployment"
           fi
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
@@ -28,12 +34,29 @@ jobs:
         if: steps.check-token.outputs.has_token == 'true'
         uses: actions/checkout@v4
 
+      - name: Setup Node.js 20
+        if: steps.check-token.outputs.has_token == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.check-token.outputs.has_token == 'true'
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
+
       - name: Install Railway CLI
         if: steps.check-token.outputs.has_token == 'true'
-        run: npm install -g @railway/cli
+        run: npm install -g @railway/cli@latest
 
       - name: Deploy to Railway
         if: steps.check-token.outputs.has_token == 'true'
         run: railway up --service backend --project bb75c99e-082e-4f2f-b4d6-e2784b5759ac --environment production --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        timeout-minutes: 15

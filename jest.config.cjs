@@ -4,6 +4,21 @@ module.exports = {
   testEnvironment: "node",
   testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.spec.ts"],
   testPathIgnorePatterns: ["/node_modules/", "__tests__/e2e/"],
+  collectCoverageFrom: [
+    "src/**/*.ts",
+    "!src/**/*.d.ts",
+    "!src/**/__tests__/**",
+    "!src/seeds/**",
+  ],
+  coverageReporters: ["text", "text-summary", "lcov", "json-summary"],
+  coverageThreshold: {
+    global: {
+      lines: 80,
+      functions: 80,
+      branches: 80,
+      statements: 80,
+    },
+  },
   moduleNameMapper: {
     "^(\\.\\.?/.*)\\.js$": "$1",
     "^@/(.*)\\.js$": "<rootDir>/src/$1",

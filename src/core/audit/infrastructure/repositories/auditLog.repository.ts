@@ -72,6 +72,33 @@ export class AuditLogRepository implements IAuditLogRepository {
     return this.model.countDocuments(query).exec();
   }
 
+  async findById(id: string): Promise<AuditLog | null> {
+    const record = await this.model.findById(id).exec();
+    return record ? this.toDomain(record) : null;
+  }
+
+  async find(
+    filter: any,
+    options?: { limit?: number; skip?: number; sort?: any }
+  ): Promise<AuditLog[]> {
+    const cursor = this.model.find(filter);
+
+    if (options?.sort !== undefined) cursor.sort(options.sort);
+    else cursor.sort({ createdAt: -1 });
+
+    if (options?.skip !== undefined) cursor.skip(options.skip);
+
+    if (options?.limit !== undefined) cursor.limit(options.limit);
+    else cursor.limit(50);
+
+    const records = await cursor.exec();
+    return records.map((record) => this.toDomain(record));
+  }
+
+  async count(filter: any): Promise<number> {
+    return this.model.countDocuments(filter).exec();
+  }
+
   async findByUserId(
     userId: string,
     options?: AuditLogQueryOptions
@@ -172,7 +199,6 @@ export class AuditLogRepository implements IAuditLogRepository {
       status: record.status,
       requestId: record.requestId,
       correlationId: record.correlationId,
-      
       createdAt: record.createdAt,
     };
   }

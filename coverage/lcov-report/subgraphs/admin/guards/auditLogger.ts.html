@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -132,13 +132,15 @@
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -156,16 +158,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -175,9 +169,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -191,7 +198,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -203,11 +209,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/subgraphs/admin/guards/auditLogger.ts
 &nbsp;
-import { container } from "tsyringe";
-import { v4 as uuidv4 } from "uuid";
 import { TOKENS_ADMIN } from "@/modules/tokens/admin.tokens";
-import { IAuditLogRepository } from "@/core/admin/domain/entities/IAuditLogRepository";
-import { AuditLog } from "@/core/admin/domain/entities/auditLog";
+import { container } from "tsyringe";
+import { AdminAuditACL } from "@/core/admin/application/acl/admin.auditACL";
 &nbsp;
 export interface AuditContext {
   action: string;
@@ -219,40 +223,46 @@ export interface AuditContext {
 /**
  * Create an audit log entry for an admin action.
  * Called after a mutation succeeds.
+ * Delegates 100% to AdminAuditACL (anticorruption layer against the Audit module).
  */
 export async function logAuditAction(
   context: any,
   audit: AuditContext
 ): Promise&lt;void&gt; {
   try {
-    const adminId = context?.admin?.id || context?.user?.userId || "unknown";
-    const ip = context?.req?.ip || context?.req?.headers?.["x-forwarded-for"] || "unknown";
+    const adminId =
+      context?.admin?.id ||
+      context?.user?.userId ||
+      "unknown";
 &nbsp;
-    const auditLog = new AuditLog({
-      id: uuidv4(),
+    const ipRaw =
+      context?.req?.ip ||
+      context?.req?.headers?.["x-forwarded-for"] ||
+      "unknown";
+&nbsp;
+    const ip = typeof ipRaw === "string" ? ipRaw : <span class="branch-1 cbranch-no" title="branch not covered" >ipRaw?.[0] || "unknown";</span>
+    const userAgent = context?.req?.headers?.["user-agent"];
+&nbsp;
+    const acl = container.resolve&lt;AdminAuditACL&gt;(TOKENS_ADMIN.acl.adminAuditACL);
+    await acl.recordAdminAction({
       adminId,
       action: audit.action,
       target: audit.target,
       targetId: audit.targetId,
       details: audit.details,
-      ip: typeof ip === "string" ? ip : <span class="branch-1 cbranch-no" title="branch not covered" >ip[0] || "unknown",</span>
-      createdAt: new Date(),
+      ip,
+      userAgent,
     });
-&nbsp;
-    const repo = container.resolve&lt;IAuditLogRepository&gt;(
-      TOKENS_ADMIN.repos.auditLogRepository
-    );
-&nbsp;
-    await repo.create(auditLog);
   } catch (err) {
-    // Don't let audit logging failures break the main operation
-    console.error("[AuditLog] Failed to create audit entry:", err);
+    console.error(
+      "[AuditLog] Failed to create audit entry via AdminAuditACL:",
+      err
+    );
   }
 }
 &nbsp;
 /**
- * Wrap a resolver with automatic audit logging.
- * The resolver must return an object that can be used to build the audit entry.
+ * Wrap a resolver with automatic audit logging (via ACL → Audit module).
  */
 export function withAuditLog(
   resolver: Function,
@@ -261,7 +271,6 @@ export function withAuditLog(
   return async (parent: any, args: any, context: any, info: any) =&gt; {
     const result = await resolver(parent, args, context, info);
 &nbsp;
-    // Only log successful operations
     if (result !== null &amp;&amp; result !== undefined) {
       const auditContext = auditBuilder(result, args, context);
       await logAuditAction(context, auditContext);
@@ -277,7 +286,7 @@ export function withAuditLog(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-28T09:42:49.566Z
+                at 2026-08-31T13:17:15.368Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

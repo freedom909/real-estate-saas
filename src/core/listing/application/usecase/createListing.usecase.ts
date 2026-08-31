@@ -94,8 +94,8 @@ export default class CreateListingUseCase {
     }
   }
 
-  async execute(input: CreateListingInput, role: string): Promise<any> {
-    if (role !== "HOST") {
+  async execute(input: CreateListingInput, role: string = "HOST"): Promise<any> {
+    if (role !== "HOST" && role !== "ADMIN" && role !== "SUPER_ADMIN") {
       throw new Error("User is not allowed to create a listing");
     }
     this.validateInput(input);

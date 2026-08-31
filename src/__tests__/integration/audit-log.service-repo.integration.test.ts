@@ -10,11 +10,13 @@
  *
  * Run: npx jest src/__tests__/integration/audit-log.service-repo.integration.test.ts --no-cache
  */
+// src/__tests__/integration/audit-log.service-repo.integration.test.ts
+
 import "reflect-metadata";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { AuditLogRepository } from "@/core/audit/infrastructure/repositories/auditLog.repository";
-
-
+import { CreateAuditLogDTO } from "@/core/audit/application/write/dto/create-audit-log.dto";
+import { AuditLogService } from "@/core/audit/application/write/audit-log.service";
 
 describe("AuditLogService + AuditLogRepository (integration)", () => {
   let mockModel: any;
@@ -22,7 +24,7 @@ describe("AuditLogService + AuditLogRepository (integration)", () => {
   let service: AuditLogService;
 
   const createExecMock = <T,>(result: T) => ({
-    exec: jest.fn<Promise<T>>().mockResolvedValue(result),
+    exec: jest.fn<() => Promise<T>>().mockResolvedValue(result),
   });
 
   beforeEach(() => {

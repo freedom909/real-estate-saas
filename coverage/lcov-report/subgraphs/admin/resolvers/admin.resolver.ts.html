@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40% </span>
+                <span class="strong">42.85% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/5</span>
+                <span class='fraction'>3/7</span>
             </div>
         
             
@@ -356,14 +356,10 @@
 <a name='L291'></a><a href='#L291'>291</a>
 <a name='L292'></a><a href='#L292'>292</a>
 <a name='L293'></a><a href='#L293'>293</a>
-<a name='L294'></a><a href='#L294'>294</a>
-<a name='L295'></a><a href='#L295'>295</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L294'></a><a href='#L294'>294</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -385,6 +381,8 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -660,9 +658,6 @@ import CreateAdminUserUseCase from "@/core/admin/application/usecase/createAdmin
 import GetAdminUserByIdUseCase from "@/core/admin/application/usecase/getUserById.usecase";
 import UpdateAdminUserUseCase from "@/core/admin/application/usecase/updateAdminUser.usecase";
 import DeleteAdminUserUseCase from "@/core/admin/application/usecase/deleteUser.usecase";
-import CreateAuditLogUseCase from "@/core/admin/application/usecase/createAuditLog.usecase";
-import GetAuditLogsUseCase from "@/core/admin/application/usecase/getAuditLogs.usecase";
-import GetAuditLogCountUseCase from "@/core/admin/application/usecase/getAuditLogCount.usecase";
 import GetDashboardStatsUseCase from "@/core/admin/application/usecase/getDashboardStats.usecase";
 import GetSystemSettingsUseCase from "@/core/admin/application/usecase/getSystemSettings.usecase";
 import UpdateSystemSettingUseCase from "@/core/admin/application/usecase/updateSystemSetting.usecase";
@@ -673,13 +668,15 @@ import MarkNotificationReadUseCase from "@/core/admin/application/usecase/markNo
 import DeleteNotificationUseCase from "@/core/admin/application/usecase/deleteNotification.usecase";
 &nbsp;
 import { IAdminUserRepository } from "@/core/admin/domain/entities/IAdminUserRepository";
-import { IAuditLogRepository } from "@/core/admin/domain/entities/IAuditLogRepository";
+&nbsp;
 import { requireAdminRole, requirePermission } from "../guards/adminRole.guard";
 import { Permission, getPermissions } from "../guards/adminPermissions";
 import { logAuditAction, withAuditLog } from "../guards/auditLogger";
 import UpdateAdminAccountUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
 import { Role } from "@/core/shared/domain/role";
 import GetAllAdminsUseCase from "@/core/admin/application/usecase/getAllAdmins.usecase";
+import { AdminAuditACL } from "@/core/admin/application/acl/admin.auditACL";
+&nbsp;
 &nbsp;
 // Helper: wrap resolver with permission guard
 function withPermission(resolver: Function, permission: Permission) {
@@ -703,10 +700,10 @@ export const resolvers = {
   Query: {
     // Dashboard
     adminDashboard: withPermission(async () =&gt; {
-      const auditRepo = container.resolve&lt;IAuditLogRepository&gt;(
-        TOKENS_ADMIN.repos.auditLogRepository
+      const acl = container.resolve&lt;AdminAuditACL&gt;(
+        TOKENS_ADMIN.acl.adminAuditACL
       );
-      const recentLogs = await auditRepo.findAll(10);
+      const recentLogs = await acl.listRecentAdminAuditLogs(50);
       return {
         totalUsers: 0,
         totalListings: 0,
@@ -763,17 +760,17 @@ adminUsers: withPermission(async () =&gt; {
 &nbsp;
     // Audit Logs
     adminAuditLogs: withPermission(async (_: any, { limit, filter }: { limit?: number; filter?: any }) =&gt; {
-      const useCase = container.resolve&lt;GetAuditLogsUseCase&gt;(
-        TOKENS_ADMIN.usecase.getAuditLogsUseCase
+      const acl = container.resolve&lt;AdminAuditACL&gt;(
+        TOKENS_ADMIN.acl.adminAuditACL
       );
-      return useCase.execute(limit, filter);
+      return acl.listAdminAuditLogs(limit ?? <span class="branch-1 cbranch-no" title="branch not covered" >50,</span> filter);
     }, "audit_logs:view"),
 &nbsp;
     adminAuditLogCount: withPermission(async (_: any, { filter }: { filter?: any }) =&gt; {
-      const useCase = container.resolve&lt;GetAuditLogCountUseCase&gt;(
-        TOKENS_ADMIN.usecase.getAuditLogCountUseCase
+      const acl = container.resolve&lt;AdminAuditACL&gt;(
+        TOKENS_ADMIN.acl.adminAuditACL
       );
-      return useCase.execute(filter);
+      return acl.countAdminAuditLogs(filter);
     }, "audit_logs:view"),
 &nbsp;
     // Settings
@@ -862,10 +859,10 @@ adminUsers: withPermission(async () =&gt; {
 &nbsp;
     // Audit Logs
     createAdminAuditLog: withPermission(async (_: any, { input }: any) =&gt; {
-      const useCase = container.resolve&lt;CreateAuditLogUseCase&gt;(
-        TOKENS_ADMIN.usecase.createAuditLogUseCase
+      const acl = container.resolve&lt;AdminAuditACL&gt;(
+        TOKENS_ADMIN.acl.adminAuditACL
       );
-      return useCase.execute(input);
+      return acl.recordAdminAction(input);
     }, "audit_logs:create"),
 &nbsp;
     // Profile — with audit logging
@@ -952,7 +949,7 @@ adminUsers: withPermission(async () =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-28T09:42:49.566Z
+                at 2026-08-31T13:17:15.368Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

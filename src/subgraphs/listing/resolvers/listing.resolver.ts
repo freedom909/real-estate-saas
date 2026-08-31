@@ -123,11 +123,26 @@ export const resolvers = {
   Mutation: {
 
     createListing: async (_: any, { input }: any, context: any) => {
-      const role = context.user.role;
+      if (!context.user) {
+        throw new Error("User not authenticated");
+      }
+      const userId: string = context.user.userId;
+      const role: string = context.user.role;
+      const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
+
+      const resolvedOwnerId: string = isAdmin
+        ? (input.ownerId || userId)
+        : userId;
+
+      const enrichedInput = {
+        ...input,
+        ownerId: resolvedOwnerId,
+      };
+
       const useCase = container.resolve<CreateListingUseCase>(
         TOKENS_LISTING.usecase.createListingUseCase
       );
-      return await useCase.execute(input, role);
+      return await useCase.execute(enrichedInput, role);
     },
 
     updateListing: async (_: any, { input }: any, context: any) => {

@@ -481,20 +481,20 @@ function CreateListingContent() {
 
         {/* Location Dropdown */}
         <div>
-          <label className="block text-sm font-medium mb-1">Location</label>
+          {/* <label className="block text-sm font-medium mb-1">Location</label>
           <select
             name="locationId"
             value={form.locationId}
             onChange={handleChange}
             className="w-full border rounded-lg p-3"
-          >
-            <option value="">-- Select a location --</option>
+          > */}
+            {/* <option value="">-- Select a location --</option>
             {locations.map((loc) => (
               <option key={loc.id} value={loc.id}>
                 {loc.name} ({loc.city}, {loc.province}, {loc.country})
               </option>
-            ))}
-          </select>
+            ))} */}
+          {/* </select> */}
         </div>
 
         {/* Categories */}

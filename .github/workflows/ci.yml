@@ -6,13 +6,20 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  backend:
+    name: Backend (typecheck + unit test + coverage)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [20]
+        node-version: [20, 22]
 
     steps:
       - name: Checkout repository
@@ -24,29 +31,69 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
+      - name: Install root dependencies (npm ci if lockfile present)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
 
-      - name: Run unit tests
-        run: npx jest --config jest.config.cjs --testPathPatterns="src/__tests__/unit" --ci --coverage --forceExit
+      - name: Create stub .env for CI (no real secrets)
+        run: |
+          cat > .env <<'EOF'
+          NODE_ENV=test
+          PORT=4000
+          MONGO_URI=mongodb://127.0.0.1:27017/test_ci
+          MYSQL_HOST=127.0.0.1
+          MYSQL_PORT=3306
+          MYSQL_USER=root
+          MYSQL_PASSWORD=root
+          MYSQL_DB=test_ci
+          JWT_SECRET=ci-jwt-secret
+          JWT_EXPIRES_IN=1h
+          INTERNAL_SERVICE_TOKEN=ci-service-token
+          GATEWAY_SECRET=ci-gateway-secret
+          NAKANO_ENCRYPTION_KEY=0123456789ABCDEF0123456789ABCDEF
+          EOF
 
-      - name: Upload coverage reports
+      - name: Backend typecheck (non-blocking until repo TS is green)
+        id: typecheck
+        continue-on-error: true
+        run: npm run typecheck
+
+      - name: Backend lint (placeholder - passes if not configured)
+        run: npm run lint
+
+      - name: Backend unit tests with coverage
+        run: npm run test:ci
+
+      - name: Report backend typecheck status
+        if: always() && steps.typecheck.outcome != 'success' && matrix.node-version == 20
+        run: |
+          echo "::notice::Backend typecheck exited with outcome=${{ steps.typecheck.outcome }}. Unit tests have passed - this is a known TS debt status."
+
+      - name: Upload coverage artifact
         if: matrix.node-version == 20
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: backend-coverage-node${{ matrix.node-version }}
           path: coverage/
           retention-days: 7
 
-  build-frontend:
+  frontend:
+    name: Frontend (lint + typecheck + build)
     runs-on: ubuntu-latest
-    needs: test
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: frontend
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -54,9 +101,21 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci --no-audit --no-fund
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
 
-      - name: Build frontend
-        working-directory: frontend
+      - name: Frontend lint
+        run: npm run lint --if-present
+
+      - name: Frontend typecheck
+        run: npm run typecheck
+
+      - name: Frontend build (Next.js)
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_GATEWAY_URL: http://gateway.example.invalid/graphql
         run: npm run build

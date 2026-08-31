@@ -89,6 +89,8 @@ input CreateListingInput {
   categories: [ID!]!
   amenityIds: [ID!]
 
+  ownerId: ID
+
   numOfBeds: Int
   numOfCustomers: Int
   numOfBathrooms: Int
