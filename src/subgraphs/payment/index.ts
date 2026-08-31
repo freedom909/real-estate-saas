@@ -59,7 +59,7 @@ const startApolloServer = async () => {
     // Initialize booking model for CreatePaymentUseCase
     const sequelize = new Sequelize(process.env.MYSQL_URI!, { logging: false });
     initBookingModel(sequelize);
-    await sequelize.sync({ alter: true });
+   // await sequelize.sync({ alter: true });
     container.register("Sequelize", { useValue: sequelize });
     console.log("✅ Booking Model initialized for payment subgraph");
     

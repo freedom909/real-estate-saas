@@ -1,12 +1,13 @@
 // src/rbac/policy.engine.ts
 
-import { IPolicy, PolicyContext } from "@/subgraphs/user/domain/entities/policyContext";
-import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
+
+import { Action, Resource } from "@/rbac/types";
 import { Role, hasMinRole } from "@/core/shared/domain/role";
+import { IPolicyEngine, PolicyContext } from "@/rbac/policyContext";
 
 type PolicyHandler = (context: PolicyContext) => boolean;
 
-export default class PolicyEngine implements IPolicy {
+export default class PolicyEngine implements IPolicyEngine {
   private policies: Record<string, PolicyHandler>;
 
   constructor() {
@@ -40,7 +41,7 @@ export default class PolicyEngine implements IPolicy {
 
       [`${Action.CREATE}_${Resource.LISTING}`]: (ctx) => {
         if (!ctx.user) return false;
-        return hasMinRole(ctx.user.role, Role.AGENT);
+        return hasMinRole(ctx.user.role, Role.HOST);
       },
 
       [`${Action.UPDATE}_${Resource.LISTING}`]: (ctx) => {
@@ -49,7 +50,21 @@ export default class PolicyEngine implements IPolicy {
         return ctx.user.id === ctx.resourceOwnerId;
       },
 
-      
+      [`${Action.DELETE}_${Resource.LISTING}`]: (ctx) => {
+        if (!ctx.user) return false;
+
+        if (hasMinRole(ctx.user.role, Role.ADMIN)) {
+          return true;
+        }
+
+        if (ctx.user.role !== Role.HOST) {
+          return false;
+        }
+
+        return ctx.user.id === ctx.resourceOwnerId;
+      },
+
+
       // -------------------
       // PAYMENT 资源规则
       // -------------------
@@ -120,8 +135,9 @@ export default class PolicyEngine implements IPolicy {
 
       [`${Action.CONFIRM}_${Resource.BOOKING}`]: (ctx) => {
         if (!ctx.user) return false;
-        // Listing owner or admin can confirm
+        // ONLY HOST/OWNER of the listing, or ADMIN+/SUPER_ADMIN can confirm
         if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
+        if (!hasMinRole(ctx.user.role, Role.HOST)) return false;
         return ctx.user.id === ctx.resourceOwnerId;
       },
 
@@ -154,7 +170,6 @@ export default class PolicyEngine implements IPolicy {
       },
     };
   }
-
   can(action: Action, resource: Resource, context: PolicyContext): boolean {
     const { user, resourceOwnerId } = context;
 

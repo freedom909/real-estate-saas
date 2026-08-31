@@ -14,7 +14,10 @@ export class DeletePictureUseCase {
     private readonly storage: MinioStorage,
   ) {}
 
-  async execute(pictureId: string) {
+  async execute(pictureId: string, role: string) {
+    if (role !== "HOST" && role !== "ADMIN") {
+      throw new Error("User is not allowed to delete a picture");
+    }
     const picture = await this.pictureRepository.findById(pictureId);
     if (!picture) {
       throw new Error('Picture not found');

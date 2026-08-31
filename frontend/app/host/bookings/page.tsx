@@ -1,8 +1,10 @@
 "use client";
 
 import RoleGuard from "../../components/shared/RoleGuard";
-import { useQuery } from "@apollo/client/react";
+import { useQuery, useMutation } from "@apollo/client/react";
 import { gql } from "@apollo/client/core";
+import { useAuthStore } from "@/app/store/auth.store";
+import Link from "next/link";
 
 const MY_HOST_BOOKINGS = gql`
   query MyHostBookings {
@@ -15,6 +17,15 @@ const MY_HOST_BOOKINGS = gql`
       createdAt
       listing { id title }
       user { id name email }
+    }
+  }
+`;
+
+const CONFIRM_BOOKING = gql`
+  mutation ConfirmBooking($id: ID!) {
+    confirmBooking(id: $id) {
+      id
+      status
     }
   }
 `;
@@ -67,7 +78,34 @@ export default function HostBookingsPage() {
 }
 
 function HostBookingsContent() {
-  const { data, loading } = useQuery<any>(MY_HOST_BOOKINGS);
+  const { user } = useAuthStore();
+  const isHostOrAbove = (
+    user?.role === "HOST" ||
+    user?.role === "OWNER" ||
+    user?.role === "AGENT" ||
+    user?.role === "ADMIN" ||
+    user?.role === "SUPER_ADMIN"
+  );
+  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  const { data, loading } = useQuery<any>(MY_HOST_BOOKINGS, {
+    context: { headers: { Authorization: token } },
+  });
+  const [confirmBooking, { loading: confirming }] = useMutation<any>(CONFIRM_BOOKING, {
+    context: { headers: { Authorization: token } },
+    update: (cache, { data: result }) => {
+      const confirmedId = result?.confirmBooking?.id;
+      if (!confirmedId) return;
+      cache.updateQuery({ query: MY_HOST_BOOKINGS }, (prev: any) => {
+        if (!prev?.myBookings) return prev;
+        return {
+          ...prev,
+          myBookings: prev.myBookings.map((b: any) =>
+            b.id === confirmedId ? { ...b, status: "CONFIRMED" } : b
+          ),
+        };
+      });
+    },
+  });
   const bookings = data?.myBookings ?? [];
 
   const pending = bookings.filter((b: any) => b.status === "PENDING");
@@ -78,6 +116,16 @@ function HostBookingsContent() {
 
   const overbookedIds = findOverbookedBookingIds(bookings);
   const hasOverbookings = overbookedIds.size > 0;
+
+  const handleConfirm = async (bookingId: string) => {
+    if (confirming) return;
+    if (!confirm(`Confirm this booking (${bookingId})?`)) return;
+    try {
+      await confirmBooking({ variables: { id: bookingId } });
+    } catch (err) {
+      console.error("Confirm booking failed:", err);
+    }
+  };
 
   return (
     <div>
@@ -131,6 +179,7 @@ function HostBookingsContent() {
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Check-out</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Price</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -145,15 +194,41 @@ function HostBookingsContent() {
                       <div className="text-sm font-medium text-gray-900">{b.user?.name || "Guest"}</div>
                       <div className="text-xs text-gray-500">{b.user?.email}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {b.listing?.title || "—"}
-                      {isConflict && <span className="ml-1 text-red-600 font-semibold">❌</span>}
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 font-medium">
+                        <Link href={`/bookings/${b.id}`} className="hover:text-blue-600 hover:underline">
+                          {b.listing?.title || "—"}
+                          {isConflict && <span className="ml-1 text-red-600 font-semibold">❌</span>}
+                        </Link>
+                      </div>
+                      <Link href={`/bookings/${b.id}`} className="text-xs text-blue-600 hover:underline">
+                        View Details →
+                      </Link>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">{b.checkInDate}</td>
                     <td className="px-6 py-4 text-sm text-gray-500">{b.checkOutDate}</td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">¥{(b.price || 0).toLocaleString()}</td>
                     <td className="px-6 py-4">
                       <StatusBadge status={b.status} isConflict={isConflict} />
+                    </td>
+                    <td className="px-6 py-4 text-right whitespace-nowrap">
+                      <div className="flex items-center gap-2 justify-end">
+                        {isHostOrAbove && b.status === "PENDING" && (
+                          <button
+                            onClick={() => handleConfirm(b.id)}
+                            disabled={confirming}
+                            className="px-3 py-1.5 text-xs rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {confirming ? "Confirming..." : "Confirm"}
+                          </button>
+                        )}
+                        <Link
+                          href={`/bookings/${b.id}`}
+                          className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-700 font-medium hover:bg-gray-50"
+                        >
+                          Details
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 );

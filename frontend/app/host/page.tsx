@@ -1,8 +1,10 @@
 "use client";
 
 import RoleGuard from "../components/shared/RoleGuard";
-import { useQuery } from "@apollo/client/react";
+import { useQuery, useMutation } from "@apollo/client/react";
 import { gql } from "@apollo/client/core";
+import Link from "next/link";
+import { useAuthStore } from "@/app/store/auth.store";
 
 export default function HostPageWrapper() {
   return (
@@ -30,11 +32,57 @@ const HOST_STATS = gql`
   }
 `;
 
+const CONFIRM_BOOKING = gql`
+  mutation ConfirmBooking($id: ID!) {
+    confirmBooking(id: $id) {
+      id
+      status
+    }
+  }
+`;
+
 function HostOverview() {
-  const { data, loading } = useQuery<any>(HOST_STATS);
+  const { user } = useAuthStore();
+  const isHostOrAbove = (
+    user?.role === "HOST" ||
+    user?.role === "OWNER" ||
+    user?.role === "AGENT" ||
+    user?.role === "ADMIN" ||
+    user?.role === "SUPER_ADMIN"
+  );
+  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  const { data, loading } = useQuery<any>(HOST_STATS, {
+    context: { headers: { Authorization: token } },
+  });
+  const [confirmBooking, { loading: confirming }] = useMutation<any>(CONFIRM_BOOKING, {
+    context: { headers: { Authorization: token } },
+    update: (cache, { data: result }) => {
+      const confirmedId = result?.confirmBooking?.id;
+      if (!confirmedId) return;
+      cache.updateQuery({ query: HOST_STATS }, (prev: any) => {
+        if (!prev?.myBookings) return prev;
+        return {
+          ...prev,
+          myBookings: prev.myBookings.map((b: any) =>
+            b.id === confirmedId ? { ...b, status: "CONFIRMED" } : b
+          ),
+        };
+      });
+    },
+  });
 
   const bookings = data?.myBookings ?? [];
   const listings = data?.myListings ?? [];
+
+  const handleConfirm = async (bookingId: string) => {
+    if (confirming) return;
+    if (!confirm(`Confirm this booking (${bookingId})?`)) return;
+    try {
+      await confirmBooking({ variables: { id: bookingId } });
+    } catch (err) {
+      console.error("Confirm booking failed:", err);
+    }
+  };
 
   const activeBookings = bookings.filter((b: any) => ["PENDING", "CONFIRMED", "CHECKED_IN"].includes(b.status));
   const completedBookings = bookings.filter((b: any) => b.status === "COMPLETED");
@@ -70,16 +118,45 @@ function HostOverview() {
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Dates</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Price</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {bookings.slice(0, 5).map((b: any) => (
-                <tr key={b.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{b.listing?.title || "—"}</td>
+                <tr key={b.id} className="hover:bg-gray-50 group">
+                  <td className="px-6 py-4">
+                    <Link href={`/bookings/${b.id}`} className="block">
+                      <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
+                        {b.listing?.title || "—"}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-0.5 group-hover:text-blue-500">
+                        View Details →
+                      </div>
+                    </Link>
+                  </td>
                   <td className="px-6 py-4 text-sm text-gray-500">{b.checkInDate} → {b.checkOutDate}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">¥{(b.price || 0).toLocaleString()}</td>
                   <td className="px-6 py-4">
                     <StatusBadge status={b.status} />
+                  </td>
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
+                    <div className="flex items-center gap-2 justify-end">
+                      {isHostOrAbove && b.status === "PENDING" && (
+                        <button
+                          onClick={() => handleConfirm(b.id)}
+                          disabled={confirming}
+                          className="px-3 py-1.5 text-xs rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {confirming ? "Confirming..." : "Confirm"}
+                        </button>
+                      )}
+                      <Link
+                        href={`/bookings/${b.id}`}
+                        className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-700 font-medium hover:bg-gray-50"
+                      >
+                        Details
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}

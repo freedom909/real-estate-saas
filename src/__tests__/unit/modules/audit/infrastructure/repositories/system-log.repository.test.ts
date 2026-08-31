@@ -3,7 +3,10 @@
  */
 import "reflect-metadata";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
-import { SystemLogRepository } from "@/modules/audit/infrastructure/repositories/system-log.repository";
+import { SystemLogRepository } from "@/core/audit/infrastructure/repositories/system-log.repository";
+
+
+
 
 describe("SystemLogRepository", () => {
   let repo: SystemLogRepository;

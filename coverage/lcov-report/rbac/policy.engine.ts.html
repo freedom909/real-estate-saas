@@ -413,13 +413,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/rbac/policy.engine.ts
 &nbsp;
-import { IPolicy, PolicyContext } from "@/subgraphs/user/domain/entities/policyContext";
-import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
+import { IPolicyEngine, PolicyContext } from "@/rbac/policyContext";
+import { Action, Resource } from "@/rbac/types";
 import { Role, hasMinRole } from "@/core/shared/domain/role";
 &nbsp;
 type PolicyHandler = (context: PolicyContext) =&gt; boolean;
 &nbsp;
-export default class PolicyEngine implements IPolicy {
+export default class PolicyEngine implements IPolicyEngine {
   private policies: Record&lt;string, PolicyHandler&gt;;
 &nbsp;
   constructor() {

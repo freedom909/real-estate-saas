@@ -1,27 +1,106 @@
-schema @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key"]){
+schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key"]
+  ) {
   query: Query
   mutation: Mutation
 }
 
-type AuditLog @key(fields: "id") {
-  id: ID!
-  action: String!
-  userId: ID!
-  resourceId: ID!
-  metadata: String
-  timestamp: String!
+enum AuditStatus {
+  SUCCESS
+  FAILED
+  PENDING
 }
 
-type Mutation {
-   recordAuditLog(
-    action: String!
-    userId: ID!
-    resourceId: ID
-    metadata: String
-  ): AuditLog!
+enum ResourceType {
+  BOOKING
+  LISTING
+  PAYMENT
+  USER
+  OWNER
+  TENANT
+  AUTH
+  REVIEW
+}
+
+type AuditMeta {
+  deviceId: String
+  ip: String
+  userAgent: String
+  provider: String
+  reason: String
+}
+
+type AuditLog @key(fields: "id") {
+  id: ID!
+
+  userId: ID
+  tenantId: ID
+  ownerId: ID
+
+  action: String!
+  resourceId: ID!
+  resourceType: ResourceType!
+
+  status: AuditStatus!
+
+  requestId: ID
+  correlationId: ID
+
+  meta: AuditMeta
+
+  createdAt: String!
+}
+
+input AuditLogFilterInput {
+  userId: ID
+  tenantId: ID
+  ownerId: ID
+  resourceId: ID
+  resourceType: ResourceType
+  action: String
+  status: AuditStatus
+  correlationId: ID
+  requestId: ID
+
+  page: Int = 1
+  limit: Int = 20
+}
+
+input RecordAuditLogInput {
+  userId: ID
+  tenantId: ID
+  ownerId: ID
+
+  action: String!
+  resourceId: ID!
+  resourceType: ResourceType!
+
+  status: AuditStatus!
+
+  requestId: ID
+  correlationId: ID
+
+  meta: AuditMetaInput
+}
+
+input AuditMetaInput {
+  deviceId: String
+  ip: String
+  userAgent: String
+  provider: String
+  reason: String
 }
 
 type Query {
-  getAuditLog(userId: ID!): AuditLog
-  getAuditLogsByResource(resourceId: ID!): [AuditLog!]!
+  getAuditLogs(
+    filter: AuditLogFilterInput
+  ): [AuditLog!]!
+}
+
+type Mutation {
+  recordAuditLog(
+    input: RecordAuditLogInput!
+  ): AuditLog!
 }

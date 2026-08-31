@@ -9,7 +9,7 @@ export class SecurityLogService {
 
   constructor(
     @inject(
-      TOKENS_AUDIT.repos.securityLog
+      TOKENS_AUDIT.repos.LogRepo
     )
     private readonly repository:
       SecurityLogRepository

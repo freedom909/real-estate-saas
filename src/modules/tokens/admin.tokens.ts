@@ -40,4 +40,7 @@ export const TOKENS_ADMIN = {
     getAdminByIdUseCase: Symbol.for("GetAdminByIdUseCase"),
     getAllAdminsUseCase: Symbol.for("GetAllAdminsUseCase"),
   },
+  acl: {
+    adminAuditACL: Symbol.for("TAdminAuditACL"),
+  },
 } as const;

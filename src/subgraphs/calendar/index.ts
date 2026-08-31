@@ -37,7 +37,7 @@ const startApolloServer = async () => {
   try {
     console.info("⏳ Calendar Subgraph connecting to MySQL...");
     await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
+   // await sequelize.sync({ alter: true });
     console.info("✅ Calendar Subgraph MySQL connected");
 
     const app = express();

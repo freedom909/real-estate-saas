@@ -42,9 +42,15 @@ export default function BookingDetailPage() {
   const auth = useAuthStore();
   console.log("AUTH STORE =", auth);
   console.log("FRONTEND USER =", user);
-  const isAgent=user?.role ==="AGENT"||user?.role === "ADMIN" ||user?.role === "SUPER_ADMIN" || user?.role === "OWNER";
+  const isHostOrAbove = (
+    user?.role === "HOST" ||
+    user?.role === "OWNER" ||
+    user?.role === "AGENT" ||
+    user?.role === "ADMIN" ||
+    user?.role === "SUPER_ADMIN"
+  );
   console.log("FRONTEND ROLE =", user?.role);
-  console.log("isAgent =", isAgent);
+  console.log("isHostOrAbove =", isHostOrAbove);
   const isCustomer = user?.role === "CUSTOMER";
   console.log("isCustomer =", isCustomer);
   const params = useParams();
@@ -69,11 +75,11 @@ console.log(
   error
 );
   console.log("BOOKING STATUS =", booking?.status);
-  const canConfirm = isAgent && booking?.status === "PENDING";
+  const canConfirm = isHostOrAbove && booking?.status === "PENDING";
   console.log("canConfirm =", canConfirm);
   const canPay =isCustomer && booking?.status === "CONFIRMED";
-  const canCheckIn =isAgent && booking?.status === "PAID";
-  const canComplete =isAgent && booking?.status === "CHECKED_IN";
+  const canCheckIn =isHostOrAbove && booking?.status === "PAID";
+  const canComplete =isHostOrAbove && booking?.status === "CHECKED_IN";
   const [cancelBooking] = useMutation<any>(CANCEL_BOOKING, {
     context: { headers: { 'Authorization': token } },
     onCompleted: () => {

@@ -7,7 +7,8 @@
  */
 import "reflect-metadata";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
-import { AuditLogRepository } from "@/modules/audit/infrastructure/repositories/audit-log.repository";
+import { AuditLogRepository } from "@/core/audit/infrastructure/repositories/auditLog.repository";
+
 
 describe("AuditLogRepository", () => {
   let repo: AuditLogRepository;

@@ -6,7 +6,8 @@ export const TOKENS_LISTING = {
     listingAmenityModel: Symbol.for('ListingAmenityModel'),
   },
 
-
+  policyEngine: Symbol.for("PolicyEngine"),
+  
   listingClient: Symbol.for("Listing.ListingClient"),
 
   sequelize: Symbol.for('Sequelize'),

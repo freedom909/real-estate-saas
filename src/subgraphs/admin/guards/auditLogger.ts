@@ -1,10 +1,8 @@
 // src/subgraphs/admin/guards/auditLogger.ts
 
-import { container } from "tsyringe";
-import { v4 as uuidv4 } from "uuid";
 import { TOKENS_ADMIN } from "@/modules/tokens/admin.tokens";
-import { IAuditLogRepository } from "@/core/admin/domain/entities/IAuditLogRepository";
-import { AuditLog } from "@/core/admin/domain/entities/auditLog";
+import { container } from "tsyringe";
+import { AdminAuditACL } from "@/core/admin/application/acl/admin.auditACL";
 
 export interface AuditContext {
   action: string;
@@ -16,40 +14,46 @@ export interface AuditContext {
 /**
  * Create an audit log entry for an admin action.
  * Called after a mutation succeeds.
+ * Delegates 100% to AdminAuditACL (anticorruption layer against the Audit module).
  */
 export async function logAuditAction(
   context: any,
   audit: AuditContext
 ): Promise<void> {
   try {
-    const adminId = context?.admin?.id || context?.user?.userId || "unknown";
-    const ip = context?.req?.ip || context?.req?.headers?.["x-forwarded-for"] || "unknown";
+    const adminId =
+      context?.admin?.id ||
+      context?.user?.userId ||
+      "unknown";
 
-    const auditLog = new AuditLog({
-      id: uuidv4(),
+    const ipRaw =
+      context?.req?.ip ||
+      context?.req?.headers?.["x-forwarded-for"] ||
+      "unknown";
+
+    const ip = typeof ipRaw === "string" ? ipRaw : ipRaw?.[0] || "unknown";
+    const userAgent = context?.req?.headers?.["user-agent"];
+
+    const acl = container.resolve<AdminAuditACL>(TOKENS_ADMIN.acl.adminAuditACL);
+    await acl.recordAdminAction({
       adminId,
       action: audit.action,
       target: audit.target,
       targetId: audit.targetId,
       details: audit.details,
-      ip: typeof ip === "string" ? ip : ip[0] || "unknown",
-      createdAt: new Date(),
+      ip,
+      userAgent,
     });
-
-    const repo = container.resolve<IAuditLogRepository>(
-      TOKENS_ADMIN.repos.auditLogRepository
-    );
-
-    await repo.create(auditLog);
   } catch (err) {
-    // Don't let audit logging failures break the main operation
-    console.error("[AuditLog] Failed to create audit entry:", err);
+    console.error(
+      "[AuditLog] Failed to create audit entry via AdminAuditACL:",
+      err
+    );
   }
 }
 
 /**
- * Wrap a resolver with automatic audit logging.
- * The resolver must return an object that can be used to build the audit entry.
+ * Wrap a resolver with automatic audit logging (via ACL → Audit module).
  */
 export function withAuditLog(
   resolver: Function,
@@ -58,7 +62,6 @@ export function withAuditLog(
   return async (parent: any, args: any, context: any, info: any) => {
     const result = await resolver(parent, args, context, info);
 
-    // Only log successful operations
     if (result !== null && result !== undefined) {
       const auditContext = auditBuilder(result, args, context);
       await logAuditAction(context, auditContext);

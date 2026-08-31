@@ -14,6 +14,7 @@ import { UploadImageUseCase } from "@/core/listing/application/usecase/uploadIma
 import { MinioStorage } from "@/core/listing/infrastructure/storage/minio.storage";
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
+import UpdateListingUseCase from "@/core/listing/application/usecase/updateListing.usecase";
 
 
 
@@ -122,14 +123,18 @@ export const resolvers = {
   Mutation: {
 
     createListing: async (_: any, { input }: any, context: any) => {
-      if (!context.user) {
-        throw new Error("User not authenticated");
-      }
-      const ownerId = context.user.userId;
+      const role = context.user.role;
       const useCase = container.resolve<CreateListingUseCase>(
         TOKENS_LISTING.usecase.createListingUseCase
       );
-      return await useCase.execute({ ...input, ownerId });
+      return await useCase.execute(input, role);
+    },
+
+    updateListing: async (_: any, { input }: any, context: any) => {
+      const useCase = container.resolve<UpdateListingUseCase>(
+        TOKENS_LISTING.usecase.updateListingUseCase
+      );
+      return await useCase.execute(input, context.user.userId, context.user.role);
     },
 
     uploadImages: async (_: any, { files, listingId }: any, context: any) => {

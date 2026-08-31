@@ -1,5 +1,5 @@
 
-import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
+import { Action, Resource } from "@/rbac/types";
 import UserService from "./user.service";
 import { ForbiddenError } from "@/infrastructure/utils/errors";
 import PolicyEngine from "@/rbac/policy.engine";

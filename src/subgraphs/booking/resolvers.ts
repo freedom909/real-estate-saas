@@ -9,7 +9,7 @@ import { CheckInBookingUseCase } from "@/core/booking/application/usecases/check
 import { IBookingRepository } from "@/core/booking/domain/repositories/i-booking.repository";
 import { requireAuth } from "@/infrastructure/auth/require.auth";
 import { withAuthorization } from "@/infrastructure/auth/withAuthorization";
-import { Action, Resource } from "@/subgraphs/user/domain/entities/types";
+import { Action, Resource } from "@/rbac/types";
 import { TOKENS_BOOKING } from "@/modules/tokens/booking.tokens";
 import { container } from "tsyringe";
 import { query } from "express";

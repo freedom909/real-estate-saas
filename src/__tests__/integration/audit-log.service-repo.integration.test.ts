@@ -12,9 +12,9 @@
  */
 import "reflect-metadata";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
-import { AuditLogService } from "@/modules/audit/application/write/services/audit-log.service";
-import { AuditLogRepository } from "@/modules/audit/infrastructure/repositories/audit-log.repository";
-import { CreateAuditLogDTO } from "@/modules/audit/application/write/dto/create-audit-log.dto";
+import { AuditLogRepository } from "@/core/audit/infrastructure/repositories/auditLog.repository";
+
+
 
 describe("AuditLogService + AuditLogRepository (integration)", () => {
   let mockModel: any;

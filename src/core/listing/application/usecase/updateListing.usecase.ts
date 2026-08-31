@@ -5,6 +5,13 @@ import { Title } from '../../domain/value-objects/Title';
 import { Description } from '../../domain/value-objects/description';
 import { Listing } from '../../domain/entities/listing';
 import { Picture } from '../../domain/entities/picture';
+import { Action, Resource } from "@/rbac/types";
+import { IPolicyEngine } from '@/rbac/policyContext';
+import { Role } from '@/core/shared/domain/role';
+
+import ListingActor from './listingActor';
+
+
 
 export interface UpdateListingInput {
   title?: string;
@@ -28,14 +35,30 @@ export default class UpdateListingUseCase {
   constructor(
     @inject(TOKENS_LISTING.repos.listingRepository)
     private listingRepository: IListingRepository,
+    @inject(TOKENS_LISTING.policyEngine)
+    private policyEngine: IPolicyEngine,
   ) {}
 
-  async execute(id: string, input: UpdateListingInput) {
+  async execute(id: string, input: UpdateListingInput, actor: ListingActor) {
     const existing = await this.listingRepository.findById(id);
     if (!existing) {
       throw new Error(`Listing not found: ${id}`);
     }
-
+   const allow=this.policyEngine.can(
+      Action.UPDATE,
+      Resource.LISTING,
+      {
+        user: {
+          id: actor.userId,
+          role: actor.role,
+        },
+        resourceOwnerId: existing.ownerId,
+      },
+    );
+    if (!allow) {
+      throw new Error(`Listing not allowed to update listing`);
+    }
+    
     const updated = new Listing({
       id: existing.id,
       ownerId: existing.ownerId,

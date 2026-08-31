@@ -7,9 +7,6 @@ import CreateAdminUserUseCase from "@/core/admin/application/usecase/createAdmin
 import GetAdminUserByIdUseCase from "@/core/admin/application/usecase/getUserById.usecase";
 import UpdateAdminUserUseCase from "@/core/admin/application/usecase/updateAdminUser.usecase";
 import DeleteAdminUserUseCase from "@/core/admin/application/usecase/deleteUser.usecase";
-import CreateAuditLogUseCase from "@/core/admin/application/usecase/createAuditLog.usecase";
-import GetAuditLogsUseCase from "@/core/admin/application/usecase/getAuditLogs.usecase";
-import GetAuditLogCountUseCase from "@/core/admin/application/usecase/getAuditLogCount.usecase";
 import GetDashboardStatsUseCase from "@/core/admin/application/usecase/getDashboardStats.usecase";
 import GetSystemSettingsUseCase from "@/core/admin/application/usecase/getSystemSettings.usecase";
 import UpdateSystemSettingUseCase from "@/core/admin/application/usecase/updateSystemSetting.usecase";
@@ -20,13 +17,15 @@ import MarkNotificationReadUseCase from "@/core/admin/application/usecase/markNo
 import DeleteNotificationUseCase from "@/core/admin/application/usecase/deleteNotification.usecase";
 
 import { IAdminUserRepository } from "@/core/admin/domain/entities/IAdminUserRepository";
-import { IAuditLogRepository } from "@/core/admin/domain/entities/IAuditLogRepository";
+
 import { requireAdminRole, requirePermission } from "../guards/adminRole.guard";
 import { Permission, getPermissions } from "../guards/adminPermissions";
 import { logAuditAction, withAuditLog } from "../guards/auditLogger";
 import UpdateAdminAccountUseCase from "@/core/admin/application/usecase/updateAdminAccount.usecase";
 import { Role } from "@/core/shared/domain/role";
 import GetAllAdminsUseCase from "@/core/admin/application/usecase/getAllAdmins.usecase";
+import { AdminAuditACL } from "@/core/admin/application/acl/admin.auditACL";
+
 
 // Helper: wrap resolver with permission guard
 function withPermission(resolver: Function, permission: Permission) {
@@ -50,10 +49,10 @@ export const resolvers = {
   Query: {
     // Dashboard
     adminDashboard: withPermission(async () => {
-      const auditRepo = container.resolve<IAuditLogRepository>(
-        TOKENS_ADMIN.repos.auditLogRepository
+      const acl = container.resolve<AdminAuditACL>(
+        TOKENS_ADMIN.acl.adminAuditACL
       );
-      const recentLogs = await auditRepo.findAll(10);
+      const recentLogs = await acl.listRecentAdminAuditLogs(50);
       return {
         totalUsers: 0,
         totalListings: 0,
@@ -110,17 +109,17 @@ adminUsers: withPermission(async () => {
 
     // Audit Logs
     adminAuditLogs: withPermission(async (_: any, { limit, filter }: { limit?: number; filter?: any }) => {
-      const useCase = container.resolve<GetAuditLogsUseCase>(
-        TOKENS_ADMIN.usecase.getAuditLogsUseCase
+      const acl = container.resolve<AdminAuditACL>(
+        TOKENS_ADMIN.acl.adminAuditACL
       );
-      return useCase.execute(limit, filter);
+      return acl.listAdminAuditLogs(limit ?? 50, filter);
     }, "audit_logs:view"),
 
     adminAuditLogCount: withPermission(async (_: any, { filter }: { filter?: any }) => {
-      const useCase = container.resolve<GetAuditLogCountUseCase>(
-        TOKENS_ADMIN.usecase.getAuditLogCountUseCase
+      const acl = container.resolve<AdminAuditACL>(
+        TOKENS_ADMIN.acl.adminAuditACL
       );
-      return useCase.execute(filter);
+      return acl.countAdminAuditLogs(filter);
     }, "audit_logs:view"),
 
     // Settings
@@ -209,10 +208,10 @@ adminUsers: withPermission(async () => {
 
     // Audit Logs
     createAdminAuditLog: withPermission(async (_: any, { input }: any) => {
-      const useCase = container.resolve<CreateAuditLogUseCase>(
-        TOKENS_ADMIN.usecase.createAuditLogUseCase
+      const acl = container.resolve<AdminAuditACL>(
+        TOKENS_ADMIN.acl.adminAuditACL
       );
-      return useCase.execute(input);
+      return acl.recordAdminAction(input);
     }, "audit_logs:create"),
 
     // Profile — with audit logging

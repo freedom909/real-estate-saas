@@ -9,10 +9,13 @@ import { Description } from "../../domain/value-objects/description";
 import { ICategoryRepository } from "@/shared/category/domain/ICategory.repository";
 import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 
-import { IAmenityAdapter } from "../adapters/IAmenityAdapter";
+import { IAmenityAdapter } from "../adapters/IAmenity.adapter";
 import { Picture } from "../../domain/entities/picture";
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 import { UploadImageUseCase } from "./uploadImages.usecase";
+import { IPolicyEngine } from "@/rbac/policyContext";
+import ListingActor from "./listingActor";
+import { Action, Resource } from "@/rbac/types";
 
 interface CreateImageInput {
   objectKey: string;
@@ -52,10 +55,50 @@ export default class CreateListingUseCase {
     @inject(TOKENS_CATEGORY.categoryRepository)
     private categoryRepo: ICategoryRepository,
     @inject(TOKENS_PICTURE.usecase.uploadImageUseCase)
-    private uploadImageUseCase: UploadImageUseCase
+    private uploadImageUseCase: UploadImageUseCase,
   ) { }
+  
+  private validateInput(input: CreateListingInput): void {
+    if (!Number.isFinite(input.price) || input.price <= 0) {
+      throw new Error("price must be greater than 0");
+    }
+    if (!Number.isFinite(input.numOfBeds) || input.numOfBeds < 0 || !Number.isInteger(input.numOfBeds)) {
+      throw new Error("numOfBeds must be a non-negative integer");
+    }
+    if (!Number.isFinite(input.numOfCustomers) || input.numOfCustomers < 0 || !Number.isInteger(input.numOfCustomers)) {
+      throw new Error("numOfCustomers must be a non-negative integer");
+    }
+    if (!Number.isFinite(input.numOfBathrooms) || input.numOfBathrooms < 0 || !Number.isInteger(input.numOfBathrooms)) {
+      throw new Error("numOfBathrooms must be a non-negative integer");
+    }
+    if (!Number.isFinite(input.numOfRooms) || input.numOfRooms < 0 || !Number.isInteger(input.numOfRooms)) {
+      throw new Error("numOfRooms must be a non-negative integer");
+    }
+    if (!input.title || typeof input.title !== "string" || input.title.trim().length === 0) {
+      throw new Error("title must be a non-empty string");
+    }
+    if (!input.description || typeof input.description !== "string" || input.description.trim().length === 0) {
+      throw new Error("description must be a non-empty string");
+    }
+    if (!input.address || typeof input.address !== "string" || input.address.trim().length === 0) {
+      throw new Error("address must be a non-empty string");
+    }
+    if (!input.locationId || typeof input.locationId !== "string" || input.locationId.trim().length === 0) {
+      throw new Error("locationId must be a non-empty string");
+    }
+    if (!input.ownerId || typeof input.ownerId !== "string" || input.ownerId.trim().length === 0) {
+      throw new Error("ownerId must be a non-empty string");
+    }
+    if (!Array.isArray(input.categories)) {
+      throw new Error("categories must be an array");
+    }
+  }
 
-  async execute(input: CreateListingInput): Promise<any> {
+  async execute(input: CreateListingInput, role: string): Promise<any> {
+    if (role !== "HOST") {
+      throw new Error("User is not allowed to create a listing");
+    }
+    this.validateInput(input);
     if (input.amenityIds && input.amenityIds.length > 0) {
       const validIds = await this.amenityAdapter.getValidIds(input.amenityIds);
       const validSet = new Set(validIds);

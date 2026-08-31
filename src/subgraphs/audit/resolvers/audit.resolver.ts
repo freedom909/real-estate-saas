@@ -1,30 +1,31 @@
 import { container } from 'tsyringe';
-import { AuditService } from '../services/audit.service';
+
 import mongoose from 'mongoose';
 import { UserInputError } from '@/infrastructure/utils/errors';
+import { TOKENS_AUDIT } from '@/modules/tokens/audit.tokens';
+import { GetAuditLogsFilter, GetAuditLogsQuery } from '@/core/audit/application/read/queries/get-audit-logs.query';
+import { AuditLogger } from '@/core/audit/application/write/services/audit.logger';
+
 
 export const resolvers = {
   Query: {
-    getAuditLog: async (_: any, { userId }: { userId: string }) => {
-      const service = container.resolve(AuditService);
-      return service.getAuditLog(userId);
+    getAuditLogs: async (_: any, {filter}: {filter: GetAuditLogsFilter}, context:any) => {
+      const service = container.resolve<GetAuditLogsQuery>(TOKENS_AUDIT.services.getAuditLogsQuery);
+      return service.execute(filter??{});
     },
-    getAuditLogsByResource: async (_: any, { resourceId }: { resourceId: string }) => {
-      const service = container.resolve(AuditService);
-      return service.getLogsByResource(resourceId);
-    },
+
   },
   Mutation: {
-    recordAuditLog: async (_, args) => {
-      if (!args.userId || !mongoose.Types.ObjectId.isValid(args.userId)) {
+    recordAuditLogs: async (_, args) => {
+      if (!args.userId ) {
         throw new UserInputError('Invalid or missing userId for audit log');
       }
       if (args.resourceId && !mongoose.Types.ObjectId.isValid(args.resourceId)) {
         throw new UserInputError('Invalid resourceId for audit log');
       }
 
-      const service = container.resolve(AuditService);
-      return service.createLog(args.action, args.userId, args.resourceId, args.metadata);
+      const service = container.resolve<AuditLogger>(TOKENS_AUDIT.services.auditLogger);
+      return service.writeAuditLog({...args.input})
     },
   },
   AuditLog: {

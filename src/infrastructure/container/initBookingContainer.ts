@@ -15,7 +15,7 @@ export async function initializeBookingContainer() {
 
   initBookingModel(sequelize);
   initCalendarSlotModel(sequelize);
-  await sequelize.sync({ alter: true });
+ // await sequelize.sync({ alter: true });
   // ✅ register infra
   container.register("Sequelize", { useValue: sequelize });
   BookingRegister(); // Call the registration function to register all booking dependencies
