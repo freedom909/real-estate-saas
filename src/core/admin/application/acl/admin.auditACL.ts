@@ -5,13 +5,14 @@ import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 import { AuditLogger } from "@/core/audit/application/write/services/audit.logger";
 import {
   IAuditLogRepository,
-  AuditLogFilter,
+  
 } from "@/core/audit/domain/interface/audit-log.repository.interface";
 import {
   AuditStatus,
   ResourceType,
 } from "@/core/audit/domain/value-objects/audit.types";
 import { CreateAuditLogDTO } from "@/core/audit/application/write/dto/create-audit-log.dto";
+import { AuditLogFilter } from "@/core/audit/domain/entities/IAuditLogRepository";
 
 export interface RecordAdminActionInput {
   adminId: string;

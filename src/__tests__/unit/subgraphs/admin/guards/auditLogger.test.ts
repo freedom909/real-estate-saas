@@ -2,36 +2,33 @@
 import "reflect-metadata";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
-const mockAuditRepo = {
-  findAll: jest.fn(),
-  findFiltered: jest.fn(),
-  create: jest.fn(),
+const mockAcl = {
+  recordAdminAction: jest.fn(),
+  listAdminAuditLogs: jest.fn(),
+  listRecentAdminAuditLogs: jest.fn(),
+  countAdminAuditLogs: jest.fn(),
 };
 
 jest.mock("tsyringe", () => ({
   container: {
-    resolve: jest.fn(() => mockAuditRepo),
+    resolve: jest.fn(() => mockAcl),
   },
 }));
 
 jest.mock("@/modules/tokens/admin.tokens", () => ({
   TOKENS_ADMIN: {
-    repos: { auditLogRepository: Symbol.for("AuditLogRepository") },
+    acl: { adminAuditACL: Symbol.for("AdminAuditACL") },
   },
-}));
-
-jest.mock("uuid", () => ({
-  v4: jest.fn(() => "audit-uuid-123"),
 }));
 
 import { logAuditAction, withAuditLog } from "@/subgraphs/admin/guards/auditLogger";
 
-describe("auditLogger", () => {
+describe("auditLogger (delegates to AdminAuditACL)", () => {
   beforeEach(() => jest.clearAllMocks());
 
   describe("logAuditAction", () => {
-    it("should create an audit log entry", async () => {
-      mockAuditRepo.create.mockResolvedValue(undefined);
+    it("delegates to ACL.recordAdminAction with admin context", async () => {
+      mockAcl.recordAdminAction.mockResolvedValue(undefined);
 
       const context = {
         admin: { id: "admin-1" },
@@ -45,17 +42,17 @@ describe("auditLogger", () => {
         details: "Created admin: test@test.com",
       });
 
-      expect(mockAuditRepo.create).toHaveBeenCalled();
-      const logArg = mockAuditRepo.create.mock.calls[0][0];
-      expect(logArg.adminId).toBe("admin-1");
-      expect(logArg.action).toBe("CREATE_ADMIN_USER");
-      expect(logArg.target).toBe("admin_user");
-      expect(logArg.targetId).toBe("a-new");
-      expect(logArg.ip).toBe("192.168.1.1");
+      expect(mockAcl.recordAdminAction).toHaveBeenCalledTimes(1);
+      const dto = mockAcl.recordAdminAction.mock.calls[0][0];
+      expect(dto.adminId).toBe("admin-1");
+      expect(dto.action).toBe("CREATE_ADMIN_USER");
+      expect(dto.target).toBe("admin_user");
+      expect(dto.targetId).toBe("a-new");
+      expect(dto.ip).toBe("192.168.1.1");
     });
 
-    it("should use user.userId when admin is not in context", async () => {
-      mockAuditRepo.create.mockResolvedValue(undefined);
+    it("uses user.userId when admin is not in context", async () => {
+      mockAcl.recordAdminAction.mockResolvedValue(undefined);
 
       const context = {
         user: { userId: "user-1" },
@@ -67,25 +64,25 @@ describe("auditLogger", () => {
         target: "session",
       });
 
-      const logArg = mockAuditRepo.create.mock.calls[0][0];
-      expect(logArg.adminId).toBe("user-1");
+      const dto = mockAcl.recordAdminAction.mock.calls[0][0];
+      expect(dto.adminId).toBe("user-1");
     });
 
-    it("should use 'unknown' when no user info", async () => {
-      mockAuditRepo.create.mockResolvedValue(undefined);
+    it("uses 'unknown' when no user info", async () => {
+      mockAcl.recordAdminAction.mockResolvedValue(undefined);
 
       await logAuditAction({}, {
         action: "TEST",
         target: "test",
       });
 
-      const logArg = mockAuditRepo.create.mock.calls[0][0];
-      expect(logArg.adminId).toBe("unknown");
-      expect(logArg.ip).toBe("unknown");
+      const dto = mockAcl.recordAdminAction.mock.calls[0][0];
+      expect(dto.adminId).toBe("unknown");
+      expect(dto.ip).toBe("unknown");
     });
 
-    it("should use x-forwarded-for header when ip is not direct", async () => {
-      mockAuditRepo.create.mockResolvedValue(undefined);
+    it("uses x-forwarded-for header when ip is not direct", async () => {
+      mockAcl.recordAdminAction.mockResolvedValue(undefined);
 
       const context = {
         admin: { id: "a1" },
@@ -94,12 +91,12 @@ describe("auditLogger", () => {
 
       await logAuditAction(context, { action: "TEST", target: "test" });
 
-      const logArg = mockAuditRepo.create.mock.calls[0][0];
-      expect(logArg.ip).toBe("203.0.113.1");
+      const dto = mockAcl.recordAdminAction.mock.calls[0][0];
+      expect(dto.ip).toBe("203.0.113.1");
     });
 
-    it("should not throw when audit logging fails", async () => {
-      mockAuditRepo.create.mockRejectedValue(new Error("DB error"));
+    it("should not throw when ACL logging fails", async () => {
+      mockAcl.recordAdminAction.mockRejectedValue(new Error("DB error"));
       const consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
       await expect(
@@ -112,8 +109,8 @@ describe("auditLogger", () => {
   });
 
   describe("withAuditLog", () => {
-    it("should call resolver and then log audit action", async () => {
-      mockAuditRepo.create.mockResolvedValue(undefined);
+    it("should call resolver and then log audit action via ACL", async () => {
+      mockAcl.recordAdminAction.mockResolvedValue(undefined);
       const mockResolver = jest.fn().mockResolvedValue({ id: "result-1" });
       const auditBuilder = jest.fn().mockReturnValue({
         action: "UPDATE",
@@ -128,7 +125,7 @@ describe("auditLogger", () => {
 
       expect(mockResolver).toHaveBeenCalled();
       expect(auditBuilder).toHaveBeenCalledWith({ id: "result-1" }, { input: {} }, context);
-      expect(mockAuditRepo.create).toHaveBeenCalled();
+      expect(mockAcl.recordAdminAction).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ id: "result-1" });
     });
 
@@ -142,7 +139,7 @@ describe("auditLogger", () => {
 
       expect(result).toBeNull();
       expect(auditBuilder).not.toHaveBeenCalled();
-      expect(mockAuditRepo.create).not.toHaveBeenCalled();
+      expect(mockAcl.recordAdminAction).not.toHaveBeenCalled();
     });
 
     it("should not log when resolver returns undefined", async () => {
@@ -155,6 +152,7 @@ describe("auditLogger", () => {
 
       expect(result).toBeUndefined();
       expect(auditBuilder).not.toHaveBeenCalled();
+      expect(mockAcl.recordAdminAction).not.toHaveBeenCalled();
     });
   });
 });

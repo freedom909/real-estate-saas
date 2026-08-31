@@ -283,60 +283,58 @@ function HealthIndicator({ label, value, healthy }: { label: string; value: stri
 
 function LoadingSkeleton() {
   return (
-    <AdminLayout>
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-48 mb-2" />
-        <div className="h-4 bg-gray-200 rounded w-64 mb-8" />
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-48 mb-2" />
+      <div className="h-4 bg-gray-200 rounded w-64 mb-8" />
 
-        {/* Quick actions skeleton */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl shadow-sm p-4 text-center">
-              <div className="h-10 w-10 bg-gray-200 rounded-xl mx-auto mb-2" />
-              <div className="h-3 bg-gray-200 rounded w-16 mx-auto" />
-            </div>
-          ))}
+      {/* Quick actions skeleton */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="bg-white rounded-xl shadow-sm p-4 text-center">
+            <div className="h-10 w-10 bg-gray-200 rounded-xl mx-auto mb-2" />
+            <div className="h-3 bg-gray-200 rounded w-16 mx-auto" />
+          </div>
+        ))}
+      </div>
+
+      {/* Stats skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-white rounded-xl shadow-sm p-5">
+            <div className="h-10 w-10 bg-gray-200 rounded-xl mb-3" />
+            <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
+            <div className="h-7 bg-gray-200 rounded w-16" />
+          </div>
+        ))}
+      </div>
+
+      {/* Charts skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="h-5 bg-gray-200 rounded w-32 mb-4" />
+          <div className="h-64 bg-gray-100 rounded" />
         </div>
-
-        {/* Stats skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl shadow-sm p-5">
-              <div className="h-10 w-10 bg-gray-200 rounded-xl mb-3" />
-              <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
-              <div className="h-7 bg-gray-200 rounded w-16" />
-            </div>
-          ))}
-        </div>
-
-        {/* Charts skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="h-5 bg-gray-200 rounded w-32 mb-4" />
-            <div className="h-64 bg-gray-100 rounded" />
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="h-5 bg-gray-200 rounded w-36 mb-4" />
-            <div className="h-64 bg-gray-100 rounded" />
-          </div>
-        </div>
-
-        {/* Bottom skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="h-5 bg-gray-200 rounded w-32 mb-4" />
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-8 bg-gray-100 rounded mb-3" />
-            ))}
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-2">
-            <div className="h-5 bg-gray-200 rounded w-32 mb-4" />
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-12 bg-gray-100 rounded mb-2" />
-            ))}
-          </div>
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="h-5 bg-gray-200 rounded w-36 mb-4" />
+          <div className="h-64 bg-gray-100 rounded" />
         </div>
       </div>
-    </AdminLayout>
+
+      {/* Bottom skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="h-5 bg-gray-200 rounded w-32 mb-4" />
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-8 bg-gray-100 rounded mb-3" />
+          ))}
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-2">
+          <div className="h-5 bg-gray-200 rounded w-32 mb-4" />
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-12 bg-gray-100 rounded mb-2" />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

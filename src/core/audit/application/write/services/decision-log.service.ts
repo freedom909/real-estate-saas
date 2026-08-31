@@ -1,6 +1,5 @@
 //src/modules/audit/application/write/decision-log.service.ts
 import { inject, injectable } from "tsyringe";
-
 import { CreateDecisionLogDTO } from "../dto/create-decision-log.dto";
 
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";

@@ -437,29 +437,27 @@ function DetailItem({ label, value, mono }: { label: string; value?: string; mon
 
 function LoadingSkeleton() {
   return (
-    <AdminLayout>
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-48 mb-6" />
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl p-4">
-              <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
-              <div className="h-7 bg-gray-200 rounded w-12" />
-            </div>
-          ))}
-        </div>
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center gap-4 px-6 py-4 border-t">
-              <div className="h-8 w-8 bg-gray-200 rounded-full" />
-              <div className="h-4 bg-gray-200 rounded w-32" />
-              <div className="h-4 bg-gray-200 rounded w-40" />
-              <div className="h-6 bg-gray-200 rounded w-16" />
-              <div className="h-6 bg-gray-200 rounded w-14" />
-            </div>
-          ))}
-        </div>
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-48 mb-6" />
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-white rounded-xl p-4">
+            <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
+            <div className="h-7 bg-gray-200 rounded w-12" />
+          </div>
+        ))}
       </div>
-    </AdminLayout>
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-6 py-4 border-t">
+            <div className="h-8 w-8 bg-gray-200 rounded-full" />
+            <div className="h-4 bg-gray-200 rounded w-32" />
+            <div className="h-4 bg-gray-200 rounded w-40" />
+            <div className="h-6 bg-gray-200 rounded w-16" />
+            <div className="h-6 bg-gray-200 rounded w-14" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

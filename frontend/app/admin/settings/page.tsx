@@ -417,30 +417,28 @@ function SettingsContent() {
 
 function LoadingSkeleton() {
   return (
-    <AdminLayout>
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-48 mb-6" />
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl p-4">
-              <div className="h-8 w-8 bg-gray-200 rounded mb-2" />
-              <div className="h-4 bg-gray-200 rounded w-20 mb-1" />
-              <div className="h-3 bg-gray-200 rounded w-32" />
-            </div>
-          ))}
-        </div>
-        <div className="bg-white rounded-xl shadow-sm">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex items-center justify-between px-6 py-4 border-b">
-              <div>
-                <div className="h-4 bg-gray-200 rounded w-32 mb-1" />
-                <div className="h-3 bg-gray-200 rounded w-48" />
-              </div>
-              <div className="h-6 w-16 bg-gray-200 rounded" />
-            </div>
-          ))}
-        </div>
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-48 mb-6" />
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="bg-white rounded-xl p-4">
+            <div className="h-8 w-8 bg-gray-200 rounded mb-2" />
+            <div className="h-4 bg-gray-200 rounded w-20 mb-1" />
+            <div className="h-3 bg-gray-200 rounded w-32" />
+          </div>
+        ))}
       </div>
-    </AdminLayout>
+      <div className="bg-white rounded-xl shadow-sm">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex items-center justify-between px-6 py-4 border-b">
+            <div>
+              <div className="h-4 bg-gray-200 rounded w-32 mb-1" />
+              <div className="h-3 bg-gray-200 rounded w-48" />
+            </div>
+            <div className="h-6 w-16 bg-gray-200 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

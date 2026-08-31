@@ -4,6 +4,9 @@ import "reflect-metadata";
 import dotenv from "dotenv";
 dotenv.config();
 
+import dns from "dns";
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
 import { ApolloServer } from "@apollo/server";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { gql } from "graphql-tag";
@@ -14,17 +17,20 @@ import { expressMiddleware } from "@as-integrations/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import cors from "cors";
 import { container } from "tsyringe";
+import mongoose from "mongoose";
 
 import { resolvers } from "./resolvers/admin.resolver";
 import { sequelize } from "@/infrastructure/config/seq";
 import registerAuthDependencies from "../auth/registerAuthDependencies";
 import { registerUserDependencies } from "../user/registerUserDependencies";
 import registerAdminDependencies from "@/modules/container/admin.register";
+import registerAuditDependencies from "@/modules/container/audit.register";
 
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
 console.info("Admin subgraph configuration loaded");
 
+registerAuditDependencies(container);
 registerAuthDependencies(container);
 registerAdminDependencies();
 registerUserDependencies(container);
@@ -35,6 +41,27 @@ const typeDefs = gql(
 
 const startApolloServer = async () => {
   try {
+    const primaryUri = process.env.MONGO_URI || "mongodb://localhost:27017/nakano";
+    const fallbackUri = "mongodb://localhost:27017/nakano";
+    console.info("Connecting to MongoDB...");
+    console.info("MONGO_URI (primary) =", primaryUri);
+    try {
+      await mongoose.connect(primaryUri, {
+        serverSelectionTimeoutMS: 5000,
+      });
+    } catch (primaryErr: any) {
+      console.warn("Primary MongoDB failed:", primaryErr?.code ?? primaryErr?.message ?? primaryErr);
+      if (primaryUri !== fallbackUri) {
+        console.info("Falling back to local MongoDB:", fallbackUri);
+        await mongoose.connect(fallbackUri, {
+          serverSelectionTimeoutMS: 5000,
+        });
+      } else {
+        throw primaryErr;
+      }
+    }
+    console.info("Connected to MongoDB (Mongoose) at", mongoose.connection.name);
+
     console.info("Connecting to MySQL...");
 if (process.env.NODE_ENV === "development") {
     await sequelize.authenticate()
@@ -53,6 +80,7 @@ if (process.env.NODE_ENV === "development") {
             return {
               async drainServer() {
                 container.clearInstances();
+                if (mongoose) await mongoose.disconnect();
               },
             };
           },

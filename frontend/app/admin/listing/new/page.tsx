@@ -321,27 +321,26 @@ const handleSubmit = async (e: React.FormEvent) => {
 };
 
   return (
-    <AdminGuard>
-      <AdminLayout>
-        <div className="max-w-2xl mx-auto p-6">
-          <h1 className="text-3xl font-bold mb-6">Create New Listing</h1>
+    <AdminLayout>
+      <div className="max-w-2xl mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">Create New Listing</h1>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                type="text"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                placeholder="Beautiful modern apartment in downtown"
-                className="w-full border rounded-lg p-3"
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input
+              type="text"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="Beautiful modern apartment in downtown"
+              className="w-full border rounded-lg p-3"
+              required
+            />
+          </div>
 
-            {/* Description */}
+          {/* Description */}
             <div>
               <label className="block text-sm font-medium mb-1">Description</label>
               <textarea
@@ -639,7 +638,6 @@ const handleSubmit = async (e: React.FormEvent) => {
             </button>
           </form>
         </div>
-      </AdminLayout>
-    </AdminGuard>
+    </AdminLayout>
   );
 }

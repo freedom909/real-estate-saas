@@ -406,43 +406,41 @@ function DetailRow({ label, value, mono }: { label: string; value?: string; mono
 
 function LoadingSkeleton() {
   return (
-    <AdminLayout>
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-48 mb-6" />
-        <div className="grid grid-cols-4 gap-3 mb-6">
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-48 mb-6" />
+      <div className="grid grid-cols-4 gap-3 mb-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-white rounded-xl p-3 text-center">
+            <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1" />
+            <div className="h-3 bg-gray-200 rounded w-16 mx-auto" />
+          </div>
+        ))}
+      </div>
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="flex gap-2 mb-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl p-3 text-center">
-              <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1" />
-              <div className="h-3 bg-gray-200 rounded w-16 mx-auto" />
-            </div>
+            <div key={i} className="h-8 bg-gray-200 rounded w-20" />
           ))}
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex gap-2 mb-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-8 bg-gray-200 rounded w-20" />
-            ))}
-          </div>
-          <div className="grid grid-cols-5 gap-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-10 bg-gray-200 rounded" />
-            ))}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="grid grid-cols-5 gap-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center gap-4 px-6 py-4 border-t">
-              <div className="h-6 bg-gray-200 rounded w-24" />
-              <div className="h-4 bg-gray-200 rounded w-20" />
-              <div className="h-4 bg-gray-200 rounded w-32" />
-              <div className="h-4 bg-gray-200 rounded w-24" />
-              <div className="h-4 bg-gray-200 rounded w-40" />
-              <div className="h-4 bg-gray-200 rounded w-20" />
-              <div className="h-4 bg-gray-200 rounded w-32" />
-            </div>
+            <div key={i} className="h-10 bg-gray-200 rounded" />
           ))}
         </div>
       </div>
-    </AdminLayout>
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-6 py-4 border-t">
+            <div className="h-6 bg-gray-200 rounded w-24" />
+            <div className="h-4 bg-gray-200 rounded w-20" />
+            <div className="h-4 bg-gray-200 rounded w-32" />
+            <div className="h-4 bg-gray-200 rounded w-24" />
+            <div className="h-4 bg-gray-200 rounded w-40" />
+            <div className="h-4 bg-gray-200 rounded w-20" />
+            <div className="h-4 bg-gray-200 rounded w-32" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

@@ -2,15 +2,12 @@
 import "reflect-metadata";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
-// ── Mock all imported use-cases & repos before touching the resolver ──────────
+// ── Mock all imported use-cases & ACL before touching the resolver ──────────
 const mockUseCases = {
   createAdminUser: { execute: jest.fn() },
   getAdminUserById: { execute: jest.fn() },
   updateAdminUser: { execute: jest.fn() },
   deleteAdminUser: { execute: jest.fn() },
-  createAuditLog: { execute: jest.fn() },
-  getAuditLogs: { execute: jest.fn() },
-  getAuditLogCount: { execute: jest.fn() },
   getDashboardStats: { execute: jest.fn() },
   getSystemSettings: { execute: jest.fn() },
   updateSystemSetting: { execute: jest.fn() },
@@ -25,14 +22,19 @@ const mockUseCases = {
 
 const mockRepos = {
   adminUser: { findAll: jest.fn(), findById: jest.fn(), create: jest.fn(), update: jest.fn(), delete: jest.fn(), countByRole: jest.fn() },
-  auditLog: { findAll: jest.fn(), findFiltered: jest.fn(), create: jest.fn() },
+};
+
+const mockAcl = {
+  recordAdminAction: jest.fn(),
+  listAdminAuditLogs: jest.fn(),
+  listRecentAdminAuditLogs: jest.fn(),
+  countAdminAuditLogs: jest.fn(),
 };
 
 jest.mock("@/modules/tokens/admin.tokens", () => ({
   TOKENS_ADMIN: {
     repos: {
       adminUserRepository: Symbol.for("AdminUserRepository"),
-      auditLogRepository: Symbol.for("AuditLogRepository"),
       systemSettingsRepository: Symbol.for("SystemSettingsRepository"),
       notificationRepository: Symbol.for("NotificationRepository"),
     },
@@ -41,9 +43,6 @@ jest.mock("@/modules/tokens/admin.tokens", () => ({
       getAdminUserByIdUseCase: Symbol.for("GetAdminUserByIdUseCase"),
       updateAdminUserUseCase: Symbol.for("UpdateAdminUserUseCase"),
       deleteAdminUserUseCase: Symbol.for("DeleteAdminUserUseCase"),
-      createAuditLogUseCase: Symbol.for("CreateAuditLogUseCase"),
-      getAuditLogsUseCase: Symbol.for("GetAuditLogsUseCase"),
-      getAuditLogCountUseCase: Symbol.for("GetAuditLogCountUseCase"),
       getDashboardStatsUseCase: Symbol.for("GetDashboardStatsUseCase"),
       getSystemSettingsUseCase: Symbol.for("GetSystemSettingsUseCase"),
       updateSystemSettingUseCase: Symbol.for("UpdateSystemSettingUseCase"),
@@ -55,6 +54,9 @@ jest.mock("@/modules/tokens/admin.tokens", () => ({
       updateAdminAccountUseCase: Symbol.for("UpdateAdminAccountUseCase"),
       getAllAdminsUseCase: Symbol.for("GetAllAdminsUseCase"),
     },
+    acl: {
+      adminAuditACL: Symbol.for("AdminAuditACL"),
+    },
   },
 }));
 
@@ -63,9 +65,6 @@ jest.mock("@/core/admin/application/usecase/createAdminUser.usecase", () => ({ _
 jest.mock("@/core/admin/application/usecase/getUserById.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/updateAdminUser.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/deleteUser.usecase", () => ({ __esModule: true, default: function () {} }));
-jest.mock("@/core/admin/application/usecase/createAuditLog.usecase", () => ({ __esModule: true, default: function () {} }));
-jest.mock("@/core/admin/application/usecase/getAuditLogs.usecase", () => ({ __esModule: true, default: function () {} }));
-jest.mock("@/core/admin/application/usecase/getAuditLogCount.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/getDashboardStats.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/getSystemSettings.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/updateSystemSetting.usecase", () => ({ __esModule: true, default: function () {} }));
@@ -76,6 +75,7 @@ jest.mock("@/core/admin/application/usecase/markNotificationRead.usecase", () =>
 jest.mock("@/core/admin/application/usecase/deleteNotification.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/updateAdminAccount.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/getAllAdmins.usecase", () => ({ __esModule: true, default: function () {} }));
+jest.mock("@/core/admin/application/acl/admin.auditACL", () => ({ __esModule: true, AdminAuditACL: function () {} }));
 
 // Mock guards – pass-through so resolver body runs unguarded
 jest.mock("@/subgraphs/admin/guards/adminRole.guard", () => ({
@@ -97,14 +97,10 @@ jest.mock("@/subgraphs/admin/guards/auditLogger", () => ({
 jest.mock("tsyringe", () => {
   const tokenMap = new Map<symbol, any>([
     [Symbol.for("AdminUserRepository"), mockRepos.adminUser],
-    [Symbol.for("AuditLogRepository"), mockRepos.auditLog],
     [Symbol.for("CreateAdminUserUseCase"), mockUseCases.createAdminUser],
     [Symbol.for("GetAdminUserByIdUseCase"), mockUseCases.getAdminUserById],
     [Symbol.for("UpdateAdminUserUseCase"), mockUseCases.updateAdminUser],
     [Symbol.for("DeleteAdminUserUseCase"), mockUseCases.deleteAdminUser],
-    [Symbol.for("CreateAuditLogUseCase"), mockUseCases.createAuditLog],
-    [Symbol.for("GetAuditLogsUseCase"), mockUseCases.getAuditLogs],
-    [Symbol.for("GetAuditLogCountUseCase"), mockUseCases.getAuditLogCount],
     [Symbol.for("GetDashboardStatsUseCase"), mockUseCases.getDashboardStats],
     [Symbol.for("GetSystemSettingsUseCase"), mockUseCases.getSystemSettings],
     [Symbol.for("UpdateSystemSettingUseCase"), mockUseCases.updateSystemSetting],
@@ -115,6 +111,7 @@ jest.mock("tsyringe", () => {
     [Symbol.for("DeleteNotificationUseCase"), mockUseCases.deleteNotification],
     [Symbol.for("UpdateAdminAccountUseCase"), mockUseCases.updateAdminAccount],
     [Symbol.for("GetAllAdminsUseCase"), mockUseCases.getAllAdmins],
+    [Symbol.for("AdminAuditACL"), mockAcl],
   ]);
   return {
     container: { resolve: jest.fn((token: symbol) => tokenMap.get(token) ?? null) },
@@ -136,13 +133,13 @@ describe("Admin Resolvers", () => {
 
   // ─── Queries ─────────────────────────────────────────────────────────────
   describe("Query.adminDashboard", () => {
-    it("should return dashboard with recent audit logs", async () => {
+    it("should return dashboard with recent audit logs via AdminAuditACL", async () => {
       const logs = [{ id: "log-1", adminId: "a1", action: "CREATE", target: "user", targetId: "u1", details: "ok", ip: "1.1.1.1", createdAt: new Date() }];
-      mockRepos.auditLog.findAll.mockResolvedValue(logs);
+      mockAcl.listRecentAdminAuditLogs.mockResolvedValue(logs);
 
       const result = await (resolvers as any).Query.adminDashboard(null, {}, ctx());
 
-      expect(mockRepos.auditLog.findAll).toHaveBeenCalledWith(10);
+      expect(mockAcl.listRecentAdminAuditLogs).toHaveBeenCalledWith(50);
       expect(result.totalUsers).toBe(0);
       expect(result.recentAuditLogs).toHaveLength(1);
       expect(result.recentAuditLogs[0].id).toBe("log-1");
@@ -199,32 +196,32 @@ describe("Admin Resolvers", () => {
   });
 
   describe("Query.adminAuditLogs", () => {
-    it("should return logs without filter", async () => {
+    it("should return logs without filter via AdminAuditACL", async () => {
       const logs = [{ id: "log-1" }];
-      mockUseCases.getAuditLogs.execute.mockResolvedValue(logs);
+      mockAcl.listAdminAuditLogs.mockResolvedValue(logs);
 
       const result = await (resolvers as any).Query.adminAuditLogs(null, { limit: 25 }, ctx());
 
-      expect(mockUseCases.getAuditLogs.execute).toHaveBeenCalledWith(25, undefined);
+      expect(mockAcl.listAdminAuditLogs).toHaveBeenCalledWith(25, undefined);
       expect(result).toEqual(logs);
     });
 
-    it("should pass filter to use case", async () => {
-      mockUseCases.getAuditLogs.execute.mockResolvedValue([]);
+    it("should pass filter to AdminAuditACL", async () => {
+      mockAcl.listAdminAuditLogs.mockResolvedValue([]);
 
       await (resolvers as any).Query.adminAuditLogs(null, { limit: 10, filter: { action: "CREATE" } }, ctx());
 
-      expect(mockUseCases.getAuditLogs.execute).toHaveBeenCalledWith(10, { action: "CREATE" });
+      expect(mockAcl.listAdminAuditLogs).toHaveBeenCalledWith(10, { action: "CREATE" });
     });
   });
 
   describe("Query.adminAuditLogCount", () => {
-    it("should return count via use case", async () => {
-      mockUseCases.getAuditLogCount.execute.mockResolvedValue(5);
+    it("should return count via AdminAuditACL", async () => {
+      mockAcl.countAdminAuditLogs.mockResolvedValue(5);
 
       const result = await (resolvers as any).Query.adminAuditLogCount(null, { filter: { action: "DELETE" } }, ctx());
 
-      expect(mockUseCases.getAuditLogCount.execute).toHaveBeenCalledWith({ action: "DELETE" });
+      expect(mockAcl.countAdminAuditLogs).toHaveBeenCalledWith({ action: "DELETE" });
       expect(result).toBe(5);
     });
   });
@@ -330,14 +327,14 @@ describe("Admin Resolvers", () => {
   });
 
   describe("Mutation.createAdminAuditLog", () => {
-    it("should execute use case with input", async () => {
+    it("should delegate to AdminAuditACL.recordAdminAction", async () => {
       const input = { adminId: "a1", action: "LOGIN", target: "session" };
       const log = { id: "log-new", ...input };
-      mockUseCases.createAuditLog.execute.mockResolvedValue(log);
+      mockAcl.recordAdminAction.mockResolvedValue(log);
 
       const result = await (resolvers as any).Mutation.createAdminAuditLog(null, { input }, ctx());
 
-      expect(mockUseCases.createAuditLog.execute).toHaveBeenCalledWith(input);
+      expect(mockAcl.recordAdminAction).toHaveBeenCalledWith(input);
       expect(result).toEqual(log);
     });
   });
