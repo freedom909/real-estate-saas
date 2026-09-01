@@ -45,10 +45,10 @@ jobs:
           NODE_ENV=test
           PORT=4000
           MONGO_URI=mongodb://127.0.0.1:27017/test_ci
-          MYSQL_HOST=127.0.0.1
-          MYSQL_PORT=3306
-          MYSQL_USER=root
-          MYSQL_PASSWORD=root
+          DB_HOST=127.0.0.1
+          DB_PORT=3306
+          DB_USER=root
+          DB_PASSWORD=root
           MYSQL_DB=test_ci
           JWT_SECRET=ci-jwt-secret
           JWT_EXPIRES_IN=1h

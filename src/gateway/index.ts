@@ -46,11 +46,34 @@ import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs"
 import dns from 'dns';
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
+// ---------- Subgraph URL helpers (env overrides, fallback to ECS host / localhost) ----------
+const SUBGRAPH_HOST = process.env.SUBGRAPH_HOST ?? "127.0.0.1";
+function subgraphUrl(envName: string, defaultPort: number): string {
+  const explicit = process.env[envName];
+  if (explicit) return explicit;
+  return `http://${SUBGRAPH_HOST}:${defaultPort}/graphql`;
+}
+
+const CORS_ORIGIN_ALLOWED = (
+  process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
+    : [
+        process.env.FRONTEND_URL ?? "http://localhost:3000",
+        "https://minshuku.info",
+        "https://www.minshuku.info",
+        "http://localhost:3000",
+      ]
+).filter(Boolean);
+
 async function start() {
   // Connect to MongoDB for REST routes (tenant API)
   const { default: mongoose } = await import("mongoose");
-  const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/nakano";
-  await mongoose.connect(mongoUri);
+  const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/nakano";
+  await mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 8_000,
+    heartbeatFrequencyMS: 5_000,
+  });
   console.log("✅ MongoDB connected for gateway");
 
   // Register Session model so auth.plugin can look up activeTenantId
@@ -80,22 +103,22 @@ async function start() {
     supergraphSdl: new IntrospectAndCompose({
       pollIntervalInMs: 10000,
       subgraphs: [
-        { name: "auth", url: "http://localhost:4010/graphql" },
-        { name: "user", url: "http://localhost:4020/graphql" },
-        { name: "booking", url: "http://localhost:4030/graphql" },
-        { name: "review", url: "http://localhost:4040/graphql" },
-        { name: "payment", url: "http://localhost:4050/graphql" },
-        { name: "tenant", url: "http://localhost:4060/graphql" },
-        { name: "audit", url: "http://localhost:4070/graphql" },
-        { name: "location", url: "http://localhost:4080/graphql" },
-        { name: "amenity", url: "http://localhost:4090/graphql" },
-        { name: "calendar", url: "http://localhost:4100/graphql" },
-        { name: "listing", url: "http://localhost:4101/graphql" },
-        { name: "account", url: "http://localhost:4102/graphql" },
-        { name: "cart", url: "http://localhost:4103/graphql" },
-        { name: "admin", url: "http://localhost:4104/graphql" },
-        { name: "wisdom", url: "http://localhost:4200/graphql" },
-        { name: "voice", url: "http://localhost:4300/graphql" },
+        { name: "auth",     url: subgraphUrl("AUTH_SUBGRAPH_URL",     4010) },
+        { name: "user",     url: subgraphUrl("USER_SUBGRAPH_URL",     4020) },
+        { name: "booking",  url: subgraphUrl("BOOKING_SUBGRAPH_URL",  4030) },
+        { name: "review",   url: subgraphUrl("REVIEW_SUBGRAPH_URL",   4040) },
+        { name: "payment",  url: subgraphUrl("PAYMENT_SUBGRAPH_URL",  4050) },
+        { name: "tenant",   url: subgraphUrl("TENANT_SUBGRAPH_URL",   4060) },
+        { name: "audit",    url: subgraphUrl("AUDIT_SUBGRAPH_URL",    4070) },
+        { name: "location", url: subgraphUrl("LOCATION_SUBGRAPH_URL", 4080) },
+        { name: "amenity",  url: subgraphUrl("AMENITY_SUBGRAPH_URL",  4090) },
+        { name: "calendar", url: subgraphUrl("CALENDAR_SUBGRAPH_URL", 4100) },
+        { name: "listing",  url: subgraphUrl("LISTING_SUBGRAPH_URL",  4101) },
+        { name: "account",  url: subgraphUrl("ACCOUNT_SUBGRAPH_URL",  4102) },
+        { name: "cart",     url: subgraphUrl("CART_SUBGRAPH_URL",     4103) },
+        { name: "admin",    url: subgraphUrl("ADMIN_SUBGRAPH_URL",    4104) },
+        { name: "wisdom",   url: subgraphUrl("WISDOM_SUBGRAPH_URL",   4200) },
+        { name: "voice",    url: subgraphUrl("VOICE_SUBGRAPH_URL",    4300) },
       ]
     }),
     buildService({ url }) {
@@ -154,9 +177,21 @@ async function start() {
   await server.start()
   const app = express()
 
-  // CORS for all routes
+  // CORS for all routes — allow frontend prod domains + localhost dev, override via CORS_ORIGINS env
   app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      const allowed = CORS_ORIGIN_ALLOWED.some((o) => o === origin || origin.startsWith(o));
+      if (allowed) return callback(null, true);
+      // Also allow any subdomain of minshuku.info for future Pages projects
+      try {
+        const host = new URL(origin).hostname;
+        if (host === "minshuku.info" || host.endsWith(".minshuku.info")) {
+          return callback(null, true);
+        }
+      } catch {}
+      return callback(new Error(`CORS blocked origin=${origin}`));
+    },
     credentials: true,
   }))
   app.use(express.json())

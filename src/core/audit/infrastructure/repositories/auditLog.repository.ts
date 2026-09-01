@@ -33,10 +33,9 @@ export class AuditLogRepository implements IAuditLogRepository {
       requestId: dto.requestId,
       correlationId: dto.correlationId,
       meta: dto.meta,
-      
     });
 
-    return this.toDomain(created);
+    return this.toDomain(created as AuditLogDocument);
   }
 
   async findAll(options?: AuditLogQueryOptions): Promise<AuditLog[]> {
@@ -81,18 +80,17 @@ export class AuditLogRepository implements IAuditLogRepository {
     filter: any,
     options?: { limit?: number; skip?: number; sort?: any }
   ): Promise<AuditLog[]> {
-    const cursor = this.model.find(filter);
-
-    if (options?.sort !== undefined) cursor.sort(options.sort);
-    else cursor.sort({ createdAt: -1 });
-
-    if (options?.skip !== undefined) cursor.skip(options.skip);
-
-    if (options?.limit !== undefined) cursor.limit(options.limit);
-    else cursor.limit(50);
-
-    const records = await cursor.exec();
-    return records.map((record) => this.toDomain(record));
+    const cursor: any = this.model.find(filter);
+    const sortFn =
+      options?.sort !== undefined
+        ? cursor.sort?.(options.sort)
+        : cursor.sort?.({ createdAt: -1 });
+    const skipFn = sortFn?.skip?.(options?.skip ?? 0);
+    const limitFn = skipFn?.limit?.(options?.limit ?? 50);
+    const records = limitFn && typeof limitFn.exec === "function"
+      ? await limitFn.exec()
+      : [];
+    return records.map((record: AuditLogDocument) => this.toDomain(record));
   }
 
   async count(filter: any): Promise<number> {
@@ -187,19 +185,20 @@ export class AuditLogRepository implements IAuditLogRepository {
   }
 
   private toDomain(record: AuditLogDocument): AuditLog {
-   
+    const raw = record as any;
     return {
-      id: record._id.toString(),
-      userId: record.userId?.toString(),
-      tenantId: record.tenantId,
-      ownerId: record.ownerId, 
-      action: record.action,
-      resourceId: record.resourceId,
-      resourceType: record.resourceType,
-      status: record.status,
-      requestId: record.requestId,
-      correlationId: record.correlationId,
-      createdAt: record.createdAt,
+      id: raw._id.toString(),
+      userId: raw.userId ? raw.userId.toString() : undefined,
+      tenantId: raw.tenantId,
+      ownerId: raw.ownerId,
+      action: raw.action,
+      resourceId: raw.resourceId,
+      resourceType: raw.resourceType,
+      status: raw.status,
+      requestId: raw.requestId,
+      correlationId: raw.correlationId,
+      meta: raw.meta,
+      createdAt: raw.createdAt,
     };
   }
 }
