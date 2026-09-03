@@ -1,34 +1,19 @@
 import type { NextConfig } from "next";
 
-const backendUrl = process.env.BACKEND_URL || "http://localhost:4000";
-
 const nextConfig: NextConfig = {
   turbopack: {
     root: ".",
   },
   images: {
     remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "9000",
-        pathname: "/omaesama/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "9000",
-        pathname: "/listing-images/**",
-      },
+      { protocol: "http", hostname: "localhost", port: "9000", pathname: "/omaesama/**" },
+      { protocol: "http", hostname: "localhost", port: "9000", pathname: "/listing-images/**" },
+      { protocol: "https", hostname: "**" },
     ],
   },
-  output: "standalone",
   async rewrites() {
     return [
-      {
-        source: "/api/voice/:path*",
-        destination: `${backendUrl}/api/voice/:path*`,
-      },
+      { source: "/api/voice/:path*", destination: `${process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:4000"}/api/voice/:path*` },
     ];
   },
 };

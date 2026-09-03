@@ -15,26 +15,18 @@ extend type User @key(fields: "id") {
   id: ID! @external
 }
 
-extend type Owner @key(fields: "id") {
-  
+
+
+
+
+extend type Listing @key(fields: "id") {
   id: ID! @external
-  listings: [Listing!]@shareable
+
 }
 
-extend type Customer @key(fields: "id") {
+extend type Booking @key(fields: "id") {
   id: ID! @external
-  overallRating: Float @shareable
-  bookings: [Booking!] @shareable
-  listings: [Listing!] @shareable
-}
 
-
-type Listing @key(fields: "id") {
-  id: ID! @shareable
-}
-
-type Booking @key(fields: "id") {
-  id: ID! @shareable
 }
 
 type Location @key(fields: "id") {

@@ -46,9 +46,7 @@ enum PaymentStatus {
 # --------------------------
 # EXTERNAL TYPES
 # --------------------------
-extend type Customer @key(fields: "id") {
-  id: ID! @external
-}
+
 
 extend type Booking @key(fields: "id") {
   id: ID! @external

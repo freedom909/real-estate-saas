@@ -1,4 +1,4 @@
-
+//src/subgraphs/tenant/resolvers/tenant.resolver.ts
 import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 import { DependencyContainer } from 'tsyringe';
 import { SessionService } from '@/subgraphs/auth/infrastructure/services/session.service';

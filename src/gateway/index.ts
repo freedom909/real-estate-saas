@@ -99,7 +99,36 @@ async function start() {
   console.log("✅ Session model registered in gateway");
 
   console.log("start gateway")
+  console.log("========== SUBGRAPH URLS ==========");
+
+console.log(
+  "AUTH   =",
+  subgraphUrl("AUTH_SUBGRAPH_URL", 4010)
+);
+
+console.log(
+  "USER   =",
+  subgraphUrl("USER_SUBGRAPH_URL", 4020)
+);
+
+console.log(
+  "BOOKING =",
+  subgraphUrl("BOOKING_SUBGRAPH_URL", 4030)
+);
+
+console.log(
+  "REVIEW =",
+  subgraphUrl("REVIEW_SUBGRAPH_URL", 4040)
+);
+
+console.log(
+  "TENANT =",
+  subgraphUrl("TENANT_SUBGRAPH_URL", 4060)
+);
+
+console.log("==================================");
   const gateway = new ApolloGateway({
+    
     supergraphSdl: new IntrospectAndCompose({
       pollIntervalInMs: 10000,
       subgraphs: [
@@ -108,7 +137,7 @@ async function start() {
         { name: "booking",  url: subgraphUrl("BOOKING_SUBGRAPH_URL",  4030) },
         { name: "review",   url: subgraphUrl("REVIEW_SUBGRAPH_URL",   4040) },
         { name: "payment",  url: subgraphUrl("PAYMENT_SUBGRAPH_URL",  4050) },
-        { name: "tenant",   url: subgraphUrl("TENANT_SUBGRAPH_URL",   4060) },
+        { name: "tenant",   url: subgraphUrl("TENANT_SUBGRAPH_URL",   4060) },// does it mean that it must have a TENANT_SUBGRAPH_URL env variable in the .env file?
         { name: "audit",    url: subgraphUrl("AUDIT_SUBGRAPH_URL",    4070) },
         { name: "location", url: subgraphUrl("LOCATION_SUBGRAPH_URL", 4080) },
         { name: "amenity",  url: subgraphUrl("AMENITY_SUBGRAPH_URL",  4090) },

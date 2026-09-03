@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -96,70 +96,73 @@
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a>
 <a name='L33'></a><a href='#L33'>33</a>
-<a name='L34'></a><a href='#L34'>34</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { container } from 'tsyringe';
-import { AuditService } from '../services/audit.service';
-import mongoose from 'mongoose';
-import { UserInputError } from '@/infrastructure/utils/errors';
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { container } from 'tsyringe';</span>
 &nbsp;
-export const resolvers = {
+<span class="cstat-no" title="statement not covered" >import mongoose from 'mongoose';</span>
+<span class="cstat-no" title="statement not covered" >import { UserInputError } from '@/infrastructure/utils/errors';</span>
+<span class="cstat-no" title="statement not covered" >import { TOKENS_AUDIT } from '@/modules/tokens/audit.tokens';</span>
+import { GetAuditLogsFilter, GetAuditLogsQuery } from '@/core/audit/application/read/queries/get-audit-logs.query';
+import { AuditLogger } from '@/core/audit/application/write/services/audit.logger';
+&nbsp;
+&nbsp;
+export const <span class="cstat-no" title="statement not covered" >resolvers = {</span>
   Query: {
-    getAuditLog: async (_: any, { userId }: { userId: string }) =&gt; {
-      const service = container.resolve(AuditService);
-      return service.getAuditLog(userId);
+    getAuditLogs: <span class="fstat-no" title="function not covered" >async </span>(_: any, {filter}: {filter: GetAuditLogsFilter}, context:any) =&gt; {
+      const service = <span class="cstat-no" title="statement not covered" >container.resolve&lt;GetAuditLogsQuery&gt;(TOKENS_AUDIT.services.getAuditLogsQuery);</span>
+<span class="cstat-no" title="statement not covered" >      return service.execute(filter??{});</span>
     },
-    getAuditLogsByResource: async (_: any, { resourceId }: { resourceId: string }) =&gt; {
-      const service = container.resolve(AuditService);
-      return service.getLogsByResource(resourceId);
-    },
+&nbsp;
   },
   Mutation: {
-    recordAuditLog: async (_, args) =&gt; {
-      if (!args.userId || !mongoose.Types.ObjectId.isValid(args.userId)) {
-        throw new UserInputError('Invalid or missing userId for audit log');
+    recordAuditLogs: <span class="fstat-no" title="function not covered" >async </span>(_, args) =&gt; {
+<span class="cstat-no" title="statement not covered" >      if (!args.userId ) {</span>
+<span class="cstat-no" title="statement not covered" >        throw new UserInputError('Invalid or missing userId for audit log');</span>
       }
-      if (args.resourceId &amp;&amp; !mongoose.Types.ObjectId.isValid(args.resourceId)) {
-        throw new UserInputError('Invalid resourceId for audit log');
+<span class="cstat-no" title="statement not covered" >      if (args.resourceId &amp;&amp; !mongoose.Types.ObjectId.isValid(args.resourceId)) {</span>
+<span class="cstat-no" title="statement not covered" >        throw new UserInputError('Invalid resourceId for audit log');</span>
       }
 &nbsp;
-      const service = container.resolve(AuditService);
-      return service.createLog(args.action, args.userId, args.resourceId, args.metadata);
+      const service = <span class="cstat-no" title="statement not covered" >container.resolve&lt;AuditLogger&gt;(TOKENS_AUDIT.services.auditLogger);</span>
+<span class="cstat-no" title="statement not covered" >      return service.writeAuditLog({...args.input})</span>
     },
   },
   AuditLog: {
-    user: (parent) =&gt; ({ __typename: 'User', id: parent.userId })
+    user: <span class="fstat-no" title="function not covered" >(p</span>arent) =&gt; (<span class="cstat-no" title="statement not covered" >{ __typename: 'User', id: parent.userId })</span>
   }
 };
 &nbsp;</pre></td></tr></table></pre>
@@ -169,7 +172,7 @@ export const resolvers = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-28T09:42:49.566Z
+                at 2026-08-31T13:29:37.479Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

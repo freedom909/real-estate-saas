@@ -1,0 +1,20 @@
+tunnel: ${CLOUDFLARED_TUNNEL_ID}
+credentials-file: /home/deploy/.cloudflared/${CLOUDFLARED_TUNNEL_ID}.json
+
+ingress:
+  # GraphQL Gateway + REST routes (tenantRouter/uploadRouter/imageRouter/fileRouter)
+  # 所有 API 请求都走 Gateway 4000 端口 — Cloudflare Tunnel 直接转发到 127.0.0.1:4000
+  - hostname: api.minshuku.info
+    service: http://127.0.0.1:4000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      tcpKeepAlive: 30s
+
+  # 可选：把 Voice Gateway 等单独的子域名也接进来（目前没启用，先占位）
+  # - hostname: voice.minshuku.info
+  #   service: http://127.0.0.1:4300
+  #   originRequest: { noTLSVerify: true }
+
+  # 如果同一个 Tunnel 还要暴露前端：不推荐（Pages/CDN 更适合），这里保留占位。
+  - service: http_status:404

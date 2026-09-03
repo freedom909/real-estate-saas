@@ -50,14 +50,7 @@ type Picture @key(fields: "id") {
   type: String!
   sortOrder: Int!
 }
-# -----------------------------------
-# Owner Federation Extension
-# -----------------------------------
-extend type Owner @key(fields: "id") {
-  id: ID! @external
 
-  listings: [Listing!] @shareable
-}
 
 # -----------------------------------
 # Category

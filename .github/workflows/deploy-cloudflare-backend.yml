@@ -1,0 +1,115 @@
+name: Deploy Backend → Alibaba Cloud ECS (Cloudflare Tunnel)
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-backend-ecs-cloudflare-tunnel-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DEPLOY_DIR: /home/deploy/minshuku
+  HEALTH_URL: https://api.minshuku.info/health
+
+jobs:
+  deploy-ecs:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    name: SSH ECS · docker compose build + restart
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check required SSH secrets
+        id: check-secrets
+        run: |
+          missing=()
+          [ -z "${{ secrets.SSH_HOST }}" ] && missing+=("SSH_HOST")
+          [ -z "${{ secrets.SSH_USER }}" ] && missing+=("SSH_USER")
+          [ -z "${{ secrets.SSH_KEY }}" ]  && missing+=("SSH_KEY")
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::notice title=Skip ECS backend deploy::Missing repo Actions secrets: ${missing[*]}. Passwords live in /home/deploy/minshuku/.env on ECS — do NOT paste them back into GitHub Secrets."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Configure SSH client
+        if: steps.check-secrets.outputs.ready == 'true'
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' '${{ secrets.SSH_KEY }}' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "SSH_USER=${{ secrets.SSH_USER }}" >> "$GITHUB_ENV"
+          echo "SSH_HOST=${{ secrets.SSH_HOST }}" >> "$GITHUB_ENV"
+          echo "SSH_PORT=${{ secrets.SSH_PORT || 22 }}" >> "$GITHUB_ENV"
+
+      - name: Clone or pull code on ECS, then PRE-FLIGHT: validate .env exists + run check-env.sh (DO NOT overwrite passwords in .env)
+        if: steps.check-secrets.outputs.ready == 'true'
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "set -euo pipefail
+            mkdir -p '$DEPLOY_DIR'
+            cd '$DEPLOY_DIR'
+            if [ ! -d .git ]; then git init -q; fi
+            git remote add origin '${{ github.server_url }}/${{ github.repository }}.git' 2>/dev/null || true
+            git fetch --depth=1 origin ${{ github.sha }} -q
+            git reset --hard ${{ github.sha }} -q
+            echo '.env keep-safe mode: if /home/deploy/minshuku/.env exists we NEVER overwrite it (passwords live there).'
+            if [ ! -f .env ]; then
+              echo '.env is missing → copy .env.alibaba.example as placeholder. Fill it manually BEFORE next deploy!'
+              cp .env.alibaba.example .env
+              chmod 600 .env
+              echo '::group::check-env.sh --strict (expected to FAIL on first deploy, then you fill .env and re-run)'
+              bash scripts/check-env.sh --strict || true
+              echo '::endgroup::'
+              echo '::error::.env file was NOT present on ECS — deploy STOPPED to avoid containers crashing. Please SSH into ECS, fill /home/deploy/minshuku/.env (copy from .env.alibaba.example) and RE-RUN this workflow. Do NOT paste passwords into GitHub Actions secrets.'
+              exit 1
+            fi
+            chmod 600 .env
+            echo ''
+            echo '--- Pre-flight: validate .env via scripts/check-env.sh --strict ---'
+            bash scripts/check-env.sh --strict
+            echo '--- .env OK ---'
+          "
+
+      - name: docker compose build + up -d (ECS host network → RDS/Redis/OSS internal endpoints 可达)
+        if: steps.check-secrets.outputs.ready == 'true'
+        timeout-minutes: 30
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "set -euo pipefail
+            cd '$DEPLOY_DIR'
+            DOCKER_BUILDKIT=1 docker compose -f docker-compose.backend.yml up -d --build --remove-orphans
+            docker compose -f docker-compose.backend.yml ps
+          "
+
+      - name: Gateway health check via Cloudflare Tunnel
+        if: steps.check-secrets.outputs.ready == 'true'
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          for i in {1..80}; do
+            code=$(curl -sk -o /tmp/gw.json -w "%{http_code}" --max-time 8 "$HEALTH_URL" || true)
+            if [ "$code" = "200" ] || [ "$code" = "400" ] || [ "$code" = "405" ]; then
+              echo "✅ Gateway healthy via CF Tunnel (HTTP=$code)."
+              head -c 400 /tmp/gw.json; echo
+              exit 0
+            fi
+            echo "try $i/80: HTTP=$code — sleeping 4s…"
+            sleep 4
+          done
+          echo "::error::Gateway did not become healthy via Cloudflare Tunnel. Debug on ECS: cd $DEPLOY_DIR; bash scripts/check-env.sh --strict; docker compose -f docker-compose.backend.yml logs --tail=300 backend"
+          exit 1
+
+      - name: Alibaba Cloud checklist (read-only reminders)
+        run: |
+          echo "::notice title=Post-deploy Alibaba verification::"
+          echo "  1) ECS 安全组入方向仅允许 22/TCP 来源=<您的办公 IP>；其他 ALL DENY。(Cloudflare Tunnel 纯出站，无需开放业务端口)"
+          echo "  2) RDS MySQL / Tair-Redis / MongoDB 白名单：放通 ECS 私网 IP/VPC CIDR，不要放通公网。"
+          echo "  3) OSS：推荐 ECS 绑定 RAM 角色 AliyunOSSFullAccess；兜底方案是把 OSS_AK/SK 写在 /home/deploy/minshuku/.env 里（已加 600 权限）"
+          echo "  4) Cloudflare → SSL/TLS → 模式 = FULL (strict)。"
+          echo "  5) 对象存储切换：STORAGE_PROVIDER=OSS 走阿里云 OSS（内网 endpoint）；MINIO=本地开发。填错直接 fail closed。"

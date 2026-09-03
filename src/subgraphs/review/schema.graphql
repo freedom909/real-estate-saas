@@ -1,71 +1,174 @@
- schema
+schema
   @link(
-    url: "https://specs.apollo.dev/federation/v2.11",
-    import: [
-      "@key",
-      "@shareable",
-      "@external"
-    ]
-  )
-  {
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@external"]
+  ) {
   query: Query
   mutation: Mutation
 }
 
-type Query  {
-  "Returns a list of reviews for a given listing"
-  searchReviews(input: SearchReviewsInput!): [Review] @shareable
-  reviewsForListing(listingId: ID!): [Review] @shareable
-  review(id: ID!): Review @shareable
-  "Returns all reviews in the system"
-  allReviews: [Review] @shareable
+# =========================================================
+# Scalars
+# =========================================================
+
+scalar DateTime
+
+# =========================================================
+# Query
+# =========================================================
+
+type Query {
+
+  searchReviews(
+    input: SearchReviewsInput!
+  ): [Review!]!
+
+
+  reviewsForListing(
+    listingId: ID!
+  ): [Review!]!
+
+
+  review(
+    id: ID!
+  ): Review
+
+  allReviews: [Review!]!
 }
 
+# =========================================================
+# Mutation
+# =========================================================
+
 type Mutation {
+
   submitCustomerReview(
     customerReview: ReviewInput!
     bookingId: ID!
-  ): SubmitCustomerReviewResponse! 
+  ): SubmitCustomerReviewResponse!
 
 
-  submitOwnerReplyToCustomerReview (
+  submitOwnerReplyToCustomerReview(
     bookingId: ID!
     hostReview: ReviewInput!
-    customerReviewID:ID!
-    comment:CommentInput! 
+    customerReviewID: ID!
+    comment: CommentInput!
   ): SubmitOwnerReplyToCustomerReviewResponse!
 }
 
-input CommentInput {
+# =========================================================
+# Review
+# =========================================================
+
+type Review @key(fields:"id") {
+  id: ID!
   content: String!
+  rating: Float!
+  author: User!
+  booking: Booking!
+  location: Location
+  customer: User
+  host: User
+  
+  likes: [Like!]!
+  dislikes: [Like!]!
+  comments: [Comment!]!
+  round: Int!
+  isPinned: Boolean!
+  isRecommended: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
-### Reviews
-type Review @key(fields: "id") {
+# =========================================================
+# Like
+# =========================================================
+
+type Like {
   id: ID!
-  content: String! @shareable
-  rating: Float! @shareable
-  author: User! @shareable
-  booking: Booking! @shareable
-  location: Location @shareable
-  customer: Customer @shareable
-  host: Owner @shareable
-  likes: [Like!] @shareable
-  dislikes: [Like!] @shareable
-  comments: [Comment!] @shareable
-  round: Int ! @shareable
-  isPinned: Boolean! @shareable
-  isRecommended: Boolean! @shareable
-  createdAt: String!
-  updatedAt: String!
+
+  userId: ID!
+
+  reviewId: ID!
+
+  createdAt: DateTime!
+
+  updatedAt: DateTime!
+
+  isPositive: Boolean!
 }
-### Enum
+
+# =========================================================
+# Comment
+# =========================================================
+
+type Comment {
+  id: ID!
+
+  content: String!
+
+  author: User!
+
+  review: Review
+
+  createdAt: DateTime!
+
+  updatedAt: DateTime!
+}
+
+# =========================================================
+# Location
+# =========================================================
+
+extend type Location @key(fields: "id") {
+  id: ID! @external
+}
+
+# =========================================================
+# Owner
+# =========================================================
+
+# =========================================================
+# Customer
+# =========================================================
+
+
+# =========================================================
+# Booking Reference
+# =========================================================
+
+
+extend type Booking @key(fields: "id") {
+  id: ID! @external
+}
+
+# =========================================================
+# Listing Reference
+# =========================================================
+
+
+extend type Listing @key(fields: "id") {
+  id: ID! @external
+}
+
+# =========================================================
+# User Reference
+# =========================================================
+
+
+extend type User @key(fields: "id") {
+  id: ID! @external
+}
+
+# =========================================================
+# Enums
+# =========================================================
+
 enum ReviewSortField {
   RATING
   CREATED_AT
   UPDATED_AT
 }
-
 
 enum Role {
   GUEST
@@ -84,119 +187,114 @@ enum SortOrder {
   DESC
 }
 
+# =========================================================
+# Search Input
+# =========================================================
+
 input SearchReviewsInput {
   id: ID
+
   customerId: ID
+
   authorId: ID
+
   listingId: ID
+
   ownerId: ID
+
   targetType: String
-  content: String # full-text search support
+
+  content: String
+
   rating: Float
+
   round: Int
+
   isPinned: Boolean
+
   isRecommended: Boolean
 
-  # Pagination
   limit: Int
+
   offset: Int
 
-  # Sorting
   sortBy: ReviewSortField
+
   sortOrder: SortOrder
 }
 
-### Likes
-type Like {
-  id: ID!
-  userId: ID!
-  reviewId: ID!
-  createdAt: String! 
-  updatedAt: String!
-  isPositive: Boolean! 
-}
+# =========================================================
+# Review Input
+# =========================================================
 
-### Location Type
-type Location @key(fields: "id") {
-  id: ID! @shareable
-  name: String! @shareable
-}
-
-### Input Types
 input ReviewInput {
   content: String!
+
   rating: Float!
+
   locationId: ID
+
   customerId: ID
+
   bookingId: ID
+
   round: Int!
+
   ownerId: ID
 }
 
-### Response Types
-type SubmitOwnerReplyToCustomerReviewResponse implements MutationResponse {
-  code: Int! @shareable
-  success: Boolean! @shareable
-  message: String! @shareable
-  customerReviewID:ID @shareable
-  ownerReview: Review! @shareable
-  locationReview: Review @shareable
+# =========================================================
+# Comment Input
+# =========================================================
+
+input CommentInput {
+  content: String!
 }
 
-type SubmitCustomerReviewResponse implements MutationResponse{
-   bookingId:ID!
-  customerReview:String
-  code: Int!
-  success: Boolean!
-  message: String!
-}
+# =========================================================
+# Mutation Response Interface
+# =========================================================
 
 interface MutationResponse {
   code: Int!
+
   success: Boolean!
+
   message: String!
 }
 
-### Bookings
-type Booking @key(fields: "id") {
-  id: ID! @shareable
+# =========================================================
+# Submit Customer Review Response
+# =========================================================
+
+type SubmitCustomerReviewResponse  implements MutationResponse {
+
+  bookingId: ID!
+
+  customerReview: String
+
+  code: Int!
+
+  success: Boolean!
+
+  message: String!
 }
 
-### Listings
-type Listing @key(fields: "id") {
-  id: ID! @shareable
-}
+# =========================================================
+# Submit Owner Reply Response
+# =========================================================
 
-### User Types
-extend type User @key(fields: "id") {
-  id: ID! @external  
-}
+type SubmitOwnerReplyToCustomerReviewResponse implements MutationResponse {
 
-type Owner @key(fields: "id") {
-  role: Role @shareable
-  id: ID! @shareable
-  name: String! @shareable
-  overallRating: Float @shareable
-  picture: String! @shareable
-  bookings: [Booking!] @shareable
-  listings: [Listing!] @shareable
-}
+  code: Int!
 
-type Customer @key(fields: "id") {
-  id: ID! @shareable 
-  name: String! @shareable
-  picture: String! @shareable
-  role: Role @shareable
-  overallRating: Float @shareable
-  bookings: [Booking!] @shareable
-  listings: [Listing!] @shareable
-}
+  success: Boolean!
 
-type Comment {
-  id: ID!
-  content: String! @shareable
-  author: User! @shareable
-  review: Review @shareable
-  createdAt: String! @shareable 
-  updatedAt: String! @shareable
+  message: String!
+
+  customerReviewID: ID
+
+  ownerReview: Review!
+
+  locationReview: Review
 }

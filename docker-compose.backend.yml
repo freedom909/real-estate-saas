@@ -1,0 +1,38 @@
+# 阿里云 ECS 专属 compose（数据库/缓存/对象存储都不在容器里跑）
+#
+# - MySQL/MariaDB  → 阿里云 RDS（内网地址 + 安全组放通 VPC CIDR）
+# - Redis         → 阿里云 Tair/Redis 云数据库内网地址
+# - MongoDB       → 阿里云 MongoDB 云数据库内网，或继续用 MongoDB Atlas
+# - Object Storage→ 阿里云 OSS（内网 Endpoint: oss-<region>-internal.aliyuncs.com）
+#                    或本地保留 MinIO（OSS = 存储桶兼容 AWS S3 API，改 STORAGE_PROVIDER 切换）
+#
+# 安全模型：
+#   1) ECS 安全组仅允许入站 TCP:22（仅办公室/家 IP / 或阿里云堡垒机）
+#   2) Cloudflare Tunnel (cloudflared) 是纯出站连接，**不需要开放任何入站端口**
+#   3) RDS/Redis/MongoDB 安全组放通 VPC CIDR 即可，不要公网暴露
+#
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minshuku-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    # ---------------------------------------------------------------
+    # 首选 host 网络模式：
+    #   - 子图 / Gateway 都监听 127.0.0.1，cloudflared 同机直接连
+    #   - 访问阿里云内网 RDS/Redis/OSS 延迟最低，不需要任何端口映射
+    # 如果 ECS 是 rootless Docker / LXC，不支持 host，请改成 ports: 127.0.0.1:4000:4000
+    # ---------------------------------------------------------------
+    network_mode: host
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "128m"
+        max-file: "8"
