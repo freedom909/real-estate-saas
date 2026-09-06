@@ -76,8 +76,8 @@ function ListingResult({ content }: { content: any }) {
                 {listing.description}
               </p>
             )}
-            {listing.address && (
-              <p className="mt-1 text-xs text-gray-400">{listing.address}</p>
+            {listing.locationId && (
+              <p className="mt-1 text-xs text-gray-400">{listing.locationId}</p>
             )}
             <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
               {listing.numOfBeds != null && <span>{listing.numOfBeds} bed{listing.numOfBeds > 1 ? "s" : ""}</span>}
@@ -86,7 +86,7 @@ function ListingResult({ content }: { content: any }) {
             </div>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-2xl font-bold text-blue-600">
-                ¥{listing.price}
+                ¥{listing.pricePerNight}
               </span>
               {listing.isFeatured && (
                 <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">

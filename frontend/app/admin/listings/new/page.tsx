@@ -28,15 +28,14 @@ function CreateListingContent() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    address: "",
-    price: "",
+    locationId: "",
+  
     pricePerNight: "",
     numOfBeds: "1",
     numOfBathrooms: "1",
     numOfRooms: "1",
     numOfCustomers: "2",
-    locationId: "",
-    categories: "",
+    categoryIds: [],
     isFeatured: false,
   });
 
@@ -97,15 +96,14 @@ function CreateListingContent() {
       const input = {
         title: form.title,
         description: form.description,
-        address: form.address,
-        price: parseFloat(form.price) || 0,
-        pricePerNight: parseFloat(form.pricePerNight) || parseFloat(form.price) || 0,
+        locationId: form.locationId || "default-location",
+        pricePerNight: parseFloat(form.pricePerNight) || 0,
         numOfBeds: parseInt(form.numOfBeds) || 1,
         numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
         numOfRooms: parseInt(form.numOfRooms) || 1,
         numOfCustomers: parseInt(form.numOfCustomers) || 2,
-        locationId: form.locationId || "default-location",
-        categories: form.categories ? form.categories.split(",").map((c) => c.trim()) : [],
+        categoryIds: form.categoryIds || [],
+        
         isFeatured: form.isFeatured,
         pictures: images.map((url) => ({ objectKey: url })),
         
@@ -156,19 +154,7 @@ function CreateListingContent() {
             />
           </div>
 
-          {/* Address */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              placeholder="123 Main St, Tokyo, Japan"
-              className="w-full border rounded-lg p-3"
-              required
-            />
-          </div>
+
 
           {/* Price */}
           <div className="grid grid-cols-2 gap-4">
@@ -176,8 +162,8 @@ function CreateListingContent() {
               <label className="block text-sm font-medium mb-1">Price (¥)</label>
               <input
                 type="number"
-                name="price"
-                value={form.price}
+                name="pricePerNight"
+                value={form.pricePerNight}
                 onChange={handleChange}
                 placeholder="10000"
                 className="w-full border rounded-lg p-3"

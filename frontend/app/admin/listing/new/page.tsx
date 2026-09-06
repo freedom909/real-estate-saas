@@ -79,14 +79,7 @@ function CreateListingContent() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    address: "",
 
-    postalCode: "",
-    prefecture: "",
-    city: "",
-    town: "",
-
-    price: "",
     pricePerNight: "",
     numOfBeds: "1",
     numOfBathrooms: "1",
@@ -260,27 +253,16 @@ const handleSubmit = async (e: React.FormEvent) => {
       return;
     }
 
-const fullAddress = [
-  form.postalCode,
-  form.prefecture,
-  form.city,
-  form.town,
-  form.address,
-]
-  .filter(Boolean)
-  .join(" ");
+
 console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
 const input = {
   title: form.title,
   description: form.description,
-  address: fullAddress,
 
-  price: parseFloat(form.price) || 0,
 
       pricePerNight:
-        parseFloat(form.pricePerNight) ||
-        parseFloat(form.price) ||
-        0,
+        parseFloat(form.pricePerNight) || 0,
+
 
       numOfBeds: parseInt(form.numOfBeds) || 1,
       numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
@@ -404,19 +386,8 @@ console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
               </div>
             </div>
 
-            {/* Address */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Address</label>
-              <input
-                type="text"
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                placeholder="123 Main St, Tokyo, Japan"
-                className="w-full border rounded-lg p-3"
-                required
-              />
-            </div>
+         
+
 
             {/* Price */}
             <div className="grid grid-cols-2 gap-4">
@@ -424,8 +395,8 @@ console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
                 <label className="block text-sm font-medium mb-1">Price (¥)</label>
                 <input
                   type="number"
-                  name="price"
-                  value={form.price}
+                  name="pricePerNight"
+                  value={form.pricePerNight}
                   onChange={handleChange}
                   placeholder="10000"
                   className="w-full border rounded-lg p-3"

@@ -24,8 +24,8 @@ type Listing = {
     id: string;
     title: string;
     description: string;
-    address: string;
-    price: number;
+    locationId: string;
+    pricePerNight: number;
     pictures: Picture[];
     numOfBeds: number;
     numOfCustomers: number;
@@ -98,7 +98,7 @@ function ListingDetailPage({
             </p>
         );
     }
-console.log("🔥 DETAIL ADDRESS =", listing.address);
+console.log("🔥 DETAIL LOCATION ID =", listing.locationId);
     /*
      * Sort pictures by sortOrder.
      */
@@ -137,7 +137,7 @@ console.log("🔥 DETAIL ADDRESS =", listing.address);
         ? getImageUrl(selectedPicture)
         : "/placeholder.jpg";
 
-    const price = Number(listing.price ?? 0);
+    const price = Number(listing.pricePerNight ?? 0);
 
     const nights =
         checkInDate && checkOutDate
@@ -538,7 +538,7 @@ console.log("🔥 DETAIL ADDRESS =", listing.address);
                     text-gray-500
                     mt-2
                 ">
-                    {listing.address}
+                    {listing.locationId}
                 </p>
 
                 <p className="

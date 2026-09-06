@@ -13,7 +13,7 @@ const MY_HOST_BOOKINGS = gql`
       status
       checkInDate
       checkOutDate
-      price
+      pricePerNight
       createdAt
       listing { id title }
       user { id name email }

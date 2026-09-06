@@ -78,21 +78,21 @@ function CreateListingContent() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    address: "",
+    locationId: "",
 
     postalCode: "",
     prefecture: "",
     city: "",
     town: "",
 
-    price: "",
+ 
     pricePerNight: "",
     numOfBeds: "1",
     numOfBathrooms: "1",
     numOfRooms: "1",
     numOfCustomers: "2",
 
-    locationId: "",
+    
     categories: [] as string[],
     isFeatured: false,
   });
@@ -259,13 +259,13 @@ function CreateListingContent() {
       const input = {
         title: form.title,
         description: form.description,
-        address: form.address,
+        
 
-        price: parseFloat(form.price) || 0,
+        price: parseFloat(form.pricePerNight) || 0,
 
         pricePerNight:
           parseFloat(form.pricePerNight) ||
-          parseFloat(form.price) ||
+          parseFloat(form.pricePerNight) ||
           0,
 
         numOfBeds: parseInt(form.numOfBeds) || 1,
@@ -395,8 +395,8 @@ function CreateListingContent() {
           <label className="block text-sm font-medium mb-1">Address</label>
           <input
             type="text"
-            name="address"
-            value={form.address}
+            name="locationId"
+            value={form.locationId}
             onChange={handleChange}
             placeholder="123 Main St, Tokyo, Japan"
             className="w-full border rounded-lg p-3"
@@ -410,8 +410,8 @@ function CreateListingContent() {
             <label className="block text-sm font-medium mb-1">Price (¥)</label>
             <input
               type="number"
-              name="price"
-              value={form.price}
+              name="pricePerNight"
+              value={form.pricePerNight}
               onChange={handleChange}
               placeholder="10000"
               className="w-full border rounded-lg p-3"

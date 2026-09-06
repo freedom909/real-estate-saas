@@ -11,33 +11,51 @@ export interface OAuthCredentialInput {
   accessToken?: string;
   idToken?: string;
 }
+
 export async function oauthLogin(
   provider: string,
-  credential: OAuthCredentialInput // Cannot find name 'OAuthCredential'. Did you mean 'Credential'?
+  credential: OAuthCredentialInput
 ): Promise<AuthPayload> {
-  const { data } = await client.mutate<{ oauthLogin: AuthPayload }>({
-    mutation: OAUTH_LOGIN,
-    variables: { provider, credential },
+  console.log("[oauth] CALL oauthLogin:", {
+    provider,
+    hasIdToken: !!credential.idToken,
+    hasCode: !!credential.code,
+    hasAccessToken: !!credential.accessToken,
   });
 
-  const authPayload = data!.oauthLogin;
-  console.log("[oauth] BEFORE setAuth:", {
-  hasAccessToken: !!authPayload?.accessToken,
-  hasRefreshToken: !!authPayload?.refreshToken,
-  user: authPayload?.user,
-});
+  try {
+    console.log("[oauth] BEFORE client.mutate");
 
-useAuthStore.getState().setAuth(authPayload);
+    const { data } = await client.mutate<{ oauthLogin: AuthPayload }>({
+      mutation: OAUTH_LOGIN,
+      variables: { provider, credential },
+    });
 
-const state = useAuthStore.getState();
+    console.log("[oauth] AFTER client.mutate:", data);
 
-console.log("[oauth] AFTER setAuth:", {
-  hasAccessToken: !!state.accessToken,
-  hasRefreshToken: !!state.refreshToken,
-  user: state.user,
-});
+    const authPayload = data!.oauthLogin;
 
-  return authPayload;
+    console.log("[oauth] BEFORE setAuth:", {
+      hasAccessToken: !!authPayload?.accessToken,
+      hasRefreshToken: !!authPayload?.refreshToken,
+      user: authPayload?.user,
+    });
+
+    useAuthStore.getState().setAuth(authPayload);
+
+    const state = useAuthStore.getState();
+
+    console.log("[oauth] AFTER setAuth:", {
+      hasAccessToken: !!state.accessToken,
+      hasRefreshToken: !!state.refreshToken,
+      user: state.user,
+    });
+
+    return authPayload;
+  } catch (error) {
+    console.error("🔥 [oauth] client.mutate FAILED:", error);
+    throw error;
+  }
 }
 
 // ── Token Refresh ─────────────────────────────────────────────

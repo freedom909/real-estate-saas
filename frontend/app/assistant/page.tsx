@@ -115,12 +115,12 @@ function ListingResult({ content }: { content: any }) {
             <h4 className="text-sm font-bold text-gray-800 line-clamp-1">
               {listing.title || "Untitled"}
             </h4>
-            {listing.address && (
-              <p className="mt-0.5 text-xs text-gray-400 line-clamp-1">{listing.address}</p>
+            {listing.locationId && (
+              <p className="mt-0.5 text-xs text-gray-400 line-clamp-1">{listing.locationId}</p>
             )}
             <div className="mt-2 flex items-center justify-between">
-              <span className="text-lg font-bold text-blue-600">
-                ¥{listing.price}
+              <span className="text-lg font-bold text-blue">
+                ¥{listing.pricePerNight || "-"}
               </span>
               <span className="text-xs text-blue-500 underline">View details</span>
             </div>

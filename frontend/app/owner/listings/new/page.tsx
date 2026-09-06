@@ -66,22 +66,16 @@ function CreateListingContent() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    address: "",
+    locationId: "",
 
-    postalCode: "",
-    prefecture: "",
-    city: "",
-    town: "",
 
-    price: "",
     pricePerNight: "",
     numOfBeds: "1",
     numOfBathrooms: "1",
     numOfRooms: "1",
     numOfCustomers: "2",
 
-    locationId: "",
-    categories: [] as string[],
+    categoryIds: [] as string[],
     isFeatured: false,
   });
 
@@ -250,13 +244,9 @@ const handleSubmit = async (e: React.FormEvent) => {
     const input = {
       title: form.title,
       description: form.description,
-      address: form.address,
+      locationId: form.locationId || "default-location",
 
-      price: parseFloat(form.price) || 0,
-      pricePerNight:
-        parseFloat(form.pricePerNight) ||
-        parseFloat(form.price) ||
-        0,
+      pricePerNight: parseFloat(form.pricePerNight) || 0,
 
       numOfBeds: parseInt(form.numOfBeds) || 1,
       numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
@@ -352,16 +342,16 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <label className="block text-sm font-medium mb-2">Postal Code</label>
                 <div className="flex gap-3">
                   <input
-                    name="postalCode"
-                    value={form.postalCode}
+                    name="locationId"
+                    value={form.locationId}
                     onChange={handleChange}
                     placeholder="600-8019"
                     className="flex-1 border rounded-lg p-3"
                   />
                   <button
                     type="button"
-                    onClick={() => searchAddress(form.postalCode)}
-                    disabled={!form.postalCode}
+                    onClick={() => searchAddress(form.locationId)}
+                    disabled={!form.locationId}
                     className="bg-blue-600 text-white px-5 rounded-lg disabled:bg-gray-300"
                   >
                     Search
@@ -372,15 +362,15 @@ const handleSubmit = async (e: React.FormEvent) => {
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Prefecture</label>
-                  <input value={form.prefecture} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
+                  <input value={form.locationId} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">City</label>
-                  <input value={form.city} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
+                  <input value={form.locationId} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Town</label>
-                  <input value={form.town} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
+                  <input value={form.locationId} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
                 </div>
               </div>
             </div>
@@ -390,8 +380,8 @@ const handleSubmit = async (e: React.FormEvent) => {
               <label className="block text-sm font-medium mb-1">Address</label>
               <input
                 type="text"
-                name="address"
-                value={form.address}
+                name="locationId"
+                value={form.locationId}
                 onChange={handleChange}
                 placeholder="123 Main St, Tokyo, Japan"
                 className="w-full border rounded-lg p-3"
@@ -399,20 +389,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               />
             </div>
 
-            {/* Price */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Price (¥)</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={form.price}
-                  onChange={handleChange}
-                  placeholder="10000"
-                  className="w-full border rounded-lg p-3"
-                  required
-                />
-              </div>
+            
               <div>
                 <label className="block text-sm font-medium mb-1">Price Per Night (¥)</label>
                 <input

@@ -11,12 +11,12 @@ interface Booking {
   status: string;
   checkInDate: string;
   checkOutDate: string;
-  price: number;
+  pricePerNight: number;
   listing?: {
     id: string;
     title: string;
     pictures?: Array<{ url: string }>;
-    price: number;
+    pricePerNight: number;
   };
 }
 
@@ -112,7 +112,7 @@ function AdminBookingsContent() {
                     {new Date(booking.checkOutDate).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    ¥{booking.price?.toLocaleString() || "-"}
+                    ¥{booking.pricePerNight?.toLocaleString() || "-"}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${STATUS_COLORS[booking.status] || "bg-gray-100 text-gray-800"}`}>

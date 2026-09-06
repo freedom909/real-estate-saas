@@ -14,7 +14,7 @@ const CALENDAR_DATA = gql`
       status
       checkInDate
       checkOutDate
-      price
+      pricePerNight
       createdAt
       listing { id title }
       customer { id name email }

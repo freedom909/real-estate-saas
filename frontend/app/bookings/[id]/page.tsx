@@ -16,12 +16,12 @@ import { useAuthStore } from "@/app/store/auth.store";
 interface BookingQueryData {
   booking: {
     id: string;
-    price: number;
+    pricePerNight: number;
     status: string;
     checkInDate: string;
     checkOutDate: string;
     listing: {
-      price: number;
+      pricePerNight: number;
       title: string;
       pictures?: { 
         url: string;
@@ -231,12 +231,12 @@ console.log(
                   {(() => {
                     const nights = 
                        Math.ceil((new Date(booking.checkOutDate).getTime() - new Date(booking.checkInDate).getTime()) / (1000 * 60 * 60 * 24))
-                     const pricePerNight =booking.price / nights;
-                    if (nights && nights > 0 && booking?.price != null) {
+                     const pricePerNight = booking.pricePerNight || booking.pricePerNight / nights;
+                    if (nights && nights > 0 && booking?.pricePerNight != null) {
                       return `¥${pricePerNight.toLocaleString()}`;
                     }
-                    return booking?.listing?.price != null 
-                      ? `¥${booking.listing.price.toLocaleString()}`
+                    return booking?.listing?.pricePerNight != null 
+                      ? `¥${booking.listing.pricePerNight.toLocaleString()}`
                       : "-";
                   })()}
                 </p>
@@ -267,8 +267,8 @@ console.log(
                 <div className="flex items-center justify-between text-lg">
                   <span>Total Amount</span>
                   <span className="text-3xl font-bold">
-                    {booking?.price != null
-                      ? `¥${booking.price.toLocaleString()}`
+                    {booking?.pricePerNight != null
+                      ? `¥${booking.pricePerNight.toLocaleString()}`
                       : "-"}
                   </span>
                 </div>

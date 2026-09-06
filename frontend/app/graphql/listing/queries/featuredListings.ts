@@ -6,8 +6,8 @@ export const GET_FEATURED_LISTINGS = gql`
       id
       title
       description
-      address
-      price
+      locationId
+      pricePerNight
       pictures {
         id
         listingId

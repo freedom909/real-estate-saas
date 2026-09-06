@@ -20,7 +20,7 @@ export const listingService = {
   async create(data: {
     title: string;
     description: string;
-    price: number;
+    pricePerNight: number;
     
   }) {
     const res = await axios.post(API_URL, data);

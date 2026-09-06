@@ -5,7 +5,7 @@ mutation ConfirmBooking($id: ID!) {
   confirmBooking(id: $id) {
     id
     status
-    price
+    pricePerNight
     checkInDate
     checkOutDate
   }

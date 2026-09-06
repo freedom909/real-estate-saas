@@ -14,12 +14,8 @@ export default function CreateListingPage() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    address: "",
-    price: "",
-    postalCode: "",
-    prefecture: "",
-    city: "",
-    town: "",
+    
+  
     
     pricePerNight: "",
     numOfBeds: "1",
@@ -90,13 +86,7 @@ const input = {
   title: form.title,
   description: form.description,
 
-  postalCode: form.postalCode,
-  prefecture: form.prefecture,
-  city: form.city,
-  town: form.town,
-  address: form.address,
 
-  price: parseFloat(form.price) || 0,
   pricePerNight:
     parseFloat(form.pricePerNight) || parseFloat(form.price) || 0,
 
@@ -169,8 +159,8 @@ const input = {
             <label className="block text-sm font-medium mb-1">Address</label>
             <input
               type="text"
-              name="address"
-              value={form.address}
+              name="locationId"
+              value={form.locationId}
               onChange={handleChange}
               placeholder="123 Main St, Tokyo, Japan"
               className="w-full border rounded-lg p-3"

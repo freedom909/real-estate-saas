@@ -103,7 +103,20 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
   const { ip = "127.0.0.1", userAgent = "unknown", deviceId = "unknown" } = cmd.request || {};
 
   // 1️⃣ 执行风控评估
+ console.log("========== BEFORE RISK CHECK ==========");
+console.log("[login] risk input:", {
+  userId: user.id,
+  ip,
+  userAgent,
+  deviceId,
+  failedAttempts: 0,
+  isNewDevice: !identity,
+  ipRisk: false,
+});
+
+
   const riskResult = await this.riskUseCase.execute({
+    
     userId: user.id,
     ip,
     userAgent,
@@ -112,7 +125,8 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
     isNewDevice: !identity,
     ipRisk: false,
   });
-
+console.log("========== AFTER RISK CHECK ==========");
+console.log("[login] Risk result:", JSON.stringify(riskResult));
     //  BLOCK
   if (riskResult.decision === "BLOCK") {
     return { status: "BLOCKED" };

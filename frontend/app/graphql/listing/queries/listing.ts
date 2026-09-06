@@ -14,9 +14,9 @@ title
 
 description
 
-address
+locationId
 
-price
+pricePerNight
       pictures {
         id
         listingId

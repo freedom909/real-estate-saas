@@ -17,9 +17,9 @@ export type Listing = {
 
   description:string;
 
-  address:string;
+  locationId:string;
 
-  price:number;
+  pricePerNight:number;
 
   pictures: Picture[];
 

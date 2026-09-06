@@ -13,8 +13,7 @@ type Listing = {
   id: string;
   title: string;
   description: string;
-  address: string;
-  price: number;
+  
   pricePerNight: number;
   pictures: { objectKey: string; sortOrder: number }[];
   numOfBeds: number;
@@ -57,8 +56,7 @@ function AdminListingDetailContent({
   const [form, setForm] = useState({
     title: "",
     description: "",
-    address: "",
-    price: "",
+
     pricePerNight: "",
     numOfBeds: "1",
     numOfBathrooms: "1",
@@ -77,8 +75,7 @@ function AdminListingDetailContent({
       setForm({
         title: listing.title || "",
         description: listing.description || "",
-        address: listing.address || "",
-        price: String(listing.price || ""),
+
         pricePerNight: String(listing.pricePerNight || ""),
         numOfBeds: String(listing.numOfBeds || 1),
         numOfBathrooms: String(listing.numOfBathrooms || 1),
@@ -140,9 +137,8 @@ function AdminListingDetailContent({
           input: {
             title: form.title,
             description: form.description,
-            address: form.address,
-            price: parseFloat(form.price) || 0,
-            pricePerNight: parseFloat(form.pricePerNight) || parseFloat(form.price) || 0,
+
+            pricePerNight: parseFloat(form.pricePerNight) || 0,
             numOfBeds: parseInt(form.numOfBeds) || 1,
             numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
             numOfRooms: parseInt(form.numOfRooms) || 1,
@@ -216,30 +212,10 @@ function AdminListingDetailContent({
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Address</label>
-              <input
-                type="text"
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-3"
-                required
-              />
-            </div>
+
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Price (¥)</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={form.price}
-                  onChange={handleChange}
-                  className="w-full border rounded-lg p-3"
-                  required
-                />
-              </div>
+   
               <div>
                 <label className="block text-sm font-medium mb-1">Price Per Night (¥)</label>
                 <input

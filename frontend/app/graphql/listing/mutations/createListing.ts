@@ -6,8 +6,8 @@ export const CREATE_LISTING = gql`
       id
       title
       description
-      address
-      price
+      locationId
+      pricePerNight
       pictures {
         id
         listingId

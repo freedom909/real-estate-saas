@@ -52,7 +52,7 @@ export default function LoginPage() {
 
                 client_id: GOOGLE_CLIENT_ID,
                 callback: async (response: any) => {
-
+console.log("🔥 GOOGLE GSI CALLBACK FIRED", response);
                     try {
 
                         const idToken = response.credential;

@@ -8,6 +8,6 @@ checkInDate: string;
 
 checkOutDate: string;
 
-price?: number;
+pricePerNight?: number;
 
 }

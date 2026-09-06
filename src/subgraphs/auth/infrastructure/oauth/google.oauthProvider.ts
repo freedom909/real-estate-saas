@@ -30,11 +30,6 @@ export class GoogleOAuthProvider implements OAuthProvider {
     if (!payload) {
       throw new Error("Google idToken payload is required");
     }
-    if (!payload) {
-      throw new Error(
-        "INVALID_GOOGLE_TOKEN"
-      );
-    }
 
     if (!payload.sub) {
       throw new Error(

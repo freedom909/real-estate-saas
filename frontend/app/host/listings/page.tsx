@@ -180,8 +180,8 @@ function HostListingsContent() {
                       </span>
                     </div>
                   </div>
-                  {listing.address && (
-                    <p className="text-sm text-gray-500 mb-2">📍 {listing.address}</p>
+                  {listing.locationId && (
+                    <p className="text-sm text-gray-500 mb-2">📍 {listing.locationId}</p>
                   )}
                   <div className="flex items-center justify-between">
                     <p className="text-lg font-bold text-green-600">¥{(listing.price || 0).toLocaleString()}<span className="text-sm font-normal text-gray-500">/night</span></p>

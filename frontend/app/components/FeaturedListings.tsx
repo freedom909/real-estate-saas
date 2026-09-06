@@ -48,8 +48,8 @@ export default function FeaturedListings() {
             key={listing.id}
             id={listing.id}
             title={listing.title}
-            address={listing.address}
-            price={listing.price}
+            locationId={listing.locationId}
+            pricePerNight={listing.pricePerNight}
             image={listing.pictures?.[0]?.url}
           />
         ))}

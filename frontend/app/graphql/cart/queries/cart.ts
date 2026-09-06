@@ -5,7 +5,7 @@ export const GET_CARTS_BY_CUSTOMER = gql`
     getCartsByCustomer(customerId: $customerId) {
       id
       customerId
-      price
+      pricePerNight
       checkInDate
       checkOutDate
       cartItems {
@@ -13,7 +13,7 @@ export const GET_CARTS_BY_CUSTOMER = gql`
         cartId
         listingId
         quantity
-        price
+        pricePerNight
         checkInDate
         checkOutDate
       }
@@ -26,7 +26,7 @@ export const GET_CART = gql`
     getCart(cartId: $cartId) {
       id
       customerId
-      price
+      pricePerNight
       checkInDate
       checkOutDate
       cartItems {
@@ -34,7 +34,7 @@ export const GET_CART = gql`
         cartId
         listingId
         quantity
-        price
+        pricePerNight
         checkInDate
         checkOutDate
       }

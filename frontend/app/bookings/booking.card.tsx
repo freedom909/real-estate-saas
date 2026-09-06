@@ -48,8 +48,8 @@ export function BookingCard({ booking }: any) {
               <div>
                 <p className="text-xs text-gray-500">Per Night</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {booking.listing?.price != null
-                    ? `¥${booking.listing.price.toLocaleString()}`
+                  {booking.listing?.pricePerNight != null
+                    ? `¥${booking.listing.pricePerNight.toLocaleString()}`
                     : "-"}
                 </p>
               </div>

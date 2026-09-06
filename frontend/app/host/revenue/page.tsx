@@ -9,7 +9,7 @@ const REVENUE_DATA = gql`
     myBookings {
       id
       status
-      price
+      pricePerNight
       checkInDate
       checkOutDate
       createdAt
@@ -33,14 +33,14 @@ function HostRevenueContent() {
   const completed = bookings.filter((b: any) => b.status === "COMPLETED");
   const confirmed = bookings.filter((b: any) => b.status === "CONFIRMED");
 
-  const totalRevenue = completed.reduce((sum: number, b: any) => sum + (b.price || 0), 0);
-  const pendingRevenue = confirmed.reduce((sum: number, b: any) => sum + (b.price || 0), 0);
+  const totalRevenue = completed.reduce((sum: number, b: any) => sum + (b.pricePerNight || 0), 0);
+  const pendingRevenue = confirmed.reduce((sum: number, b: any) => sum + (b.pricePerNight || 0), 0);
 
   // Group by month
   const monthlyRevenue: Record<string, number> = {};
   completed.forEach((b: any) => {
     const month = b.checkInDate?.substring(0, 7) || "Unknown";
-    monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (b.price || 0);
+    monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (b.pricePerNight || 0);
   });
 
   const sortedMonths = Object.entries(monthlyRevenue).sort(([a], [b]) => b.localeCompare(a));

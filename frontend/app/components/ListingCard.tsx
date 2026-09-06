@@ -5,16 +5,16 @@ import Link from "next/link";
 type ListingCardProps = {
   id: string;
   title: string;
-  address: string;
-  price: number;
+  locationId: string;
+  pricePerNight: number;
   image?: string;
 };
 
 export default function ListingCard({
   id,
   title,
-  address,
-  price,
+  locationId,
+  pricePerNight,
   image,
 }: ListingCardProps) {
   return (
@@ -42,12 +42,12 @@ export default function ListingCard({
         </h3>
 
         <p className="text-gray-500">
-          📍 {address}
+          📍 {locationId}
         </p>
 
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold text-blue-600">
-            ¥{price}
+            ¥{pricePerNight}
           </span>
 
           <Link

@@ -19,7 +19,7 @@ const HOST_STATS = gql`
     myBookings {
       id
       status
-      price
+      pricePerNight
       checkInDate
       checkOutDate
       listing { id title }

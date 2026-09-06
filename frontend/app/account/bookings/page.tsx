@@ -12,12 +12,12 @@ interface Booking {
   status: string;
   checkInDate: string;
   checkOutDate: string;
-  price: number;
+  pricePerNight: number;
   listing?: {
     id: string;
     title: string;
     pictures?: Array<{ url: string }>;
-    price: number;
+    pricePerNight: number;
   };
 }
 
@@ -166,7 +166,7 @@ function AccountBookingsContent() {
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                <div className="text-lg font-bold">¥{booking.price?.toLocaleString()}</div>
+                <div className="text-lg font-bold">¥{booking.pricePerNight?.toLocaleString()}</div>
                 <div className="mt-2 flex flex-col items-end gap-1">
                   <Link
                     href={`/bookings/${booking.id}`}

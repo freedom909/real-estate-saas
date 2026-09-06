@@ -12,7 +12,7 @@ id
 status
 checkInDate
 checkOutDate
-price
+pricePerNight
 listing {
 id
 title
@@ -25,7 +25,7 @@ pictures {
     type
     sortOrder
 }
-price
+pricePerNight
 }
 
 }

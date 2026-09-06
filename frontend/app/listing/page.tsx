@@ -189,7 +189,7 @@ function ListingPage() {
 
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-bold text-green-600">
-                          ¥{listing.price}
+                          ¥{listing.pricePerNight}
                         </span>
 
                         <Link

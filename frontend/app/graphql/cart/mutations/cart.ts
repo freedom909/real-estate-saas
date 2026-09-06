@@ -9,14 +9,14 @@ export const CREATE_CART = gql`
       cart {
         id
         customerId
-        price
+        pricePerNight
         checkInDate
         checkOutDate
         cartItems {
           id
           listingId
           quantity
-          price
+          pricePerNight
         }
       }
     }
@@ -32,13 +32,13 @@ export const ADD_TO_CART = gql`
       cart {
         id
         customerId
-        price
+        pricePerNight
         cartItems {
           id
           cartId
           listingId
           quantity
-          price
+          pricePerNight
           checkInDate
           checkOutDate
         }
@@ -56,13 +56,13 @@ export const UPDATE_CART_ITEM = gql`
       cart {
         id
         customerId
-        price
+        pricePerNight
         cartItems {
           id
           cartId
           listingId
           quantity
-          price
+          pricePerNight
         }
       }
     }
@@ -78,13 +78,13 @@ export const REMOVE_FROM_CART = gql`
       cart {
         id
         customerId
-        price
+        pricePerNight
         cartItems {
           id
           cartId
           listingId
           quantity
-          price
+          pricePerNight
         }
       }
     }
@@ -100,7 +100,7 @@ export const CLEAR_CART = gql`
       cart {
         id
         customerId
-        price
+        pricePerNight
         cartItems {
           id
           listingId

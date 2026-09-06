@@ -81,8 +81,8 @@ function OwnerListingsContent() {
               {listings.map((listing: any) => (
                 <tr key={listing.id} className="border-b hover:bg-gray-50 transition">
                   <td className="py-3 px-4 font-medium">{listing.title}</td>
-                  <td className="py-3 px-4 text-gray-500">{listing.address}</td>
-                  <td className="py-3 px-4 font-medium">¥{listing.price?.toLocaleString()}</td>
+                  <td className="py-3 px-4 text-gray-500">{listing.locationId}</td>
+                  <td className="py-3 px-4 font-medium">¥{listing.pricePerNight?.toLocaleString()}</td>
                   <td className="py-3 px-4">{listing.numOfBeds}</td>
                   <td className="py-3 px-4">
                     {listing.isFeatured ? (

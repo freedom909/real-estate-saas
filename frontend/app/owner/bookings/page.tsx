@@ -16,7 +16,7 @@ interface Booking {
     id: string;
     title: string;
     pictures?: Array<{ url: string }>;
-    price: number;
+    pricePerNight: number;
   };
 }
 

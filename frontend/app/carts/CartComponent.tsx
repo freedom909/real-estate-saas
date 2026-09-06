@@ -18,7 +18,7 @@ interface CartItem {
   cartId: string;
   listingId: string;
   quantity: number;
-  price: number;
+  pricePerNight: number;
   checkInDate?: string;
   checkOutDate?: string;
 }
@@ -26,7 +26,7 @@ interface CartItem {
 interface Cart {
   id: string;
   customerId: string;
-  price: number;
+  pricePerNight: number;
   checkInDate?: string;
   checkOutDate?: string;
   cartItems: CartItem[];
@@ -36,9 +36,9 @@ interface Listing {
   id: string;
   title: string;
   description: string;
-  address: string;
+  locationId: string;
   ownerId: string;
-  price: number;
+  pricePerNight: number;
   picture: string[];
   numOfBeds: number;
   numOfCustomers: number;
@@ -154,7 +154,7 @@ export default function CartComponent() {
               listingId: item.listingId,
               checkInDate: item.checkInDate,
               checkOutDate: item.checkOutDate,
-              price: item.price * item.quantity,
+              pricePerNight: item.pricePerNight || 0 * item.quantity,
             },
           },
         });
@@ -168,7 +168,7 @@ export default function CartComponent() {
             variables: {
               input: {
                 bookingId,
-                amount: item.price * item.quantity,
+                amount: item.pricePerNight || 0 * item.quantity,
                 customerId: cart.customerId,
                 tenantId: listing?.ownerId || "",
               },
@@ -276,7 +276,7 @@ export default function CartComponent() {
 
   const allItems = carts.flatMap((c) => c.cartItems);
   const totalPrice = allItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + (item.pricePerNight || 0) * item.quantity,
     0
   );
   const totalNights = allItems.reduce((sum, item) => {
@@ -340,14 +340,14 @@ export default function CartComponent() {
                         <h3 className="font-semibold text-gray-900 truncate">
                           {listing?.title || `Listing ${item.listingId}`}
                         </h3>
-                        {listing?.address && (
+                        {listing?.locationId && (
                           <p className="text-sm text-gray-500 truncate">
-                            📍 {listing.address}
+                            📍 {listing.locationId}
                           </p>
                         )}
                       </div>
                       <p className="font-bold text-gray-900 ml-4 whitespace-nowrap">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${(item.pricePerNight || 0) * item.quantity).toFixed(2)}
                       </p>
                     </div>
 
@@ -422,7 +422,7 @@ export default function CartComponent() {
                           +
                         </button>
                         <span className="text-sm text-gray-400 ml-2">
-                          × ${item.price.toFixed(2)}/night
+                          × ${(item.pricePerNight || 0).toFixed(2)}/night
                         </span>
                       </div>
 
