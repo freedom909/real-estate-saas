@@ -16,6 +16,11 @@ export default function CreateListingPage() {
     description: "",
     address: "",
     price: "",
+    postalCode: "",
+    prefecture: "",
+    city: "",
+    town: "",
+    
     pricePerNight: "",
     numOfBeds: "1",
     numOfBathrooms: "1",
@@ -79,24 +84,40 @@ export default function CreateListingPage() {
       setGeneratedImages(images);
       setGeneratingImages(false);
 
-      // Step 2: Create listing with generated images
-      const input = {
-        title: form.title,
-        description: form.description,
-        address: form.address,
-        price: parseFloat(form.price) || 0,
-        pricePerNight: parseFloat(form.pricePerNight) || parseFloat(form.price) || 0,
-        numOfBeds: parseInt(form.numOfBeds) || 1,
-        numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
-        numOfRooms: parseInt(form.numOfRooms) || 1,
-        numOfCustomers: parseInt(form.numOfCustomers) || 2,
-        locationId: form.locationId || "default-location",
-        categories: form.categories ? form.categories.split(",").map((c) => c.trim()) : [],
-        isFeatured: form.isFeatured,
-        pictures: images.map((url) => ({ objectKey: url })),
-        
-      };
 
+      // Step 2: Create listing with generated images
+const input = {
+  title: form.title,
+  description: form.description,
+
+  postalCode: form.postalCode,
+  prefecture: form.prefecture,
+  city: form.city,
+  town: form.town,
+  address: form.address,
+
+  price: parseFloat(form.price) || 0,
+  pricePerNight:
+    parseFloat(form.pricePerNight) || parseFloat(form.price) || 0,
+
+  numOfBeds: parseInt(form.numOfBeds) || 1,
+  numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
+  numOfRooms: parseInt(form.numOfRooms) || 1,
+  numOfCustomers: parseInt(form.numOfCustomers) || 2,
+
+  locationId: form.locationId || "default-location",
+
+  categories: form.categories
+    ? form.categories.split(",").map((c) => c.trim())
+    : [],
+
+  isFeatured: form.isFeatured,
+
+  pictures: images.map((url) => ({
+    objectKey: url,
+  })),
+};
+      console.log("🔥 FINAL CREATE INPUT =", JSON.stringify(input, null, 2));
       const result = await createListing({ variables: { input } });
       console.log("Listing created:", result.data?.createListing);
 

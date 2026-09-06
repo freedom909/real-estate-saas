@@ -1,80 +1,95 @@
+
 schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.11",
     import: ["@key", "@shareable", "@external"]
-  ){
+  ) {
   query: Query
   mutation: Mutation
 }
 
 scalar DateTime
 
-
 ### User Types
 extend type User @key(fields: "id") {
   id: ID! @external
 }
 
-
-
-
-
 extend type Listing @key(fields: "id") {
   id: ID! @external
-
 }
 
 extend type Booking @key(fields: "id") {
   id: ID! @external
-
 }
 
+
+### Location
 type Location @key(fields: "id") {
   id: ID! @shareable
+
   name: String! @shareable
+
   country: String! @shareable
-  zip: String! @shareable
+
+  postalCode: String! @shareable
+  prefecture: String! @shareable
   city: String! @shareable
-  state: String! @shareable
+  town: String! @shareable
   address: String! @shareable
+
   latitude: Float! @shareable
   longitude: Float! @shareable
   radius: Int! @shareable
   units: String! @shareable
 }
 
+
+### Create Location
 input CreateLocationInput {
   name: String!
-  latitude: Float!
-  radius: Int!
-  longitude: Float!
-  address: String!
-  city: String!
-  state: String!
+
   country: String!
-  zip: String!
+
+  postalCode: String!
+  prefecture: String!
+  city: String!
+  town: String!
+  address: String!
+
+  latitude: Float!
+  longitude: Float!
+  radius: Int!
   units: String!
 }
 
+
+### Update Location
 input UpdateLocationInput {
-  id: ID!
+  id: ID
+
   name: String
-  latitude: Float  
+
+  postalCode: String
+  prefecture: String
+  city: String
+  town: String
+  address: String
+
+  latitude: Float
   longitude: Float
   radius: Int
-  address: String
-  city: String
-  state: String
-  country: String
-  zip: String
   units: String
 }
 
+
+### Response
 interface Response {
   code: Int!
   success: Boolean!
   message: String!
 }
+
 
 type CreateLocationResponse implements Response {
   code: Int! @shareable
@@ -83,6 +98,7 @@ type CreateLocationResponse implements Response {
   location: Location! @shareable
 }
 
+
 type UpdateLocationResponse implements Response {
   code: Int! @shareable
   success: Boolean! @shareable
@@ -90,16 +106,32 @@ type UpdateLocationResponse implements Response {
   location: Location @shareable
 }
 
+
+### Review
 type Review @key(fields: "id") {
   id: ID! @shareable
 }
 
+
+### Query
 type Query {
   locations(locationId: ID): [Location!]! @shareable
 }
 
+
+### Mutation
 type Mutation {
-  createLocation(input: CreateLocationInput!): CreateLocationResponse! @shareable
-  updateLocation(locationId: ID!, location: UpdateLocationInput): UpdateLocationResponse! @shareable
-  deleteLocation(locationId: ID!): Boolean! @shareable
+  createLocation(
+    input: CreateLocationInput!
+  ): CreateLocationResponse! @shareable
+
+  updateLocation(
+    locationId: ID!
+    location: UpdateLocationInput
+  ): UpdateLocationResponse! @shareable
+
+  deleteLocation(
+    locationId: ID!
+  ): Boolean! @shareable
 }
+

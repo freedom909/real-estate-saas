@@ -1,4 +1,4 @@
-// src/subgraphs/listing/application/usecases/getListingById.usecase.ts
+// src/core/listing/application/usecase/getListingById.usecase.ts
 
 import { injectable, inject } from "tsyringe";
 
@@ -38,9 +38,7 @@ amenityIds: listing.amenityIds,
 
 locationId: listing.locationId,
 
-address: listing.address,
-
-categories: listing.categories,
+categoryIds: listing.categoryIds,
 
 isFeatured: listing.isFeatured,
 
@@ -48,7 +46,7 @@ pictures: listing.pictures.map(pic => ({
   ...pic.toJson(),
 })),
 
-price: listing.price,
+pricePerNight: listing.pricePerNight,
 
 numOfBeds: listing.numOfBeds,
 
@@ -57,7 +55,9 @@ numOfCustomers: listing.numOfCustomers,
 numOfBathrooms: listing.numOfBathrooms,
 
 numOfRooms: listing.numOfRooms,
-
-}}}
+createdAt: listing.createdAt,
+updatedAt: listing.updatedAt,
+}
+}}
 
 export default GetListingByIdUseCase;

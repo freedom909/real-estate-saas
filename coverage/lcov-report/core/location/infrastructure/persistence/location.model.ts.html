@@ -147,8 +147,8 @@ class LocationModel extends Model {}
     country: { type: DataTypes.STRING, allowNull: false },
     latitude: { type: DataTypes.FLOAT, allowNull: false },
     longitude: { type: DataTypes.FLOAT, allowNull: false },
-    radius: { type: DataTypes.FLOAT },
-    units: { type: DataTypes.STRING, defaultValue: 'km' },
+    radius: { type: DataTypes.INTEGER, allowNull: false },
+    units: { type: DataTypes.STRING, allowNull: false, defaultValue: 'km' },
   },
   {
     sequelize,

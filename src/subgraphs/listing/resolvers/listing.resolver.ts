@@ -15,195 +15,208 @@ import { MinioStorage } from "@/core/listing/infrastructure/storage/minio.storag
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
 import UpdateListingUseCase from "@/core/listing/application/usecase/updateListing.usecase";
-
+import ListingActor from "@/core/listing/application/usecase/listingActor";
+import { Role } from "@/core/shared/domain/role";
 
 
 export const resolvers = {
-
   Query: {
-
     listings: async () => {
-
       const repo =
         container.resolve<IListingRepository>(
           TOKENS_LISTING.repos.listingRepository
         );
 
       const listings = await repo.findAll();
+
       return listings.map(listing => ({
         id: listing.id,
         ownerId: listing.ownerId,
         locationId: listing.locationId,
         title: listing.title,
         description: listing.description,
-        address: listing.address,
-        price: listing.price,
         pricePerNight: listing.pricePerNight,
         numOfBeds: listing.numOfBeds,
         numOfCustomers: listing.numOfCustomers,
         numOfBathrooms: listing.numOfBathrooms,
         numOfRooms: listing.numOfRooms,
         isFeatured: listing.isFeatured,
-        categories: listing.categories ?? [],
+        categoryIds: listing.categoryIds,
         amenityIds: listing.amenityIds ?? [],
         createdAt: listing.createdAt,
         updatedAt: listing.updatedAt,
         pictures: listing.pictures.map(pic => pic.toJson()),
       }));
-
     },
+
     listing: async (
       _: any,
       { id }: { id: string }
     ) => {
-
       const useCase =
         container.resolve<GetListingByIdUseCase>(
           TOKENS_LISTING.usecase.getListingByIdUseCase
         );
+
       return useCase.execute(id);
-
     },
 
-    featuredListings: async (_: any,{ limit }: { limit?: number }) => {
-      try {
-        const useCase = container.resolve<GetFeaturedListingsUseCase>(
-          TOKENS_LISTING.usecase.getFeaturedListingsUseCase
-        );
-
-        return useCase.execute(limit??6);
-      } catch (error) {
-        console.error('⚠️ Error fetching featured listings:', error);
-        return [];
-      }
-    },
-
-    listingsByOwner: async (_: any, { ownerId }: { ownerId: string }) => {
+    listingsByOwner: async (
+      _: any,
+      { ownerId }: { ownerId: string }
+    ) => {
       const repo =
         container.resolve<IListingRepository>(
           TOKENS_LISTING.repos.listingRepository
         );
 
       const listings = await repo.findByOwnerId(ownerId);
+
       return listings.map(listing => ({
         id: listing.id,
         ownerId: listing.ownerId,
         locationId: listing.locationId,
         title: listing.title,
         description: listing.description,
-        address: listing.address,
-        price: listing.price,
         pricePerNight: listing.pricePerNight,
         numOfBeds: listing.numOfBeds,
         numOfCustomers: listing.numOfCustomers,
         numOfBathrooms: listing.numOfBathrooms,
         numOfRooms: listing.numOfRooms,
         isFeatured: listing.isFeatured,
-        categories: listing.categories ?? [],
+        categoryIds: listing.categoryIds,
         amenityIds: listing.amenityIds ?? [],
         createdAt: listing.createdAt,
         updatedAt: listing.updatedAt,
         pictures: listing.pictures.map(pic => pic.toJson()),
       }));
     },
+  },
 
-    categories: async () => {
-      const repo = container.resolve<CategoryRepository>(TOKENS_CATEGORY.categoryRepository);
-      const cats = await repo.findAll();
-      return cats.map((cat: any) => ({
-        id: cat.id,
-        name: cat.name,
-      }));
+  Mutation: {
+    createListing: async (
+      _: any,
+      { input }: any,
+      context: any
+    ) => {
+      if (!context.user) {
+        throw new Error("User not authenticated");
+      }
+
+      const userId: string = context.user.userId;
+      const role: Role = context.user.role;
+
+      const isAdmin =
+        role === "ADMIN" ||
+        role === "SUPER_ADMIN";
+
+      const resolvedOwnerId: string =
+        isAdmin
+          ? (input.ownerId || userId)
+          : userId;
+
+      const { categories, ...rest } = input;
+
+      const enrichedInput = {
+        ...rest,
+        categoryIds: categories,
+        ownerId: resolvedOwnerId,
+      };
+
+      const useCase =
+        container.resolve<CreateListingUseCase>(
+          TOKENS_LISTING.usecase.createListingUseCase
+        );
+
+      return await useCase.execute(
+        enrichedInput,
+        role
+      );
     },
 
+    updateListing: async ( _: any, { input }: any,context: any) => {
+      if (!context.user) {
+        throw new Error("User not authenticated");
+      }
+
+      const useCase =
+        container.resolve<UpdateListingUseCase>(
+          TOKENS_LISTING.usecase.updateListingUseCase
+        );
+
+      const {
+        id,
+        categories,
+        ...rest
+      } = input;
+
+      const updateInput = {
+        ...rest,
+        ...(categories !== undefined && {
+          categoryIds: categories,
+        }),
+      };
+
+      const actor: ListingActor = {
+        userId: context.user.userId,
+        role: context.user.role,
+      };
+
+      return await useCase.execute(
+        id,
+        updateInput,
+        actor
+      );
+    },
+  },
+
+  Listing: {
+    __resolveReference: async (
+      ref: { id: string }
+    ) => {
+      const useCase =
+        container.resolve<GetListingByIdUseCase>(
+          TOKENS_LISTING.usecase.getListingByIdUseCase
+        );
+
+      try {
+        return await useCase.execute(ref.id);
+      } catch {
+        console.warn(
+          "⚠️ Missing listing:",
+          ref.id
+        );
+        return null;
+      }
+    },
+
+    owner: (parent: any) => ({
+      __typename: "User",
+      id: parent.ownerId,
+    }),
+
+    categories: (parent: any) =>
+      parent.categoryIds?.map((id: string) => ({
+        __typename: "Category",
+        id,
+      })) ?? [],
   },
 
   Upload: GraphQLUpload,
 
-  Mutation: {
-
-    createListing: async (_: any, { input }: any, context: any) => {
-      if (!context.user) {
-        throw new Error("User not authenticated");
-      }
-      const userId: string = context.user.userId;
-      const role: string = context.user.role;
-      const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
-
-      const resolvedOwnerId: string = isAdmin
-        ? (input.ownerId || userId)
-        : userId;
-
-      const enrichedInput = {
-        ...input,
-        ownerId: resolvedOwnerId,
-      };
-
-      const useCase = container.resolve<CreateListingUseCase>(
-        TOKENS_LISTING.usecase.createListingUseCase
-      );
-      return await useCase.execute(enrichedInput, role);
-    },
-
-    updateListing: async (_: any, { input }: any, context: any) => {
-      const useCase = container.resolve<UpdateListingUseCase>(
-        TOKENS_LISTING.usecase.updateListingUseCase
-      );
-      return await useCase.execute(input, context.user.userId, context.user.role);
-    },
-
-    uploadImages: async (_: any, { files, listingId }: any, context: any) => {
-      if (!context.user) {
-        throw new Error("User not authenticated");
-      }
-      if (!listingId) {
-        throw new Error("listingId is required");
-      }
-      const usecase = container.resolve<UploadImageUseCase>(TOKENS_PICTURE.usecase.uploadImageUseCase)
-      const pictures = await usecase.execute(files, listingId, { persist: true });
-      return pictures.map(pic => pic.toJson());
-    },
-  },
-  
-  Listing: {
-    __resolveReference: async (ref: { id: string }) => {
-      const useCase = container.resolve<GetListingByIdUseCase>(TOKENS_LISTING.usecase.getListingByIdUseCase);
-      try {
-        return await useCase.execute(ref.id);
-      } catch {
-        console.warn('⚠️ Missing listing:', ref.id);
-        return null;
-      }
-    },
-    owner: (parent: any) => ({
-      __typename: "User",
-      id: parent.ownerId
-    }),
-
-    categories: (parent: any) =>
-      parent.categories?.map(
-        (id: string) => ({
-          __typename: "Category",
-          id
-        })
-      ) ?? [],
-
-    amenities: (parent: any) =>
-      parent.amenityIds?.map(
-        (id: number) => ({
-          __typename: "Amenity",
-          id
-        })
-      ) ?? [],
-  },
   Picture: {
     url: async (parent: any) => {
-      // Return direct URL since bucket is public
-      const minioStorage = container.resolve<MinioStorage>(TOKENS_PICTURE.storage.minioStorage);
-      return await minioStorage.getUrl(parent.objectKey)
+      const minioStorage =
+        container.resolve<MinioStorage>(
+          TOKENS_PICTURE.storage.minioStorage
+        );
+
+      return await minioStorage.getUrl(
+        parent.objectKey
+      );
     },
-    mimeType: (parent: any) => {
-      return parent.mimeType;
-    }
+
+    mimeType: (parent: any) =>
+      parent.mimeType,
   },
-}
+};

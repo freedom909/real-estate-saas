@@ -11,13 +11,11 @@ export class ListingDTOMapper {
 
       description: listing.description,
 
-      address: listing.address,
-
       ownerId: listing.ownerId,
 
       locationId: listing.locationId,
 
-      categories: listing.categories,
+      categoryIds: listing.categoryIds,
 
       amenityIds: listing.amenityIds || [],
 
@@ -29,7 +27,7 @@ export class ListingDTOMapper {
 
       numOfRooms: listing.numOfRooms,
 
-      price: listing.price,
+      pricePerNight: listing.pricePerNight,
 
       pictures: listing.pictures.map((p) => p.id),
 

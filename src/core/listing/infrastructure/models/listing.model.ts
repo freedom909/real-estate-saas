@@ -1,3 +1,5 @@
+//src/core/listing/infrastructure/models/listing.model.ts
+
 import {
   Model,
   DataTypes,
@@ -8,7 +10,7 @@ import {
 import { sequelize } from "@/infrastructure/config/seq";
 import { PictureModel } from "./picture.model";
 
-class ListingModel extends Model<
+export class ListingModel extends Model<
   InferAttributes<ListingModel>,
   InferCreationAttributes<ListingModel>
 > {
@@ -20,20 +22,20 @@ class ListingModel extends Model<
   declare ownerId: string;
   declare locationId: string;
 
-  declare amenityIds?: number[];
-
-  declare address: string;
+  declare amenityIds?: string[];
 
   declare numOfBeds: number;
   declare numOfCustomers: number;
   declare numOfBathrooms: number;
   declare numOfRooms: number;
 
-  declare price: number;
+  declare pricePerNight: number;
 
   declare isFeatured: boolean;
 
   declare pictures?: PictureModel[];
+
+
 }
 
 ListingModel.init(
@@ -69,11 +71,6 @@ ListingModel.init(
       allowNull: true,
     },
 
-    address: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-
     numOfBeds: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -98,7 +95,7 @@ ListingModel.init(
       defaultValue: 1,
     },
 
-    price: {
+    pricePerNight: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 1.0,
@@ -109,7 +106,6 @@ ListingModel.init(
       allowNull: false,
       defaultValue: false,
     },
-
   },
   {
     sequelize,

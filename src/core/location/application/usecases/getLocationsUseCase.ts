@@ -1,3 +1,5 @@
+//src/core/location/application/usecases/getLocationsUseCase.ts
+
 import { injectable, inject } from "tsyringe";
 import { ILocationRepository } from "../../domain/repos/ILocationRepository";
 import { Location } from "../../domain/entities/location";
@@ -10,7 +12,12 @@ export class GetLocationsUseCase {
     private locationRepository: ILocationRepository
   ) {}
 
-  async execute(): Promise<Location[]> {
+  async execute(locationId?: string): Promise<Location[]> {
+    if (locationId) {
+      const location = await this.locationRepository.findById(locationId);
+      return location ? [location] : [];
+    }
+
     return await this.locationRepository.findAll();
   }
 }

@@ -260,12 +260,22 @@ const handleSubmit = async (e: React.FormEvent) => {
       return;
     }
 
-    const input = {
-      title: form.title,
-      description: form.description,
-      address: form.address,
+const fullAddress = [
+  form.postalCode,
+  form.prefecture,
+  form.city,
+  form.town,
+  form.address,
+]
+  .filter(Boolean)
+  .join(" ");
+console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
+const input = {
+  title: form.title,
+  description: form.description,
+  address: fullAddress,
 
-      price: parseFloat(form.price) || 0,
+  price: parseFloat(form.price) || 0,
 
       pricePerNight:
         parseFloat(form.pricePerNight) ||
@@ -285,7 +295,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       pictures: generatedImages.map((url) => ({ objectKey: url })),
     };
-
+console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
     const variables: Record<string, any> = { input };
     if (files.length > 0) {
       variables.input.files = files;

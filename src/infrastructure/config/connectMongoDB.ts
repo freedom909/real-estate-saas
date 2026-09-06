@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
-                              
+                 // MongoDB Atlas SRV requires working DNS resolution.
+// Force Node.js to use public DNS instead of local 127.0.0.1 resolver.
+import dns from 'dns';
+dns.setServers(["8.8.8.8", "1.1.1.1"]);             
 export default async function connectMongoDB(mongoUri?: string) {
     try {
         if (mongoUri) {

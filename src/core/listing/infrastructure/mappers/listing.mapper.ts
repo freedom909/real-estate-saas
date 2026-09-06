@@ -5,87 +5,81 @@ import PictureMapper from "./picture.mapper";
 
 export class ListingMapper {
 
-static toDomain(raw: any): Listing {
-  return new Listing({
-    rawTitle: raw.title,
+  static toDomain(raw: any): Listing {
+    return new Listing({
+      rawTitle: raw.title,
 
-    id: raw.id,
+      id: raw.id,
 
-    ownerId: raw.ownerId,
-    locationId: raw.locationId,
+      ownerId: raw.ownerId,
+      locationId: raw.locationId,
 
-    title: new Title(raw.title),
+      title: new Title(raw.title),
 
-    description:
-      new Description(
-        raw.description
-      ),
-    address: raw.address,
+      description:
+        new Description(
+          raw.description
+        ),
 
-categories:
-  raw.categories ?? [],
+      categoryIds:
+        raw.categoryIds ?? [],
 
-amenityIds:
-  raw.amenityIds ?? [],
+      amenityIds:
+        raw.amenityIds ?? [],
 
-    numOfBeds:
-      raw.numOfBeds ?? 1,
+      numOfBeds:
+        raw.numOfBeds ?? 1,
 
-    numOfCustomers:
-      raw.numOfCustomers ?? 1,
+      numOfCustomers:
+        raw.numOfCustomers ?? 1,
 
-    numOfBathrooms:
-      raw.numOfBathrooms ?? 1,
+      numOfBathrooms:
+        raw.numOfBathrooms ?? 1,
 
-    numOfRooms:
-      raw.numOfRooms ?? 1,
+      numOfRooms:
+        raw.numOfRooms ?? 1,
 
-    price:
-      Number(raw.price ?? 1),
 
-    pricePerNight:
-      raw.pricePerNight != null ? Number(raw.pricePerNight) : undefined,
 
-    pictures:raw.pictures?.map((p:any)=> PictureMapper.toDomain(p)) ?? [],
+      pricePerNight: Number(raw.pricePerNight),
 
-    isFeatured:
-      raw.isFeatured ?? false,
+      pictures: raw.pictures?.map((p: any) => PictureMapper.toDomain(p)) ?? [],
 
-    createdAt:
-      raw.createdAt,
+      isFeatured:
+        raw.isFeatured ?? false,
 
-    updatedAt:
-      raw.updatedAt,   
-  });
-  
-}
+      createdAt:
+        raw.createdAt,
 
-  
+      updatedAt:
+        raw.updatedAt,
+    });
+
+  }
+
+
   // Domain → DB 
-static toPersistence(listing: Listing) {
-  return {
-    id: listing.id,
+  static toPersistence(listing: Listing) {
+    return {
+      id: listing.id,
 
-title: listing.title,
-description: listing.description,
+      title: listing.title,
+      description: listing.description,
 
-    ownerId: listing.ownerId,
-    locationId: listing.locationId,
+      ownerId: listing.ownerId,
+      locationId: listing.locationId,
 
-    address: listing.address,
+      numOfBeds: listing.numOfBeds,
+      numOfCustomers: listing.numOfCustomers,
+      numOfBathrooms: listing.numOfBathrooms,
+      numOfRooms: listing.numOfRooms,
 
-    numOfBeds: listing.numOfBeds,
-    numOfCustomers: listing.numOfCustomers,
-    numOfBathrooms: listing.numOfBathrooms,
-    numOfRooms: listing.numOfRooms,
+      pricePerNight: listing.pricePerNight,
 
-    price: listing.price,
-    pricePerNight: listing.pricePerNight,
+      isFeatured: listing.isFeatured,
 
-    isFeatured: listing.isFeatured,
-
-    createdAt: listing.createdAt,
-    updatedAt: listing.updatedAt,
-  };
-}
+      createdAt: listing.createdAt,
+      updatedAt: listing.updatedAt,
+    };
+  }
 }

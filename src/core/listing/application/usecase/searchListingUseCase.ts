@@ -11,17 +11,17 @@ export class SearchListingUseCase {
     private readonly repo: IListingRepository
   ) {}
 
-  async execute({location,checkIn,checkOut,customerCount,minPrice,maxPrice}: SearchListingsQuery) {
+  async execute({locationId,checkIn,checkOut,customerCount,minPrice,maxPrice}: SearchListingsQuery) {
     
-    const listings = await this.repo.search({location,checkIn,checkOut,customerCount,minPrice,maxPrice});
+    const listings = await this.repo.search({locationId,checkIn,checkOut,customerCount,minPrice,maxPrice});
     
     return {
       listings: listings.map(l => ({
         id: l.id,
         title: l.title,
         description: l.description,
-        address: l.address,
-        price: l.price,
+        
+        pricePerNight: l.pricePerNight,
         numOfBeds: l.numOfBeds,
         numOfCustomers: l.numOfCustomers,
         numOfBathrooms: l.numOfBathrooms,

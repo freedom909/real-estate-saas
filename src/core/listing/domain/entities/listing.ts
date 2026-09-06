@@ -1,35 +1,35 @@
-// src/subgraphs/listing/domain/entities/Listing.ts
-
+// src/core/listing/domain/entities/listing.ts
 
 import { Description } from "../value-objects/description";
 import { Title } from "../value-objects/Title";
 import { Picture } from "./picture";
 
-
 export interface ListingProps {
   id: string;
-  rawTitle?: string;
-  rawDescription?: string;
-  locationId: string;
 
   title: Title;
   description: Description;
 
-  address: string;
+  rawTitle?: string;
+  rawDescription?: string;
 
-  categories: string[];
-  amenityIds: number[];
+  ownerId: string;
+  locationId: string;
+
+  categoryIds: string[];
+  amenityIds: string[];
 
   numOfBeds: number;
   numOfCustomers: number;
   numOfBathrooms: number;
   numOfRooms: number;
 
-  price: number;
-  pricePerNight?: number;
+  pricePerNight: number;
+
   pictures: Picture[];
+
   isFeatured: boolean;
-  ownerId: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,35 +42,82 @@ export class Listing {
     this.props = props;
   }
 
-  // getters
-  get id() { return this.props.id; }
+  // ======================
+  // Getters
+  // ======================
+
+  get id() {
+    return this.props.id;
+  }
 
   get title(): string {
     return this.props.title.getValue();
   }
-  get ownerId() { return this.props.ownerId; }
+
   get description(): string {
     return this.props.description.getValue();
   }
-  get locationId() { return this.props.locationId; }
-  get categories() { return this.props.categories; }
-  get amenityIds() { return this.props.amenityIds; }
-  get createdAt() { return this.props.createdAt; }
-  get updatedAt() { return this.props.updatedAt; }
-  get address() { return this.props.address; }
-  get numOfBeds() { return this.props.numOfBeds; }
-  get numOfCustomers() { return this.props.numOfCustomers; }
-  get numOfBathrooms() { return this.props.numOfBathrooms; }
-  get numOfRooms() { return this.props.numOfRooms; }
-  get price() { return this.props.price; }
-  get pricePerNight() { return this.props.pricePerNight ?? this.props.price; }
-  get pictures() { return this.props.pictures; }//I am not sure here
-  get isFeatured() { return this.props.isFeatured; }
-  get rawTitle() { return this.props.rawTitle; }
+
+  get rawTitle() {
+    return this.props.rawTitle;
+  }
+
   get rawDescription() {
     return this.props.rawDescription;
-
   }
+
+  get ownerId() {
+    return this.props.ownerId;
+  }
+
+  get locationId() {
+    return this.props.locationId;
+  }
+
+  get categoryIds() {
+    return this.props.categoryIds;
+  }
+
+  get amenityIds() {
+    return this.props.amenityIds;
+  }
+
+  get numOfBeds() {
+    return this.props.numOfBeds;
+  }
+
+  get numOfCustomers() {
+    return this.props.numOfCustomers;
+  }
+
+  get numOfBathrooms() {
+    return this.props.numOfBathrooms;
+  }
+
+  get numOfRooms() {
+    return this.props.numOfRooms;
+  }
+
+  get pricePerNight() {
+    return this.props.pricePerNight;
+  }
+
+  get pictures() {
+    return this.props.pictures;
+  }
+
+  get isFeatured() {
+    return this.props.isFeatured;
+  }
+
+  get createdAt() {
+    return this.props.createdAt;
+  }
+
+  get updatedAt() {
+    return this.props.updatedAt;
+  }
+
   // ======================
   // Business Logic
   // ======================
@@ -79,17 +126,12 @@ export class Listing {
     this.props.title = new Title(title);
     this.touch();
   }
-  updateAddress(address: string) {
-    this.props.address = address;
-    this.touch();
-  }
 
   updateDescription(desc: string) {
     this.props.description = new Description(desc);
     this.touch();
   }
 
-  // 🔥 AI行为（核心）
   generateTitlePrompt() {
     return this.props.title.buildAIPrompt({
       description: this.description,
@@ -115,8 +157,20 @@ export class Listing {
   }
 
   private validate(props: ListingProps) {
-    if (!props.ownerId) throw new Error("ownerId required");
-    if (!props.locationId) throw new Error("locationId required");
-    // categories may be empty when loaded from DB (join table may have no rows)
+    if (!props.id) {
+      throw new Error("id required");
+    }
+
+    if (!props.ownerId) {
+      throw new Error("ownerId required");
+    }
+
+    if (!props.locationId) {
+      throw new Error("locationId required");
+    }
+
+    if (props.pricePerNight < 0) {
+      throw new Error("pricePerNight cannot be negative");
+    }
   }
 }

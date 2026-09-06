@@ -1,7 +1,7 @@
 schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.11",
-    import: ["@key", "@shareable", "@external"]
+    import: ["@key", "@external"]
   ) {
   query: Query
   mutation: Mutation
@@ -15,31 +15,32 @@ scalar Upload
 type Listing @key(fields: "id") {
   id: ID!
 
-  title: String! @shareable
-  description: String! @shareable
+  title: String!
+  description: String!
 
-  address: String!
   owner: User!
-  ownerId: ID! @shareable
+  ownerId: ID!
+
   locationId: ID!
 
   categories: [Category!]!
   amenityIds: [ID!]!
 
-  numOfBeds: Int! @shareable
-  numOfCustomers: Int! @shareable
+  numOfBeds: Int!
+  numOfCustomers: Int!
   numOfBathrooms: Int!
   numOfRooms: Int!
 
-  price: Float! @shareable
   pricePerNight: Float!
+
   pictures: [Picture!]!
 
   isFeatured: Boolean!
 
   createdAt: DateTime!
-  updatedAt: DateTime
+  updatedAt: DateTime!
 }
+
 type Picture @key(fields: "id") {
   id: ID!
   listingId: ID!
@@ -75,8 +76,6 @@ input CreateListingInput {
   title: String!
   description: String!
 
-  address: String!
-
   locationId: ID!
 
   categories: [ID!]!
@@ -89,10 +88,31 @@ input CreateListingInput {
   numOfBathrooms: Int
   numOfRooms: Int
   isFeatured:Boolean
-  price: Float
+ 
   pricePerNight: Float!
   pictures:[CreateImageInput!]
   files: [Upload]
+}
+
+input UpdateListingInput {
+  id: ID!
+
+  title: String
+  description: String
+
+  locationId: ID
+
+  categories: [ID!]
+  amenityIds: [ID!]
+
+  numOfBeds: Int
+  numOfCustomers: Int
+  numOfBathrooms: Int
+  numOfRooms: Int
+
+  pricePerNight: Float
+
+  isFeatured: Boolean
 }
 
 input CreateImageInput {
@@ -156,8 +176,12 @@ id: ID! @external
 # Mutations
 # -----------------------------------
 type Mutation {
-  uploadImages(files: [Upload!]!,listingId: ID!): [Picture!]!
+  uploadImages(files: [Upload!]!, listingId: ID!): [Picture!]!
+
   createListing(input: CreateListingInput!): Listing!
+
+  updateListing(input: UpdateListingInput!): Listing!
+
   generateTitleSuggestion(
     listingId: ID!
   ): String!

@@ -44,21 +44,23 @@ const typeDefs = gql(readFileSync('./src/subgraphs/listing/schema.graphql', { en
 const startApolloServer = async () => {
   try {
     console.info("Connecting to MySQL...");
+
     await sequelize.authenticate();
-   // await sequelize.sync({ alter: true });
 
-   // await sequelize.sync({ alter: true });
+    console.info("MySQL authenticated");
 
-    // Clean up orphaned pictures before sync to avoid FK constraint errors
+    await sequelize.sync({ alter: true });
+
+    console.info("MySQL schema synchronized");
+
+    // Clean up orphaned pictures
     await sequelize.query(`
       DELETE p FROM pictures p
       LEFT JOIN listings l ON p.listingId = l.id
       WHERE l.id IS NULL
     `);
 
-    //await sequelize.sync({ alter: true });
-
-    console.info("MySQL connected");
+    console.info("Orphaned pictures cleaned");
 
     const app = express();
     app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001"], credentials: true }));
