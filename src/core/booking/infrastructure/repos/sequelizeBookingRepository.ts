@@ -11,9 +11,19 @@ import { Op } from "sequelize";
 
 @injectable()
 export class SequelizeBookingRepository implements IBookingRepository {
-  findByLatestByCustomerId(customerId: string): Promise<Booking | null> {
-    throw new Error("Method not implemented.");
-  }
+async findLatestBookingByCustomerId(
+  customerId: string
+): Promise<Booking | null> {
+  const model = await BookingModel.findOne({
+    where: { customerId },
+    order: [["createdAt", "DESC"]],
+  });
+
+  if (!model) return null;
+
+  return this.toDomain(model);
+}
+
 
   async findById(id: string): Promise<Booking | null> {
     const model = await BookingModel.findByPk(id);
@@ -107,6 +117,7 @@ export class SequelizeBookingRepository implements IBookingRepository {
   private toDomain(model: any): Booking {
     return Booking.rehydrate({
       id: model.id,
+      reservationNumber: model.reservationNumber,
       listingId: model.listingId,
       customerId: model.customerId,
       dateRange: new DateRange(

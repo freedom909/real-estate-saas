@@ -12,7 +12,7 @@ import request from "supertest";
 import tenantRouter from "@/gateway/routes/tenantRouter";
 import UserModel from "@/subgraphs/user/infra/models/user.model";
 import { TenantModel } from "@/core/tenant/infrastructure/models/tenant.model";
-import MembershipModel from "@/subgraphs/user/infra/models/membership.model";
+import MembershipModel from "@/core/tenant/infrastructure/models/membership.model";
 import SessionModel from "@/subgraphs/auth/infrastructure/models/session.model";
 import { v4 as uuidv4 } from "uuid";
 
@@ -168,3 +168,4 @@ test().catch((err) => {
   console.error("Test failed:", err);
   process.exit(1);
 });
+

@@ -79,7 +79,10 @@ function CreateListingContent() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-
+     postalCode: "",
+  prefecture: "",
+  city: "",
+  town: "",
     pricePerNight: "",
     numOfBeds: "1",
     numOfBathrooms: "1",
@@ -253,8 +256,6 @@ const handleSubmit = async (e: React.FormEvent) => {
       return;
     }
 
-
-console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
 const input = {
   title: form.title,
   description: form.description,
@@ -277,7 +278,7 @@ const input = {
 
       pictures: generatedImages.map((url) => ({ objectKey: url })),
     };
-console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
+
     const variables: Record<string, any> = { input };
     if (files.length > 0) {
       variables.input.files = files;
@@ -361,7 +362,7 @@ console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
                   />
                   <button
                     type="button"
-                    onClick={() => searchAddress(form.postalCode)}
+                    onClick={() => searchAddress(form.postalCode)}//Cannot find name 'fullAddress'.
                     disabled={!form.postalCode}
                     className="bg-blue-600 text-white px-5 rounded-lg disabled:bg-gray-300"
                   >
@@ -373,15 +374,15 @@ console.log("🔥 FULL ADDRESS BEFORE SUBMIT =", fullAddress);
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Prefecture</label>
-                  <input value={form.prefecture} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
+                  <input value={form.prefecture} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />//
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">City</label>
-                  <input value={form.city} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
+                  <input value={form.city} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />//
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Town</label>
-                  <input value={form.town} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />
+                  <input value={form.town} readOnly className="w-full border rounded-lg p-3 bg-gray-100" />//
                 </div>
               </div>
             </div>

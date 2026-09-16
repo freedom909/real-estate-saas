@@ -5,7 +5,7 @@ import { DependencyContainer } from 'tsyringe';
 import  UserModel  from '../../subgraphs/user/infra/models/user.model';
 import { UserRepository } from '../../subgraphs/user/infra/repos/user.repo';
 import { TOKENS_USER } from '@/modules/tokens/user.tokens';
-import MembershipModel from '@/subgraphs/user/infra/models/membership.model';
+import MembershipModel from '@/core/tenant/infrastructure/models/membership.model';
 
 
 import { TOKENS_TENANT } from '../tokens/tenant.tokens';
@@ -34,3 +34,4 @@ function registerTenantDependencies(container: DependencyContainer): DependencyC
   return container;
 }
 export default registerTenantDependencies;
+

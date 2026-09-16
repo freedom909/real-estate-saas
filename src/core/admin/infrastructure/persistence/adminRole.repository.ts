@@ -17,8 +17,8 @@ export class AdminUserRepository implements IAdminUserRepository {
   ) {}
 
   
-  async demoteAdminToUser(user: AdminUser): Promise<void> {
-    await this.model.update({ role: AdminRole.CUSTOMER }, { where: { id: user.id } });
+  async demoteAdminToUser(userId: string): Promise<void> {
+    await this.model.update({ role: AdminRole.CUSTOMER }, { where: { id: userId } });
   }
   async countByRole(role: AdminRole): Promise<number> {
     return await this.model.count({
@@ -42,8 +42,8 @@ export class AdminUserRepository implements IAdminUserRepository {
   async findById(id: string): Promise<AdminUser | null> {
     // const record = await this.model.findByPk(id);
     // return record ? AdminUserMapper.toDomain(record) : null;
-     const user = await this.model.findByPk(id);// Property 'findById' does not exist on type 'typeof AdminUserModel'.
-     if (!user) {
+     const user = await this.model.findByPk(id);
+      if (!user) {
       return null;
      }
     console.log("========== MONGOOSE RESULT ==========");

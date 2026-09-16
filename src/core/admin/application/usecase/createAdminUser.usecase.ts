@@ -36,6 +36,6 @@ export default class CreateAdminUserUseCase {
       updatedAt: now,
     };
 
-    return this.adminRepo.create(admin as any);
+    return this.adminRepo.createAdmin(admin as any);
   }
 }

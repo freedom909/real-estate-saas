@@ -13,7 +13,7 @@ export class UploadGeneratedImageUseCase {
         private minioStorage: MinioStorage
     ) { }
 
-    async execute(imageUrl: string) {
+    async execute(imageUrl: string, listingId: string) {
         const response = await fetch(imageUrl);
 
         if (!response.ok) {

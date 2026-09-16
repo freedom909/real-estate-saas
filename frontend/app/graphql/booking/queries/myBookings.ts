@@ -12,7 +12,7 @@ id
 status
 checkInDate
 checkOutDate
-pricePerNight
+price
 listing {
 id
 title

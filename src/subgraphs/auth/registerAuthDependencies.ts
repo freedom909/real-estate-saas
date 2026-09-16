@@ -31,7 +31,7 @@ import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevi
 import TrustedDeviceModel from "@/security/infrastructure/models/trusted.device.model";
 import { UserClient } from "@/packages/user-sdk/src/client/user.client";
 import { ProviderRegistry } from "./infrastructure/oauth/provider.registry";
-
+import { AuthGuard } from "./guards/auth.guard";
 import EvaluateRiskUseCase from "@/security/application/evaluateRisk.usecase";
 import { ChallengeModel } from "./infrastructure/models/challenge.model";
 import ChallengeRepo from "./infrastructure/repos/challenge.repo";
@@ -172,7 +172,7 @@ container.registerSingleton(
   TOKENS_AUTH.services.jwtService,
   JwtService
 );
-
+container.registerSingleton(AuthGuard, AuthGuard);
 container.register(TOKENS_AUTH.services.tokenBindingService, {
   useClass: TokenBindingService
 });

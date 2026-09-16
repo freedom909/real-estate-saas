@@ -88,7 +88,7 @@ const input = {
 
 
   pricePerNight:
-    parseFloat(form.pricePerNight) || parseFloat(form.price) || 0,
+    parseFloat(form.pricePerNight) ||  0,
 
   numOfBeds: parseInt(form.numOfBeds) || 1,
   numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
@@ -174,8 +174,8 @@ const input = {
               <label className="block text-sm font-medium mb-1">Price (¥)</label>
               <input
                 type="number"
-                name="price"
-                value={form.price}
+                name="pricePerNight"
+                value={form.pricePerNight}
                 onChange={handleChange}
                 placeholder="10000"
                 className="w-full border rounded-lg p-3"

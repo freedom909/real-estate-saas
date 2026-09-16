@@ -1,8 +1,11 @@
 // routes/fileRouter.js
 import express from "express";
+import { AuthGuard } from "@/subgraphs/auth/guards/auth.guard";
 
 import { getPresignedUrl } from "../services/fileService"; // ✅ correct import
+import { container } from "tsyringe";
 
+const authGuard = container.resolve(AuthGuard);
 const router = express.Router();
 
 /**
@@ -17,7 +20,7 @@ router.get("/presign-url", (req, res) => {
  */
 router.post("/presign-url", authGuard.middleware(), async (req, res) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?.userId;
     const { fileName, fileType } = req.body;
 
     if (!userId) {

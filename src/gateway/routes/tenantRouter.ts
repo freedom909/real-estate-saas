@@ -55,26 +55,34 @@ router.post("/switch", async (req, res) => {
     }
 
     // Dynamic imports to avoid circular dependencies at module load time
-    const { default: mongoose } = await import("mongoose");
-    const { SwitchTenantUseCase } = await import(
-      "@/core/tenant/application/usecase/switch-tenant.use-case"
-    );
-    const { MembershipRepository } = await import(
-      "@/core/tenant/infrastructure/repos/membership.repo"
-    );
-    const { TenantRepository } = await import(
-      "@/core/tenant/infrastructure/repos/tenant.repository"
-    );
-    const { default: SessionModel } = await import(
-      "@/subgraphs/auth/infrastructure/models/session.model"
-    );
+   const { default: mongoose } = await import("mongoose");
 
-    // Get models from mongoose
-    const MembershipModel = mongoose.model("Membership");
-    const TenantModel = mongoose.model("Tenant");
+const { SwitchTenantUseCase } = await import(
+  "@/core/tenant/application/usecase/switch-tenant.use-case"
+);
 
-    const membershipRepo = new MembershipRepository(MembershipModel);
-    const tenantRepo = new TenantRepository(TenantModel as any);
+const { MembershipRepository } = await import(
+  "@/core/tenant/infrastructure/repos/membership.repo"
+);
+
+const { TenantRepository } = await import(
+  "@/core/tenant/infrastructure/repos/tenant.repository"
+);
+
+const { default: SessionModel } = await import(
+  "@/subgraphs/auth/infrastructure/models/session.model"
+);
+
+const { default: MembershipModel } = await import(
+  "@/core/tenant/infrastructure/models/membership.model"
+);
+
+const { TenantModel } = await import(
+  "@/core/tenant/infrastructure/models/tenant.model"
+);
+
+const membershipRepo = new MembershipRepository(MembershipModel);
+const tenantRepo = new TenantRepository(TenantModel as any);
     const switchUseCase = new SwitchTenantUseCase(membershipRepo, tenantRepo as any);
 
     // Execute switch
@@ -124,9 +132,9 @@ router.get("/available", async (req, res) => {
     }
 
     const { default: mongoose } = await import("mongoose");
-    const { default: MembershipModel } = await import(
-      "@/subgraphs/user/infra/models/membership.model"
-    );
+const { default: MembershipModel } = await import(
+  "@/core/tenant/infrastructure/models/membership.model"
+);
     const { TenantModel } = await import(
       "@/core/tenant/infrastructure/models/tenant.model"
     );
@@ -187,3 +195,4 @@ router.get("/active", async (req, res) => {
 });
 
 export default router;
+

@@ -259,14 +259,7 @@ function CreateListingContent() {
       const input = {
         title: form.title,
         description: form.description,
-        
-
-        price: parseFloat(form.pricePerNight) || 0,
-
-        pricePerNight:
-          parseFloat(form.pricePerNight) ||
-          parseFloat(form.pricePerNight) ||
-          0,
+        pricePerNight: parseFloat(form.pricePerNight) || 0,
 
         numOfBeds: parseInt(form.numOfBeds) || 1,
         numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
@@ -406,7 +399,7 @@ function CreateListingContent() {
 
         {/* Price */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium mb-1">Price (¥)</label>
             <input
               type="number"
@@ -417,7 +410,7 @@ function CreateListingContent() {
               className="w-full border rounded-lg p-3"
               required
             />
-          </div>
+          </div> */}
           <div>
             <label className="block text-sm font-medium mb-1">Price Per Night (¥)</label>
             <input

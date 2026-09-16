@@ -6,7 +6,7 @@ mutation Mutation($input: CreateBookingInput!) {
     success
     booking {
       id
-      pricePerNight
+      price
       checkInDate
       checkOutDate
     }

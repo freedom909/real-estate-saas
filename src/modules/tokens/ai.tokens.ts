@@ -77,7 +77,7 @@ export const TOKENS_AI = {
     bookingRepository: Symbol.for("BookingRepository"),
     paymentRepository: Symbol.for("PaymentRepository"),
     reviewRepository: Symbol.for("ReviewRepository"),
-    cancelBookingRepository: Symbol.for("CancelBookingRepository"),
+    
     listingAISuggestionRepository: Symbol.for("ListingAISuggestionRepository")
   },
 }

@@ -347,7 +347,7 @@ export default function CartComponent() {
                         )}
                       </div>
                       <p className="font-bold text-gray-900 ml-4 whitespace-nowrap">
-                        ${(item.pricePerNight || 0) * item.quantity).toFixed(2)}
+                        ${((item.pricePerNight || 0) * item.quantity).toFixed(2)}
                       </p>
                     </div>
 

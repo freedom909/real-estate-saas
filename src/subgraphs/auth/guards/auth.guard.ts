@@ -75,14 +75,12 @@ export class AuthGuard {
 
         const token = authHeader.replace("Bearer ", "");
         const payload = await this.jwtService.verify(token);
-        (req as any).user = {
+        req.user = {
           userId: payload.sub,
           sessionId: payload.sessionId,
           type: payload.type,
         };
 
-        const sessionId =
-    (req as any).user?.sessionId;
         next();
       } catch (err) {
         if (err instanceof UnauthorizedError) {

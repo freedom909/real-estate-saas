@@ -8,7 +8,7 @@ query BookingsForCustomer($userId: ID!) {
     checkInDate
     checkOutDate
     createdAt
-    pricePerNight
+    price
     tenant {
       name
       owner {

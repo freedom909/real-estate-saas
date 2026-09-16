@@ -16,7 +16,7 @@ import { useAuthStore } from "@/app/store/auth.store";
 interface BookingQueryData {
   booking: {
     id: string;
-    pricePerNight: number;
+    price: number;
     status: string;
     checkInDate: string;
     checkOutDate: string;
@@ -225,22 +225,27 @@ console.log(
                 <p className="text-sm text-gray-500">Payment Status</p>
                 <PaymentStatusBadge status={(payment?.status as "PENDING" | "PAID" | "FAILED" | "REFUNDED") || "PENDING"} />
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Price per night</p>
-                <p className="text-2xl font-bold">
-                  {(() => {
-                    const nights = 
-                       Math.ceil((new Date(booking.checkOutDate).getTime() - new Date(booking.checkInDate).getTime()) / (1000 * 60 * 60 * 24))
-                     const pricePerNight = booking.pricePerNight || booking.pricePerNight / nights;
-                    if (nights && nights > 0 && booking?.pricePerNight != null) {
-                      return `¥${pricePerNight.toLocaleString()}`;
-                    }
-                    return booking?.listing?.pricePerNight != null 
-                      ? `¥${booking.listing.pricePerNight.toLocaleString()}`
-                      : "-";
-                  })()}
-                </p>
-              </div>
+<div className="text-right">
+  <p className="text-sm text-gray-500">Price per night</p>
+  <p className="text-2xl font-bold">
+    {(() => {
+      const nights = Math.ceil(
+        (new Date(booking.checkOutDate).getTime() -
+          new Date(booking.checkInDate).getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+
+      if (booking.price != null && nights > 0) {
+        const pricePerNight = booking.price / nights;
+        return `¥${pricePerNight.toLocaleString()}`;
+      }
+
+      return booking.listing?.pricePerNight != null
+        ? `¥${booking.listing.pricePerNight.toLocaleString()}`
+        : "-";
+    })()}
+  </p>
+</div>
             </div>
             <div className="p-6">
               <div className="mb-4 flex items-center justify-between">
@@ -267,8 +272,8 @@ console.log(
                 <div className="flex items-center justify-between text-lg">
                   <span>Total Amount</span>
                   <span className="text-3xl font-bold">
-                    {booking?.pricePerNight != null
-                      ? `¥${booking.pricePerNight.toLocaleString()}`
+                    {booking?.price != null
+                      ? `¥${booking.price.toLocaleString()}`
                       : "-"}
                   </span>
                 </div>

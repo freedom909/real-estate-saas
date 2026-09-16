@@ -1,4 +1,4 @@
-import { injectable, inject, delay } from "tsyringe";
+import { injectable, inject } from "tsyringe";
 import { IListingRepository } from "../../domain/entities/IListingRepository";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 
@@ -11,21 +11,22 @@ class GetListingsUseCase {
 
   async execute() {
     const listings = await this.repo.findAll();
-    console.log("🔥🔥 GET LISTINGS CALLED++", listings);
-    if (!listings) throw new Error("Listing not found");
-    
+
+    if (!listings) {
+      throw new Error("Listing not found");
+    }
+
     return listings.map((listing) => ({
       id: listing.id,
       ownerId: listing.ownerId,
       title: listing.title,
       description: listing.description,
       amenityIds: listing.amenityIds,
-      locationId: listing.locationId,// 位置ID
-      address: listing.address,
-      categories: listing.categories,
+      locationId: listing.locationId,
+      categoryIds: listing.categoryIds,
       isFeatured: listing.isFeatured,
-      picture: listing.pictures,
-      price: listing.price,
+      pictures: listing.pictures,
+      pricePerNight: listing.pricePerNight,
       numOfBeds: listing.numOfBeds,
       numOfCustomers: listing.numOfCustomers,
       numOfBathrooms: listing.numOfBathrooms,

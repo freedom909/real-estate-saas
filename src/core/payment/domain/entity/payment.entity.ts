@@ -44,27 +44,31 @@ export class Payment {
 
   private constructor(private props: PaymentProps) {}
 
-  static create(
-    props: Omit<
-      PaymentProps,
-      | "status"
-      | "createdAt"
-      | "updatedAt"
-      | "processedAt"
-      | "completedAt"
-      | "refundedAt"
-      | "cancelReason"
-    >
-  ): Payment {
-
-    return new Payment({
-      ...props,
-      status: PaymentStatus.PENDING,
-      paymentProvider:props.paymentProvider ?? PaymentProvider.MOCK,
-      transactionId:props.transactionId ?? `mock_${randomUUID()}`,
-      createdAt: new Date(),
-    });
+static create(
+  props: Omit<
+    PaymentProps,
+    | "status"
+    | "createdAt"
+    | "updatedAt"
+    | "processedAt"
+    | "completedAt"
+    | "refundedAt"
+    | "cancelReason"
+    | "paymentProvider"
+    | "transactionId"
+  > & {
+    paymentProvider?: PaymentProvider;
+    transactionId?: string;
   }
+): Payment {
+  return new Payment({
+    ...props,
+    status: PaymentStatus.PENDING,
+    paymentProvider:props.paymentProvider ?? PaymentProvider.MOCK,
+    transactionId:props.transactionId ?? `mock_${randomUUID()}`,
+    createdAt: new Date(),
+  });
+}
 
 static rehydrate(props: PaymentProps): Payment {
   return new Payment(props);

@@ -26,7 +26,7 @@ import { print } from "graphql";
 // Models
 import UserModel from "@/subgraphs/user/infra/models/user.model";
 import { TenantModel } from "@/core/tenant/infrastructure/models/tenant.model";
-import MembershipModel from "@/subgraphs/user/infra/models/membership.model";
+import MembershipModel from "@/core/tenant/infrastructure/models/membership.model";
 import SessionModel from "@/subgraphs/auth/infrastructure/models/session.model";
 
 // Use cases & services
@@ -326,3 +326,4 @@ run().catch((err) => {
   console.error("Test failed:", err);
   process.exit(1);
 });
+

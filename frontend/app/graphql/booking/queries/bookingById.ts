@@ -8,7 +8,7 @@ query BookingById($id: ID!) {
 booking(id: $id) {
 id
 status
-pricePerNight
+price
 checkInDate
 checkOutDate
 listing {

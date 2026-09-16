@@ -114,10 +114,10 @@ function OwnerBookingsContent() {
                         {booking.status}
                       </span>
                       <p className="mt-2 text-lg font-bold text-gray-900">
-                        {booking.listing?.price != null
-                          ? `¥${booking.listing.price.toLocaleString()}`
+                        {booking.listing?.pricePerNight != null
+                          ? `¥${booking.listing.pricePerNight.toLocaleString()}`
                           : "-"}
-                        <span className="text-xs font-normal text-gray-500">/night</span>
+                         <span className="text-xs font-normal text-gray-500">/night</span>
                       </p>
                     </div>
                   </div>

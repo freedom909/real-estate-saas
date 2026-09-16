@@ -11,12 +11,13 @@ class GetFeaturedListingsUseCase {
 
   async execute(limit: number = 6) {
     const listings = await this.repo.findFeatured(limit);
+
     return listings.map((listing) => ({
       id: listing.id,
       title: listing.title,
       description: listing.description,
-      address: listing.address,
-      price: listing.price,
+      locationId: listing.locationId,
+      pricePerNight: listing.pricePerNight,
       pictures: listing.pictures.map((pic: any) => pic.toJson()),
       numOfBeds: listing.numOfBeds,
       numOfCustomers: listing.numOfCustomers,

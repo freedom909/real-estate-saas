@@ -6,29 +6,18 @@ import { ListingAIContext } from "../../domain/entities/listingAI.context";
 
 @injectable()
 export class ListingAIContextFactory {
-
   create(listing: Listing): ListingAIContext {
-console.log(
-  "categories++",
-  listing.categories
-);
-
-console.log(
-  "amenities++",
-  listing.amenityIds
-);
     return {
       id: listing.id,
       title: listing.title,
       description: listing.description,
-      categories: listing.categories,
-      amenities: listing.amenityIds.map(amenityId => amenityId),
-      price: listing.price,
+      categories: listing.categoryIds,
+      amenities: listing.amenityIds,
+      price: listing.pricePerNight,
       numOfBeds: listing.numOfBeds,
       numOfCustomers: listing.numOfCustomers,
       analysis: undefined,
       seoKeywords: []
-    };
-    
+    };   
   }
 }

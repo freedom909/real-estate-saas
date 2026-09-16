@@ -248,8 +248,8 @@ function CreateListingContent() {
               <label className="block text-sm font-medium mb-1">Categories (comma-separated)</label>
               <input
                 type="text"
-                name="categories"
-                value={form.categories}
+                name="categoryIds"
+                value={form.categoryIds}
                 onChange={handleChange}
                 placeholder="apartment, modern, city"
                 className="w-full border rounded-lg p-3"

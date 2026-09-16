@@ -18,8 +18,8 @@ A real-estate SaaS platform built with:
 - Audit Logging
 - User Management
 - Listing Management
-- Booking System (unfinished)
-- Review Management (unfinished)
+- Booking System 
+- Review Management 
 - AI Listing Optimization
 - AI Review Reply (unfinished)
 

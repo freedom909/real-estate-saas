@@ -26,7 +26,7 @@ import { RunReviewAgentUseCase } from "@/core/review/application/runReviewAgentU
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
 import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
 import { BookingRepository } from "@/core/booking/infrastructure/repos/bookingRepository";
-import { CancelBookingRepository } from "@/core/booking/infrastructure/repos/cancelBookingRepository";
+
 import { AnalyzeListingTool } from "@/wisdom/tools/analyzeListing.tool";
 import { CategoryOptimizationTool } from "@/wisdom/tools/categoryOptimizationTool";
 import { GenerateSEOKeywordsTool } from "@/wisdom/capabilities/generateSEOKeywords.tool";
@@ -119,10 +119,6 @@ container.register(TOKENS_BOOKING.usecase.createBookingUseCase, {
 
 container.register(TOKENS_BOOKING.repository.bookingRepository, {
   useClass: BookingRepository,
-});
-
-container.register(TOKENS_BOOKING.repository.cancelBookingRepository, {
-  useClass: CancelBookingRepository,
 });
 
 }

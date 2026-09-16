@@ -4,7 +4,7 @@ async function handleCreate() {
   await listingService.create({
     title: "test",
     description: "test",
-    price: 100,
+    pricePerNight: 100,
 
   });
 }

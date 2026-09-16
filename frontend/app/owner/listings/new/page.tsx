@@ -253,8 +253,8 @@ const handleSubmit = async (e: React.FormEvent) => {
       numOfRooms: parseInt(form.numOfRooms) || 1,
       numOfCustomers: parseInt(form.numOfCustomers) || 2,
 
-      locationId: form.locationId || "default-location",
-      categories: form.categories,
+      
+      categoryIds: form.categoryIds,
       isFeatured: form.isFeatured,
       pictures: [],
     };
@@ -401,7 +401,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   className="w-full border rounded-lg p-3"
                 />
               </div>
-            </div>
+           
 
             {/* Property Details */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -474,7 +474,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               <label className="block text-sm font-medium mb-1">Categories</label>
               <select
                 multiple
-                value={form.categories}
+                value={form.categoryIds}
                 onChange={handleCategoryChange}
                 className="w-full border rounded-lg p-3 h-40"
               >
