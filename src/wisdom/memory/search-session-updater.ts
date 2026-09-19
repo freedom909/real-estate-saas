@@ -13,18 +13,18 @@ export class SearchSessionUpdater {
         private readonly sessionStore: MemorySessionStore,
     ) {}
 
-    apply(
-        ctx: MemoryContext,
-        artifact: Artifact,
-    ) {
+   apply(
+  ctx: MemoryContext,
+  artifact: Artifact,
+) {
+  if (artifact.type !== ArtifactType.LISTING_SEARCH_RESULT) {
+    return;
+  }
 
-        if (artifact.type !== ArtifactType.LISTING_SEARCH_RESULT) {
-            return;
-        }
+  const session = this.sessionStore.getOrCreate(ctx.sessionId);
 
-        this.sessionStore.saveSearchResults(
-            ctx,
-            artifact.content.listings,
-        );
-    }
+  session.searchResults = artifact.content.listings;
+
+  this.sessionStore.set(ctx.sessionId, session);
+}
 }

@@ -1,7 +1,8 @@
 import { CancelBookingUseCase } from "@/core/booking/application/usecases/cancel-booking.usecase";
 import { CompleteBookingUseCase } from "@/core/booking/application/usecases/complete-booking.usecase";
 import { ConfirmBookingUseCase } from "@/core/booking/application/usecases/confirm-booking.usecase";
-import { CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
+import { BookingActor, CreateBookingUseCase } from "@/core/booking/application/usecases/create-booking.usecase";
+import { CreateBookingInput } from "frontend/app/types/booking.types";
 import { delay, inject, injectable } from "tsyringe";
 
 @injectable()
@@ -18,8 +19,8 @@ constructor(
     @inject(delay(() => CompleteBookingUseCase))
     private completeBookingUseCase: CompleteBookingUseCase,
 ){}
-   async createBooking(input:any){
-    return this.createBookingUseCase.execute(input)
+   async createBooking(input:CreateBookingInput,actor:BookingActor){
+    return this.createBookingUseCase.execute(input,actor)
    }
 
    async cancelBooking(

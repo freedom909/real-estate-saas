@@ -17,13 +17,13 @@ Description:
 ${listing.description}
 
 Category:
-${listing.categories.join(", ")}
+${listing.categoryIds.join(", ")}
 
 Amenities:
 ${listing.amenityIds.join(", ")}
 
 Location:
-${listing.address}
+${listing.locationId??""}
 - Maximum 60 characters
 - Attractive to customers
 - SEO optimized

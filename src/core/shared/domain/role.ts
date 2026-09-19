@@ -16,6 +16,28 @@ export enum Role {
   HOST = "HOST",
 }
 
+export enum GlobalRole {
+  GUEST = "GUEST",
+  CUSTOMER = "CUSTOMER",
+  ADMIN = "ADMIN",
+  SUPER_ADMIN = "SUPER_ADMIN",
+}
+
+export enum MembershipRole {
+  STAFF = "STAFF",
+  MODERATOR = "MODERATOR",
+  HOST = "HOST",
+  AGENT = "AGENT",
+  OWNER = "OWNER",
+}
+
+export interface RoleProps {
+  globalRole?: GlobalRole;
+  membershipRole?: MembershipRole;
+}
+
+
+
 /**
  * Numeric hierarchy for comparison. Higher = more privileged.
  */

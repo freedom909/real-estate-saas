@@ -1,7 +1,8 @@
 export enum TenantStatus {
+  CREATION = 'CREATION',
   ACTIVE = 'ACTIVE',
   SUSPENDED = 'SUSPENDED',
-  DELETED = 'DELETED',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export interface TenantProps {
@@ -38,6 +39,14 @@ export class Tenant {
 
   public activate() {
     this.props.status = TenantStatus.ACTIVE;
+  }
+
+  public archive() {
+    this.props.status = TenantStatus.ARCHIVED;
+  }
+
+  public create() {
+    this.props.status = TenantStatus.CREATION;
   }
 
   public toJSON() { return { ...this.props }; }

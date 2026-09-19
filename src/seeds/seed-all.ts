@@ -87,7 +87,7 @@ async function seed() {
   for (const m of MEMBERSHIPS) {
     await MembershipModel.create({
       userId: new mongoose.Types.ObjectId(m.userId),
-      ownerId: new mongoose.Types.ObjectId(m.ownerId),
+      tenantId: new mongoose.Types.ObjectId(m.ownerId),
       role: m.role,
     });
     console.log(`  Membership: ${m.userId.slice(-4)} -> ${m.ownerId.slice(-4)} [${m.role}]`);

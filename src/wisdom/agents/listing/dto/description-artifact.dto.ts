@@ -1,4 +1,5 @@
-import { ArtifactType } from "../artifact-type.enum";
+
+import { ArtifactType } from "@/wisdom/shared/enums/artifact-type.enum";
 import { BaseArtifactDTO } from "./base-artifact.dto";
 
 export class DescriptionArtifactDTO extends BaseArtifactDTO {

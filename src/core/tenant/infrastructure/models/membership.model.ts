@@ -3,17 +3,13 @@
 
 import mongoose, { Schema, Document } from "mongoose"
 import { UserRole } from "../../../user/domain/userRole"
-
-export type MembershipStatus =
-  | "ACTIVE"
-  | "INVITED"
-  | "SUSPENDED"
+import { MembershipStatus } from "../../domain/entities/membership"
 
 export interface MembershipDocument extends Document {
 
   userId: mongoose.Types.ObjectId
 
-  ownerId: mongoose.Types.ObjectId
+  tenantId: mongoose.Types.ObjectId
 
   role: UserRole
 
@@ -30,7 +26,7 @@ const membershipSchema = new Schema<MembershipDocument>(
       index: true
     },
 
-    ownerId: {
+    tenantId: {
       type: Schema.Types.ObjectId,
       required: true,
       index: true
@@ -38,13 +34,13 @@ const membershipSchema = new Schema<MembershipDocument>(
 
     role: {
       type: String,
-      enum: ["OWNER", "ADMIN", "AGENT", "CUSTOMER"],
+      enum: ["OWNER", "AGENT", "AGENT", "HOST","MODERATOR","STAFF"],
       required: true
     },
 
     status: {
       type: String,
-      enum: ["ACTIVE", "INVITED", "SUSPENDED"],
+      enum: ["ACTIVE", "INVITED", "SUSPENDED", "ARCHIVED"],
       default: "ACTIVE"
     }
   },

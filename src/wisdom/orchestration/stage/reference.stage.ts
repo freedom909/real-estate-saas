@@ -2,17 +2,18 @@
 
 import { inject, injectable } from "tsyringe";
 import { WISDOM_TOKENS } from "../../container/tokens/wisdom.tokens";
-import { IReferenceResolver } from "../../contracts/Ilisting-reference.resolver";
+
 import { IPipelineStage } from "./i-pipeline-stage";
 import { WisdomPipelineContext } from "../wisdomPipeline.context";
 import { getCachedSearchResults } from "../../memory/search-results-cache";
 import { EntityType } from "../../shared/enums/entity-type.enum";
+import { IListingReferenceResolver } from "@/wisdom/contracts/Ilisting-reference.resolver";
 
 @injectable()
 export class ReferenceStage implements IPipelineStage {
   constructor(
     @inject(WISDOM_TOKENS.referenceResolver)
-    private resolver: IReferenceResolver,
+    private resolver: IListingReferenceResolver,
   ) {}
 
   async execute(ctx: WisdomPipelineContext) {

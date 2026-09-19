@@ -28,10 +28,12 @@ Amenities:
 ${listing.amenityIds.join(", ")}
 
 Categories:
-${listing.categories.join(", ")}
+${listing.categoryIds.join(", ")??""}
 
 Address:
-${listing.address}
+${listing.locationId??""}
+
+}
 
 Return ONLY the improved description.
 `;

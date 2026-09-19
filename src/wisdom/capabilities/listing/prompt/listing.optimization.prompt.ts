@@ -40,9 +40,9 @@ Description:
 ${listing.description}
 
 Categories:
-${listing.categories.join(", ")}
+${listing.categories.join(", ")??""}
 
 Amenities:
-${listing.amenities.join(", ")}
+${listing.amenities.join(", ")??""}
 `;
 

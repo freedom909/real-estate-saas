@@ -82,7 +82,7 @@ export class AIRequestFactory {
           ...(payload.resources ?? {}),
           searchResults: session?.searchResults ?? [],
           bookingDraft: session?.bookingDraft ?? {},
-          booking: session?.booking ?? {},
+          
         },
 
         trace: {
@@ -137,7 +137,7 @@ export class AIRequestFactory {
           ...(payload.resources ?? {}),
           searchResults: session?.searchResults ?? [],
           bookingDraft: session?.bookingDraft ?? {},
-          booking: session?.booking ?? {},
+          
         },
 
         trace: {
@@ -198,7 +198,7 @@ export class AIRequestFactory {
           ...(payload.resources ?? {}),
           searchResults: session?.searchResults ?? [],
           bookingDraft: session?.bookingDraft ?? {},
-          booking: session?.booking ?? {},
+        
         },
 
         trace: {

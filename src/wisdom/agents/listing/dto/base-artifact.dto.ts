@@ -1,4 +1,5 @@
-import { ArtifactType } from '../artifact-type.enum';
+import { ArtifactType } from "@/wisdom/shared/enums/artifact-type.enum";
+
 
 export abstract class BaseArtifactDTO {
   constructor(

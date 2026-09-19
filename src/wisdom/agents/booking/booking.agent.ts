@@ -174,13 +174,23 @@ export class BookingAgent implements IDomainAgent {
     }
 
     try {
-      const result = await this.createBookingUseCase.execute({
-        listingId: resolvedListingId,
-        customerId,
-        checkInDate: new Date(resolvedCheckIn),
-        checkOutDate: new Date(resolvedCheckOut),
-        customerCount,
-      });
+      
+      const input = {
+  listingId: resolvedListingId,
+  checkInDate: resolvedCheckIn,
+  checkOutDate: resolvedCheckOut,
+  customerCount,
+};
+
+const actor = {
+  customerId,
+  tenantId: context.identity.tenant ?? null,
+};
+
+const result = await this.createBookingUseCase.execute(
+  input,
+  actor,
+);
 
       // Build voice response using mapper
       const listingName = context.resources?.searchResults?.find(

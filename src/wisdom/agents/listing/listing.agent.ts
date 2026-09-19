@@ -145,9 +145,9 @@ export class ListingAgent implements IDomainAgent {
     }
 
     const searchResult = await this.searchListingUseCase.execute({
-      location: translatedLocation,
-      checkIn: checkIn as string | undefined,
-      checkOut: checkOut as string | undefined,
+      locationId: translatedLocation,
+checkIn: checkIn ? new Date(checkIn as string) : undefined,
+checkOut: checkOut ? new Date(checkOut as string) : undefined,
       customerCount: customerCount ? parseInt(customerCount as string) : undefined,
       minPrice,
       maxPrice,

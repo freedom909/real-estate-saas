@@ -37,8 +37,8 @@ export class TenantService {
     if (!user) return [];
     const memberships = await this.membershipRepo.findByUserId(user.id.toString());
     
-    const ownerIds = memberships.map((m: MembershipDocument) => m.ownerId);
-    return this.repo.findByIds(ownerIds.map((id) => id.toString()));
+    const tenantIds = memberships.map((m: MembershipDocument) => m.tenantId);
+    return this.repo.findByIds(tenantIds.map((id) => id.toString()));
   }
 
   async getTenantsAll(): Promise<TenantDocument[]> {

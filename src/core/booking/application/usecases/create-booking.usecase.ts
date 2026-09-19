@@ -25,12 +25,10 @@ import { CalendarClient } from "../adapter/calendar";
 import { CreateBookingInput } from "frontend/app/types/booking.types";
 import { generateReservationNumber} from "../reservation.number";
 
-interface BookingActor {
+export interface BookingActor {
   customerId: string;
   tenantId?: string | null;
 }
-
-
 
 @injectable()
 export class CreateBookingUseCase {

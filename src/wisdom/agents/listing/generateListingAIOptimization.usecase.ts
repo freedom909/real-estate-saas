@@ -53,8 +53,7 @@ export class GenerateListingAIOptimizationUseCase {
     const promptString = listingOptimizationPrompt({
       title: listing.title,
       description: listing.description,
-      address: listing.address,
-      categories: listing.categories,
+
       amenities: listing.amenityIds,
     });
 
