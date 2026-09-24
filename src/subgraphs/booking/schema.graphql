@@ -37,8 +37,13 @@ type CancelBookingResponse implements MutationResponse {
   booking: Booking! @shareable
 }
 
+input BookingActorInput{
+  customerId:String
+  tenantId:String
+}
+
 type Mutation {
-  createBooking(input: CreateBookingInput!,actor:Actor!): CreateBookingResponse! @shareable
+  createBooking(input: CreateBookingInput!,actor:BookingActorInput!): CreateBookingResponse! @shareable
   cancelBooking(id: ID!, reason: String): CancelBookingResponse @shareable
   confirmBooking(id: ID!): Booking! @shareable
   checkInBooking(id: ID!): Booking! @shareable

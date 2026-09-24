@@ -1,21 +1,17 @@
-// membership.model.ts
-// tenant.infrastructure.models.membership.model.ts
+//src/core/tenant/infrastructure/models/membership.model.ts
 
-import mongoose, { Schema, Document } from "mongoose"
-import { UserRole } from "../../../user/domain/userRole"
-import { MembershipStatus } from "../../domain/entities/membership"
+
+import mongoose, { Schema, Document } from "mongoose";
+import { MembershipRole } from "@/core/shared/domain/role";
+import { MembershipStatus } from "../../domain/entities/membership";
 
 export interface MembershipDocument extends Document {
-
-  userId: mongoose.Types.ObjectId
-
-  tenantId: mongoose.Types.ObjectId
-
-  role: UserRole
-
-  status: MembershipStatus
-
-  createdAt: Date
+  userId: mongoose.Types.ObjectId;
+  tenantId: mongoose.Types.ObjectId;
+  role: MembershipRole;
+  status: MembershipStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const membershipSchema = new Schema<MembershipDocument>(
@@ -23,34 +19,43 @@ const membershipSchema = new Schema<MembershipDocument>(
     userId: {
       type: Schema.Types.ObjectId,
       required: true,
-      index: true
+      index: true,
     },
 
     tenantId: {
       type: Schema.Types.ObjectId,
       required: true,
-      index: true
+      index: true,
     },
 
     role: {
       type: String,
-      enum: ["OWNER", "AGENT", "AGENT", "HOST","MODERATOR","STAFF"],
-      required: true
+      enum: Object.values(MembershipRole),
+      required: true,
     },
 
     status: {
       type: String,
-      enum: ["ACTIVE", "INVITED", "SUSPENDED", "ARCHIVED"],
-      default: "ACTIVE"
-    }
+      enum: ["ACTIVE", "PENDING", "SUSPENDED", "REMOVED"],
+      default: "ACTIVE",
+      required: true,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
-)
+);
 
-const MembershipModel: mongoose.Model<MembershipDocument> =
+membershipSchema.index(
+  { userId: 1, tenantId: 1 },
+  { unique: true }
+);
+
+const MembershipModel =
   (mongoose.models.Membership as mongoose.Model<MembershipDocument>) ||
-  mongoose.model<MembershipDocument>("Membership", membershipSchema);
+  mongoose.model<MembershipDocument>(
+    "Membership",
+    membershipSchema
+  );
 
 export default MembershipModel;

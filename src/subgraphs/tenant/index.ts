@@ -3,8 +3,7 @@ import "dotenv/config"
 
 import express from "express"
 import http from "http"
-import cors from "cors"
-import cookieParser from "cookie-parser"
+
 
 import { gql } from "graphql-tag"
 import { readFileSync } from "fs"
@@ -21,8 +20,7 @@ import { resolvers } from "./resolvers/tenant.resolver"
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
-// ── 1. Module-level DI registration ──────────────────
-registerTenantDependencies(container);
+
 // 🔍 启动时验证 env
 console.log(
   "BOOT USER_SUBGRAPH_URL =",

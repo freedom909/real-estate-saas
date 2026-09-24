@@ -1,117 +1,204 @@
+//src/seeds/seed-all.ts
+
 import "dotenv/config";
+import dns from "node:dns";
 import mongoose from "mongoose";
+
+dns.setServers(["8.8.8.8"]);
+
 import UserModel from "@/subgraphs/user/infra/models/user.model";
-import { TenantModel } from "@/core/tenant/infrastructure/models/tenant.model";
+import { TenantModel, TenantStatus } from "@/core/tenant/infrastructure/models/tenant.model";
 import MembershipModel from "@/core/tenant/infrastructure/models/membership.model";
-import { Role } from "@/core/shared/domain/role";
+import {
+  GlobalRole,
+  MembershipRole,
+} from "@/core/shared/domain/role";
 
-// ── Tenants ──────────────────────────────────────────────
-const TENANTS = [
-  { _id: new mongoose.Types.ObjectId("6650a0000000000000000001"), name: "Kyoto Stays", slug: "kyoto-stays", ownerUserId: "6650b0000000000000000010", status: "ACTIVE" },
-  { _id: new mongoose.Types.ObjectId("6650a0000000000000000002"), name: "Tokyo Homes", slug: "tokyo-homes", ownerUserId: "6650b0000000000000000020", status: "ACTIVE" },
-  { _id: new mongoose.Types.ObjectId("6650a0000000000000000003"), name: "Osaka Living", slug: "osaka-living", ownerUserId: "6650b0000000000000000030", status: "ACTIVE" },
-];
+const USER_IDS = {
+  SUPER_ADMIN: new mongoose.Types.ObjectId("6650b0000000000000000001"),
+  ADMIN: new mongoose.Types.ObjectId("6650b0000000000000000050"),
 
-// ── Users ────────────────────────────────────────────────
+  OWNER: new mongoose.Types.ObjectId("6650b0000000000000000010"),
+  HOST: new mongoose.Types.ObjectId("6650b0000000000000000011"),
+  AGENT: new mongoose.Types.ObjectId("6650b0000000000000000012"),
+  STAFF: new mongoose.Types.ObjectId("6650b0000000000000000013"),
+
+  CUSTOMER_1: new mongoose.Types.ObjectId("6650b0000000000000000040"),
+  CUSTOMER_2: new mongoose.Types.ObjectId("6650b0000000000000000041"),
+};
+
+const TENANT_IDS = {
+  KYOTO: new mongoose.Types.ObjectId("6650a0000000000000000001"),
+};
+
 const USERS = [
-  // Super admin (no tenant)
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000001"), email: "superadmin@example.com", name: "Super Admin", role: Role.SUPER_ADMIN, status: "ACTIVE" },
-
-  // Kyoto Stays team
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000010"), email: "yuki@kyotostays.com", name: "Yuki Tanaka", role: Role.OWNER, status: "ACTIVE" },
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000011"), email: "kenji@kyotostays.com", name: "Kenji Yamamoto", role: Role.AGENT, status: "ACTIVE" },
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000012"), email: "sato@kyotostays.com", name: "Sato Ichiro", role: Role.STAFF, status: "ACTIVE" },
-
-  // Tokyo Homes team
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000020"), email: "akira@tokyohomes.com", name: "Akira Suzuki", role: Role.OWNER, status: "ACTIVE" },
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000021"), email: "miho@tokyohomes.com", name: "Miho Kobayashi", role: Role.AGENT, status: "ACTIVE" },
-
-  // Osaka Living team
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000030"), email: "takeshi@osakaliving.com", name: "Takeshi Watanabe", role: Role.OWNER, status: "ACTIVE" },
-
-  // Customers (cross-tenant)
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000040"), email: "alice@example.com", name: "Alice Chen", role: Role.CUSTOMER, status: "ACTIVE" },
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000041"), email: "bob@example.com", name: "Bob Wilson", role: Role.CUSTOMER, status: "ACTIVE" },
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000042"), email: "carol@example.com", name: "Carol Martinez", role: Role.CUSTOMER, status: "SUSPENDED" },
-
-  // Moderators / admins
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000050"), email: "admin@example.com", name: "Platform Admin", role: Role.ADMIN, status: "ACTIVE" },
-  { _id: new mongoose.Types.ObjectId("6650b0000000000000000051"), email: "mod@example.com", name: "Content Mod", role: Role.MODERATOR, status: "ACTIVE" },
+  {
+    _id: USER_IDS.SUPER_ADMIN,
+    email: "superadmin@example.com",
+    name: "Super Admin",
+    globalRole: GlobalRole.SUPER_ADMIN,
+  },
+  {
+    _id: USER_IDS.ADMIN,
+    email: "admin@example.com",
+    name: "Platform Admin",
+    globalRole: GlobalRole.ADMIN,
+  },
+  {
+    _id: USER_IDS.OWNER,
+    email: "owner@kyotostays.com",
+    name: "Kyoto Owner",
+    globalRole: GlobalRole.CUSTOMER,
+  },
+  {
+    _id: USER_IDS.HOST,
+    email: "host@kyotostays.com",
+    name: "Kyoto Host",
+    globalRole: GlobalRole.CUSTOMER,
+  },
+  {
+    _id: USER_IDS.AGENT,
+    email: "agent@kyotostays.com",
+    name: "Kyoto Agent",
+    globalRole: GlobalRole.CUSTOMER,
+  },
+  {
+    _id: USER_IDS.STAFF,
+    email: "staff@kyotostays.com",
+    name: "Kyoto Staff",
+    globalRole: GlobalRole.CUSTOMER,
+  },
+  {
+    _id: USER_IDS.CUSTOMER_1,
+    email: "alice@example.com",
+    name: "Alice Chen",
+    globalRole: GlobalRole.CUSTOMER,
+  },
+  {
+    _id: USER_IDS.CUSTOMER_2,
+    email: "bob@example.com",
+    name: "Bob Wilson",
+    globalRole: GlobalRole.CUSTOMER,
+  },
 ];
 
-// ── Memberships ──────────────────────────────────────────
-// Links users to tenants with a role scope
+const TENANTS = [
+  {
+    _id: TENANT_IDS.KYOTO,
+    name: "Kyoto Stays",
+    slug: "kyoto-stays",
+    ownerUserId: USER_IDS.OWNER.toString(),
+    status: TenantStatus.ACTIVE,
+  },
+];
+
 const MEMBERSHIPS = [
-  // Kyoto Stays
-  { userId: "6650b0000000000000000010", ownerId: "6650a0000000000000000001", role: Role.OWNER },
-  { userId: "6650b0000000000000000011", ownerId: "6650a0000000000000000001", role: Role.AGENT },
-  { userId: "6650b0000000000000000012", ownerId: "6650a0000000000000000001", role: Role.STAFF },
-
-  // Tokyo Homes
-  { userId: "6650b0000000000000000020", ownerId: "6650a0000000000000000002", role: Role.OWNER },
-  { userId: "6650b0000000000000000021", ownerId: "6650a0000000000000000002", role: Role.AGENT },
-
-  // Osaka Living
-  { userId: "6650b0000000000000000030", ownerId: "6650a0000000000000000003", role: Role.OWNER },
-
-  // Customers belong to Kyoto Stays (booked there)
-  { userId: "6650b0000000000000000040", ownerId: "6650a0000000000000000001", role: Role.CUSTOMER },
-  { userId: "6650b0000000000000000041", ownerId: "6650a0000000000000000002", role: Role.CUSTOMER },
+  {
+    userId: USER_IDS.OWNER,
+    tenantId: TENANT_IDS.KYOTO,
+    role: MembershipRole.OWNER,
+  },
+  {
+    userId: USER_IDS.HOST,
+    tenantId: TENANT_IDS.KYOTO,
+    role: MembershipRole.HOST,
+  },
+  {
+    userId: USER_IDS.AGENT,
+    tenantId: TENANT_IDS.KYOTO,
+    role: MembershipRole.AGENT,
+  },
+  {
+    userId: USER_IDS.STAFF,
+    tenantId: TENANT_IDS.KYOTO,
+    role: MembershipRole.STAFF,
+  },
 ];
 
-// ── Seed runner ──────────────────────────────────────────
 async function seed() {
-  const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/mie";
-  console.log(`Connecting to ${MONGO_URI} ...`);
+  const MONGO_URI = process.env.MONGO_URI;
+
+  if (!MONGO_URI) {
+    throw new Error("MONGO_URI is not configured");
+  }
+
+  console.log("Connecting to MongoDB...");
+
   await mongoose.connect(MONGO_URI);
+
   console.log("Connected to MongoDB\n");
 
-  // Tenants — drop collection to clear stale indexes from old model
-  await mongoose.connection.db.dropCollection("tenants").catch(() => {});
-  for (const t of TENANTS) {
-    await TenantModel.create(t);
-    console.log(`  Tenant: ${t.name}`);
-  }
-  console.log(`Seeded ${TENANTS.length} tenants`);
-
-  // Users
-  await UserModel.deleteMany({});
-  for (const u of USERS) {
-    await UserModel.create({ ...u, tokenVersion: 0, status: "ACTIVE" });
-    console.log(`  User:   ${u.email} (${u.role})`);
-  }
-  console.log(`Seeded ${USERS.length} users`);
-
-  // Memberships
+  /*
+   * Development reset.
+   *
+   * This seed intentionally replaces development data.
+   * Do NOT use this script against production data.
+   */
   await MembershipModel.deleteMany({});
-  for (const m of MEMBERSHIPS) {
-    await MembershipModel.create({
-      userId: new mongoose.Types.ObjectId(m.userId),
-      tenantId: new mongoose.Types.ObjectId(m.ownerId),
-      role: m.role,
+  await TenantModel.deleteMany({});
+  await UserModel.deleteMany({});
+
+  console.log("Cleared development data\n");
+
+  for (const user of USERS) {
+    await UserModel.create({
+      ...user,
+      status: "ACTIVE",
+      tokenVersion: 0,
     });
-    console.log(`  Membership: ${m.userId.slice(-4)} -> ${m.ownerId.slice(-4)} [${m.role}]`);
+
+    console.log(
+      `User: ${user.email} [globalRole=${user.globalRole}]`
+    );
   }
-  console.log(`Seeded ${MEMBERSHIPS.length} memberships`);
 
-  // Summary
-  console.log("\n── Summary ──");
-  console.log(`  Tenants:      ${await TenantModel.countDocuments()}`);
-  console.log(`  Users:        ${await UserModel.countDocuments()}`);
-  console.log(`  Memberships:  ${await MembershipModel.countDocuments()}`);
+  console.log(`\nSeeded ${USERS.length} users\n`);
 
-  console.log("\nTest accounts:");
-  console.log("  superadmin@example.com  (SUPER_ADMIN, no tenant)");
-  console.log("  yuki@kyotostays.com    (OWNER, Kyoto Stays)");
-  console.log("  alice@example.com      (CUSTOMER, Kyoto Stays)");
-  console.log("  admin@example.com      (ADMIN, platform)");
+  for (const tenant of TENANTS) {
+    await TenantModel.create(tenant);
+
+    console.log(
+      `Tenant: ${tenant.name} [owner=${tenant.ownerUserId}]`
+    );
+  }
+
+  console.log(`\nSeeded ${TENANTS.length} tenant\n`);
+
+  for (const membership of MEMBERSHIPS) {
+    await MembershipModel.create({
+      userId: membership.userId,
+      tenantId: membership.tenantId,
+      role: membership.role,
+      status: "ACTIVE",
+    });
+
+    console.log(
+      `Membership: ${membership.userId.toString()} -> ${membership.tenantId.toString()} [${membership.role}]`
+    );
+  }
+
+  console.log(`\nSeeded ${MEMBERSHIPS.length} memberships\n`);
+
+  console.log("── Summary ──");
+
+  console.log(
+    `  Users:        ${await UserModel.countDocuments()}`
+  );
+
+  console.log(
+    `  Tenants:      ${await TenantModel.countDocuments()}`
+  );
+
+  console.log(
+    `  Memberships:  ${await MembershipModel.countDocuments()}`
+  );
 
   await mongoose.disconnect();
+
   console.log("\nDone.");
 }
 
-seed().catch((err) => {
-  console.error("Seed failed:", err);
+seed().catch((error) => {
+  console.error("Seed failed:", error);
   process.exit(1);
 });
-

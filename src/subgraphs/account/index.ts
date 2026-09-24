@@ -26,14 +26,15 @@ import registerAuthDependencies from "../auth/registerAuthDependencies";
 import { registerUserDependencies } from "../user/registerUserDependencies";
 import registerAccountDependencies from "@/modules/container/account.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
-import registerTenantDependencies from "@/modules/container/tenant.register";
+
+
 
 // Register all dependencies
 registerAccountDependencies();
 registerAuthDependencies(container);
 registerUserDependencies(container);
-registerTenantDependencies(container);
-registerAccountDependencies();
+
+
 
 console.info("Account subgraph configuration loaded");
 // await sequelize.sync({alter:true})

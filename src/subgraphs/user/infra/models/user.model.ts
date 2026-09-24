@@ -1,63 +1,101 @@
+// src/subgraphs/user/infra/models/user.model.ts
+
 // user.model.ts
 
 import { IProfile } from "@/core/user/domain/user";
-import { UserRole } from "@/core/user/domain/userRole";
+import { GlobalRole } from "@/core/shared/domain/role";
 import mongoose, { HydratedDocument, Types } from "mongoose";
 
 export type UserDocument = HydratedDocument<IUserDB>;
+
 export interface IUserDB {
-  
   _id: Types.ObjectId;
-  email: string; // Mongoose schema requires it, so it's a string
+  email: string;
   name: string;
   isActive: boolean;
   picture: string;
-  role: UserRole;
-  status: "ACTIVE" | "SUSPENDED" | "BANNED" | "DELETED"; // Aligned with Mongoose enum
-  tokenVersion: number; // Corrected type from schema definition to actual type
+
+  /**
+   * Platform-level role.
+   *
+   * Tenant-level roles such as HOST / AGENT / OWNER
+   * belong to Membership.role instead.
+   */
+  globalRole: GlobalRole;
+
+  status: "ACTIVE" | "SUSPENDED" | "BANNED" | "DELETED";
+  tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
   profile?: IProfile;
 }
 
-const userSchema = new mongoose.Schema({
-  email: {
-  type: String,
-  required: true,
-  lowercase: true,
-  trim: true,
-  },
-  role: { type: String, enum: Object.values(UserRole), default: UserRole.CUSTOMER },
-  name: { type: String, required: true },
-  picture: { type: String, default: "" },
-  status: { type: String, enum: ["ACTIVE", "SUSPENDED", "BANNED","DELETED"], default: "ACTIVE" },
-  tokenVersion: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
+const userSchema = new mongoose.Schema<IUserDB>(
+  {
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
 
-}, {
-  timestamps: true,
-  toJSON: {
-    virtuals: true,
-    transform: (doc, ret: any) => {
-      ret.id = ret._id.toString(); // Map _id to id ??
-      delete ret._id; // Remove _id
-      delete ret.__v; // Remove __v (version key)
-      return ret;
+    globalRole: {
+      type: String,
+      enum: Object.values(GlobalRole),
+      default: GlobalRole.CUSTOMER,
+      required: true,
+    },
+
+    name: {
+      type: String,
+      required: true,
+    },
+
+    picture: {
+      type: String,
+      default: "",
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "SUSPENDED", "BANNED", "DELETED"],
+      default: "ACTIVE",
+    },
+
+    tokenVersion: {
+      type: Number,
+      required: true,
+      default: 0,
     },
   },
-  toObject: {
-    virtuals: true,
-    transform: (doc, ret: any) => {
-      ret.id = ret._id.toString();
-      delete ret.__v;
-      return ret;
-    },
-  },
-});
-userSchema.index({ email: 1 })
+  {
+    timestamps: true,
 
-const UserModel = (mongoose.models.User as mongoose.Model<IUserDB>)  || mongoose.model<IUserDB>("User", userSchema);
-export default UserModel;  // ✅ 确保默认导出
+    toJSON: {
+      virtuals: true,
+      transform: (doc, ret: any) => {
+        ret.id = ret._id.toString();
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+      },
+    },
+
+    toObject: {
+      virtuals: true,
+      transform: (doc, ret: any) => {
+        ret.id = ret._id.toString();
+        delete ret.__v;
+        return ret;
+      },
+    },
+  }
+);
+
+userSchema.index({ email: 1 });
+
+const UserModel =
+  (mongoose.models.User as mongoose.Model<IUserDB>) ||
+  mongoose.model<IUserDB>("User", userSchema);
+
+export default UserModel;

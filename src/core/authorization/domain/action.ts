@@ -1,0 +1,11 @@
+export enum Action {
+  READ = "READ",
+  CREATE = "CREATE",
+  UPDATE = "UPDATE",
+  DELETE = "DELETE",
+  CONFIRM = "CONFIRM",
+  CANCEL = "CANCEL",
+  CHECK_IN = "CHECK_IN",
+  CHECK_OUT = "CHECK_OUT",
+  COMPLETE = "COMPLETE",
+}

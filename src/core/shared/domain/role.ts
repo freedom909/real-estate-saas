@@ -9,11 +9,11 @@ export enum Role {
   CUSTOMER = "CUSTOMER",
   STAFF = "STAFF",
   MODERATOR = "MODERATOR",
+  HOST = "HOST",
   AGENT = "AGENT",
   OWNER = "OWNER",
   ADMIN = "ADMIN",
   SUPER_ADMIN = "SUPER_ADMIN",
-  HOST = "HOST",
 }
 
 export enum GlobalRole {
@@ -31,10 +31,6 @@ export enum MembershipRole {
   OWNER = "OWNER",
 }
 
-export interface RoleProps {
-  globalRole?: GlobalRole;
-  membershipRole?: MembershipRole;
-}
 
 
 
