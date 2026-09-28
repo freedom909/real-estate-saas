@@ -1,7 +1,9 @@
 // src/subgraphs/user/domain/repository/IUserRepository.ts
 
 import { UserEntity } from "../entities/user.entity";
-import { Role } from "@/core/shared/domain/role";
+import { GlobalRole } from "@/core/shared/domain/role";
+
+
 
 /**
  * Single repository interface for the User aggregate.
@@ -15,19 +17,19 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<UserEntity | null>;
   findAll(limit: number, offset: number): Promise<UserEntity[]>;
   count(): Promise<number>;
+  setGlobalRole(userId: string, globalRole: GlobalRole): Promise<void>;
 
   // ── Write ──────────────────────────────────────────
   create(data: {
     email: string;
     name: string;
-    role?: Role;
+    globalRole?: GlobalRole;
     picture?: string;
   }): Promise<UserEntity>;
 
   save(user: UserEntity): Promise<void>;
 
   /** Direct role update (used by admin/promotion flows). */
-  setUserRole(userId: string, role: Role): Promise<void>;
 
   deactivate(userId: string): Promise<boolean>;
   activate(userId: string): Promise<boolean>;

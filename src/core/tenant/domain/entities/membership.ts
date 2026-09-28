@@ -8,6 +8,7 @@ export type MembershipStatus =
 
 export class Membership {
   constructor(
+    public readonly id: string | null,
     public readonly userId: string,
     public readonly tenantId: string,
     public role: MembershipRole,

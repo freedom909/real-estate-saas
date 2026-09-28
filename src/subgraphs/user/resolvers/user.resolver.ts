@@ -93,7 +93,7 @@ const resolvers = {
       }
       const useCase = context.container.resolve<BecomeHostUseCase>(TOKENS_USER.usecase.becomeHostUseCase);
       console.log("🔥🔥 BECOME HOST USECASE =", useCase);
-      return useCase.execute(context.user.userId);
+      return useCase.execute(context.user.userId,context.user.tenantId ?? null,);
     },
 
     createUser: async (_: unknown, { input }: any) => {
@@ -106,7 +106,19 @@ const resolvers = {
         "../application/usecase/createOAuthUserUseCase"
       );
       const useCase = container.resolve(CreateOAuthUserUseCase);
-      return useCase.execute(input);
+      const user = await useCase.execute(input);
+      return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    picture: user.picture,
+    role: user.globalRole,
+    status: user.status,
+    isActive: user.isActive,
+    tokenVersion: user.tokenVersion,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
     },
 
     updateProfile: async (_: unknown, { userId }: any) => {

@@ -12,7 +12,7 @@ export interface ListingProps {
 
   rawTitle?: string;
   rawDescription?: string;
-
+  tenantId: string;
   ownerId: string;
   locationId: string;
 
@@ -64,6 +64,10 @@ export class Listing {
 
   get rawDescription() {
     return this.props.rawDescription;
+  }
+
+  get tenantId() {
+    return this.props.tenantId;
   }
 
   get ownerId() {
@@ -159,6 +163,10 @@ export class Listing {
   private validate(props: ListingProps) {
     if (!props.id) {
       throw new Error("id required");
+    }
+
+    if (!props.tenantId) {
+      throw new Error("tenantId required");
     }
 
     if (!props.ownerId) {

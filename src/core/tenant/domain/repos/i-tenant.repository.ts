@@ -1,3 +1,4 @@
+//src/core/tenant/domain/repos/i-tenant.repository.ts
 import { Tenant, TenantStatus } from "../entities/tenant.entity";
 
 export interface TenantPaginationResult {

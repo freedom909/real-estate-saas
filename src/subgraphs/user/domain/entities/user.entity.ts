@@ -1,6 +1,8 @@
 // src/subgraphs/user/domain/entities/user.entity.ts
 
-import { Role } from "@/core/shared/domain/role";
+import { GlobalRole } from "@/core/shared/domain/role";
+
+
 
 /**
  * User entity — single source of truth for user domain logic.
@@ -9,7 +11,7 @@ import { Role } from "@/core/shared/domain/role";
  * Business rules live here; persistence lives in the repository.
  */
 export class UserEntity {
-  private _role: Role;
+  private _globalRole: GlobalRole;
   private _status: AccountStatus;
   private _isActive: boolean;
 
@@ -17,7 +19,7 @@ export class UserEntity {
     public readonly id: string,
     public readonly email: string,
     public readonly name: string,
-    role: Role,
+    globalRole: GlobalRole,
     status: AccountStatus = AccountStatus.ACTIVE,
     isActive: boolean = true,
     public readonly picture: string = "",
@@ -25,33 +27,25 @@ export class UserEntity {
     public readonly createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
   ) {
-    this._role = role;
+    this._globalRole = globalRole;
     this._status = status;
     this._isActive = isActive;
   }
 
   // ── Getters ──────────────────────────────────────────
 
-  get role(): Role { return this._role; }
+  get globalRole(): GlobalRole { return this._globalRole; }
   get status(): AccountStatus { return this._status; }
   get isActive(): boolean { return this._isActive; }
 
   // ── Business Methods ─────────────────────────────────
 
-  /** Customer → Host role transition (idempotent). */
-  becomeHost(): void {
-    if (this._role === Role.ADMIN || this._role === Role.SUPER_ADMIN) {
-      throw new Error("Admin cannot become host");
-    }
-    if (this._role === Role.HOST) return; // already a host
-    this._role = Role.HOST;
-    this.touch();
-  }
+ 
 
   /** Promote to admin (requires higher-privilege caller — enforced at use-case level). */
   promoteToAdmin(): void {
-    if (this._role === Role.SUPER_ADMIN) return; // already above admin
-    this._role = Role.ADMIN;
+    if (this._globalRole === GlobalRole.SUPER_ADMIN) return; // already above admin
+    this._globalRole = GlobalRole.ADMIN;
     this.touch();
   }
 

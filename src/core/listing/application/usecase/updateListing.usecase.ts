@@ -76,8 +76,8 @@ export default class UpdateListingUseCase {
     const updated = new Listing({
       id: existing.id,
 
+      tenantId: existing.tenantId, 
       ownerId: existing.ownerId,
-
       locationId:
         input.locationId ??
         existing.locationId,

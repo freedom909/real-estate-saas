@@ -4,9 +4,8 @@ import { UserAdapter } from '../../adapter/user.adapter';
 import { TenantRepository } from '../../infrastructure/repos/tenant.repo';
 import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
 import { MembershipRepository } from '../../infrastructure/repos/membership.repo';
-
-import { MembershipDocument } from '../../infrastructure/models/membership.model';
 import { TenantDocument } from '../tenant.model';
+import { Membership } from '../entities/membership';
 
 @injectable()
 export class TenantService {
@@ -37,7 +36,7 @@ export class TenantService {
     if (!user) return [];
     const memberships = await this.membershipRepo.findByUserId(user.id.toString());
     
-    const tenantIds = memberships.map((m: MembershipDocument) => m.tenantId);
+    const tenantIds = memberships.map((m: Membership) => m.tenantId);
     return this.repo.findByIds(tenantIds.map((id) => id.toString()));
   }
 

@@ -1,7 +1,7 @@
 // src/subgraphs/user/infra/mappers/user.mapper.ts
 
 import { UserEntity, AccountStatus } from "../../domain/entities/user.entity";
-import { Role } from "@/core/shared/domain/role";
+import { GlobalRole } from "@/core/shared/domain/role";
 
 /**
  * Maps between Mongoose document (IUserDB) ↔ UserEntity.
@@ -17,7 +17,7 @@ export class UserMapper {
       raw._id?.toString() ?? raw.id,
       raw.email,
       raw.name,
-      (raw.role as Role) ?? Role.CUSTOMER, // is this right? or should it be HOST? or something else?
+      (raw.globalRole as GlobalRole) ?? GlobalRole.CUSTOMER, // is this right? or should it be HOST? or something else?
       (raw.status as AccountStatus) ?? AccountStatus.ACTIVE,
       raw.isActive ?? true,
       raw.picture ?? "",
@@ -32,7 +32,7 @@ export class UserMapper {
     return {
       email: entity.email,
       name: entity.name,
-      role: entity.role,
+      globalRole: entity.globalRole,
       status: entity.status,
       isActive: entity.isActive,
       picture: entity.picture,

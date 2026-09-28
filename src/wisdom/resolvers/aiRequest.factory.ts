@@ -65,7 +65,7 @@ export class AIRequestFactory {
             ? {
                 id: user.userId,
                 email: user.email,
-                role: user.role,
+                role: user.globalRole,
               }
             : undefined,
           tenant: payload.identity?.tenant,

@@ -155,10 +155,10 @@ describe("User Resolvers", () => {
       const result = await (resolvers as any).Mutation.becomeHost(
         null,
         {},
-        { user: { userId: "user-1" }, container: ctxContainer }
+        { user: { userId: "user-1", tenantId: "tenant-1" },  container: ctxContainer }
       );
 
-      expect(mockUseCases.becomeHost.execute).toHaveBeenCalledWith("user-1");
+      expect(mockUseCases.becomeHost.execute).toHaveBeenCalledWith("user-1", "tenant-1"); 
       expect(result).toEqual(mockResult);
     });
   });

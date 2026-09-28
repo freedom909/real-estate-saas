@@ -11,6 +11,7 @@ export class ListingMapper {
 
       id: raw.id,
 
+      tenantId: raw.tenantId,
       ownerId: raw.ownerId,
       locationId: raw.locationId,
 
@@ -61,11 +62,12 @@ export class ListingMapper {
   // Domain → DB 
   static toPersistence(listing: Listing) {
     return {
+      
       id: listing.id,
-
+      
       title: listing.title,
       description: listing.description,
-
+      tenantId: listing.tenantId,
       ownerId: listing.ownerId,
       locationId: listing.locationId,
 

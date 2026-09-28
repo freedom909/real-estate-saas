@@ -72,7 +72,7 @@ export default class UserService {
       name: user.name,
       isActive: user.isActive,
       picture: user.picture,
-      role: user.role,
+      role: user.globalRole,
       status: user.status,
       tokenVersion: user.tokenVersion,
       createdAt: user.createdAt,

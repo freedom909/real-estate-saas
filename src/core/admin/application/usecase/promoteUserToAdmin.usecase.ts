@@ -5,7 +5,8 @@ import { inject } from "tsyringe";
 import { IAdminUserRepository } from "../../domain/entities/IAdminUserRepository";
 import { IUserRepository } from "@/subgraphs/user/domain/repository/IUserRepository";
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
-import { Role } from "@/core/shared/domain/role";
+import { GlobalRole } from "@/core/shared/domain/role";
+
 import { AdminUser } from "../../domain/entities/adminUser";
 import { IUser } from "@/core/user/domain/user";
 
@@ -22,7 +23,7 @@ export default class PromoteUserToAdminUseCase {
     if (!user) {
       throw new Error("User not found");
     }
-    await this.userRepository.setUserRole(userId, Role.ADMIN);
+    await this.userRepository.setGlobalRole(userId, GlobalRole.ADMIN);
     const admin = AdminUser.fromUser(user as unknown as IUser);
     await this.repoRepository.createAdmin(admin as unknown as IUser);
   }

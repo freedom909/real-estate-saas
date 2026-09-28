@@ -43,7 +43,7 @@ export interface CreateListingInput {
   categoryIds: string[];
 
   amenityIds?: string[];
-
+  tenantId: string;
   ownerId: string;
 }
 
@@ -247,7 +247,7 @@ export default class CreateListingUseCase {
 
       title: new Title(input.title),
       description: new Description(input.description),
-
+      tenantId: input.tenantId,
       ownerId: input.ownerId,
       locationId: input.locationId,
 

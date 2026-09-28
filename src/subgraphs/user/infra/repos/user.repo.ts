@@ -7,7 +7,7 @@ import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { UserEntity } from "../../domain/entities/user.entity";
 import { IUserRepository } from "../../domain/repository/IUserRepository";
 import { UserMapper } from "../mappers/user.mapper";
-import { Role } from "@/core/shared/domain/role";
+import { GlobalRole } from "@/core/shared/domain/role";
 
 /**
  * Concrete repository for the User aggregate.
@@ -48,13 +48,13 @@ export class UserRepository implements IUserRepository {
   async create(data: {
     email: string;
     name: string;
-    role?: Role;
+    globalRole?: GlobalRole;
     picture?: string;
   }): Promise<UserEntity> {
     const raw = await this.model.create({
       email: data.email.toLowerCase(),
       name: data.name,
-      role: data.role ?? Role.CUSTOMER,
+      globalRole: data.globalRole ?? GlobalRole.CUSTOMER,
       picture: data.picture ?? "",
       status: "ACTIVE",
       isActive: true,
@@ -70,8 +70,8 @@ export class UserRepository implements IUserRepository {
     );
   }
 
-  async setUserRole(userId: string, role: Role): Promise<void> {
-    await this.model.findByIdAndUpdate(userId, { role });
+  async setGlobalRole(userId: string, globalRole: GlobalRole): Promise<void> {
+    await this.model.findByIdAndUpdate(userId, { globalRole });
   }
 
   async deactivate(userId: string): Promise<boolean> {

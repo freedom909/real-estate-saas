@@ -18,7 +18,7 @@ export class ListingModel extends Model<
 
   declare title: string;
   declare description: string;
-
+  declare tenantId: string;
   declare ownerId: string;
   declare locationId: string;
 
@@ -55,7 +55,11 @@ ListingModel.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-
+    tenantId: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
+    
     ownerId: {
       type: DataTypes.STRING(50),
       allowNull: false,

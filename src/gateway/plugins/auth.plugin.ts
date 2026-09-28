@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import jwt from "jsonwebtoken";
-import { Role, hasMinRole, normalizeRole } from "@/core/shared/domain/role";
+import { Role, normalizeRole } from "@/core/shared/domain/role";
 import { getOperationAuth } from "@/gateway/auth/operationMap";
 import mongoose from "mongoose";
 
@@ -29,7 +29,9 @@ export function createAuthPlugin() {
       if (user?.sessionId) {
         try {
           const SessionModel = mongoose.model("Session");
-          const session = await SessionModel.findOne({ id: user.sessionId }).lean() as { activeTenantId?: string | null } | null;
+          const session = (await SessionModel
+  .findOne({ id: user.sessionId })
+  .lean()) as { activeTenantId?: string | null } | null;
           //Property 'activeTenantId' does not exist on type 'Required<{ _id: unknown; }> & { __v: number; }'.
           if (session?.activeTenantId) {
             (contextValue as any).tenantId = session.activeTenantId;

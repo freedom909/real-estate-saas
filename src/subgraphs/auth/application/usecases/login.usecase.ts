@@ -55,46 +55,70 @@ async execute(cmd: OAuthLoginCommand): Promise<AuthResult>  {
   let user;
 
   // 3️⃣ 已存在 → 登录
-  if (identity) {
-    console.log("[login] Finding user by ID:", identity.userId);
-    user = await this.userGateway.findById(identity.userId);
-    console.log("[login] User by ID:", !!user);
-  } else {
+ if (identity) {
+  console.log("[login] Finding user by ID:", identity.userId);
 
-    // 4️⃣ 尝试 email merge（高级策略）
-    if (profile.email) {
-      console.log("[login] Finding user by email:", profile.email);
-      const existingUser = await this.userGateway.findByEmail(profile.email);
-      console.log("[login] User by email:", !!existingUser);
+  user = await this.userGateway.findById(identity.userId);
 
-      if (existingUser) {
-        user = existingUser;
-      }
-    }
+  console.log("[login] User by ID:", !!user);
 
-    // 5️⃣ 不存在 → 创建用户
-    if (!user) {
-      console.log("[login] Creating user from OAuth...");
-      try {
-        user = await this.userGateway.createFromOAuth(profile);
-        console.log("[login] Created user:", !!user, user?.id);
-      } catch (createErr: any) {
-        console.error("[login] Create user failed:", createErr.message);
-        throw createErr;
-      }
-    }
+  // Identity exists but the referenced User no longer exists.
+  // Fall back to the OAuth email before creating anything.
+  if (!user && profile.email) {
+    console.log(
+      "[login] Identity points to missing user. Falling back to email:",
+      profile.email
+    );
 
-    // 6️⃣ 创建 identity（关键）
-    if (user) {
-      console.log("[login] Creating identity for user:", user.id);
-      await this.identityRepo.create({
-        userId: user.id,
-        provider: profile.provider,
-        providerId: profile.providerId,
-        email: profile.email ?? null
-      });
+    user = await this.userGateway.findByEmail(profile.email);
+
+    console.log("[login] User by email:", !!user);
+  }
+} else {
+  if (profile.email) {
+    console.log("[login] Finding user by email:", profile.email);
+
+    const existingUser =
+      await this.userGateway.findByEmail(profile.email);
+
+    console.log("[login] User by email:", !!existingUser);
+
+    if (existingUser) {
+      user = existingUser;
     }
   }
+}
+
+if (!user) {
+  console.log("[login] Creating user from OAuth...");
+
+  try {
+    user = await this.userGateway.createFromOAuth(profile);
+
+    console.log(
+      "[login] Created user:",
+      !!user,
+      user?.id
+    );
+  } catch (createErr: any) {
+    console.error(
+      "[login] Create user failed:",
+      createErr.message
+    );
+    throw createErr;
+  }
+}
+
+if (user && !identity) {
+  console.log("[login] Creating identity for user:", user.id);
+
+  await this.identityRepo.create({
+    userId: user.id,
+    provider: profile.provider,
+    providerId: profile.providerId,
+    email: profile.email ?? null,
+  });
+}
 
   if (!user) {
     throw new Error("Login failed: User could not be resolved or created.");
@@ -152,7 +176,7 @@ const userDTO =
   AuthResponseMapper.toUserDTO(user);
     const tokens = await this.sessionPort.createSession({
     userId: user.id,
-    role: user.role,
+    role: user.globalRole,
     deviceId,
     ip,
     userAgent,

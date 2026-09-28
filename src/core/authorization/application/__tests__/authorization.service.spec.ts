@@ -216,4 +216,80 @@ describe("AuthorizationService", () => {
       );
     });
   });
+
+    describe("global role policy", () => {
+    it("allows CUSTOMER with HOST membership to create a listing", () => {
+      const decision = service.authorize({
+        identity: {
+          userId: "user-host-001",
+          globalRole: GlobalRole.CUSTOMER,
+          tenantId: "tenant-001",
+          membershipRole: MembershipRole.HOST,
+        },
+        action: Action.CREATE,
+        resource: Resource.LISTING,
+        resourceTenantId: "tenant-001",
+      });
+
+      expect(decision.allowed).toBe(true);
+      expect(decision.code).toBe(
+        AuthorizationDecisionCode.ALLOWED
+      );
+    });
+
+    it("allows ADMIN to create a listing", () => {
+      const decision = service.authorize({
+        identity: {
+          userId: "user-admin-001",
+          globalRole: GlobalRole.ADMIN,
+          tenantId: null,
+          membershipRole: null,
+        },
+        action: Action.CREATE,
+        resource: Resource.LISTING,
+      });
+
+      expect(decision.allowed).toBe(true);
+      expect(decision.code).toBe(
+        AuthorizationDecisionCode.ALLOWED
+      );
+    });
+
+    it("allows SUPER_ADMIN to create a listing", () => {
+      const decision = service.authorize({
+        identity: {
+          userId: "user-super-admin-001",
+          globalRole: GlobalRole.SUPER_ADMIN,
+          tenantId: null,
+          membershipRole: null,
+        },
+        action: Action.CREATE,
+        resource: Resource.LISTING,
+      });
+
+      expect(decision.allowed).toBe(true);
+      expect(decision.code).toBe(
+        AuthorizationDecisionCode.ALLOWED
+      );
+    });
+
+    it("denies CUSTOMER without membership from creating a listing", () => {
+      const decision = service.authorize({
+        identity: {
+          userId: "user-customer-001",
+          globalRole: GlobalRole.CUSTOMER,
+          tenantId: "tenant-001",
+          membershipRole: null,
+        },
+        action: Action.CREATE,
+        resource: Resource.LISTING,
+        resourceTenantId: "tenant-001",
+      });
+
+      expect(decision.allowed).toBe(false);
+      expect(decision.code).toBe(
+        AuthorizationDecisionCode.MEMBERSHIP_ROLE_DENIED
+      );
+    });
+  });
 });

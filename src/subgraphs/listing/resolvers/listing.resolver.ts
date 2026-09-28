@@ -105,7 +105,10 @@ export const resolvers = {
 
       const userId: string = context.user.userId;
       const role: Role = context.user.role;
-
+      const tenantId: string = context.user.tenantId;
+      if (!tenantId) {
+  throw new Error("Active tenant is required");
+}
       const isAdmin =
         role === "ADMIN" ||
         role === "SUPER_ADMIN";
