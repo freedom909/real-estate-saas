@@ -171,7 +171,11 @@ console.log("[login] Risk result:", JSON.stringify(riskResult));
     };
   }
  // 2️⃣ 顺利进行：如果是 ALLOW 或者是开发环境，生成 Token
-
+console.log("[login] User authorization identity:", {
+  id: user.id,
+  email: user.email,
+  globalRole: user.globalRole,
+});
 const userDTO =
   AuthResponseMapper.toUserDTO(user);
     const tokens = await this.sessionPort.createSession({

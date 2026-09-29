@@ -40,6 +40,10 @@ const resolvers = {
       return userService.findById(reference.id);
     },
 
+     role: (parent: { globalRole?: string | null }) => {
+    return parent.globalRole;
+  },
+
     profile: async (_parent: UserReference, _args: unknown, { container }: ResolverContext) => {
       const profileService = container.resolve<ProfileServiceUseCase>(TOKENS_USER.usecase.profileServiceUseCase);
       return profileService.findByUserId(_parent.id);

@@ -1,6 +1,6 @@
 // user.dto.ts
 
-import { Role } from "@/core/shared/domain/role";
+import { GlobalRole } from "@/core/shared/domain/role";
 import { Profile } from "../domain/entities/profile";
 
 
@@ -16,7 +16,7 @@ export interface UserResponse {
 
  picture:string;
 
- role:Role;
+ globalRole:GlobalRole;
  profile:Profile | undefined;
 
  status:string;

@@ -168,7 +168,7 @@ export class UserMapper {
       raw._id?.toString() ?? <span class="branch-1 cbranch-no" title="branch not covered" >raw.id,</span>
       raw.email,
       raw.name,
-      (raw.role as Role) ?? Role.CUSTOMER, // is this right? or should it be HOST? or something else?
+      (raw.role as Role) ?? Role.CUSTOMER, 
       (raw.status as AccountStatus) ?? AccountStatus.ACTIVE,
       raw.isActive ?? true,
       raw.picture ?? "",

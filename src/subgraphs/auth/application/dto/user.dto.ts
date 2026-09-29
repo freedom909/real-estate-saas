@@ -6,7 +6,7 @@ export interface UserDTO {
   name?: string | null;
   picture?: string | null;
   role?: string | null;
-
+  globalRole?: string | null;
   // 风控相关
   riskLevel?: "LOW" | "MEDIUM" | "HIGH";
   lastLoginAt?: Date;

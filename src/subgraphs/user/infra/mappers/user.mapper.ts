@@ -17,7 +17,7 @@ export class UserMapper {
       raw._id?.toString() ?? raw.id,
       raw.email,
       raw.name,
-      (raw.globalRole as GlobalRole) ?? GlobalRole.CUSTOMER, // is this right? or should it be HOST? or something else?
+      (raw.globalRole as GlobalRole) ?? GlobalRole.CUSTOMER, 
       (raw.status as AccountStatus) ?? AccountStatus.ACTIVE,
       raw.isActive ?? true,
       raw.picture ?? "",

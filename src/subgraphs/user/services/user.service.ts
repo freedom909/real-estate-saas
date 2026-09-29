@@ -4,7 +4,7 @@ import { injectable, inject } from "tsyringe";
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { IUserRepository } from "../domain/repository/IUserRepository";
 import { UserResponse } from "./user.dto";
-import { Role } from "@/core/shared/domain/role";
+import { GlobalRole} from "@/core/shared/domain/role";
 
 /**
  * Application service for User queries and commands.
@@ -48,7 +48,7 @@ export default class UserService {
   async create(input: {
     email: string;
     name: string;
-    role?: Role;
+    globalRole?: GlobalRole;
     picture?: string;
   }): Promise<UserResponse> {
     const existing = await this.userRepository.findByEmail(input.email);
@@ -72,7 +72,7 @@ export default class UserService {
       name: user.name,
       isActive: user.isActive,
       picture: user.picture,
-      role: user.globalRole,
+      globalRole: user.globalRole,
       status: user.status,
       tokenVersion: user.tokenVersion,
       createdAt: user.createdAt,

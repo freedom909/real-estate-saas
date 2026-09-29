@@ -122,6 +122,7 @@ export const resolvers = {
 
       const enrichedInput = {
         ...rest,
+        tenantId,
         categoryIds: categories,
         ownerId: resolvedOwnerId,
       };

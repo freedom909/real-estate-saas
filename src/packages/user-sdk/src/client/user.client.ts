@@ -34,12 +34,11 @@ export class UserClient {
   async findByEmail(email: string) {
     const query = `
       query ($email: String!) {
-        userByEmail(email: $email) {
-          id
-          role
-          email
-
-        }
+            userByEmail(email: $email) {
+                    id
+                    role
+                    email
+            }
       }
     `;
 
@@ -57,8 +56,16 @@ export class UserClient {
         "[UserClient] findByEmail result:",
         JSON.stringify(data)
       );
+const user = data.userByEmail;
 
-      return data.userByEmail;
+if (!user) {
+  return null;
+}
+
+return {
+  ...user,
+  globalRole: user.role ?? "CUSTOMER",
+};
     } catch (err: any) {
       console.error(
         "[UserClient] findByEmail error:",
@@ -170,7 +177,16 @@ export class UserClient {
         JSON.stringify(data)
       );
 
-      return data.createOAuthUser;
+      const user = data.createOAuthUser;
+
+if (!user) {
+  return null;
+}
+
+return {
+  ...user,
+  globalRole: user.role ?? "CUSTOMER",
+};
     } catch (err: any) {
       console.error(
         "[UserClient] createUserFromOAuth error:",
