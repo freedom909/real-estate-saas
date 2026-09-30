@@ -1,4 +1,4 @@
-import { Schema, model, HydratedDocument } from "mongoose"
+import mongoose,{ Schema, model, HydratedDocument } from "mongoose"
 import { Session } from "../../domain/valueObjects/session.vo"
 
 const sessionSchema = new Schema<Session>(
@@ -22,6 +22,6 @@ const sessionSchema = new Schema<Session>(
 
 export type SessionDocument = HydratedDocument<Session>
 
-export const SessionModel = model<Session>("Session", sessionSchema)
+export const SessionModel =  (mongoose.models.Session as mongoose.Model<Session>) ||model<Session>("Session", sessionSchema)
 
 export default SessionModel

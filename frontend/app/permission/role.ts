@@ -6,6 +6,7 @@ export enum Role {
   CUSTOMER = "CUSTOMER",
   STAFF = "STAFF",
   MODERATOR = "MODERATOR",
+  HOST = "HOST",
   AGENT = "AGENT",
   OWNER = "OWNER",
   ADMIN = "ADMIN",

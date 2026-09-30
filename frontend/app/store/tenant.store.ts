@@ -6,6 +6,7 @@ export interface Tenant {
   name: string;
   slug: string;
   status: string;
+  membershipRole: string | null;
 }
 
 interface TenantState {

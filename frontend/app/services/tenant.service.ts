@@ -1,5 +1,5 @@
 //src/services/tenant.service.ts
-"use server";
+"use client";
 
 import { useAuthStore } from "../store/auth.store";
 
@@ -18,6 +18,7 @@ export interface Tenant {
   name: string;
   slug: string;
   status: string;
+  membershipRole: string | null;
 }
 
 export interface SwitchTenantResponse {

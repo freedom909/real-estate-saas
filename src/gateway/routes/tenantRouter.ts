@@ -1,6 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { normalizeRole } from "@/core/shared/domain/role";
+import { Session } from "@/subgraphs/auth/domain/valueObjects/session.vo";
 
 const router = express.Router();
 
@@ -93,9 +94,10 @@ const tenantRepo = new TenantRepository(TenantModel as any);
 
     // Update session with new active tenant
     if (user.sessionId) {
-      await SessionModel.findOneAndUpdate(
+      await SessionModel.findOneAndUpdate(//Expected 3 arguments, but got 2.
         { id: user.sessionId },
-        { activeTenantId: tenantId }
+           { activeTenantId: tenantId }, 
+        {}
       );
     }
 
@@ -148,14 +150,33 @@ const { default: MembershipModel } = await import(
 
     // ownerId in Membership is the tenant's _id (as stored in seed data)
     // Convert ObjectId to string for matching against tenant._id
-    const tenantIds = memberships.map((m: any) => m.ownerId.toString());
+    const tenantIds = memberships.map((m: any) => m.tenantId.toString());
 
     // Fetch tenants by their IDs
-    const tenants = await TenantModel.find({ _id: { $in: tenantIds } })
-      .select("name slug status")
-      .lean();
+const tenants = await TenantModel.find({ _id: { $in: tenantIds } })
+  .select("name slug status")
+  .lean();
 
-    return res.json({ tenants });
+const membershipMap = new Map(
+  memberships.map((m: any) => [
+    m.tenantId.toString(),
+    m,
+  ])
+);
+
+const result = tenants.map((tenant: any) => {
+  const membership = membershipMap.get(tenant._id.toString());
+
+  return {
+    id: tenant._id.toString(),
+    name: tenant.name,
+    slug: tenant.slug,
+    status: tenant.status,
+    membershipRole: membership?.role ?? null,
+  };
+});
+
+return res.json({ tenants: result });
   } catch (err: any) {
     console.error("[Tenant Available] Error:", err.message);
     return res.status(500).json({ error: "Internal server error" });
@@ -182,14 +203,13 @@ router.get("/active", async (req, res) => {
     const { default: SessionModel } = await import(
       "@/subgraphs/auth/infrastructure/models/session.model"
     );
-
-    const session = await SessionModel.findOne({ id: user.sessionId })
+ const session = await SessionModel.findOne({ id: user.sessionId }as Partial<Session>)
       .select("activeTenantId")
       .lean();
 
     return res.json({ activeTenantId: session?.activeTenantId || null });
   } catch (err: any) {
-    console.error("[Tenant Active] Error:", err.message);
+    console.error("[Tenant Active] Error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -30,10 +30,11 @@ export default function TenantSync() {
       try {
         // Fetch available tenants
         const tenants = await getAvailableTenants();
+        console.log("[TenantSync] available tenants:", tenants);
         if (cancelled) return;
 
         setAvailableTenants(tenants);
-
+        
         // Fetch currently active tenant from session
         const activeId = await getActiveTenant();
         if (cancelled) return;
