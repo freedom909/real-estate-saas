@@ -63,14 +63,26 @@ export const resolvers = {
 
     listingsByOwner: async (
       _: any,
-      { ownerId }: { ownerId: string }
+      __: any,
+      context: any
     ) => {
+      if (!context.user) {
+        throw new Error("User not authenticated");
+      }
+      const userId: string = context.user.userId;
+      const tenantId = context.user.tenantId;
+
+      if (!tenantId) {
+        throw new Error("Active tenant is required");
+      }
+
       const repo =
         container.resolve<IListingRepository>(
           TOKENS_LISTING.repos.listingRepository
         );
+      const listings = await repo.findByOwnerId(userId, tenantId);
 
-      const listings = await repo.findByOwnerId(ownerId);
+
 
       return listings.map(listing => ({
         id: listing.id,
@@ -102,16 +114,24 @@ export const resolvers = {
       if (!context.user) {
         throw new Error("User not authenticated");
       }
-
       const userId: string = context.user.userId;
       const role: Role = context.user.role;
-      const tenantId: string = context.user.tenantId;
-      if (!tenantId) {
-  throw new Error("Active tenant is required");
-}
+
       const isAdmin =
         role === "ADMIN" ||
         role === "SUPER_ADMIN";
+
+      const tenantId: string = isAdmin
+        ? input.tenantId
+        : context.user.tenantId;
+
+      if (!tenantId) {
+        throw new Error(
+          isAdmin
+            ? "Target tenant is required"
+            : "Active tenant is required"
+        );
+      }
 
       const resolvedOwnerId: string =
         isAdmin
@@ -126,8 +146,7 @@ export const resolvers = {
         categoryIds: categories,
         ownerId: resolvedOwnerId,
       };
-
-      const useCase =
+const useCase =
         container.resolve<CreateListingUseCase>(
           TOKENS_LISTING.usecase.createListingUseCase
         );
@@ -138,7 +157,7 @@ export const resolvers = {
       );
     },
 
-    updateListing: async ( _: any, { input }: any,context: any) => {
+    updateListing: async (_: any, { input }: any, context: any) => {
       if (!context.user) {
         throw new Error("User not authenticated");
       }

@@ -75,6 +75,7 @@ extend type Amenity @key(fields: "id") {
 input CreateListingInput {
   title: String!
   description: String!
+  tenantId:ID!
 
   locationId: ID!
 

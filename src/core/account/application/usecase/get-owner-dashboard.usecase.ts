@@ -13,8 +13,8 @@ export class GetOwnerDashboardUseCase {
     @inject(TOKENS_ACCOUNT.ReviewACL) private reviewACL: ReviewACL
   ) {}
 
-  async execute(ownerId: string) {
-    const listings = await this.listingACL.getListingsByOwner(ownerId);
+  async execute(ownerId: string, tenantId: string) {
+    const listings = await this.listingACL.getListingsByOwner(ownerId, tenantId);
 
     // For each listing, we would typically fetch associated bookings and reviews
     const bookings = await this.bookingACL.getBookingsByListingIds(listings.map((l) => l.id));

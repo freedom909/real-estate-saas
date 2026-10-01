@@ -37,7 +37,8 @@ export class ListingACL {
   /**
    * Fetch all listings for an owner.
    */
-  async getListingsByOwner(ownerId: string): Promise<ListingExternalDTO[]> {
-    return this.gateway.fetchListingsByOwner(ownerId);
+  
+  async getListingsByOwner(ownerId: string, tenantId: string): Promise<ListingExternalDTO[]> {
+    return this.gateway.fetchListingsByOwner(ownerId, tenantId);
   }
 }

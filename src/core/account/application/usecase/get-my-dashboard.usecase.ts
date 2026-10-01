@@ -13,10 +13,10 @@ export class GetMyDashboardUseCase {
     @inject(TOKENS_ACCOUNT.ReviewACL) private reviewACL: ReviewACL
   ) {}
 
-  async execute(userId: string) {
+  async execute(userId: string, tenantId: string) {
     const [bookings, listings, reviews] = await Promise.all([
       this.bookingACL.getRawBookings(userId),
-      this.listingACL.getListingsByOwner(userId),
+      this.listingACL.getListingsByOwner(userId, tenantId),
       this.reviewACL.getReviewsByUser(userId),
     ]);
 

@@ -316,10 +316,11 @@ async create(listing: Listing): Promise<Listing> {
 
   async findByOwnerId(
     ownerId: string,
+    tenantId: string,
   ): Promise<Listing[]> {
     const records =
       await this.model.findAll({
-        where: { ownerId },
+        where: { ownerId, tenantId },
         include: [
           {
             model: PictureModel,

@@ -16,7 +16,7 @@ import { connectMongo } from "../../shared/db/mongo";
 
 import { container } from "tsyringe"
 import { registerTenantDependencies } from "../../modules/container/tenant.container"
-import { resolvers } from "./resolvers/tenant.resolver"
+import { resolvers } from "./resolvers/resolver"
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
@@ -63,10 +63,13 @@ app.use(
     next();
   },
   expressMiddleware(server, {
-    context: async ({ req }) => ({
-      req,
-      user: (req as any).user,
-    }),
+  context: async ({ req }) => {
+  return {
+    req,
+    user: (req as any).user,
+    container: tenantContainer,
+  };
+},
   })
 );
 

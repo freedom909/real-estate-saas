@@ -14,7 +14,7 @@ jest.mock("@/modules/tokens/tenant.tokens", () => ({
   },
 }));
 
-import { resolvers } from "@/subgraphs/tenant/resolvers/tenant.resolver";
+import { resolvers } from "@/subgraphs/tenant/resolvers/resolver";
 
 describe("Tenant Resolvers", () => {
   let mockContainer: any;

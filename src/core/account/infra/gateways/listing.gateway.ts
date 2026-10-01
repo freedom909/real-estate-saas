@@ -76,16 +76,16 @@ export class ListingGateway extends BaseGateway {
     }
   }
 
-  async fetchListingsByOwner(ownerId: string, retries = 3): Promise<ListingExternalDTO[]> {
+  async fetchListingsByOwner(ownerId: string, tenantId: string, retries = 3): Promise<ListingExternalDTO[]> {
     try {
       const data = await this.client.request<{ listingsByOwner: ListingExternalDTO[] }>(
         this.GET_LISTINGS_BY_OWNER_QUERY,
-        { ownerId }
+        { ownerId, tenantId }
       );
       return data.listingsByOwner || [];
     } catch (error) {
       if (retries > 0) {
-        return this.fetchListingsByOwner(ownerId, retries - 1);
+        return this.fetchListingsByOwner(ownerId, tenantId, retries - 1);
       }
       throw error;
     }

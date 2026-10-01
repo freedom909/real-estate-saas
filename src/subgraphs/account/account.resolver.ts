@@ -33,20 +33,33 @@ export const resolvers = {
       if (!userId) {
         throw new Error("Unauthenticated: Please log in to view your dashboard");
       }
+      const tenantId = context.user?.tenantId;
+      if (!tenantId) {
+        throw new Error("Active tenant is required");
+      }
       const useCase = container.resolve<GetMyDashboardUseCase>(
         TOKENS_ACCOUNT.GetMyDashboardUseCase
       );
-      return useCase.execute(userId);
+      return useCase.execute(userId, tenantId);
     },
 
-    myListings: async (_: any, __: any, context: any) => {
-      const userId = context.user?.userId || context.user?.id;
-      if (!userId) {
-        throw new Error("Unauthenticated: Please log in to view your listings");
-      }
-      const acl = container.resolve<ListingACL>(TOKENS_ACCOUNT.ListingACL);
-      return acl.getListingsByOwner(userId);
-    },
+   myListings: async (_: any, __: any, context: any) => {
+  const userId = context.user?.userId || context.user?.id;
+
+  if (!userId) {
+    throw new Error("Unauthenticated: Please log in to view your listings");
+  }
+
+  const tenantId = context.user?.tenantId;
+
+  if (!tenantId) {
+    throw new Error("Active tenant is required");
+  }
+
+  const acl = container.resolve<ListingACL>(TOKENS_ACCOUNT.ListingACL);
+
+  return acl.getListingsByOwner(userId, tenantId);
+},
 
     // --- Business Rule Queries ---
 
@@ -231,9 +244,20 @@ export const resolvers = {
       return acl.getRawBookings(parent.id);
     },
 
-    myListings: async (parent: { id: string }) => {
+    myListings: async (_: any, __: any, context: any) => {
+  const userId = context.user?.userId || context.user?.id;
+
+  if (!userId) {
+    throw new Error("Unauthenticated: Please log in to view your listings");
+  }
+
+
+  const tenantId = context.user.tenantId;
+    if (!tenantId) {
+    throw new Error("Active tenant is required");
+  }
       const acl = container.resolve<ListingACL>(TOKENS_ACCOUNT.ListingACL);
-      return acl.getListingsByOwner(parent.id);
+      return acl.getListingsByOwner(userId, tenantId);
     },
 
     myReviews: async (parent: { id: string }) => {

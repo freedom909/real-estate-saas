@@ -9,13 +9,17 @@ import { useAuthStore } from "@/app/store/auth.store";
 import { logout as authLogout } from "@/app/services/auth.service";
 
 import TenantSwitcher from "./TenantSwitcher";
+import { useTenantStore } from "../store/tenant.store";
 
 export default function Navbar() {
 
   const user = useAuthStore((s) => s.user);
+ const activeTenantId = useTenantStore((s) => s.activeTenantId);
+const availableTenants = useTenantStore((s) => s.availableTenants);
+const activeTenant = availableTenants.find((tenant) => tenant.id === activeTenantId);
+const membershipRole = activeTenant?.membershipRole?? null;
+console.log("membershipRole:", membershipRole);
 
-  // logout() in auth.service.ts handles redirect
-  const logout = () => authLogout();
 
   const role = user?.role;
 
@@ -33,7 +37,8 @@ export default function Navbar() {
   };
 
   const dashboardLink = role ? ROLE_DASHBOARD[role] : null;
-
+  // logout() in auth.service.ts handles redirect
+  const logout = () => authLogout();
   return (
 
     <nav className="border-b bg-black">

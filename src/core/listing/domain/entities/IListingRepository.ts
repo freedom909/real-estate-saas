@@ -22,7 +22,7 @@ export interface IListingRepository {
 
   findById(id: string): Promise<Listing | null>;
 
-  findByOwnerId(ownerId: string): Promise<Listing[]>;
+  findByOwnerId(ownerId: string, tenantId: string): Promise<Listing[]>;
 
   findFeatured(limit?: number): Promise<Listing[]>;
 
