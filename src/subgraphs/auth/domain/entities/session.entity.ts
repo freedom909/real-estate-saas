@@ -9,6 +9,7 @@ export class Session{
     public userAgent:String,
     public createAt:Date=new Date(),
     public lastSeenAt:Date,
+    public activeTenantId?: string | null,
   ){}
   touch(){
     this.lastSeenAt=new Date()

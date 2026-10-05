@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Full E2E Integration Test for Tenant Switching
  * 
  * Tests the complete flow:
@@ -38,12 +38,13 @@ import { TenantRepository } from "@/core/tenant/infrastructure/repos/tenant.repo
 import tenantRouter from "@/gateway/routes/tenantRouter";
 
 import { v4 as uuidv4 } from "uuid";
+import sessionPort, { ISessionPort } from "@/subgraphs/auth/domain/ports/session.port";
 
-// ── Config ────────────────────────────────────────────────
+// â”€â”€ Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/minwisdom";
 const SECRET = process.env.ACCESS_TOKEN_SECRET || "test-secret";
 
-// ── Test Data ─────────────────────────────────────────────
+// â”€â”€ Test Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Alice: CUSTOMER, belongs to Kyoto Stays only
 const ALICE_ID = "6650b0000000000000000040";
 const KYOTO_TENANT_ID = "6650a0000000000000000001";
@@ -53,7 +54,7 @@ const OSAKA_TENANT_ID = "6650a0000000000000000003";
 // Yuki: OWNER, belongs to Kyoto Stays
 const YUKI_ID = "6650b0000000000000000010";
 
-// ── Test State ────────────────────────────────────────────
+// â”€â”€ Test State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let app: express.Express;
 let passed = 0;
 let failed = 0;
@@ -63,10 +64,10 @@ let yukiToken: string;
 
 function assert(condition: boolean, msg: string) {
   if (condition) {
-    console.log(`  ✓ ${msg}`);
+    console.log(`  âœ“ ${msg}`);
     passed++;
   } else {
-    console.error(`  ✗ ${msg}`);
+    console.error(`  âœ— ${msg}`);
     failed++;
   }
 }
@@ -79,7 +80,7 @@ function createToken(userId: string, sessionId: string) {
   );
 }
 
-// ── Setup ─────────────────────────────────────────────────
+// â”€â”€ Setup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function setup() {
   // Create Express app
   app = express();
@@ -105,9 +106,9 @@ async function setup() {
   yukiToken = createToken(YUKI_ID, uuidv4());
 }
 
-// ── Tests ─────────────────────────────────────────────────
+// â”€â”€ Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function testSeedData() {
-  console.log("\n═══ Test 1: Seed Data Verification ═══");
+  console.log("\nâ•â•â• Test 1: Seed Data Verification â•â•â•");
 
   const alice = await UserModel.findOne({ email: "alice@example.com" }).lean();
   assert(!!alice, "Alice exists in DB");
@@ -131,7 +132,7 @@ async function testSeedData() {
 }
 
 async function testGetAvailableTenants() {
-  console.log("\n═══ Test 2: GET /api/tenants/available ═══");
+  console.log("\nâ•â•â• Test 2: GET /api/tenants/available â•â•â•");
 
   const res = await request(app)
     .get("/api/tenants/available")
@@ -145,7 +146,7 @@ async function testGetAvailableTenants() {
 }
 
 async function testGetActiveTenant() {
-  console.log("\n═══ Test 3: GET /api/tenants/active ═══");
+  console.log("\nâ•â•â• Test 3: GET /api/tenants/active â•â•â•");
 
   const res = await request(app)
     .get("/api/tenants/active")
@@ -156,7 +157,7 @@ async function testGetActiveTenant() {
 }
 
 async function testSwitchTenantValid() {
-  console.log("\n═══ Test 4: POST /api/tenants/switch (valid) ═══");
+  console.log("\nâ•â•â• Test 4: POST /api/tenants/switch (valid) â•â•â•");
 
   const res = await request(app)
     .post("/api/tenants/switch")
@@ -171,7 +172,7 @@ async function testSwitchTenantValid() {
 }
 
 async function testSessionPersistence() {
-  console.log("\n═══ Test 5: Session Persistence ═══");
+  console.log("\nâ•â•â• Test 5: Session Persistence â•â•â•");
 
   const session = await SessionModel.findOne({ id: testSessionId }).lean();
   assert(!!session, "Session exists");
@@ -179,7 +180,7 @@ async function testSessionPersistence() {
 }
 
 async function testActiveTenantAfterSwitch() {
-  console.log("\n═══ Test 6: GET /api/tenants/active (after switch) ═══");
+  console.log("\nâ•â•â• Test 6: GET /api/tenants/active (after switch) â•â•â•");
 
   const res = await request(app)
     .get("/api/tenants/active")
@@ -190,7 +191,7 @@ async function testActiveTenantAfterSwitch() {
 }
 
 async function testSwitchTenantInvalid() {
-  console.log("\n═══ Test 7: POST /api/tenants/switch (no membership) ═══");
+  console.log("\nâ•â•â• Test 7: POST /api/tenants/switch (no membership) â•â•â•");
 
   const res = await request(app)
     .post("/api/tenants/switch")
@@ -202,7 +203,7 @@ async function testSwitchTenantInvalid() {
 }
 
 async function testSwitchTenantMissing() {
-  console.log("\n═══ Test 8: POST /api/tenants/switch (missing tenantId) ═══");
+  console.log("\nâ•â•â• Test 8: POST /api/tenants/switch (missing tenantId) â•â•â•");
 
   const res = await request(app)
     .post("/api/tenants/switch")
@@ -214,32 +215,32 @@ async function testSwitchTenantMissing() {
 }
 
 async function testUnauthorized() {
-  console.log("\n═══ Test 9: Unauthorized Access ═══");
+  console.log("\nâ•â•â• Test 9: Unauthorized Access â•â•â•");
 
   const noAuth = await request(app).get("/api/tenants/active");
-  assert(noAuth.status === 401, "No auth → 401");
+  assert(noAuth.status === 401, "No auth â†’ 401");
 
   const badToken = await request(app)
     .get("/api/tenants/active")
     .set("Authorization", "Bearer invalid-token");
-  assert(badToken.status === 401, "Invalid token → 401");
+  assert(badToken.status === 401, "Invalid token â†’ 401");
 }
 
 async function testUseCaseDirectly() {
-  console.log("\n═══ Test 10: SwitchTenantUseCase Direct ═══");
+  console.log("\nâ•â•â• Test 10: SwitchTenantUseCase Direct â•â•â•");
 
   const tenantRepo = new (await import("@/core/tenant/infrastructure/repos/tenant.repository")).TenantRepository(TenantModel);
   const membershipRepo = new MembershipRepository(MembershipModel);
-  const useCase = new SwitchTenantUseCase(membershipRepo, tenantRepo as any);
+  const useCase = new SwitchTenantUseCase(membershipRepo, tenantRepo, sessionPort as any as ISessionPort);
 
   // Valid switch
-  const result = await useCase.execute({ userId: ALICE_ID, tenantId: KYOTO_TENANT_ID });
+  const result = await useCase.execute({ userId: ALICE_ID, tenantId: KYOTO_TENANT_ID, sessionId: testSessionId });
   assert(!!result.tenant, "Use case returns tenant");
   assert(result.activeTenantId === KYOTO_TENANT_ID, "Use case returns correct ID");
 
   // Invalid switch
   try {
-    await useCase.execute({ userId: ALICE_ID, tenantId: TOKYO_TENANT_ID });
+    await useCase.execute({ userId: ALICE_ID, tenantId: TOKYO_TENANT_ID, sessionId: testSessionId });
     assert(false, "Should have thrown");
   } catch (err: any) {
     assert(err.message === "You do not have access to this tenant", "Use case rejects invalid");
@@ -247,7 +248,7 @@ async function testUseCaseDirectly() {
 }
 
 async function testMultiTenantUser() {
-  console.log("\n═══ Test 11: Multi-Tenant User (Yuki) ═══");
+  console.log("\nâ•â•â• Test 11: Multi-Tenant User (Yuki) â•â•â•");
 
   // Yuki is OWNER of Kyoto Stays
   const res = await request(app)
@@ -260,7 +261,7 @@ async function testMultiTenantUser() {
 }
 
 async function testXTenantIdForwarding() {
-  console.log("\n═══ Test 12: x-tenant-id Header Simulation ═══");
+  console.log("\nâ•â•â• Test 12: x-tenant-id Header Simulation â•â•â•");
 
   // Simulate what the gateway does: read session, get activeTenantId
   const session = await SessionModel.findOne({ id: testSessionId }).lean();
@@ -284,11 +285,11 @@ async function testXTenantIdForwarding() {
   assert(userContext?.tenantId === KYOTO_TENANT_ID, "tenantId in context");
 }
 
-// ── Runner ────────────────────────────────────────────────
+// â”€â”€ Runner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function run() {
-  console.log("╔══════════════════════════════════════════════╗");
-  console.log("║   Full E2E Integration Test                 ║");
-  console.log("╚══════════════════════════════════════════════╝");
+  console.log("â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—");
+  console.log("â•‘   Full E2E Integration Test                 â•‘");
+  console.log("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
 
   console.log("\nConnecting to MongoDB...");
   await mongoose.connect(MONGO_URI);
@@ -314,9 +315,9 @@ async function run() {
   await SessionModel.deleteOne({ id: testSessionId });
 
   // Summary
-  console.log("\n╔══════════════════════════════════════════════╗");
-  console.log(`║   Results: ${passed} passed, ${failed} failed`);
-  console.log("╚══════════════════════════════════════════════╝");
+  console.log("\nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—");
+  console.log(`â•‘   Results: ${passed} passed, ${failed} failed`);
+  console.log("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
 
   await mongoose.disconnect();
   process.exit(failed > 0 ? 1 : 0);
@@ -326,4 +327,5 @@ run().catch((err) => {
   console.error("Test failed:", err);
   process.exit(1);
 });
+
 

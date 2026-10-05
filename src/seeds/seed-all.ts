@@ -13,6 +13,7 @@ import {
   GlobalRole,
   MembershipRole,
 } from "@/core/shared/domain/role";
+import { connectMongo } from "@/shared/db/mongo";
 
 const USER_IDS = {
   SUPER_ADMIN: new mongoose.Types.ObjectId("6650b0000000000000000001"),
@@ -124,7 +125,7 @@ async function seed() {
 
   console.log("Connecting to MongoDB...");
 
-  await mongoose.connect(MONGO_URI);
+ await connectMongo(MONGO_URI);
 
   console.log("Connected to MongoDB\n");
 

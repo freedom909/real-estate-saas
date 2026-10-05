@@ -10,6 +10,7 @@ export interface ITenantRepository {
   save(tenant: Tenant): Promise<Tenant>;
   findById(id: string): Promise<Tenant | null>;
   findBySlug(slug: string): Promise<Tenant | null>;
+  findByIds(ids: string[]): Promise<Tenant[]>;
   update(tenant: Tenant): Promise<Tenant>;
   findAll(): Promise<Tenant[]>;
   paginate(filter: { 

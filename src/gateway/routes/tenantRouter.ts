@@ -1,7 +1,11 @@
+
+// src/gateway/routes/tenantRouter.ts
+
 import express from "express";
 import jwt from "jsonwebtoken";
 import { normalizeRole } from "@/core/shared/domain/role";
 import { Session } from "@/subgraphs/auth/domain/valueObjects/session.vo";
+import sessionPort, { ISessionPort } from "@/subgraphs/auth/domain/ports/session.port";
 
 const router = express.Router();
 
@@ -46,60 +50,53 @@ function decodeUser(req: express.Request) {
 router.post("/switch", async (req, res) => {
   try {
     const user = decodeUser(req);
-    if (!user?.userId) {
+
+    if (!user?.userId || !user.sessionId) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     const { tenantId } = req.body;
+
     if (!tenantId) {
-      return res.status(400).json({ error: "tenantId is required" });
+      return res.status(400).json({
+        error: "tenantId is required",
+      });
     }
 
-    // Dynamic imports to avoid circular dependencies at module load time
-   const { default: mongoose } = await import("mongoose");
+    const { SwitchTenantUseCase } = await import(
+      "@/core/tenant/application/usecase/switch-tenant.use-case"
+    );
 
-const { SwitchTenantUseCase } = await import(
-  "@/core/tenant/application/usecase/switch-tenant.use-case"
-);
+    const { MembershipRepository } = await import(
+      "@/core/tenant/infrastructure/repos/membership.repo"
+    );
 
-const { MembershipRepository } = await import(
-  "@/core/tenant/infrastructure/repos/membership.repo"
-);
+    const { TenantRepository } = await import(
+      "@/core/tenant/infrastructure/repos/tenant.repository"
+    );
 
-const { TenantRepository } = await import(
-  "@/core/tenant/infrastructure/repos/tenant.repository"
-);
+    const { default: MembershipModel } = await import(
+      "@/core/tenant/infrastructure/models/membership.model"
+    );
 
-const { default: SessionModel } = await import(
-  "@/subgraphs/auth/infrastructure/models/session.model"
-);
+    const { TenantModel } = await import(
+      "@/core/tenant/infrastructure/models/tenant.model"
+    );
 
-const { default: MembershipModel } = await import(
-  "@/core/tenant/infrastructure/models/membership.model"
-);
+    const membershipRepo = new MembershipRepository(MembershipModel);
+    const tenantRepo = new TenantRepository(TenantModel as any);
 
-const { TenantModel } = await import(
-  "@/core/tenant/infrastructure/models/tenant.model"
-);
+    const switchUseCase = new SwitchTenantUseCase(
+      membershipRepo,
+      tenantRepo,
+      sessionPort as any as ISessionPort
+    );
 
-const membershipRepo = new MembershipRepository(MembershipModel);
-const tenantRepo = new TenantRepository(TenantModel as any);
-    const switchUseCase = new SwitchTenantUseCase(membershipRepo, tenantRepo as any);
-
-    // Execute switch
     const result = await switchUseCase.execute({
       userId: user.userId,
       tenantId,
+      sessionId: user.sessionId,
     });
-
-    // Update session with new active tenant
-    if (user.sessionId) {
-      await SessionModel.findOneAndUpdate(//Expected 3 arguments, but got 2.
-        { id: user.sessionId },
-           { activeTenantId: tenantId }, 
-        {}
-      );
-    }
 
     return res.json({
       tenant: result.tenant,
@@ -116,7 +113,9 @@ const tenantRepo = new TenantRepository(TenantModel as any);
       return res.status(403).json({ error: err.message });
     }
 
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({
+      error: "Internal server error",
+    });
   }
 });
 

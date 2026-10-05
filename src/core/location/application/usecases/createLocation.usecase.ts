@@ -10,7 +10,6 @@ import { EventBus } from "@/core/tenant/infrastructure/services/event-bus.servic
 
 export interface CreateLocationInput {
   name: string;
-
   country: string;
 
   postalCode: string;
@@ -19,10 +18,10 @@ export interface CreateLocationInput {
   town: string;
   address: string;
 
-  latitude: number;
-  longitude: number;
-  radius: number;
-  units: string;
+  // latitude: number;
+  // longitude: number;
+  // radius: number;
+  // units: string;
 }
 
 
@@ -39,17 +38,17 @@ export class CreateLocationUseCase {
   async execute(input: CreateLocationInput): Promise<Location> {
     const location = new Location({
       name: input.name,
-
+      country: input.country,
       postalCode: input.postalCode,
       prefecture: input.prefecture,
       city: input.city,
       town: input.town,
       address: input.address,
 
-      latitude: input.latitude,
-      longitude: input.longitude,
-      radius: input.radius,
-      units: input.units,
+      // latitude: input.latitude,
+      // longitude: input.longitude,
+      // radius: input.radius,
+      // units: input.units,
     });
 
     await this.locationRepository.save(location);
@@ -60,17 +59,17 @@ export class CreateLocationUseCase {
       payload: {
         name: location.name,
         locationId: location.id,
-
+        country: location.country,
         postalCode: location.postalCode,
         prefecture: location.prefecture,
         city: location.city,
         town: location.town,
         address: location.address,
 
-        latitude: location.latitude,
-        longitude: location.longitude,
-        radius: location.radius,
-        units: location.units,
+        // latitude: location.latitude,
+        // longitude: location.longitude,
+        // radius: location.radius,
+        // units: location.units,
       },
 
       occurredOn: new Date(),

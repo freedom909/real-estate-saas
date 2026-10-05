@@ -4,13 +4,15 @@ import { ListTenantsUseCase } from "@/core/tenant/application/usecase/list-tenan
 import { SuspendTenantUseCase } from "@/core/tenant/application/usecase/suspend-tenant.use-case";
 import { SwitchTenantUseCase } from "@/core/tenant/application/usecase/switch-tenant.use-case";
 import { UpdateTenantUseCase } from "@/core/tenant/application/usecase/update-tenant.use-case";
-import { TenantRepository } from "@/core/tenant/domain/repos/tenant.repository";
+import { TenantRepository } from "@/core/tenant/infrastructure/repos/tenant.repository";
 import { MembershipRepository } from "@/core/tenant/infrastructure/repos/membership.repo";
 import MembershipModel from "@/core/tenant/infrastructure/models/membership.model";
 import TenantModel from "@/core/tenant/infrastructure/models/tenant.model";
 import { EventBus } from "@/core/tenant/infrastructure/services/event-bus.service";
 import { TOKENS_TENANT } from "@/modules/tokens/tenant.tokens";
 import { DependencyContainer } from "tsyringe";
+import { TOKENS_SHARED } from "../tokens/shared.tokens";
+import { MongoTransactionManager } from "@/core/shared/infrastructure/transaction/mongo-transaction-manager";
 
 
 export function registerTenantDependencies(container: DependencyContainer) {
@@ -28,6 +30,9 @@ export function registerTenantDependencies(container: DependencyContainer) {
   container.register(TOKENS_TENANT.useCases.listTenants, { useClass: ListTenantsUseCase });
   container.register(TOKENS_TENANT.useCases.getTenant, { useClass: GetTenantUseCase });
   container.register(TOKENS_TENANT.useCases.switchTenant, { useClass: SwitchTenantUseCase });
+ 
 
+  // Shared
+  container.registerSingleton(TOKENS_SHARED.transactionManager, MongoTransactionManager);
   return container;
 }

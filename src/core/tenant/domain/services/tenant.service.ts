@@ -1,47 +1,47 @@
+// src/core/tenant/domain/services/tenant.service.ts
+
+
 import { injectable, inject } from 'tsyringe';
 
 import { UserAdapter } from '../../adapter/user.adapter';
-import { TenantRepository } from '../../infrastructure/repos/tenant.repo';
+import { ITenantRepository } from '../repos/i-tenant.repository';
 import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';
-import { MembershipRepository } from '../../infrastructure/repos/membership.repo';
-import { TenantDocument } from '../tenant.model';
+import { IMembershipRepository } from '../repos/i-membership.repository';
+import { Tenant } from '../entities/tenant.entity';
 import { Membership } from '../entities/membership';
 
 @injectable()
 export class TenantService {
   constructor(
-    @inject(TOKENS_TENANT.repos.tenantRepo) private repo: TenantRepository,
-    // Using UserAdapter instead of UserRepository to follow DDD Bounded Context / ACL patterns
-    @inject(TOKENS_TENANT.adapters.userAdapter) private userAdapter: UserAdapter,
-    @inject(TOKENS_TENANT.repos.membershipRepo) private membershipRepo: MembershipRepository
+    @inject(TOKENS_TENANT.repos.tenantRepo)
+    private repo: ITenantRepository,
+
+    @inject(TOKENS_TENANT.adapters.userAdapter)
+    private userAdapter: UserAdapter,
+
+    @inject(TOKENS_TENANT.repos.membershipRepo)
+    private membershipRepo: IMembershipRepository
   ) {}
 
-  async getTenant(id: string): Promise<TenantDocument | null> {
-    return this.repo.findById(id);
-  }
-
-  async getTenantBySlug(slug: string): Promise<TenantDocument | null> {
-    return this.repo.findBySlug(slug);
-  }
-
-  async createTenant(input: { name: string; slug: string }): Promise<TenantDocument> {
-    return this.repo.create(input);
-  }
-
-  async getTenantsForUser(userId: string): Promise<TenantDocument[]> {
+  async getTenantsForUser(userId: string): Promise<Tenant[]> {
     if (!userId) {
       return [];
     }
+
     const user = await this.userAdapter.getUserById(userId);
-    if (!user) return [];
-    const memberships = await this.membershipRepo.findByUserId(user.id.toString());
-    
-    const tenantIds = memberships.map((m: Membership) => m.tenantId);
-    return this.repo.findByIds(tenantIds.map((id) => id.toString()));
-  }
+    if (!user) {
+      return [];
+    }
 
-  async getTenantsAll(): Promise<TenantDocument[]> {
-    return this.repo.findAllTenants(); 
-  }
+    const memberships = await this.membershipRepo.findByUserId(
+      user.id.toString()
+    );
 
+    const tenantIds = memberships.map(
+      (membership: Membership) => membership.tenantId.toString()
+    );
+
+    return this.repo.findByIds(tenantIds);
+  }
 }
+

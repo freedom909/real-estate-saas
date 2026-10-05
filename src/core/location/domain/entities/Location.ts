@@ -7,18 +7,18 @@ export interface LocationProps {
   id?: string;
 
   name: string;
-
+  country: string;
   postalCode: string;
   prefecture: string;
   city: string;
   town: string;
   address: string;
 
-  latitude: number;
-  longitude: number;
+  // latitude: number;
+  // longitude: number;
 
-  radius: number;
-  units: string;
+  // radius: number;
+  // units: string;
 }
 
 export class Location {
@@ -39,6 +39,10 @@ export class Location {
 
   get name(): string {
     return this.props.name;
+  }
+
+  get country(): string {
+    return this.props.country;
   }
 
 
@@ -63,21 +67,21 @@ export class Location {
     return this.props.address;
   }
 
-  get latitude(): number {
-    return this.props.latitude;
-  }
+  // get latitude(): number {
+  //   return this.props.latitude;
+  // }
 
-  get longitude(): number {
-    return this.props.longitude;
-  }
+  // get longitude(): number {
+  //   return this.props.longitude;
+  // }
 
-  get radius(): number {
-    return this.props.radius;
-  }
+  // get radius(): number {
+  //   return this.props.radius;
+  // }
 
-  get units(): string {
-    return this.props.units;
-  }
+  // get units(): string {
+  //   return this.props.units;
+  // }
 
   updateAddress(newAddress: string): void {
     if (!newAddress || newAddress.trim().length === 0) {
@@ -88,7 +92,25 @@ export class Location {
     this.validate(this.props);
   }
 
+updateDetails(
+  props: Omit<LocationProps, "id">
+): void {
+  this.validate({
+    ...props,
+    id: this.id,
+  });
+
+  this.props = {
+    ...this.props,
+    ...props,
+  };
+}
+
   private validate(props: LocationProps): void {
+    if (!props.country || props.country.trim().length === 0) {
+      throw new Error("Location country cannot be empty.");
+    }
+
     if (!props.name || props.name.trim().length === 0) {
       throw new Error("Location name cannot be empty.");
     }
@@ -113,13 +135,13 @@ export class Location {
       throw new Error("Location address cannot be empty.");
     }
 
-    if (props.radius <= 0) {
-      throw new Error("Location radius must be greater than 0.");
-    }
+    // if (props.radius <= 0) {
+    //   throw new Error("Location radius must be greater than 0.");
+    // }
 
-    if (!props.units || props.units.trim().length === 0) {
-      throw new Error("Location units cannot be empty.");
-    }
+    // if (!props.units || props.units.trim().length === 0) {
+    //   throw new Error("Location units cannot be empty.");
+    // }
   }
 }
 

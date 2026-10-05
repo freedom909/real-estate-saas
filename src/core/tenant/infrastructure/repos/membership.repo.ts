@@ -8,6 +8,7 @@ import { Membership } from "../../domain/entities/membership";
 
 import { MembershipDocument } from "../models/membership.model";
 import { IMembershipRepository } from "../../domain/repos/i-membership.repository";
+import { getMongoSession } from "@/core/shared/infrastructure/transaction/mongo-session-context";
 
 @injectable()
 export class MembershipRepository implements IMembershipRepository {
@@ -16,29 +17,30 @@ export class MembershipRepository implements IMembershipRepository {
     private readonly model: Model<MembershipDocument>
   ) {}
 
-  async save(membership: Membership): Promise<Membership> {
-    const document = await this.model
-      .findOneAndUpdate(
-        {
-          userId: membership.userId,
-          tenantId: membership.tenantId,
-        },
-        {
-          $set: {
-            role: membership.role,
-            status: membership.status,
-          },
-        },
-        {
-          new: true,
-          upsert: true,
-          setDefaultsOnInsert: true,
-        }
-      )
-      .exec();
+async save(membership: Membership): Promise<Membership> {
+  const session = getMongoSession();
 
-    return this.toDomain(document);
-  }
+  const document = await this.model
+    .findOneAndUpdate(
+      {
+        userId: membership.userId,
+        tenantId: membership.tenantId,
+      },
+      {
+        $set: {
+          role: membership.role,
+          status: membership.status,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+        ...(session ? { session } : {}),
+      }
+    ).exec();
+  return this.toDomain(document);
+}
 
   async findByUserId(userId: string): Promise<Membership[]> {
     const documents = await this.model

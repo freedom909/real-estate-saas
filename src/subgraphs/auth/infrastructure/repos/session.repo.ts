@@ -4,10 +4,11 @@ import { Model } from "mongoose";
 import crypto from "crypto";
 import { inject, injectable } from "tsyringe";
 import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
-import { Session } from "inspector";
+import { Session } from "../../domain/valueObjects/session.vo";
 import { SessionDocument } from "../models/session.model";
 
 export interface CreateSessionInput {
+  id: string
   userId: string
   deviceId?: string
   familyId: string
@@ -15,6 +16,9 @@ export interface CreateSessionInput {
   ipHash?: string
   userAgentHash?: string
   expiresAt?: Date
+  activeTenantId?: string | null
+  status?: "ACTIVE"
+ 
 }
 
 @injectable()
@@ -24,7 +28,16 @@ export default class SessionRepository {
   private model: Model<SessionDocument>
   ) { }
 
-
+async updateBySessionId(
+  sessionId: string,
+  data: Partial<Session>
+) {
+  return this.model.findOneAndUpdate(
+    { id: sessionId },
+    { $set: data },
+    { new: true }
+  );
+}
 
   async revokeSession(sessionId: any) {
     const session = await this.model.findById(sessionId);
@@ -129,14 +142,17 @@ async deleteMany(filter: Partial<Session>) {
   return this.model.deleteMany(filter);
 }
 
-async findBySessionId(sessionId: string) {
-  return await this.model.findOne({ _id: sessionId });
-}
 
   async findRecentSessions({ userId, since }: { userId: string; since: Date }) {
     return this.model.find({
       userId,
       lastSeenAt: { $gte: since },
     });
+}
+
+
+
+async findBySessionId(sessionId: string) {
+  return this.model.findOne({ id: sessionId });
 }
 }

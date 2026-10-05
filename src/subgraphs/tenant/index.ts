@@ -12,7 +12,7 @@ import dns from 'dns';
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
 import { buildSubgraphSchema } from "@apollo/subgraph"
-import { connectMongo } from "../../shared/db/mongo";
+import mongoose, { connectMongo } from "../../shared/db/mongo";
 
 import { container } from "tsyringe"
 import { registerTenantDependencies } from "../../modules/container/tenant.container"
@@ -27,11 +27,53 @@ console.log(
   process.env.USER_SUBGRAPH_URL
 );
 // 🥭 1️⃣ Mongo
-await connectMongo(
+const mongoUri =
   process.env.MONGO_URI ||
-  "mongodb://localhost:27017/nakano"
+  "mongodb://localhost:27017/nakano";
+
+console.log(
+  "TENANT MONGO SOURCE =",
+  mongoUri.includes("mongodb+srv://")
+    ? "ATLAS"
+    : mongoUri
 );
 
+await connectMongo(mongoUri);
+console.log(
+  "TENANT MONGO COLLECTIONS =",
+  (await mongoose.connection.db?.listCollections().toArray())
+    ?.map((c) => c.name)
+);
+
+const db = mongoose.connection.db;
+const rawMemberships = await db
+  ?.collection("memberships")
+  .find({})
+  .limit(5)
+  .toArray();
+
+console.log(
+  "RAW MEMBERSHIP TYPES =",
+  rawMemberships?.map((m: any) => ({
+    userId: m.userId,
+    userIdType: typeof m.userId,
+    tenantId: m.tenantId,
+    tenantIdType: typeof m.tenantId,
+    role: m.role,
+    status: m.status,
+  }))
+);
+
+
+console.log(
+  "TENANTS COUNT =",
+  await db?.collection("tenants").countDocuments()
+);
+
+console.log(
+  "MEMBERSHIPS COUNT =",
+  await db?.collection("memberships").countDocuments()
+);
 // 🧰 2️⃣ Container
 const tenantContainer = registerTenantDependencies(container);
 

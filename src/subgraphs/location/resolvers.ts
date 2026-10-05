@@ -9,23 +9,30 @@ export const resolvers = {
   Query: {
     getLocation: async (_: any, { id }: { id: string }) => {
       const useCase = container.resolve<GetLocationUseCase>(TOKENS_LOCATION.getLocationUseCase);
-      return await useCase.execute(id);
+      const location = await useCase.execute(id);
+      return location;
     },
-locations: async (
-  _: any,
-  { locationId }: { locationId?: string }
-) => {
-  const useCase = container.resolve<GetLocationsUseCase>(
-    TOKENS_LOCATION.getLocationsUseCase
-  );
+    locations: async (
+      _: any,
+      { locationId }: { locationId?: string }
+    ) => {
+      const useCase = container.resolve<GetLocationsUseCase>(
+        TOKENS_LOCATION.getLocationsUseCase
+      );
 
-  return await useCase.execute(locationId);
-},
+      return await useCase.execute(locationId);
+    },
   },
   Mutation: {
     createLocation: async (_: any, { input }: any) => {
       const useCase = container.resolve<CreateLocationUseCase>(TOKENS_LOCATION.createLocationUseCase);
-      return await useCase.execute(input);
+      const location = await useCase.execute(input);
+            return {
+        code: 200,
+        success: true,
+        message: "Location created successfully",
+        location,
+      };
     },
   },
   Location: {

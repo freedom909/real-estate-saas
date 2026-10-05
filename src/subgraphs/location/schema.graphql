@@ -27,40 +27,27 @@ extend type Booking @key(fields: "id") {
 ### Location
 type Location @key(fields: "id") {
   id: ID! @shareable
-
+  country:String!@shareable
   name: String! @shareable
-
-  country: String! @shareable
 
   postalCode: String! @shareable
   prefecture: String! @shareable
   city: String! @shareable
   town: String! @shareable
   address: String! @shareable
-
-  latitude: Float! @shareable
-  longitude: Float! @shareable
-  radius: Int! @shareable
-  units: String! @shareable
 }
 
 
 ### Create Location
 input CreateLocationInput {
   name: String!
-
-  country: String!
-
+  country:String!
   postalCode: String!
   prefecture: String!
   city: String!
   town: String!
   address: String!
 
-  latitude: Float!
-  longitude: Float!
-  radius: Int!
-  units: String!
 }
 
 
@@ -69,17 +56,12 @@ input UpdateLocationInput {
   id: ID
 
   name: String
-
+  country:String
   postalCode: String
   prefecture: String
   city: String
   town: String
   address: String
-
-  latitude: Float
-  longitude: Float
-  radius: Int
-  units: String
 }
 
 
@@ -116,6 +98,7 @@ type Review @key(fields: "id") {
 ### Query
 type Query {
   locations(locationId: ID): [Location!]! @shareable
+ 
 }
 
 

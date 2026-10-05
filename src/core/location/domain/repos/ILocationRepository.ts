@@ -6,4 +6,6 @@ export interface ILocationRepository {
   findById(id: string): Promise<Location | null>;
   save(location: Location): Promise<Location>;
   findAll(): Promise<Location[]>;
+    update(location: Location): Promise<Location | null>;
+  delete(id: string): Promise<boolean>;
 }

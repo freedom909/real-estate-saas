@@ -18,7 +18,10 @@ LocationModel.init(
       allowNull: false,
     },
 
-
+    country: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
 
     postalCode: {
       type: DataTypes.STRING,
@@ -45,25 +48,25 @@ LocationModel.init(
       allowNull: false,
     },
 
-    latitude: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
+    // latitude: {
+    //   type: DataTypes.FLOAT,
+    //   allowNull: false,
+    // },
 
-    longitude: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
+    // longitude: {
+    //   type: DataTypes.FLOAT,
+    //   allowNull: false,
+    // },
 
-    radius: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    // radius: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: false,
+    // },
 
-    units: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+    // units: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false,
+    // },
   },
   {
     sequelize,

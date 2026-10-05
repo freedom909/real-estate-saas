@@ -31,7 +31,11 @@ dns.setServers(["8.8.8.8", "1.1.1.1"]);
 userRegister();
 
 // ── 2. MongoDB ───────────────────────────────────────
-await connectMongo(process.env.MONGO_URI || "mongodb://localhost:27017/nakano");
+if (!process.env.MONGO_URI) {
+  throw new Error("MONGO_URI is required for Tenant Subgraph");
+}
+
+await connectMongo(process.env.MONGO_URI);
 console.log("User subgraph — MongoDB connected");
 
 // ── 3. Subgraph-level DI registration ────────────────
