@@ -4,19 +4,23 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
-import { CategoryRepository } from "@/shared/category/infrastructure/category.repository";
+
 
 import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase";
 import CreateListingUseCase from "@/core/listing/application/usecase/createListing.usecase";
 import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
-import { UploadImageUseCase } from "@/core/listing/application/usecase/uploadImages.usecase";
+
 
 import { MinioStorage } from "@/core/listing/infrastructure/storage/minio.storage";
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
-import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
+
 import UpdateListingUseCase from "@/core/listing/application/usecase/updateListing.usecase";
 import ListingActor from "@/core/listing/application/usecase/listingActor";
-import { Role } from "@/core/shared/domain/role";
+import { GlobalRole } from "@/core/shared/domain/role";
+import { AuthorizationService } from "@/core/authorization/application/authorization.service";
+import { Action } from "@/core/authorization/domain/action";
+import { Resource } from "@/core/authorization/domain/resource";
+import { resolveAuthorizationIdentity } from "@/core/authorization/authorizationIdentity.resolver";
 
 
 export const resolvers = {
@@ -82,8 +86,6 @@ export const resolvers = {
         );
       const listings = await repo.findByOwnerId(userId, tenantId);
 
-
-
       return listings.map(listing => ({
         id: listing.id,
         ownerId: listing.ownerId,
@@ -106,37 +108,66 @@ export const resolvers = {
   },
 
   Mutation: {
-    createListing: async (
-      _: any,
-      { input }: any,
-      context: any
-    ) => {
+    createListing: async ( _: any,{ input }: any,context: any) => {
       if (!context.user) {
         throw new Error("User not authenticated");
       }
-      const userId: string = context.user.userId;
-      const role: Role = context.user.role;
+     const userId: string = context.user.userId;
 
-      const isAdmin =
-        role === "ADMIN" ||
-        role === "SUPER_ADMIN";
+if (!userId) {
+  throw new Error("User ID is required");
+}
 
-      const tenantId: string = isAdmin
-        ? input.tenantId
-        : context.user.tenantId;
+const globalRole = context.user.role as GlobalRole;
 
-      if (!tenantId) {
-        throw new Error(
-          isAdmin
-            ? "Target tenant is required"
-            : "Active tenant is required"
-        );
-      }
+const isAdmin =
+  globalRole === GlobalRole.ADMIN ||
+  globalRole === GlobalRole.SUPER_ADMIN;
 
-      const resolvedOwnerId: string =
-        isAdmin
-          ? (input.ownerId || userId)
-          : userId;
+const activeTenantId =
+  context.user.tenantId ?? null;
+
+const identity =
+  await resolveAuthorizationIdentity({
+    userId,
+    globalRole,
+    activeTenantId,
+  });
+
+const tenantId = isAdmin
+  ? input.tenantId
+  : identity.tenantId;
+
+if (!tenantId) {
+  throw new Error(
+    isAdmin
+      ? "Target tenant is required"
+      : "Active tenant is required"
+  );
+}
+
+const decision =
+  new AuthorizationService().authorize({
+    identity: {
+      ...identity,
+      tenantId,
+    },
+    action: Action.CREATE,
+    resource: Resource.LISTING,
+    resourceTenantId: tenantId,
+  });
+
+if (!decision.allowed) {
+  throw new Error(
+    decision.reason ??
+    "User is not allowed to create a listing"
+  );
+}
+
+const resolvedOwnerId: string =
+  isAdmin
+    ? (input.ownerId || userId)
+    : userId;
 
       const { categories, ...rest } = input;
 
@@ -153,7 +184,7 @@ const useCase =
 
       return await useCase.execute(
         enrichedInput,
-        role
+       
       );
     },
 
