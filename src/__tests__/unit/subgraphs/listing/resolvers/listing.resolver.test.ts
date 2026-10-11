@@ -159,7 +159,7 @@ function makeContext(overrides: any = {}) {
 }
 
 function mockIdentity(overrides: any = {}) {
-  (resolveAuthorizationIdentity as jest.Mock).mockResolvedValue({
+  (resolveAuthorizationIdentity as jest.MockedFunction<typeof resolveAuthorizationIdentity>).mockResolvedValue({
     userId: "alice-user",
     globalRole: GlobalRole.CUSTOMER,
     tenantId: "tenant-kyoto",

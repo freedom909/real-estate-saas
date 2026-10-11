@@ -1,5 +1,5 @@
-// app/api/auth/callback/[provider]/route.ts
-// Unified OAuth callback — handles Google, GitHub, and Facebook
+// frontend/app/api/auth/callback/[provider]/route.ts
+
 
 import { Role } from "@/app/permission/role";
 import { NextRequest, NextResponse } from "next/server";

@@ -1,3 +1,4 @@
+// frontend/app/types/User.ts
 import { Role } from "./role";
 
 // src/wisdom-web/app/types/User.ts

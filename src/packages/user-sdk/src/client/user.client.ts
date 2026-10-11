@@ -103,7 +103,16 @@ return {
         JSON.stringify(data)
       );
 
-      return data.user;
+      const user = data.user;
+
+if (!user) {
+  return null;
+}
+
+return {
+  ...user,
+  globalRole: user.role ?? "CUSTOMER",
+};
     } catch (err: any) {
       console.error(
         "[UserClient] findById error:",

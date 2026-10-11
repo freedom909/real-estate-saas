@@ -1,4 +1,4 @@
-// auth/application/usecases/verifyOtp.usecase.ts
+﻿// auth/application/usecases/verifyOtp.usecase.ts
 import { TOKENS_SECURITY } from "@/modules/tokens/security.tokens";
 import { inject, injectable } from "tsyringe";
 import { IEventBus } from "../../../../shared/eventbus/IEventBus";
@@ -11,6 +11,8 @@ import SessionPort from "../../domain/ports/session.port";
 import { TrustedDevice } from "@/security/domain/entities/trustedDevice.entity";
 import { ITrustedDeviceRepo } from "@/security/domain/repos/ITrustedDeviceRepo";
 import { DeviceFingerprint } from "@/security/domain/valueObjects/deviceFingerprint";
+import { IUserGateway } from "../../domain/ports/user.gateway";
+import { requireGlobalRole } from "../requireGlobalRole";
 
 @injectable()
 export class VerifyOtpUseCase {
@@ -28,18 +30,42 @@ export class VerifyOtpUseCase {
     private trustedDeviceRepo: ITrustedDeviceRepo,
 
     @inject(TOKENS_AUTH.eventBus)
-    private eventBus: IEventBus
+    private eventBus: IEventBus,
+
+    @inject(TOKENS_AUTH.ports.userGateway)
+    private userGateway: IUserGateway,
   ) {}
 
   async execute(cmd: VerifyOtpCommand) {
     const { challengeId, otpCode, request } = cmd;
 
     const challenge = await this.challengeRepo.findById(challengeId);
-    if (!challenge) throw new Error("Challenge not found");
+    if (!challenge) {
+      throw new Error("Challenge not found");
+    }
 
     const valid = await this.otpService.verify(challengeId, otpCode);
+    if (!valid) {
+      throw new Error("Invalid OTP");
+    }
 
-    if (!valid) throw new Error("Invalid OTP");
+    // Validate the user's global role before completing the challenge
+    // or creating a trusted-device record.
+    const user = await this.userGateway.findById(challenge.userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const globalRole = requireGlobalRole(user.globalRole ?? user.role);
+
+    const tokens = await this.sessionPort.createSession({
+      userId: challenge.userId,
+      role: globalRole,
+      email: user.email,
+      deviceId: request.deviceId,
+      ip: request.ip,
+      userAgent: request.userAgent,
+    });
 
     await this.challengeRepo.markCompleted(challengeId);
 
@@ -47,31 +73,21 @@ export class VerifyOtpUseCase {
       challenge.userId,
       new DeviceFingerprint(request.deviceId, request.userAgent, request.ip),
       new Date(),
-      new Date()
+      new Date(),
     );
 
     await this.trustedDeviceRepo.create(trustedDevice);
 
-// auth/application/usecases/verifyOtp.usecase.ts
-    const tokens = await this.sessionPort.createSession({
-      userId: challenge.userId,
-      deviceId: request.deviceId,
-      ip: request.ip,
-      userAgent: request.userAgent
-    });
-
     await this.eventBus.emit(
-      new OtpVerifiedEvent(
-        challenge.userId,
-        request.deviceId,
-      )
+      new OtpVerifiedEvent(challenge.userId, request.deviceId),
     );
 
     return {
       userId: challenge.userId,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      status: "SUCCESS"
+      status: "SUCCESS",
     };
   }
 }
+

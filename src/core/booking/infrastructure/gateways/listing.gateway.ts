@@ -6,7 +6,7 @@ const GET_LISTING_PRICE = gql`
   query GetListingPrice($id: ID!) {
     listing(id: $id) {
       id
-      price
+      pricePerNight
     }
   }
 `;
@@ -25,7 +25,7 @@ export class ListingGateway implements IListingGateway {
   }
 
   async getListingPrice(listingId: string): Promise<number> {
-    const data = await this.client.request<{ listing: { price: number } | null }>(
+    const data = await this.client.request<{ listing: { pricePerNight: number } | null }>(
       GET_LISTING_PRICE,
       { id: listingId }
     );
@@ -34,6 +34,6 @@ export class ListingGateway implements IListingGateway {
       throw new Error(`Listing ${listingId} not found`);
     }
 
-    return data.listing.price;
+    return data.listing.pricePerNight;
   }
 }

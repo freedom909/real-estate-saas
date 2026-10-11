@@ -1,4 +1,4 @@
-schema
+﻿schema
   @link(url: "https://specs.apollo.dev/federation/v2.11", import: ["@key","@external","@shareable"]) {
   query: Query
 }
@@ -43,7 +43,7 @@ input BookingActorInput{
 }
 
 type Mutation {
-  createBooking(input: CreateBookingInput!,actor:BookingActorInput!): CreateBookingResponse! @shareable
+  createBooking(input: CreateBookingInput!): CreateBookingResponse! @shareable
   cancelBooking(id: ID!, reason: String): CancelBookingResponse @shareable
   confirmBooking(id: ID!): Booking! @shareable
   checkInBooking(id: ID!): Booking! @shareable
@@ -150,3 +150,4 @@ input CreateBookingInput {
   checkOutDate: DateTime!
   price: Float
 }
+

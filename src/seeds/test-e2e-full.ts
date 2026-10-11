@@ -106,7 +106,6 @@ async function setup() {
   yukiToken = createToken(YUKI_ID, uuidv4());
 }
 
-// â”€â”€ Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function testSeedData() {
   console.log("\nâ•â•â• Test 1: Seed Data Verification â•â•â•");
 

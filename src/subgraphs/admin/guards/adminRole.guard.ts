@@ -31,19 +31,19 @@ export function requireAdminRole(minRole: Role = Role.ADMIN) {
     );
 
     const admin = await adminRepo.findById(user.userId);
-
+   
     if (!admin) {
       throw new GraphQLError("Forbidden: Admin access required", {
         extensions: { code: "FORBIDDEN" },
       });
     }
 
-    if ((admin as any).status !== "ACTIVE") {
-      throw new GraphQLError(
-        `Account is ${(admin as any).status}`,
-        { extensions: { code: "FORBIDDEN" } }
-      );
-    }
+if (!(admin as any).isActive) {
+  throw new GraphQLError(
+    "Forbidden: Admin account is inactive",
+    { extensions: { code: "FORBIDDEN" } }
+  );
+}
 
     const adminRole = (admin as any).role as Role;
     if (!hasMinRole(adminRole, minRole)) {
@@ -86,7 +86,17 @@ export function requirePermission(permission: Permission) {
     );
 
     const admin = await adminRepo.findById(user.userId);
-
+    console.log("[ADMIN AUTH CHECK]", {
+  userId: user.userId,
+  adminFound: Boolean(admin),
+  adminId: admin?.id,
+  role: admin?.role,
+  isActive: admin?.isActive,
+  requiredPermission: permission,
+  permissionGranted: admin
+    ? hasPermission(admin.role as Role, permission)
+    : false,
+});
     if (!admin) {
       throw new GraphQLError("Forbidden: Admin access required", {
         extensions: { code: "FORBIDDEN" },

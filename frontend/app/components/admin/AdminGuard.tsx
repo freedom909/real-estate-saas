@@ -1,3 +1,4 @@
+//frontend/app/components/admin/AdminGuard.tsx
 "use client";
 
 import { useEffect, useState } from "react";

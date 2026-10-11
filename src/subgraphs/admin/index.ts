@@ -90,20 +90,35 @@ if (process.env.NODE_ENV === "development") {
 
     await server.start();
 
-    app.use(
-      "/graphql",
-      express.json(),
-      async (req, _res, next) => {
-        (req as any).user = await getUserFromContext(req);
-        next();
-      },
-      expressMiddleware(server, {
-        context: async ({ req }) => ({
-          req,
-          user: (req as any).user,
-        }),
-      })
-    );
+
+app.use(
+  "/graphql",
+  express.json(),
+  async (req, _res, next) => {
+    (req as any).user = await getUserFromContext(req);
+
+    const user = (req as any).user;
+
+    console.log("[ADMIN REQUEST]", {
+      method: req.method,
+      path: req.path,
+      operationName: req.body?.operationName ?? null,
+      userId: user?.userId ?? null,
+      role: user?.role ?? null,
+      email: user?.email ?? null,
+      hasGatewayUser: Boolean(req.headers["x-gateway-user"]),
+      hasAuthorization: Boolean(req.headers.authorization),
+    });
+
+    next();
+  },
+  expressMiddleware(server, {
+    context: async ({ req }) => ({
+      req,
+      user: (req as any).user,
+    }),
+  })
+);
 
     httpServer.listen({ port: 4104, host: "0.0.0.0" }, () =>
       console.info(

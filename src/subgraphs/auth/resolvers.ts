@@ -1,4 +1,4 @@
-// src/subgraphs/auth/resolvers/index.ts
+﻿// src/subgraphs/auth/resolvers/index.ts
 
 import { container, DependencyContainer } from "tsyringe";
 import jwt from "jsonwebtoken";
@@ -12,6 +12,8 @@ import { subgraphAuthGuard } from "./guards/subgraphAuthGuard";
 import { IdentityRepository } from "./infrastructure/repos/identity.repo";
 import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
 import { ISessionPort } from "./domain/ports/session.port";
+import { IUserGateway } from "./domain/ports/user.gateway";
+import { requireGlobalRole } from "./application/requireGlobalRole";
 
 type User = {
   userId: string;
@@ -34,8 +36,8 @@ interface AuthPayload {
 }
 
 const requireScope = (scopes: string[]) => (ctx: Context, fn: () => any) => {
-  // スコープチェックのロジックをここに実装
-  // 便宜上、常にfnを実行するようにしています
+  // ã‚¹ã‚³ãƒ¼ãƒ—ãƒã‚§ãƒƒã‚¯ã®ãƒ­ã‚¸ãƒƒã‚¯ã‚’ã“ã“ã«å®Ÿè£…
+  // ä¾¿å®œä¸Šã€å¸¸ã«fnã‚’å®Ÿè¡Œã™ã‚‹ã‚ˆã†ã«ã—ã¦ã„ã¾ã™
   return fn();
 };
 
@@ -49,7 +51,7 @@ const refreshTokenRepository = {
 };
 
 const listOnlineSessions = (redis: any) => {
-  // オンラインセッションをリストするロジック
+  // ã‚ªãƒ³ãƒ©ã‚¤ãƒ³ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ãƒªã‚¹ãƒˆã™ã‚‹ãƒ­ã‚¸ãƒƒã‚¯
   return [];
 };
 
@@ -224,10 +226,10 @@ console.log(
 
   // BLOCK / CHALLENGE
 
-  // 这里暂时按照你当前 GraphQL 的设计继续处理
+  // è¿™é‡Œæš‚æ—¶æŒ‰ç…§ä½ å½“å‰ GraphQL çš„è®¾è®¡ç»§ç»­å¤„ç†
 },
 
-    // ── Refresh Token ──────────────────────────────────────────
+    // â”€â”€ Refresh Token â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     refreshToken: async (
       _: unknown,
       { refreshToken }: { refreshToken: string },
@@ -236,9 +238,12 @@ console.log(
       const sessionService = ctx.container.resolve<ISessionPort>(
         TOKENS_AUTH.ports.sessionPort
       );
-
+     const userGateway = ctx.container.resolve<IUserGateway>(
+      TOKENS_AUTH.ports.userGateway
+     );
+      
       try {
-        // 1️⃣ Verify the refresh token
+        // 1ï¸âƒ£ Verify the refresh token
         const decoded = jwt.verify(
           refreshToken,
           process.env.ACCESS_TOKEN_SECRET!
@@ -248,9 +253,14 @@ console.log(
           throw new Error("Invalid token type");
         }
 
-        // 2️⃣ Create new token pair
+        // 2ï¸âƒ£ Create new token pair
+        const user = await userGateway.findById(decoded.sub);
+        if (!user) throw new Error("User not found");
+        const globalRole = requireGlobalRole(user.globalRole ?? user.role);
         const tokens = await sessionService.createSession({
           userId: decoded.sub,
+          role: globalRole,
+          email: user.email,
         });
 
         return {
@@ -263,7 +273,7 @@ console.log(
       }
     },
 
-    // ── Logout ─────────────────────────────────────────────────
+    // â”€â”€ Logout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logout: async (_: unknown, __: unknown, ctx: Context) => {
       if (!ctx.user) throw new Error("Unauthorized");
 
@@ -313,7 +323,7 @@ console.log(
 
     verifyOtp: async (
       _: unknown,
-      { challengeId, code }: { challengeId: string; code: string }, // ✅ 修正
+      { challengeId, code }: { challengeId: string; code: string }, // âœ… ä¿®æ­£
       ctx: Context
     ) => {
 
@@ -323,7 +333,7 @@ console.log(
 
       return usecase.execute({
         challengeId,
-        otpCode: code, // ✅ 内部统一
+        otpCode: code, // âœ… å†…éƒ¨ç»Ÿä¸€
         request: {
           ip: ctx.req.ip || (ctx.req.headers["x-forwarded-for"] as string) || "127.0.0.1",
           userAgent: ctx.req.headers["user-agent"] || "unknown",
@@ -423,3 +433,4 @@ console.log(
     },
   },
 }
+
