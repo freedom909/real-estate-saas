@@ -1,3 +1,4 @@
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 // src/subgraphs/user/index.ts
 import dns from "node:dns";
 import "reflect-metadata";
@@ -57,6 +58,7 @@ await server.start();
 app.use(
   "/graphql",
   cors({ origin: ["http://localhost:3000", "http://localhost:3001"], credentials: true }),
+  verifyInternalServiceRequest,
   express.json(),
   async (req, _res, next) => {
     (req as any).user = await getUserFromContext(req);

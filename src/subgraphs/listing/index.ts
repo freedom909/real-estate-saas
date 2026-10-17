@@ -25,6 +25,7 @@ import { registerAIContainer } from "@/modules/container/ai.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import { initPictureModel } from "@/core/listing/infrastructure/models/picture.model";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 
 console.log(TOKENS_LISTING.adapters.amenityAdapter);
 console.info("Listing subgraph configuration loaded");
@@ -85,13 +86,19 @@ const startApolloServer = async () => {
 
     await server.start();
 
+
     app.use(
       "/graphql",
+      verifyInternalServiceRequest,
       graphqlUploadExpress({ maxFileSize: 10_000_000, maxFiles: 10 }),
       express.json(),
-      async (req, _res, next) => {
-        (req as any).user = await getUserFromContext(req);
-        next();
+      async (req, res, next) => {
+        try {
+          (req as any).user = await getUserFromContext(req);
+          next();
+        } catch (error) {
+          next(error);
+        }
       },
       expressMiddleware(server, {
         context: async ({ req }) => ({
@@ -100,6 +107,7 @@ const startApolloServer = async () => {
         }),
       })
     );
+
 
     httpServer.listen({ port: 4101, host: "0.0.0.0" }, () =>
       console.info('Listing Subgraph running on http://0.0.0.0:4101/graphql')

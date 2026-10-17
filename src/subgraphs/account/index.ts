@@ -26,7 +26,7 @@ import registerAuthDependencies from "../auth/registerAuthDependencies";
 import { registerUserDependencies } from "../user/registerUserDependencies";
 import registerAccountDependencies from "@/modules/container/account.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
-
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 
 
 // Register all dependencies
@@ -74,6 +74,7 @@ const startApolloServer = async () => {
 
     app.use(
       "/graphql",
+      verifyInternalServiceRequest,
       express.json(),
       async (req, _res, next) => {
         (req as any).user = await getUserFromContext(req);

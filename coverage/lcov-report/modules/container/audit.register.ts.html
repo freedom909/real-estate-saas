@@ -261,13 +261,13 @@ function <span class="fstat-no" title="function not covered" >registerAuditDepen
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  container.register(TOKENS_AUDIT.auditClient, {</span>
     useValue: new AuditClient(
-      process.env.AUDIT_SUBGRAPH_URL || 'http://localhost:4080/graphql'
+      process.env.AUDIT_SUBGRAPH_URL || 'http://localhost:4070/graphql'
     ),
   });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  container.register(TOKENS_AUDIT.graphqlClient, {</span>
     useValue: new GraphQLClient(
-      process.env.AUDIT_SUBGRAPH_URL || 'http://localhost:4080/graphql'
+      process.env.AUDIT_SUBGRAPH_URL || 'http://localhost:4070/graphql'
     ),
   });
 &nbsp;

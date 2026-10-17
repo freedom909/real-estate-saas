@@ -1,3 +1,4 @@
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 import "reflect-metadata";
 import dotenv from "dotenv";
 import path from "path";
@@ -58,6 +59,7 @@ const startApolloServer = async () => {
 
     app.use(
       "/graphql",
+  verifyInternalServiceRequest,
       cors(),
       express.json(),
       async (req, _res, next) => {

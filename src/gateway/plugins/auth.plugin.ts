@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import jwt from "jsonwebtoken";
-import { Role, normalizeRole } from "@/core/shared/domain/role";
+import { Role, normalizeRole, hasMinRole } from "@/core/shared/domain/role";
 import { getOperationAuth } from "@/gateway/auth/operationMap";
 import mongoose from "mongoose";
 
@@ -41,7 +41,7 @@ export function createAuthPlugin() {
           // Session model may not be registered in gateway — skip gracefully
         }
       }
-
+    
       // For introspection and SDL queries, skip auth
       const query = request.query?.trim();
       if (!query || query.startsWith("{ __schema") || query.startsWith("query { __schema")) {
@@ -63,21 +63,24 @@ export function createAuthPlugin() {
         });
       }
 
-      // Check role
+      
+      // Check minimum global role
       if (authReq.minRole && user) {
-       const userRole = user.role;
+        const userRole = user.role;
 
-if (!userRole) {
-  throw new GraphQLError("Invalid user role", {
-    extensions: { code: "UNAUTHENTICATED" },
-  });
-}
+        if (!userRole) {
+          throw new GraphQLError("Invalid user role", {
+            extensions: { code: "UNAUTHENTICATED" },
+          });
+        }
+
+        if (!hasMinRole(userRole, authReq.minRole)) {
+          throw new GraphQLError("Forbidden", {
+            extensions: { code: "FORBIDDEN" },
+          });
+        }
       }
 
-      return {};
-    },
-  };
-}
 
 async function decodeUserFromHeader(authHeader: string | undefined) {
   if (!authHeader?.startsWith("Bearer ")) return null;
@@ -109,3 +112,4 @@ async function decodeUserFromHeader(authHeader: string | undefined) {
     return null;
   }
 }
+}}}

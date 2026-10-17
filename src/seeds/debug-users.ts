@@ -12,7 +12,7 @@ import MembershipModel from "@/core/tenant/infrastructure/models/membership.mode
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://127.0.0.1:27017/sendai";
 
-const TARGET_USER_ID = "6abb7f9f421d9ceeee4a2d89";
+const TARGET_USER_ID = "6abca75a134bf08fdc5ec2f1";
 
 async function main() {
   console.log("========================================");

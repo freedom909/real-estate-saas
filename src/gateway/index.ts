@@ -137,7 +137,7 @@ console.log("==================================");
         { name: "booking",  url: subgraphUrl("BOOKING_SUBGRAPH_URL",  4030) },
         { name: "review",   url: subgraphUrl("REVIEW_SUBGRAPH_URL",   4040) },
         { name: "payment",  url: subgraphUrl("PAYMENT_SUBGRAPH_URL",  4050) },
-        { name: "tenant",   url: subgraphUrl("TENANT_SUBGRAPH_URL",   4060) },// does it mean that it must have a TENANT_SUBGRAPH_URL env variable in the .env file?
+        { name: "tenant",   url: subgraphUrl("TENANT_SUBGRAPH_URL",   4060) },
         { name: "audit",    url: subgraphUrl("AUDIT_SUBGRAPH_URL",    4070) },
         { name: "location", url: subgraphUrl("LOCATION_SUBGRAPH_URL", 4080) },
         { name: "amenity",  url: subgraphUrl("AMENITY_SUBGRAPH_URL",  4090) },
@@ -158,6 +158,14 @@ console.log("==================================");
 
         willSendRequest({ request, context }) {
           const auth = context?.authorization;
+          
+const serviceToken = process.env.INTERNAL_SERVICE_TOKEN;
+
+if (!serviceToken) {
+  throw new Error("INTERNAL_SERVICE_TOKEN is not configured");
+}
+
+request.http.headers.set("x-service-token", serviceToken);
 
           if (auth) {
 

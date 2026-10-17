@@ -1,4 +1,6 @@
 //src/auth/tenant-sync.tsx
+
+
 "use client";
 
 import { useEffect } from "react";
@@ -9,45 +11,64 @@ import {
   getActiveTenant,
 } from "../services/tenant.service";
 
-/**
- * Syncs available tenants and auto-selects if user belongs to only one.
- * Runs after auth is established.
- */
 export default function TenantSync() {
-  const user = useAuthStore((s) => s.user);
+  const userId = useAuthStore((s) => s.user?.id);
+
   const {
     activeTenantId,
     setAvailableTenants,
     setActiveTenant,
+    setIsLoading,
+    setHasSynced,
   } = useTenantStore();
 
   useEffect(() => {
-    if (!user?.id) return;
-
     let cancelled = false;
 
     async function sync() {
+      if (!userId) {
+        setIsLoading(false);
+        setHasSynced(true);
+        return;
+      }
+
+      setIsLoading(true);
+      setHasSynced(false);
+
       try {
-        // Fetch available tenants
         const tenants = await getAvailableTenants();
-        console.log("[TenantSync] available tenants:", tenants);
         if (cancelled) return;
 
         setAvailableTenants(tenants);
-        
-        // Fetch currently active tenant from session
+
         const activeId = await getActiveTenant();
         if (cancelled) return;
 
-        if (activeId) {
-          // Session has an active tenant — use it
+        if (activeId && tenants.some((t) => t.id === activeId)) {
           setActiveTenant(activeId);
-        } else if (tenants.length === 1 && !activeTenantId) {
-          // No active tenant in session, but only 1 available — auto-select
+        } else if (
+          activeTenantId &&
+          tenants.some((t) => t.id === activeTenantId)
+        ) {
+          // 保留仍然有效的本地租户选择。
+        } else if (tenants.length === 1) {
           setActiveTenant(tenants[0].id);
+        } else {
+          console.warn(
+            "[TenantSync] No valid active tenant selected."
+          );
         }
+
+        console.log("[TenantSync] available tenants:", tenants);
       } catch (err) {
-        console.error("Failed to sync tenants:", err);
+        if (!cancelled) {
+          console.error("[TenantSync] Failed to sync tenants:", err);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+          setHasSynced(true);
+        }
       }
     }
 
@@ -56,7 +77,7 @@ export default function TenantSync() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [userId]);
 
   return null;
 }

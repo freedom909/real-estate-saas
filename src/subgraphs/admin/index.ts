@@ -27,6 +27,7 @@ import registerAdminDependencies from "@/modules/container/admin.register";
 import registerAuditDependencies from "@/modules/container/audit.register";
 
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 
 console.info("Admin subgraph configuration loaded");
 
@@ -93,6 +94,7 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(
   "/graphql",
+  verifyInternalServiceRequest,
   express.json(),
   async (req, _res, next) => {
     (req as any).user = await getUserFromContext(req);

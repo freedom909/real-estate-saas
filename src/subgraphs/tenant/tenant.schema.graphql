@@ -16,9 +16,11 @@ enum TenantStatus {
 }
 
 enum MembershipRole {
-  OWNER
-  ADMIN
-  MEMBER
+STAFF
+MODERATOR
+HOST
+AGENT
+OWNER
 }
 
 enum MembershipStatus {

@@ -53,17 +53,41 @@ async function authenticateWithBackend(
       }),
     });
 
-  const authData =
-    await authResponse.json();
+ 
+  const authData = await authResponse.json().catch(() => null);
 
-  if (authData.errors) {
+  console.log(`[${provider}] Auth backend response:`, {
+    status: authResponse.status,
+    ok: authResponse.ok,
+    hasData: !!authData?.data,
+    hasErrors: !!authData?.errors,
+    errorMessages: authData?.errors?.map(
+      (item: { message?: string }) => item.message
+    ),
+  });
+
+  if (!authResponse.ok) {
     throw new Error(
-      authData.errors[0]?.message ||
-      "Auth failed"
+      `Auth backend returned HTTP ${authResponse.status}`
     );
   }
 
-  return authData.data.oauthLogin;
+  if (authData?.errors?.length) {
+    throw new Error(
+      authData.errors[0]?.message || "Auth failed"
+    );
+  }
+
+  const payload = authData?.data?.oauthLogin;
+
+  if (!payload) {
+    throw new Error(
+      "Auth backend returned no data.oauthLogin"
+    );
+  }
+
+  return payload;
+
 }
 
 function setAuthCookies(

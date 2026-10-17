@@ -29,6 +29,7 @@ import registerAuthDependencies from "./registerAuthDependencies"
 import  registerSecurityDependencies  from "../../modules/container/security.register";
 import registerAuditDependencies from "../../modules/container/audit.register.js"
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 // ── 1. Module-level DI registration ──────────────────
@@ -38,13 +39,8 @@ registerAuditDependencies(container)
 registerSecurityDependencies();
 registerAuthDependencies(container)
 console.log("OAuth container loaded")
-console.log(
-  "Auth Subgraph - INTERNAL_SERVICE_TOKEN env var at startup =",
-  process.env.INTERNAL_SERVICE_TOKEN
-);
-      console.log("google_client_id:", 
- process.env.GOOGLE_CLIENT_ID
-)
+
+
 // ⭐ Mongo
 await mongoose.connect(
   process.env.MONGO_URI || "mongodb://localhost:27017/nakano"
@@ -77,6 +73,7 @@ app.use(
     origin: "http://localhost:3000",
     credentials: true
   }),
+  verifyInternalServiceRequest,
   express.json(),
   cookieParser(),
   // ✅ Parse gateway-forwarded user from x-gateway-user header (same as account/admin subgraphs)

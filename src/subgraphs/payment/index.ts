@@ -1,3 +1,4 @@
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 import "reflect-metadata";
 import dns from "node:dns";
 import dotenv from "dotenv";
@@ -122,6 +123,7 @@ const startApolloServer = async () => {
 
     app.use(
       "/graphql",
+  verifyInternalServiceRequest,
       express.json(),
       async (req, _res, next) => {
         (req as any).user = await getUserFromContext(req);

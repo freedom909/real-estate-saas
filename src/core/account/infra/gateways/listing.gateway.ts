@@ -21,9 +21,13 @@ export class ListingGateway extends BaseGateway {
   constructor() {
     super();
     const endpoint = process.env.LISTING_SUBGRAPH_URL || "http://localhost:4101/graphql";
+    const serviceToken = process.env.INTERNAL_SERVICE_TOKEN
+    if (!serviceToken) {
+      throw new Error("Internal service token not set");
+    }
     this.client = new GraphQLClient(endpoint, {
       headers: {
-        Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
+        Authorization: `Bearer ${serviceToken}`,
       },
     });
   }
@@ -80,7 +84,14 @@ export class ListingGateway extends BaseGateway {
     try {
       const data = await this.client.request<{ listingsByOwner: ListingExternalDTO[] }>(
         this.GET_LISTINGS_BY_OWNER_QUERY,
-        { ownerId, tenantId }
+        { ownerId },
+        {
+          "x-gateway-user": JSON.stringify({
+            userId: ownerId,
+            tenantId,
+          }),
+          "x-tenant-id": tenantId,
+        }
       );
       return data.listingsByOwner || [];
     } catch (error) {

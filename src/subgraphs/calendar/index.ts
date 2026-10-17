@@ -1,3 +1,4 @@
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 // src/subgraphs/calendar/index.ts
 import "reflect-metadata";
 import dotenv from "dotenv";
@@ -69,6 +70,7 @@ const startApolloServer = async () => {
 
     app.use(
       "/graphql",
+  verifyInternalServiceRequest,
       express.json(),
       async (req, _res, next) => {
         (req as any).user = await getUserFromContext(req);

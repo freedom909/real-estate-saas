@@ -3,7 +3,7 @@ import "reflect-metadata";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 // ✅ Define __dirname for ES module scope
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,8 +82,27 @@ const startApolloServer = async () => {
 
     // ✅ MQ Initialize (inside startup to catch errors)
     registerEventBus();
-    console.log("✅ Event Bus initialized");
+    console.log("✅ In-memory Event Bus initialized");
+     const bookingMQEventBus = new BookingMQEventBus();
+     // Bridge Booking domain events to RabbitMQ
+        const inMemoryEventBus = container.resolve<InMemoryEventBus>(
+      TOKENS_EVENT_BUS.eventBus
+    );
+    // Connect to RabbitMQ before accepting Booking requests
+    await bookingMQEventBus.init();
+    // Forward BookingCreatedEvent (eventName = "CREATED")
+    // from the in-memory bus to RabbitMQ's booking_queue.
+    inMemoryEventBus.subscribe("CREATED", async (event) => {
+      console.log("[Booking → RabbitMQ] Forwarding event:", {
+        eventName: event.eventName,
+        
+        bookingId: (event as any).bookingId,
+      });
 
+      await bookingMQEventBus.publish(event);
+    });
+
+    console.log("✅ Booking → RabbitMQ event bridge registered");
     // ✅ Apollo Server
     const server = new ApolloServer({
       schema: buildSubgraphSchema({ typeDefs, resolvers }),
@@ -113,12 +132,11 @@ const startApolloServer = async () => {
     app.use(
       "/graphql",
       cors(),
+      verifyInternalServiceRequest,
       express.json(),
       expressMiddleware(server, {
         context: async ({ req }) => {
           const user = await getUserFromContext(req);
-          console.log("SUBGRAPH AUTH HEADER =>", req.headers.authorization);
-          console.log("SUBGRAPH USER =>", user);
 
           return {
 

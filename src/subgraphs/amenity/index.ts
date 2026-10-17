@@ -24,17 +24,13 @@ import registerAmenityDependencies from "@/modules/container/amenity.register"
 import { TOKENS_AMENITY } from "@/modules/tokens/amenity.tokens";
 import AmenityModel from "@/core/amenity/infrastructure/models/amenityModel"
 import { registerAuditClientDependencies } from "@/modules/container/audit-client.register"
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest"
 await AmenityModel.sync();
 // ⭐ 注册 DI
 
 registerAuditClientDependencies(container)
 registerSecurityDependencies();
 registerAmenityDependencies()
-console.log("Amenity container loaded")
-console.log(
-  "Amenity Subgraph - INTERNAL_SERVICE_TOKEN env var at startup =",
-  process.env.INTERNAL_SERVICE_TOKEN
-);
 
 
 // ⭐ schema
@@ -63,6 +59,7 @@ app.use(
     origin: "http://localhost:3000",
     credentials: true
   }),
+  verifyInternalServiceRequest,
   express.json(),
   cookieParser(),
   expressMiddleware(server, {

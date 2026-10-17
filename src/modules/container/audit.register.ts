@@ -32,13 +32,13 @@ function registerAuditDependencies(container: DependencyContainer) {
 
   container.register(TOKENS_AUDIT.auditClient, {
     useValue: new AuditClient(
-      process.env.AUDIT_SUBGRAPH_URL || 'http://localhost:4080/graphql'
+      process.env.AUDIT_SUBGRAPH_URL || 'http://localhost:4070/graphql'
     ),
   });
 
   container.register(TOKENS_AUDIT.graphqlClient, {
     useValue: new GraphQLClient(
-      process.env.AUDIT_SUBGRAPH_URL || 'http://localhost:4080/graphql'
+      process.env.AUDIT_SUBGRAPH_URL || 'http://localhost:4070/graphql'
     ),
   });
 

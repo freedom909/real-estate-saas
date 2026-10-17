@@ -1,3 +1,4 @@
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
 import "reflect-metadata";
 import dotenv from 'dotenv';
 dotenv.config();
@@ -51,6 +52,7 @@ const startServer = async () => {
     // 4. Middlewares
     app.use(
       "/graphql",
+  verifyInternalServiceRequest,
       express.json(),
       async (req, _res, next) => {
         (req as any).user = await getUserFromContext(req);
