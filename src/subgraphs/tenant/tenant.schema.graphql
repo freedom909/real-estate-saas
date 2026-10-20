@@ -25,7 +25,7 @@ OWNER
 
 enum MembershipStatus {
   ACTIVE
-  INVITED
+  PENDING
   SUSPENDED
   REMOVED
 }

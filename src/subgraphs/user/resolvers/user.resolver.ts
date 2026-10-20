@@ -5,7 +5,6 @@ import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import UserService from "../services/user.service";
 import { BecomeHostUseCase } from "../application/usecase/becomeHost.usecase";
 import { ProfileServiceUseCase } from "../application/usecase/profileService.usercase";
-import { ProfileRepository } from "../infra/repos/profileRepository";
 
 interface ResolverContext {
   container: typeof container;
@@ -96,7 +95,7 @@ const resolvers = {
         throw new Error("Unauthenticated");
       }
       const useCase = context.container.resolve<BecomeHostUseCase>(TOKENS_USER.usecase.becomeHostUseCase);
-      console.log("🔥🔥 BECOME HOST USECASE =", useCase);
+      
       return useCase.execute(context.user.userId,context.user.tenantId ?? null,);
     },
 

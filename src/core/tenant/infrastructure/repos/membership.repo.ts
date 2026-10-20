@@ -17,15 +17,74 @@ export class MembershipRepository implements IMembershipRepository {
     private readonly model: Model<MembershipDocument>
   ) {}
 
+async findById(id: string): Promise<Membership | null> {
+  const document = await this.model.findById(id).exec();
+
+  return document ? this.toDomain(document) : null;
+}
+
+async findByTenantId(
+  tenantId: string,
+  filter: {
+    userId?: string;
+    role?: Membership["role"];
+    status?: Membership["status"];
+    limit?: number;
+    offset?: number;
+  } = {}
+): Promise<{ items: Membership[]; total: number }> {
+  const query: Record<string, unknown> = { tenantId };
+
+  if (filter.userId) query.userId = filter.userId;
+  if (filter.role) query.role = filter.role;
+  if (filter.status) query.status = filter.status;
+
+  const limit = Math.min(Math.max(filter.limit ?? 20, 1), 100);
+  const offset = Math.max(filter.offset ?? 0, 0);
+
+  const [documents, total] = await Promise.all([
+    this.model
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .exec(),
+    this.model.countDocuments(query).exec(),
+  ]);
+
+  return {
+    items: documents.map((document) => this.toDomain(document)),
+    total,
+  };
+}
+
+async create(membership: Membership): Promise<Membership> {
+  const session = getMongoSession();
+const documents = await this.model.create(
+    [
+      {
+        userId: membership.userId,
+        tenantId: membership.tenantId,
+        role: membership.role,
+        status: membership.status,
+      },
+    ],
+    session ? { session } : {},
+  );
+  return this.toDomain(documents[0]);
+}
+
+  
 async save(membership: Membership): Promise<Membership> {
+  if (!membership.id) {
+    throw new Error("Cannot update a membership without an ID");
+  }
+
   const session = getMongoSession();
 
   const document = await this.model
     .findOneAndUpdate(
-      {
-        userId: membership.userId,
-        tenantId: membership.tenantId,
-      },
+      { _id: membership.id },
       {
         $set: {
           role: membership.role,
@@ -34,13 +93,19 @@ async save(membership: Membership): Promise<Membership> {
       },
       {
         new: true,
-        upsert: true,
-        setDefaultsOnInsert: true,
+        upsert: false,
         ...(session ? { session } : {}),
-      }
-    ).exec();
+      },
+    )
+    .exec();
+
+  if (!document) {
+    throw new Error("Membership not found");
+  }
+
   return this.toDomain(document);
 }
+
 
   async findByUserId(userId: string): Promise<Membership[]> {
     const documents = await this.model
@@ -82,9 +147,7 @@ async save(membership: Membership): Promise<Membership> {
       : null;
   }
 
-  private toDomain(
-    document: MembershipDocument
-  ): Membership {
+  private toDomain(document: MembershipDocument): Membership {
     return new Membership(
       document._id.toString(),
       document.userId.toString(),

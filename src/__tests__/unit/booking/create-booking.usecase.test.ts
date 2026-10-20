@@ -52,12 +52,12 @@ const mockListingGateway = {
 };
 
 const mockReserveSlotUseCase = {
-  execute: jest.fn().mockResolvedValue(undefined),
+  execute: jest.fn().mockResolvedValue(undefined as never),
 };
 
 const mockCalendarClient = {
-  reserveSlot: jest.fn().mockResolvedValue(undefined),
-  releaseSlot: jest.fn().mockResolvedValue(undefined),
+  reserveSlot: jest.fn().mockResolvedValue(undefined as never),
+  releaseSlot: jest.fn().mockResolvedValue(undefined as never),
 };
 
 describe("CreateBookingUseCase", () => {
@@ -66,7 +66,7 @@ describe("CreateBookingUseCase", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRepo.save.mockResolvedValue(undefined);
-    mockReserveSlotUseCase.execute.mockResolvedValue(undefined);
+    mockReserveSlotUseCase.execute.mockResolvedValue(undefined as never);
     useCase = new CreateBookingUseCase(
       mockRepo as any,
       mockEventBus as any,
@@ -97,7 +97,7 @@ describe("CreateBookingUseCase", () => {
       listingId: "listing-1",
       checkInDate: "2024-06-01",
       checkOutDate: "2024-06-03",
-      price: 0,
+      pricePerNight: 0,
     }, actor);
 
     expect(result.price).toBe(1600);

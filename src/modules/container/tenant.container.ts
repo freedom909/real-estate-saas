@@ -13,6 +13,10 @@ import { TOKENS_TENANT } from "@/modules/tokens/tenant.tokens";
 import { DependencyContainer } from "tsyringe";
 import { TOKENS_SHARED } from "../tokens/shared.tokens";
 import { MongoTransactionManager } from "@/core/shared/infrastructure/transaction/mongo-transaction-manager";
+import { CreateMembershipUseCase } from "@/core/tenant/application/usecase/create-membership.use-case";
+import { UpdateMembershipUseCase } from "@/core/tenant/application/usecase/update-membership.use-case";
+import { RemoveMembershipUseCase } from "@/core/tenant/application/usecase/remove-membership.use-case";
+import { GetMembershipsUseCase } from "@/core/tenant/application/usecase/get-memberships.use-case";
 
 
 export function registerTenantDependencies(container: DependencyContainer) {
@@ -30,7 +34,10 @@ export function registerTenantDependencies(container: DependencyContainer) {
   container.register(TOKENS_TENANT.useCases.listTenants, { useClass: ListTenantsUseCase });
   container.register(TOKENS_TENANT.useCases.getTenant, { useClass: GetTenantUseCase });
   container.register(TOKENS_TENANT.useCases.switchTenant, { useClass: SwitchTenantUseCase });
- 
+  container.register(TOKENS_TENANT.useCases.createMembership, { useClass: CreateMembershipUseCase });
+  container.register(TOKENS_TENANT.useCases.updateMembership, { useClass: UpdateMembershipUseCase });
+  container.register(TOKENS_TENANT.useCases.removeMembership, { useClass: RemoveMembershipUseCase });
+  container.register(TOKENS_TENANT.useCases.getMemberships, { useClass: GetMembershipsUseCase });
 
   // Shared
   container.registerSingleton(TOKENS_SHARED.transactionManager, MongoTransactionManager);

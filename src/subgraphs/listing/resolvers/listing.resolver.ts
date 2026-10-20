@@ -21,6 +21,7 @@ import { AuthorizationService } from "@/core/authorization/application/authoriza
 import { Action } from "@/core/authorization/domain/action";
 import { Resource } from "@/core/authorization/domain/resource";
 import { resolveAuthorizationIdentity } from "@/core/authorization/authorizationIdentity.resolver";
+import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFeaturedListings.usecase";
 
 
 export const resolvers = {
@@ -52,7 +53,18 @@ export const resolvers = {
         pictures: listing.pictures.map(pic => pic.toJson()),
       }));
     },
+   
+   featuredListings: async (
+      _: unknown,
+      { limit }: { limit?: number }
+    ) => {
+      const useCase =
+        container.resolve<GetFeaturedListingsUseCase>(
+          TOKENS_LISTING.usecase.getFeaturedListingsUseCase
+        );
 
+      return useCase.execute(limit ?? 6);
+    },
     listing: async (
       _: any,
       { id }: { id: string }

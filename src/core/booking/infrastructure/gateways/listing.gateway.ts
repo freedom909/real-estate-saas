@@ -19,7 +19,8 @@ export class ListingGateway implements IListingGateway {
     const endpoint = process.env.LISTING_SUBGRAPH_URL || "http://localhost:4101/graphql";
     this.client = new GraphQLClient(endpoint, {
       headers: {
-        Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
+           Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
+    "x-service-token": process.env.INTERNAL_SERVICE_TOKEN ?? "",
       },
     });
   }

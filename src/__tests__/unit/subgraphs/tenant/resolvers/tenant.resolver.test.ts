@@ -118,46 +118,78 @@ describe("Tenant Resolvers", () => {
     });
   });
 
-  describe("Mutation.createTenant", () => {
-    it("should create a new tenant", async () => {
-      const input = {
-        name: "New Hotel Group",
-        slug: "new-hotel-group",
-        ownerUserId: "user-1",
-      };
 
-      const mockTenant = { id: "tenant-new", ...input, status: "ACTIVE" };
-      mockUseCases.createTenant.execute.mockResolvedValue(mockTenant);
+describe("Mutation.createTenant", () => {
+  it("should create a new tenant", async () => {
+    const input = {
+      name: "New Hotel Group",
+      slug: "new-hotel-group",
+    };
 
-      const result = await (resolvers as any).Mutation.createTenant(
-        null,
-        { input },
-        { container: mockContainer }
-      );
+    const mockTenant = {
+      id: "tenant-new",
+      ...input,
+      ownerUserId: "user-1",
+      status: "ACTIVE",
+    };
 
-      expect(mockUseCases.createTenant.execute).toHaveBeenCalledWith(input);
-      expect(result).toEqual(mockTenant);
+    mockUseCases.createTenant.execute.mockResolvedValue(mockTenant);
+
+    const result = await (resolvers as any).Mutation.createTenant(
+      null,
+      { input },
+      {
+        user: { userId: "user-1" },
+        container: mockContainer,
+      }
+    );
+
+    expect(mockUseCases.createTenant.execute).toHaveBeenCalledWith({
+      ...input,
+      ownerUserId: "user-1",
     });
+
+    expect(result).toEqual(mockTenant);
   });
+});
 
-  describe("Mutation.updateTenant", () => {
-    it("should update tenant name", async () => {
-      const mockTenant = { id: "tenant-1", name: "Updated Name" };
-      mockUseCases.updateTenant.execute.mockResolvedValue(mockTenant);
 
-      const result = await (resolvers as any).Mutation.updateTenant(
-        null,
-        { id: "tenant-1", name: "Updated Name" },
-        { container: mockContainer }
-      );
 
-      expect(mockUseCases.updateTenant.execute).toHaveBeenCalledWith({
-        tenantId: "tenant-1",
-        name: "Updated Name",
-      });
-      expect(result).toEqual(mockTenant);
+describe("Mutation.updateTenant", () => {
+  it("should update tenant name", async () => {
+    const mockTenant = {
+      id: "tenant-1",
+      name: "Updated Tenant",
+      slug: "updated-tenant",
+      ownerUserId: "user-1",
+      status: "ACTIVE",
+    };
+
+    mockUseCases.updateTenant.execute.mockResolvedValue(mockTenant);
+
+    const result = await (resolvers as any).Mutation.updateTenant(
+      null,
+      {
+        id: "tenant-1",
+        input: {
+          name: "Updated Tenant",
+        },
+      },
+      {
+        user: { userId: "user-1" },
+        container: mockContainer,
+      }
+    );
+
+    expect(mockUseCases.updateTenant.execute).toHaveBeenCalledWith({
+      tenantId: "tenant-1",
+      name: "Updated Tenant",
     });
+
+    expect(result).toEqual(mockTenant);
   });
+});
+
 
   describe("Mutation.suspendTenant", () => {
     it("should suspend a tenant", async () => {

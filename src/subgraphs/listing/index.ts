@@ -1,6 +1,18 @@
 import "reflect-metadata"
 import dotenv from 'dotenv';
 dotenv.config();
+import crypto from "node:crypto";
+
+const token = process.env.INTERNAL_SERVICE_TOKEN;
+
+console.log("[Listing Env Diagnostic]", {
+  cwd: process.cwd(),
+  tokenConfigured: Boolean(token),
+  tokenLength: token?.length ?? 0,
+  tokenFingerprint: token
+    ? crypto.createHash("sha256").update(token).digest("hex").slice(0, 16)
+    : null,
+});
 import { ApolloServer } from '@apollo/server';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { gql } from 'graphql-tag';

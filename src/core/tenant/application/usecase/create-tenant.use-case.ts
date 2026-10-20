@@ -61,8 +61,8 @@ export class CreateTenantUseCase {
         "ACTIVE"
       );
 
-      await this.membershipRepo.save(ownerMembership);
-
+      await this.membershipRepo.create(ownerMembership);
+      
       return savedTenant;
     });
 

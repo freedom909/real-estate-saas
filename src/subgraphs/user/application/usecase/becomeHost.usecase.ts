@@ -25,11 +25,8 @@ export class BecomeHostUseCase {
     userId: string,
     tenantId?: string | null,
   ): Promise<UserEntity> {
-    console.log("🔥 [BecomeHost] searching user:", userId);
 
     const user = await this.userRepository.findById(userId);
-
-    console.log("🔥 [BecomeHost] found user:", user);
 
     if (!user) {
       throw new Error("User not found");
@@ -45,14 +42,17 @@ export class BecomeHostUseCase {
         tenantId,
       );
 
-    if (!membership) {
-      throw new Error("You do not have access to this tenant");
-    }
-
-    membership.role = MembershipRole.HOST;
-
-    await this.membershipRepository.save(membership);
-
-    return user;
-  }
+   if (!membership) {
+  throw new Error("You do not have access to this tenant");
 }
+
+// A user who is already a HOST may safely repeat this request.
+if (membership.role === MembershipRole.HOST) {
+  return user;
+}
+
+// Users must not promote or change their own membership role.
+throw new Error(
+  "Membership role changes must be performed by an authorized tenant manager",
+);
+}}

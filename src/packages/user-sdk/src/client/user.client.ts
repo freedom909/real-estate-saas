@@ -7,12 +7,6 @@ export class UserClient {
     private url: string,
     private serviceToken?: string
   ) {
-    console.log(
-      "[UserClient] Initialized with URL:",
-      url,
-      "token present:",
-      !!serviceToken
-    );
   }
 
   private get client() {

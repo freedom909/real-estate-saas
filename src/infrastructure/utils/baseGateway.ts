@@ -1,13 +1,20 @@
-// src/infrastructure/utils/baseGateway.ts
+﻿// src/infrastructure/utils/baseGateway.ts
 
 import { GraphQLClient } from "graphql-request";
 
 export abstract class BaseGateway {
   protected createClient(url: string) {
+    const token = process.env.INTERNAL_SERVICE_TOKEN;
+
+    if (!token) {
+      throw new Error(
+        "INTERNAL_SERVICE_TOKEN is not configured for internal gateway requests",
+      );
+    }
+
     return new GraphQLClient(url, {
       headers: {
-        Authorization:
-          `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
+        "x-service-token": token,
       },
     });
   }

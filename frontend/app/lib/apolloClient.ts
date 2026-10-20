@@ -32,12 +32,7 @@ const authLink = new SetContextLink((prevContext) => {
       try {
         const parsed = JSON.parse(authStorage);
         accessToken = parsed?.state?.accessToken ?? null;
-                console.log(
-          "🔥 APOLLO TOKEN ROLE =",
-          accessToken
-            ? JSON.parse(atob(accessToken.split(".")[1])).role
-            : null
-        );
+              
       } catch (error) {
         console.error("Failed to parse auth-storage:", error);
       }
@@ -53,11 +48,8 @@ const authLink = new SetContextLink((prevContext) => {
         }
       : {}),
   };
-console.log("🔥 AUTH LINK:", {
-  hasAccessToken: !!accessToken,
-  role: accessToken
-    ? JSON.parse(atob(accessToken.split(".")[1])).role
-    : null,
+console.log("[AUTH LINK]", {
+  hasAccessToken: Boolean(accessToken),
 });
 
   return {

@@ -35,6 +35,7 @@ function createPendingBooking(id: string = "booking-1"): Booking {
     listingId: "listing-1",
     customerId: "customer-1",
     tenantId: "tenant-1",
+    reservationNumber: "reservation-1",
     dateRange: new DateRange(new Date("2099-08-01"), new Date("2099-08-04")),
     price: 15000,
     status: "PENDING" as any,

@@ -7,7 +7,8 @@ import { fileURLToPath } from "url"
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
-
+import dns from 'dns';
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 import express from "express"
 import http from "http"
 import cors from "cors"
@@ -23,7 +24,7 @@ import { buildSubgraphSchema } from "@apollo/subgraph"
 import mongoose from "mongoose"
 import { container } from "tsyringe"
 import resolvers from "./resolvers"
-import dns from 'dns';
+
 
 import registerAuthDependencies from "./registerAuthDependencies"
 import  registerSecurityDependencies  from "../../modules/container/security.register";
@@ -78,6 +79,35 @@ app.use(
   cookieParser(),
   // ✅ Parse gateway-forwarded user from x-gateway-user header (same as account/admin subgraphs)
   async (req, _res, next) => {
+    console.log("[Auth incoming auth diagnostic]", {
+  gatewayUserPresent: Boolean(req.headers["x-gateway-user"]),
+  authorizationPresent: Boolean(req.headers.authorization),
+  authorizationIsBearer:
+    typeof req.headers.authorization === "string" &&
+    /^Bearer\s+/i.test(req.headers.authorization),
+  authorizationSegmentCount:
+    typeof req.headers.authorization === "string" &&
+    /^Bearer\s+/i.test(req.headers.authorization)
+      ? req.headers.authorization.replace(/^Bearer\s+/i, "").split(".").length
+      : 0,
+});
+
+console.log("[AUTH JWT INPUT]", {
+  gatewayUserPresent: Boolean(req.headers["x-gateway-user"]),
+  gatewayUserIsString:
+    typeof req.headers["x-gateway-user"] === "string",
+  authorizationPresent: Boolean(req.headers.authorization),
+  authorizationIsString:
+    typeof req.headers.authorization === "string",
+  authorizationIsBearer:
+    typeof req.headers.authorization === "string" &&
+    /^Bearer\s+/i.test(req.headers.authorization),
+  jwtSegmentCount:
+    typeof req.headers.authorization === "string" &&
+    /^Bearer\s+/i.test(req.headers.authorization)
+      ? req.headers.authorization.replace(/^Bearer\s+/i, "").split(".").length
+      : 0,
+});
     (req as any).user = await getUserFromContext(req);
     next();
   },

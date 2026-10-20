@@ -10,10 +10,16 @@ export class BookingGateway extends BaseGateway {
   constructor() {
     super();
     const endpoint = process.env.BOOKING_SUBGRAPH_URL || "http://localhost:4030/graphql";
+     const serviceToken = process.env.INTERNAL_SERVICE_TOKEN;
+    if (!serviceToken) {
+      throw new Error(
+        "INTERNAL_SERVICE_TOKEN is not configured",
+      );
+    }
     this.client = new GraphQLClient(endpoint, {
 
       headers: {
-        Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
+        Authorization: `Bearer ${serviceToken}`, "x-service-token": serviceToken,
       },
     });
   }

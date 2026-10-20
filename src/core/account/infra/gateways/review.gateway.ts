@@ -19,10 +19,16 @@ export class ReviewGateway extends BaseGateway {
 
   constructor() {
     super();
-    const endpoint = process.env.REVIEW_SUBGRAPH_URL || "http://localhost:4050/graphql";
+    const endpoint = process.env.REVIEW_SUBGRAPH_URL || "http://localhost:4040/graphql";
+     const serviceToken = process.env.INTERNAL_SERVICE_TOKEN;
+    if (!serviceToken) {
+      throw new Error(
+        "INTERNAL_SERVICE_TOKEN is not configured",
+      );
+    }
     this.client = new GraphQLClient(endpoint, {
       headers: {
-        Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
+        Authorization: `Bearer ${serviceToken}`, "x-service-token": serviceToken,
       },
     });
   }

@@ -27,7 +27,7 @@ export class ListingGateway extends BaseGateway {
     }
     this.client = new GraphQLClient(endpoint, {
       headers: {
-        Authorization: `Bearer ${serviceToken}`,
+        Authorization: `Bearer ${serviceToken}`, "x-service-token": serviceToken,
       },
     });
   }

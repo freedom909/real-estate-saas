@@ -19,7 +19,19 @@ dotenv.config({
   path: path.resolve(__dirname, "../../.env"),
 
 });
+import crypto from "node:crypto";
 
+const token = process.env.INTERNAL_SERVICE_TOKEN;
+
+console.log("[Gateway Env Diagnostic]", {
+  cwd: process.cwd(),
+  tokenConfigured: Boolean(token),
+  tokenLength: token?.length ?? 0,
+  tokenFingerprint: token
+    ? crypto.createHash("sha256").update(token).digest("hex").slice(0, 16)
+    : null,
+     headerSet: true,
+});
 // 企业级防御：缺少 secret 直接退出
 
 if (!process.env.ACCESS_TOKEN_SECRET) {
@@ -197,6 +209,7 @@ request.http.headers.set("x-service-token", serviceToken);
 
    
         },
+        
       });
 
     }
@@ -250,9 +263,22 @@ request.http.headers.set("x-service-token", serviceToken);
   app.use("/graphql",
     graphqlUploadExpress({ maxFileSize: 10_000_000, maxFiles: 10 }),
     async (req, res, next) => {
-
-      console.log("🔥 GATEWAY AUTH =>", req.headers.authorization);
-
+      console.log("[GATEWAY AUTH INPUT]", {
+  method: req.method,
+  path: req.path,
+  origin: req.headers.origin ?? null,
+  authorizationPresent: Boolean(req.headers.authorization),
+  authorizationIsString:
+    typeof req.headers.authorization === "string",
+  authorizationIsBearer:
+    typeof req.headers.authorization === "string" &&
+    /^Bearer\s+/i.test(req.headers.authorization),
+  jwtSegmentCount:
+    typeof req.headers.authorization === "string" &&
+    /^Bearer\s+/i.test(req.headers.authorization)
+      ? req.headers.authorization.replace(/^Bearer\s+/i, "").split(".").length
+      : 0,
+});
       (req as any).user = await getUserFromContext(req);
 
       console.log("🔥 GATEWAY USER =>", (req as any).user);
