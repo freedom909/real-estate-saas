@@ -84,6 +84,21 @@ const AUTH_MAP: Record<string, OperationAuthRequirement> = {
   refreshToken:  { authenticated: false },
   logout:        { authenticated: true, minRole: Role.GUEST },
   me:            { authenticated: true, minRole: Role.GUEST },
+
+  
+
+  // ========== Tenant Membership ==========
+  // Authentication is enforced at the gateway.
+  // Tenant-level authorization is enforced by resolvers/use cases.
+  getMembership:       { authenticated: true },
+  getMemberships:      { authenticated: true },
+  getMyTenants:        { authenticated: true },
+  getMyMembership:     { authenticated: true },
+  createMembership:    { authenticated: true },
+  updateMembership:    { authenticated: true },
+  removeMembership:    { authenticated: true },
+
+
 };
 
 export function getOperationAuth(operationName: string): OperationAuthRequirement | null {

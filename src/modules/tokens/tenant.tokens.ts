@@ -34,6 +34,9 @@ export const TOKENS_TENANT = {
     updateMembership: Symbol.for("updateMembershipUseCase"),
     removeMembership: Symbol.for("removeMembershipUseCase"),
     getMemberships: Symbol.for("getMembershipsUseCase"),
+    getMembership: Symbol.for("getMembershipUseCase"),
+    getMyTenants: Symbol.for("getMyTenantsUseCase"),
+    getMyMembership: Symbol.for("getMyMembershipUseCase"),
   },
 } as const;
 

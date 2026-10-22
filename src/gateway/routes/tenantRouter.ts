@@ -142,6 +142,31 @@ const { default: MembershipModel } = await import(
 
     // Find all memberships for this user
     const memberships = await MembershipModel.find({ userId: user.userId }).lean();
+   
+console.log("[Tenant Available Debug]", {
+  database: mongoose.connection.name,
+  userIdType: typeof user.userId,
+  userIdIsValidObjectId: mongoose.Types.ObjectId.isValid(user.userId),
+  totalMemberships: await MembershipModel.countDocuments(),
+  matchedMemberships: memberships.length,
+  totalTenants: await TenantModel.countDocuments(),
+});
+
+const allMemberships = await MembershipModel.find({})
+  .select("userId tenantId role status")
+  .lean();
+
+console.log("[Tenant Membership ID Check]", {
+  currentUserIdSuffix: user.userId.slice(-6),
+  memberships: allMemberships.map((m: any) => ({
+    userIdSuffix: String(m.userId).slice(-6),
+    tenantIdSuffix: String(m.tenantId).slice(-6),
+    role: m.role,
+    status: m.status,
+    matchesCurrentUser:
+      String(m.userId) === user.userId,
+  })),
+});
 
     if (memberships.length === 0) {
       return res.json({ tenants: [] });

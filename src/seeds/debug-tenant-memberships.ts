@@ -7,8 +7,7 @@ import { TenantModel } from "@/core/tenant/infrastructure/models/tenant.model";
 import MembershipModel from "@/core/tenant/infrastructure/models/membership.model";
 import UserModel from "@/subgraphs/user/infra/models/user.model";
 
-const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/sendai";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/sendai";
 
 const TARGET_USER_ID = "6abca75a134bf08fdc5ec2f1";
 
@@ -37,20 +36,30 @@ async function main() {
       );
 
       const user = await UserModel.findById(membership.userId)
-        .select("email globalRole")
+        .select("_id globalRole")
         .lean();
 
       console.log({
-        userEmail: user?.email ?? "(user not found)",
-        userId: String(membership.userId),
+        userExists: Boolean(user),
+        userIdSuffix: String(membership.userId).slice(-6),
         tenantName: tenant?.name ?? "(tenant not found)",
         tenantSlug: tenant?.slug ?? "(unknown)",
-        tenantId: String(membership.tenantId),
+        tenantIdSuffix: String(membership.tenantId).slice(-6),
+        tenantOwnerIdSuffix: String(tenant?.ownerUserId ?? "").slice(-6),
         role: membership.role,
         status: membership.status,
       });
     }
+    const targetUser = await UserModel.findById(TARGET_USER_ID)
+      .select("_id globalRole")
+      .lean();
 
+    console.log("\n========== TARGET USER CHECK ==========");
+    console.log({
+      targetUserExists: Boolean(targetUser),
+      targetUserIdSuffix: TARGET_USER_ID.slice(-6),
+      globalRole: targetUser?.globalRole ?? null,
+    });
     const targetMemberships = await MembershipModel.find({
       userId: TARGET_USER_ID,
     })

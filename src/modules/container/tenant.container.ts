@@ -17,6 +17,9 @@ import { CreateMembershipUseCase } from "@/core/tenant/application/usecase/creat
 import { UpdateMembershipUseCase } from "@/core/tenant/application/usecase/update-membership.use-case";
 import { RemoveMembershipUseCase } from "@/core/tenant/application/usecase/remove-membership.use-case";
 import { GetMembershipsUseCase } from "@/core/tenant/application/usecase/get-memberships.use-case";
+import { GetMyTenantsUseCase } from "@/core/tenant/application/usecase/get-my-tenants.use-case";
+import { GetMyMembershipUseCase } from "@/core/tenant/application/usecase/get-my-membership.use-case";
+import { GetMembershipUseCase } from "@/core/tenant/application/usecase/get-membership.use-case";
 
 
 export function registerTenantDependencies(container: DependencyContainer) {
@@ -38,7 +41,10 @@ export function registerTenantDependencies(container: DependencyContainer) {
   container.register(TOKENS_TENANT.useCases.updateMembership, { useClass: UpdateMembershipUseCase });
   container.register(TOKENS_TENANT.useCases.removeMembership, { useClass: RemoveMembershipUseCase });
   container.register(TOKENS_TENANT.useCases.getMemberships, { useClass: GetMembershipsUseCase });
-
+  container.register(TOKENS_TENANT.useCases.getMyTenants, { useClass: GetMyTenantsUseCase });
+  container.register(TOKENS_TENANT.useCases.getMyMembership, { useClass: GetMyMembershipUseCase });
+  container.register(TOKENS_TENANT.useCases.getMembership, { useClass: GetMembershipUseCase });
+  
   // Shared
   container.registerSingleton(TOKENS_SHARED.transactionManager, MongoTransactionManager);
   return container;

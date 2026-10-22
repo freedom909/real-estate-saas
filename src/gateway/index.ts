@@ -170,7 +170,12 @@ console.log("==================================");
 
         willSendRequest({ request, context }) {
           const auth = context?.authorization;
-          
+          console.log("[Gateway Forward Auth Diagnostic]", {
+  authorizationInContext: Boolean(context?.authorization),
+  userInContext: Boolean(context?.user),
+  userIdPresent: Boolean(context?.user?.userId),
+  tenantIdPresent: Boolean(context?.tenantId),
+});
 const serviceToken = process.env.INTERNAL_SERVICE_TOKEN;
 
 if (!serviceToken) {
