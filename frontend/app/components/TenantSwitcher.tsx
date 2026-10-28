@@ -2,10 +2,12 @@
 
 import { useTenantStore, Tenant } from "../store/tenant.store";
 import { switchTenant as switchTenantApi } from "../services/tenant.service";
+import { useApolloClient } from "@apollo/client/react";
 import { useState } from "react";
 
-export default function TenantSwitcher() {
+export default function TenantSwitcher({ dark = false }: { dark?: boolean }) {
   const { activeTenantId, availableTenants, setActiveTenant } = useTenantStore();
+  const client = useApolloClient();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +26,10 @@ export default function TenantSwitcher() {
     try {
       await switchTenantApi(tenant.id);
       setActiveTenant(tenant.id);
+      // Refresh all active queries so tenant-scoped data updates immediately
+      client.refetchQueries({ include: "active" }).catch((e) =>
+        console.error("Failed to refresh queries after tenant switch:", e)
+      );
       setIsOpen(false);
     } catch (err: any) {
       console.error("Failed to switch tenant:", err);
@@ -39,7 +45,9 @@ export default function TenantSwitcher() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"
+        className={`flex items-center gap-2 px-2 py-1 text-sm rounded-lg transition-colors ${
+          dark ? "text-white hover:bg-gray-700" : "border hover:bg-gray-50"
+        }`}
         disabled={loading}
       >
         <span className="font-medium">
@@ -61,25 +69,27 @@ export default function TenantSwitcher() {
       </button>
 
       {error && (
-        <div className="absolute right-0 mt-1 px-3 py-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg whitespace-nowrap">
+        <div className={`absolute right-0 mt-1 px-3 py-2 text-xs rounded-lg whitespace-nowrap border ${dark ? "text-red-300 bg-red-900/40 border-red-800" : "text-red-600 bg-red-50 border-red-200"}`}>
           {error}
         </div>
       )}
 
       {isOpen && (
-        <div className="absolute right-0 mt-1 w-56 bg-white border rounded-lg shadow-lg z-50">
+        <div className={`absolute right-0 mt-1 w-56 rounded-lg shadow-lg z-50 border ${
+          dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+        }`}>
           {availableTenants.map((tenant) => (
             <button
               key={tenant.id}
               onClick={() => handleSwitch(tenant)}
               disabled={loading}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
-                tenant.id === activeTenantId ? "bg-blue-50 text-blue-700" : ""
+              className={`w-full text-left px-4 py-2 text-sm ${dark ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${
+                tenant.id === activeTenantId ? (dark ? "bg-gray-700 text-blue-300" : "bg-blue-50 text-blue-700") : ""
               } ${loading ? "opacity-50" : ""}`}
             >
               {tenant.name}
               {tenant.id === activeTenantId && (
-                <span className="ml-2 text-xs text-blue-500">(active)</span>
+                <span className={`ml-2 text-xs ${dark ? "text-blue-300" : "text-blue-500"}`}>(active)</span>
               )}
             </button>
           ))}

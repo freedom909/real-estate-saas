@@ -1,3 +1,4 @@
+//frontend/app/account/page.tsx
 "use client";
 
 import { useQuery, useMutation } from "@apollo/client/react";

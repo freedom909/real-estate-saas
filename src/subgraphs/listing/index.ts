@@ -38,6 +38,7 @@ import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 import { initPictureModel } from "@/core/listing/infrastructure/models/picture.model";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest";
+import { initMongoContainer } from "@/infrastructure/container/initMongoContainer";
 
 console.log(TOKENS_LISTING.adapters.amenityAdapter);
 console.info("Listing subgraph configuration loaded");
@@ -52,6 +53,8 @@ registerUserDependencies(container);
 initPictureModel(sequelize);
 initAssociations();
 
+// NOTE: schema.graphql is read via readFileSync at startup — tsx watch does NOT
+// watch it, so restart this subgraph manually after schema edits.
 const typeDefs = gql(readFileSync('./src/subgraphs/listing/schema.graphql', { encoding: 'utf-8' }));
 
 const startApolloServer = async () => {
@@ -74,6 +77,11 @@ const startApolloServer = async () => {
     `);
 
     console.info("Orphaned pictures cleaned");
+
+    // MongoDB 接続（Membership/TenantModel など mongoose モデル用）。
+    // 未接続のままだと findOne() が buffering timeout で失敗する。
+    await initMongoContainer();
+    console.info("MongoDB connected (mongoose)");
 
     const app = express();
     app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001"], credentials: true }));

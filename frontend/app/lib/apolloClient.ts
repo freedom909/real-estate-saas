@@ -13,10 +13,11 @@ const GATEWAY_URL =
   process.env.NEXT_PUBLIC_GATEWAY_URL ||
   "http://localhost:4000/graphql";
 
-// Direct listing subgraph URL for file uploads (gateway doesn't forward multipart)
-const LISTING_SUBGRAPH_URL =
-  process.env.NEXT_PUBLIC_LISTING_URL ||
-  "http://localhost:4101/graphql";
+// Same-origin upload proxy for file uploads (gateway doesn't forward multipart).
+// The proxy (app/api/graphql-upload/route.ts) relays to the listing subgraph and
+// attaches the internal x-service-token server-side — subgraphs reject direct
+// browser calls with 403 (verifyInternalServiceRequest).
+const UPLOAD_PROXY_URL = "/api/graphql-upload";
 
 const uploadLink = new UploadHttpLink({
   uri: GATEWAY_URL,
@@ -69,9 +70,10 @@ export const client = new ApolloClient({
 //   cache: new InMemoryCache(),
 // });
 
-// Separate upload client that hits listing subgraph directly (bypasses gateway)
-// Apollo Gateway doesn't forward multipart file uploads to subgraphs,
-// so we send uploads directly to the listing subgraph.
+// Separate upload client for mutations that carry file uploads.
+// Apollo Gateway doesn't forward multipart file uploads to subgraphs, so these
+// requests go through the same-origin upload proxy, which relays them to the
+// listing subgraph with the internal service token attached server-side.
 const uploadAuthLink = new SetContextLink((prevContext) => {
   let accessToken: string | null = null;
 
@@ -101,7 +103,7 @@ const uploadAuthLink = new SetContextLink((prevContext) => {
 
 export const uploadClient = new ApolloClient({
   link: uploadAuthLink.concat(
-    new UploadHttpLink({ uri: LISTING_SUBGRAPH_URL })
+    new UploadHttpLink({ uri: UPLOAD_PROXY_URL })
   ),
   cache: new InMemoryCache(),
 });

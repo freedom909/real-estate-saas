@@ -1,3 +1,5 @@
+//src/core/tenant/infrastructure/repos/tenant.repository.ts
+
 import { injectable, inject } from 'tsyringe';
 import { Model } from 'mongoose';
 

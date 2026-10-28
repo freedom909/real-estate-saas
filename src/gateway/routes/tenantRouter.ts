@@ -4,11 +4,49 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { normalizeRole } from "@/core/shared/domain/role";
+import type { ISessionPort } from "@/subgraphs/auth/domain/ports/session.port";
 import { Session } from "@/subgraphs/auth/domain/valueObjects/session.vo";
-import sessionPort, { ISessionPort } from "@/subgraphs/auth/domain/ports/session.port";
 
 const router = express.Router();
 
+const gatewaySessionPort: ISessionPort = {
+  async updateActiveTenant(sessionId: string, tenantId: string) {
+    const { default: mongoose } = await import("mongoose");
+
+    const SessionModel = mongoose.models.Session;
+
+    if (!SessionModel) {
+      throw new Error("Session model is not registered");
+    }
+
+    const result = await SessionModel.findOneAndUpdate(
+      { id: sessionId },
+      {
+        $set: {
+          activeTenantId: tenantId,
+          status: "ACTIVE",
+        },
+      },
+      { new: true }
+    );
+
+    if (!result) {
+      throw new Error("Session not found");
+    }
+  },
+
+  async createSession() {
+    throw new Error("Not implemented in gateway adapter");
+  },
+
+  async revokeSession() {
+    throw new Error("Not implemented in gateway adapter");
+  },
+
+  async findSessionById() {
+    throw new Error("Not implemented in gateway adapter");
+  },
+};
 /**
  * Decode user from Authorization header (same as gateway auth plugin).
  */
@@ -89,7 +127,7 @@ router.post("/switch", async (req, res) => {
     const switchUseCase = new SwitchTenantUseCase(
       membershipRepo,
       tenantRepo,
-      sessionPort as any as ISessionPort
+      gatewaySessionPort
     );
 
     const result = await switchUseCase.execute({
@@ -230,7 +268,11 @@ router.get("/active", async (req, res) => {
  const session = await SessionModel.findOne({ id: user.sessionId }as Partial<Session>)
       .select("activeTenantId")
       .lean();
-
+console.log("[Tenant Active Debug]", {
+  sessionIdPresent: Boolean(user.sessionId),
+  sessionFound: Boolean(session),
+  activeTenantId: session?.activeTenantId ?? null,
+});
     return res.json({ activeTenantId: session?.activeTenantId || null });
   } catch (err: any) {
     console.error("[Tenant Active] Error:", err);

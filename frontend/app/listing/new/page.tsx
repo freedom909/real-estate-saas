@@ -1,3 +1,4 @@
+//frontend/app/listing/new/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,10 +7,12 @@ import { useRouter } from "next/navigation";
 import { CREATE_LISTING } from "@/app/graphql/listing/mutations/createListing";
 import { textToImage } from "@/app/services/imageGen";
 import Navbar from "@/app/components/navbar";
+import { useTenantStore } from "@/app/store/tenant.store";
 
 export default function CreateListingPage() {
   const router = useRouter();
   const [createListing] = useMutation<any>(CREATE_LISTING);
+  const activeTenantId = useTenantStore((s) => s.activeTenantId);
 
   const [form, setForm] = useState({
     title: "",
@@ -83,6 +86,7 @@ export default function CreateListingPage() {
 
       // Step 2: Create listing with generated images
 const input = {
+  tenantId: activeTenantId ?? undefined,
   title: form.title,
   description: form.description,
 
@@ -105,6 +109,8 @@ const input = {
 
   pictures: images.map((url) => ({
     objectKey: url,
+    mimeType: "image/png",
+    size: 0,
   })),
 };
       console.log("🔥 FINAL CREATE INPUT =", JSON.stringify(input, null, 2));

@@ -9,13 +9,14 @@ import { useTenantStore } from "../store/tenant.store";
 import {
   getAvailableTenants,
   getActiveTenant,
+  switchTenant,
 } from "../services/tenant.service";
 
 export default function TenantSync() {
   const userId = useAuthStore((s) => s.user?.id);
 
   const {
-    activeTenantId,
+    // activeTenantId intentionally not destructured — read via getState() in the effect (stale-closure safe)
     setAvailableTenants,
     setActiveTenant,
     setIsLoading,
@@ -42,17 +43,26 @@ export default function TenantSync() {
         setAvailableTenants(tenants);
 
         const activeId = await getActiveTenant();
+        const localActiveId = useTenantStore.getState().activeTenantId;
         if (cancelled) return;
 
         if (activeId && tenants.some((t) => t.id === activeId)) {
           setActiveTenant(activeId);
         } else if (
-          activeTenantId &&
-          tenants.some((t) => t.id === activeTenantId)
+          localActiveId &&
+          tenants.some((t) => t.id === localActiveId)
         ) {
-          // 保留仍然有效的本地租户选择。
-        } else if (tenants.length === 1) {
+          // ローカルの選択をセッションに永続化する（ゲートウェイ/サブグラフが参照できるように）。
+          setActiveTenant(localActiveId);
+          await switchTenant(localActiveId).catch((e) =>
+            console.warn("[TenantSync] Failed to persist active tenant:", e)
+          );
+        } else if (tenants.length > 0) {
+          // 初回ログイン等でセッションにテナントがない場合は最初のテナントを自動選択する。
           setActiveTenant(tenants[0].id);
+          await switchTenant(tenants[0].id).catch((e) =>
+            console.warn("[TenantSync] Failed to persist active tenant:", e)
+          );
         } else {
           console.warn(
             "[TenantSync] No valid active tenant selected."

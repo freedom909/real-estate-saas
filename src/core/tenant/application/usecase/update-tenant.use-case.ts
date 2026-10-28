@@ -1,3 +1,4 @@
+//src/core/tenant/application/usecase/update-tenant.use-case.ts
 import { injectable, inject } from "tsyringe";
 
 import { ITenantRepository } from "../../domain/repos/i-tenant.repository";

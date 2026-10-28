@@ -14,6 +14,7 @@ import { textToImage } from "@/app/services/imageGen";
 import { Listing } from "@/app/types/listing";
 
 import RoleGuard from "@/app/components/shared/RoleGuard";
+import AdminLayout from "@/app/components/admin/AdminLayout";
 import { uploadClient } from "@/app/lib/apolloClient";
 
 import { useTenantStore } from "@/app/store/tenant.store";
@@ -66,7 +67,9 @@ export default function HostCreateListingPage() {
     <RoleGuard
       allowedRoles={["HOST",  "OWNER", "ADMIN", "SUPER_ADMIN"]}
     >
-      <CreateListingContent />
+      <AdminLayout>
+        <CreateListingContent />
+      </AdminLayout>
     </RoleGuard>
   );
 }

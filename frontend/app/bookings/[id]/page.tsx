@@ -59,11 +59,13 @@ export default function BookingDetailPage() {
   const [checkingIn, setCheckingIn] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-  const { data, loading, error, refetch } = useQuery<BookingQueryData>(BOOKING_BY_ID, {
+  
+const { data, loading, error, refetch } = useQuery<BookingQueryData>(
+  BOOKING_BY_ID,
+  {
     variables: { id: params.id },
-    context: { headers: { 'Authorization': token } },
-  });
+  }
+);
   const booking = data?.booking;
   console.log(
   "BOOKING QUERY RESULT",
@@ -81,7 +83,7 @@ console.log(
   const canCheckIn =isHostOrAbove && booking?.status === "PAID";
   const canComplete =isHostOrAbove && booking?.status === "CHECKED_IN";
   const [cancelBooking] = useMutation<any>(CANCEL_BOOKING, {
-    context: { headers: { 'Authorization': token } },
+    
     onCompleted: () => {
       refetch();
       setCancelling(false);
@@ -92,7 +94,7 @@ console.log(
   });
 
   const [confirmBooking] = useMutation<any>(CONFIRM_BOOKING, {
-    context: { headers: { 'Authorization': token } },
+    
     onCompleted: () => {
       refetch();
       setConfirming(false);
@@ -104,7 +106,6 @@ console.log(
 
   const [checkInBooking] = useMutation<any>(CHECK_IN_BOOKING, {
     
-    context: { headers: { 'Authorization': token } },
     onCompleted: () => {
       refetch();
       setCheckingIn(false);
@@ -115,7 +116,7 @@ console.log(
   });
 
   const [completeBooking] = useMutation<any>(COMPLETE_BOOKING, {
-    context: { headers: { 'Authorization': token } },
+    
     onCompleted: () => {
       refetch();
       setCompleting(false);
@@ -126,7 +127,7 @@ console.log(
   });
 
   const [processPayment] = useMutation<any>(PROCESS_PAYMENT, {
-    context: { headers: { 'Authorization': token } },
+    
     onCompleted: () => {
       refetch();
       setProcessingPayment(false);

@@ -18,3 +18,17 @@ export const GET_TENANTS = gql`
     }
   }
 `;
+
+
+export const CREATE_TENANT = gql`
+  mutation CreateTenant($input: CreateTenantInput!) {
+    createTenant(input: $input) {
+      id
+      name
+      slug
+      status
+    }
+  }
+`;
+
+

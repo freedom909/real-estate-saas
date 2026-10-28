@@ -75,7 +75,9 @@ extend type Amenity @key(fields: "id") {
 input CreateListingInput {
   title: String!
   description: String!
-  tenantId:ID!
+  # Optional: non-admin callers get the tenant from their session (this value is
+  # overridden server-side). Admins pass the target tenant here.
+  tenantId: ID
 
   locationId: ID!
 

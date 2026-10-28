@@ -97,7 +97,7 @@ const AUTH_MAP: Record<string, OperationAuthRequirement> = {
   createMembership:    { authenticated: true },
   updateMembership:    { authenticated: true },
   removeMembership:    { authenticated: true },
-
+  createTenant:        { authenticated: true },
 
 };
 

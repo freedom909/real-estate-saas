@@ -86,12 +86,8 @@ function HostBookingsContent() {
     user?.role === "ADMIN" ||
     user?.role === "SUPER_ADMIN"
   );
-  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-  const { data, loading } = useQuery<any>(MY_HOST_BOOKINGS, {
-    context: { headers: { Authorization: token } },
-  });
+const { data, loading } = useQuery<any>(MY_HOST_BOOKINGS);
   const [confirmBooking, { loading: confirming }] = useMutation<any>(CONFIRM_BOOKING, {
-    context: { headers: { Authorization: token } },
     update: (cache, { data: result }) => {
       const confirmedId = result?.confirmBooking?.id;
       if (!confirmedId) return;

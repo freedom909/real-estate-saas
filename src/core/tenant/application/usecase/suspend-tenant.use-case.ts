@@ -1,3 +1,5 @@
+//src/core/tenant/application/usecase/suspend-tenant.use-case.ts
+
 import { injectable, inject } from "tsyringe";
 
 import { ITenantRepository } from "../../domain/repos/i-tenant.repository";

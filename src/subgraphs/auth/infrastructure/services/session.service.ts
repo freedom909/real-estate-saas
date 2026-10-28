@@ -20,7 +20,7 @@ export class SessionService implements ISessionPort {
     sessionId: string,
     tenantId: string
   ): Promise<void> {
-    const result = await this.sessionRepo.updateBySessionId(//Property 'updateBySessionId' does not exist on type 'SessionRepository'.
+    const result = await this.sessionRepo.updateBySessionId(
       sessionId,
       {
         activeTenantId: tenantId,
