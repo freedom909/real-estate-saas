@@ -1,0 +1,1 @@
+{"query":"mutation { createLocation(input: { name: \"123 main mansion\", country: \"Japan\", postalCode: \"140-0014\", prefecture: \"東京都\", city: \"品川区\", town: \"大井\", address: \"123 main mansion\" }) { code success message location { id name postalCode prefecture city town address } } }"}

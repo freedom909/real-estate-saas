@@ -54,8 +54,24 @@ const startApolloServer = async () => {
     
  
     console.log("✅ Containers initialized");
-    await PaymentModel.sync({ alter: true });
-    console.log("✅ Payment Model synchronized");
+console.log("🔎 [Payment Startup] Before PaymentModel.sync");
+
+try {
+  await Promise.race([
+    PaymentModel.sync({ alter: true }),
+    new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("PaymentModel.sync timed out after 15 seconds")),
+        15000
+      )
+    ),
+  ]);
+
+  console.log("✅ Payment Model synchronized");
+} catch (error) {
+  console.error("❌ [Payment Startup] PaymentModel.sync failed:", error);
+  throw error;
+}
     
     // Initialize booking model for CreatePaymentUseCase
     const sequelize = new Sequelize(process.env.MYSQL_URI!, { logging: false });

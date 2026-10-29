@@ -99,13 +99,16 @@ async execute(input: CreateBookingInput, actor: BookingActor) {
       );
 
     // 5. Create Booking
+    // A booking belongs to the LISTING's tenant (the host's tenant),
+    // not the customer's session tenant — otherwise the host can never see it.
+    const listingTenantId = await this.listingGateway.getListingTenantId(input.listingId);
     const reservationNumber = generateReservationNumber();
     const booking = Booking.create({
       id: bookingId,
       listingId: input.listingId,
       reservationNumber: reservationNumber,
       customerId: actor.customerId,
-      tenantId: actor.tenantId || actor.customerId,
+      tenantId: listingTenantId || actor.tenantId || actor.customerId,
       
       dateRange: new DateRange(
         checkIn,

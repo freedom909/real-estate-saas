@@ -49,6 +49,7 @@ const mockEventBus = {
 
 const mockListingGateway = {
   getListingPrice: jest.fn<(id: string) => Promise<number>>(),
+  getListingTenantId: jest.fn<(id: string) => Promise<string | null>>(),
 };
 
 const mockReserveSlotUseCase = {
@@ -67,6 +68,7 @@ describe("CreateBookingUseCase", () => {
     jest.clearAllMocks();
     mockRepo.save.mockResolvedValue(undefined);
     mockReserveSlotUseCase.execute.mockResolvedValue(undefined as never);
+    mockListingGateway.getListingTenantId.mockResolvedValue("tenant-of-listing");
     useCase = new CreateBookingUseCase(
       mockRepo as any,
       mockEventBus as any,
@@ -157,6 +159,9 @@ describe("CreateBookingUseCase", () => {
     expect(mockRepo.save).toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalled();
     expect(result).toBeDefined();
+    // Regression: booking must belong to the LISTING's tenant (host's tenant),
+    // never fall back to the customer's own id — or the host can't see it.
+    expect(result.tenantId).toBe("tenant-of-listing");
   });
 
   it("should reserve calendar slot on creation", async () => {

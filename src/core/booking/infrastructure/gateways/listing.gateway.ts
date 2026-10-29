@@ -11,6 +11,15 @@ const GET_LISTING_PRICE = gql`
   }
 `;
 
+const GET_LISTING_TENANT = gql`
+  query GetListingTenant($id: ID!) {
+    listing(id: $id) {
+      id
+      tenantId
+    }
+  }
+`;
+
 @injectable()
 export class ListingGateway implements IListingGateway {
   private client: GraphQLClient;
@@ -36,5 +45,13 @@ export class ListingGateway implements IListingGateway {
     }
 
     return data.listing.pricePerNight;
+  }
+
+  async getListingTenantId(listingId: string): Promise<string | null> {
+    const data = await this.client.request<{ listing: { tenantId: string | null } | null }>(
+      GET_LISTING_TENANT,
+      { id: listingId }
+    );
+    return data.listing?.tenantId ?? null;
   }
 }

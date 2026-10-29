@@ -34,6 +34,57 @@ export const resolvers = {
 
       return repo.findByCustomerId(userId);
     },
+    bookingsForTenant: async (
+      _: any,
+      { tenantId, status }: { tenantId?: string; status?: string },
+      context: any
+    ) => {
+      // Landlord view: all bookings under the caller's tenant(s).
+      // Tenant membership is derived from listings the caller owns —
+      // the same rule as myBookings — because JWT role never reflects
+      // tenant membership (host identity lives in memberships).
+      const user = await requireAuth(context);
+      const bookingRepo = container.resolve<IBookingRepository>(
+        TOKENS_BOOKING.repository.bookingRepository
+      );
+
+      const listings = await ListingModel.findAll({
+        where: { ownerId: user.userId },
+        attributes: ["id", "tenantId"],
+      });
+      const myTenantIds = [
+        ...new Set<string>(
+          listings.map((l: any) => l.tenantId).filter(Boolean)
+        ),
+      ];
+
+      const isAdmin =
+        user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN;
+
+      // Resolve which tenant to query
+      let targetTenantIds: string[];
+      if (tenantId) {
+        // Only admins may query a foreign tenant
+        if (!isAdmin && !myTenantIds.includes(tenantId)) {
+          throw new Error("Forbidden: not a member of this tenant");
+        }
+        targetTenantIds = [tenantId];
+      } else {
+        targetTenantIds = myTenantIds;
+      }
+
+      const byId = new Map<string, any>();
+      for (const tid of targetTenantIds) {
+        const bookings = await bookingRepo.findByTenantId(tid);
+        for (const b of bookings) byId.set(b.id, b);
+      }
+
+      let result = Array.from(byId.values());
+      if (status) {
+        result = result.filter((b) => b.status === status);
+      }
+      return result;
+    },
     myBookings: async (_: any, __: any, context: any) => {
       const user = await requireAuth(context);
       console.log("MY BOOKINGS USER =>", user);
@@ -49,33 +100,31 @@ export const resolvers = {
         return allBookings.items;
       }
 
-      // OWNER/HOST: return bookings for their listings + their own bookings as customer
-      if (role === Role.OWNER || role === Role.HOST) {
-        // Find listings owned by this user
-        const listings = await ListingModel.findAll({
-          where: { ownerId: userId },
-          attributes: ["id"],
-        });
-        const ownerListingIds = listings.map((l: any) => l.id);
+      // Everyone else: merge bookings on own listings (host view)
+      // with own bookings as customer. Do NOT gate this on global role —
+      // a host's globalRole may be CUSTOMER (host status lives in tenant
+      // memberships), and bookings must still reach the listing owner.
+      // Find listings owned by this user
+      const listings = await ListingModel.findAll({
+        where: { ownerId: userId },
+        attributes: ["id"],
+      });
+      const ownerListingIds = listings.map((l: any) => l.id);
 
-        // Get bookings for owner's listings
-        const ownerBookings = ownerListingIds.length > 0
-          ? await bookingRepo.findByListingIds(ownerListingIds)
-          : [];
+      // Get bookings for owner's listings
+      const ownerBookings = ownerListingIds.length > 0
+        ? await bookingRepo.findByListingIds(ownerListingIds)
+        : [];
 
-        // Also get bookings where user is the customer (e.g., they booked someone else's listing)
-        const customerBookings = await bookingRepo.findByCustomerId(userId);
+      // Also get bookings where user is the customer (e.g., they booked someone else's listing)
+      const customerBookings = await bookingRepo.findByCustomerId(userId);
 
-        // Merge and deduplicate by booking ID
-        const bookingMap = new Map<string, any>();
-        for (const b of [...ownerBookings, ...customerBookings]) {
-          bookingMap.set(b.id, b);
-        }
-        return Array.from(bookingMap.values());
+      // Merge and deduplicate by booking ID
+      const bookingMap = new Map<string, any>();
+      for (const b of [...ownerBookings, ...customerBookings]) {
+        bookingMap.set(b.id, b);
       }
-
-      // For CUSTOMER: return only their own bookings
-      return bookingRepo.findByCustomerId(userId);
+      return Array.from(bookingMap.values());
     },
   },
   Mutation: {

@@ -76,6 +76,7 @@ describe("Booking Resolvers", () => {
       save: jest.fn(),
       findByCustomerId: jest.fn(),
       findByListingIds: jest.fn(),
+      findByTenantId: jest.fn(),
       findAll: jest.fn(),
     };
     mockGetBookingUseCase = { execute: jest.fn() };
@@ -145,6 +146,10 @@ describe("Booking Resolvers", () => {
         userId: "customer-1",
         role: "CUSTOMER",
       });
+      // New behavior: every non-admin also gets bookings on owned listings;
+      // a pure customer owns no listings, so only their own bookings return.
+      mockListingModel.findAll.mockResolvedValue([]);
+      mockBookingRepo.findByListingIds.mockResolvedValue([]);
       mockBookingRepo.findByCustomerId.mockResolvedValue(mockBookings);
 
       const result = await (resolvers as any).Query.myBookings(
@@ -154,6 +159,27 @@ describe("Booking Resolvers", () => {
       );
 
       expect(result).toEqual(mockBookings);
+    });
+
+    it("should return listing-owner bookings even when global role is CUSTOMER", async () => {
+      // Regression: host with globalRole CUSTOMER must still see bookings
+      // on their listings (JWT role never reflects tenant membership role).
+      const ownerBookings = [{ id: "booking-1", customerId: "guest-1" }];
+      (requireAuth as jest.Mock).mockResolvedValue({
+        userId: "gifu-1",
+        role: "CUSTOMER",
+      });
+      mockListingModel.findAll.mockResolvedValue([{ id: "listing-1" }]);
+      mockBookingRepo.findByListingIds.mockResolvedValue(ownerBookings);
+      mockBookingRepo.findByCustomerId.mockResolvedValue([]);
+
+      const result = await (resolvers as any).Query.myBookings(
+        null,
+        {},
+        { user: { userId: "gifu-1", role: "CUSTOMER" } }
+      );
+
+      expect(result).toEqual(ownerBookings);
     });
 
     it("should return host's listings bookings + own bookings", async () => {
@@ -227,6 +253,93 @@ describe("Booking Resolvers", () => {
       expect(result).toHaveLength(2);
       const ids = result.map((b: any) => b.id);
       expect(ids.filter((id: string) => id === "booking-1")).toHaveLength(1);
+    });
+  });
+
+  describe("bookingsForTenant query", () => {
+    it("should return bookings for tenants of the caller's listings", async () => {
+      const tenantBookings = [
+        { id: "booking-1", status: "PENDING", tenantId: "tenant-1" },
+        { id: "booking-2", status: "CONFIRMED", tenantId: "tenant-1" },
+      ];
+      (requireAuth as jest.Mock).mockResolvedValue({
+        userId: "gifu-1",
+        role: "CUSTOMER",
+      });
+      mockListingModel.findAll.mockResolvedValue([
+        { id: "listing-1", tenantId: "tenant-1" },
+      ]);
+      mockBookingRepo.findByTenantId.mockResolvedValue(tenantBookings);
+
+      const result = await (resolvers as any).Query.bookingsForTenant(
+        null,
+        {},
+        { user: { userId: "gifu-1", role: "CUSTOMER" } }
+      );
+
+      expect(mockBookingRepo.findByTenantId).toHaveBeenCalledWith("tenant-1");
+      expect(result).toEqual(tenantBookings);
+    });
+
+    it("should filter by status when provided", async () => {
+      (requireAuth as jest.Mock).mockResolvedValue({
+        userId: "gifu-1",
+        role: "CUSTOMER",
+      });
+      mockListingModel.findAll.mockResolvedValue([
+        { id: "listing-1", tenantId: "tenant-1" },
+      ]);
+      mockBookingRepo.findByTenantId.mockResolvedValue([
+        { id: "booking-1", status: "PENDING" },
+        { id: "booking-2", status: "CONFIRMED" },
+      ]);
+
+      const result = await (resolvers as any).Query.bookingsForTenant(
+        null,
+        { status: "PENDING" },
+        { user: { userId: "gifu-1", role: "CUSTOMER" } }
+      );
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("booking-1");
+    });
+
+    it("should throw when a non-admin queries a foreign tenant", async () => {
+      (requireAuth as jest.Mock).mockResolvedValue({
+        userId: "gifu-1",
+        role: "CUSTOMER",
+      });
+      mockListingModel.findAll.mockResolvedValue([
+        { id: "listing-1", tenantId: "tenant-1" },
+      ]);
+
+      await expect(
+        (resolvers as any).Query.bookingsForTenant(
+          null,
+          { tenantId: "other-tenant" },
+          { user: { userId: "gifu-1", role: "CUSTOMER" } }
+        )
+      ).rejects.toThrow(/Forbidden/);
+      expect(mockBookingRepo.findByTenantId).not.toHaveBeenCalled();
+    });
+
+    it("should allow admin to query any tenant", async () => {
+      (requireAuth as jest.Mock).mockResolvedValue({
+        userId: "admin-1",
+        role: "ADMIN",
+      });
+      mockListingModel.findAll.mockResolvedValue([]);
+      mockBookingRepo.findByTenantId.mockResolvedValue([
+        { id: "booking-1", tenantId: "tenant-1" },
+      ]);
+
+      const result = await (resolvers as any).Query.bookingsForTenant(
+        null,
+        { tenantId: "tenant-1" },
+        { user: { userId: "admin-1", role: "ADMIN" } }
+      );
+
+      expect(result).toHaveLength(1);
     });
   });
 });

@@ -41,7 +41,7 @@ const AUTH_MAP: Record<string, OperationAuthRequirement> = {
 
   // ========== Booking Subgraph ==========
   booking:                  { authenticated: true, minRole: Role.CUSTOMER },
-  bookingsForTenant:        { authenticated: true, minRole: Role.OWNER },
+  bookingsForTenant:        { authenticated: true, minRole: Role.CUSTOMER },
   bookingsForCustomer:      { authenticated: true, minRole: Role.CUSTOMER },
   myBookings:               { authenticated: true, minRole: Role.CUSTOMER },
   currentCustomerBooking:   { authenticated: true, minRole: Role.CUSTOMER },
@@ -50,7 +50,7 @@ const AUTH_MAP: Record<string, OperationAuthRequirement> = {
   customerBookings:         { authenticated: true, minRole: Role.CUSTOMER },
   createBooking:            { authenticated: true, minRole: Role.CUSTOMER },
   cancelBooking:            { authenticated: true, minRole: Role.CUSTOMER },
-  confirmBooking:           { authenticated: true, minRole: Role.OWNER },
+  confirmBooking:           { authenticated: true, minRole: Role.CUSTOMER },
   checkInBooking:           { authenticated: true, minRole: Role.OWNER },
   completeBooking:          { authenticated: true, minRole: Role.OWNER },
   updateBooking:            { authenticated: true, minRole: Role.OWNER },

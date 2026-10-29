@@ -5,11 +5,17 @@ import { LocationRepository } from "@/core/location/infrastructure/persistence/l
 import { GetLocationUseCase } from "@/core/location/application/usecases/getLocationUseCase";
 import { GetLocationsUseCase } from "@/core/location/application/usecases/getLocationsUseCase";
 import { CreateLocationUseCase } from "@/core/location/application/usecases/createLocation.usecase";
+import { EventBus } from "@/core/tenant/infrastructure/services/event-bus.service";
 
 function registerLocationDependencies() {
   // Repository
   container.register(TOKENS_LOCATION.locationRepository, {
     useClass: LocationRepository,
+  });
+
+  // EventBus (required by CreateLocationUseCase)
+  container.register(TOKENS_LOCATION.eventBus, {
+    useClass: EventBus,
   });
 
   // UseCases

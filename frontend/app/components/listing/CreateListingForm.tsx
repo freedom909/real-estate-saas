@@ -11,6 +11,7 @@ import { textToImage } from "@/app/services/imageGen";
 import { Listing } from "@/app/types/listing";
 import { ALL_CATEGORIES } from "@/app/graphql/category/queries/category";
 import { ALL_LOCATIONS } from "@/app/graphql/location/queries/location";
+import { CREATE_LOCATION } from "@/app/graphql/location/mutations/createLocation";
 
 import { uploadClient } from "@/app/lib/apolloClient";
 
@@ -70,6 +71,7 @@ export default function CreateListingForm({ redirectAfterCreate = "/host/listing
 function CreateListingContent({ redirectAfterCreate = "/host/listings" }: { redirectAfterCreate?: string }) {
   const router = useRouter();
   const [createListing] = useMutation<any>(CREATE_LISTING);
+  const [createLocation] = useMutation<any>(CREATE_LOCATION);
   const activeTenantId = useTenantStore((s) => s.activeTenantId);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -82,7 +84,7 @@ function CreateListingContent({ redirectAfterCreate = "/host/listings" }: { redi
   const [form, setForm] = useState({
     title: "",
     description: "",
-    locationId: "",
+    address: "",
 
     postalCode: "",
     prefecture: "",
@@ -260,6 +262,32 @@ function CreateListingContent({ redirectAfterCreate = "/host/listings" }: { redi
         return;
       }
 
+      if (!form.prefecture || !form.city || !form.town || !form.address) {
+        setError("Please fill in the full address (postal code search + street address).");
+        return;
+      }
+
+      // Persist the address as a Location record (prefecture/city/town/street);
+      // the listing references it by its real id.
+      const locationResult = await createLocation({
+        variables: {
+          input: {
+            name: form.address || form.title,
+            country: "Japan",
+            postalCode: form.postalCode || "000-0000",
+            prefecture: form.prefecture,
+            city: form.city,
+            town: form.town,
+            address: form.address,
+          },
+        },
+      });
+
+      const locationId = locationResult.data?.createLocation?.location?.id;
+      if (!locationId) {
+        throw new Error("Failed to create the location record");
+      }
+
       const input = {
         // Tenant from the active tenant selector. The server overrides it with
         // the session tenant for non-admin users; admins target this tenant.
@@ -273,7 +301,7 @@ function CreateListingContent({ redirectAfterCreate = "/host/listings" }: { redi
         numOfRooms: parseInt(form.numOfRooms) || 1,
         numOfCustomers: parseInt(form.numOfCustomers) || 2,
 
-        locationId: form.locationId || "default-location",
+        locationId,
 
         categories: form.categories,
 
@@ -395,10 +423,10 @@ function CreateListingContent({ redirectAfterCreate = "/host/listings" }: { redi
           <label className="block text-sm font-medium mb-1">Address</label>
           <input
             type="text"
-            name="locationId"
-            value={form.locationId}
+            name="address"
+            value={form.address}
             onChange={handleChange}
-            placeholder="123 Main St, Tokyo, Japan"
+            placeholder="123 main mansion"
             className="w-full border rounded-lg p-3"
             required
           />

@@ -2,18 +2,23 @@
  * Integration test for the full booking creation flow.
  * Tests: Resolver → CreateBookingUseCase → ListingGateway → BookingPricingService → Repository
  *
+ * Covers business step 1: a guest submits a booking → system creates a
+ * Booking with status PENDING.
+ *
  * Run: npx jest src/__tests__/integration/booking-flow.integration.test.ts --no-cache
  */
+
+// ── Mocks ──────────────────────────────────────────────────────────────────
 import "reflect-metadata";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
-// ── Mocks ──────────────────────────────────────────────────────────────────
 jest.mock("uuid", () => ({ v4: () => "test-uuid-001" }));
 
 jest.mock("@/modules/tokens/booking.tokens", () => ({
   TOKENS_BOOKING: {
     repository: { bookingRepository: Symbol("BookingRepository") },
     gateway: { listingGateway: Symbol("ListingGateway") },
+    acl: { calendarClient: Symbol("CalendarClient") },
   },
 }));
 
@@ -44,8 +49,13 @@ function createMocks() {
   const eventBus = { publish: jest.fn<() => Promise<void>>().mockResolvedValue(undefined) };
   const listingGateway = {
     getListingPrice: jest.fn<(id: string) => Promise<number>>(),
+    getListingTenantId: jest.fn<(id: string) => Promise<string>>().mockResolvedValue("tenant-1"),
   };
-  return { repo, eventBus, listingGateway, savedBookings };
+  const calendarClient = {
+    reserveSlot: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    releaseSlot: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  };
+  return { repo, eventBus, listingGateway, calendarClient, savedBookings };
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────
@@ -59,19 +69,23 @@ describe("Booking creation flow (integration)", () => {
     useCase = new CreateBookingUseCase(
       mocks.repo as any,
       mocks.eventBus as any,
-      mocks.listingGateway as any
+      mocks.listingGateway as any,
+      mocks.calendarClient as any
     );
   });
 
   it("3 nights at ¥5000/night → total ¥15000", async () => {
     mocks.listingGateway.getListingPrice.mockResolvedValue(5000);
 
-    const result = await useCase.execute({
-      listingId: "listing-abc",
-      customerId: "user-1",
-      checkInDate: "2024-07-01",
-      checkOutDate: "2024-07-04",
-    });
+    const result = await useCase.execute(
+      {
+        listingId: "listing-abc",
+        customerId: "user-1",
+        checkInDate: "2024-07-01",
+        checkOutDate: "2024-07-04",
+      } as any,
+      { customerId: "user-1" }
+    );
 
     expect(mocks.listingGateway.getListingPrice).toHaveBeenCalledWith("listing-abc");
     expect(result.price).toBe(15000);
@@ -79,16 +93,35 @@ describe("Booking creation flow (integration)", () => {
     expect(mocks.eventBus.publish).toHaveBeenCalledTimes(1);
   });
 
+  it("created booking starts in PENDING status (business step 1)", async () => {
+    mocks.listingGateway.getListingPrice.mockResolvedValue(5000);
+
+    const result = await useCase.execute(
+      {
+        listingId: "listing-abc",
+        customerId: "user-1",
+        checkInDate: "2024-07-01",
+        checkOutDate: "2024-07-04",
+      } as any,
+      { customerId: "user-1" }
+    );
+
+    expect(result.status).toBe("PENDING");
+  });
+
   it("input.price is completely ignored — server always uses listing price", async () => {
     mocks.listingGateway.getListingPrice.mockResolvedValue(3000);
 
-    const result = await useCase.execute({
-      listingId: "listing-xyz",
-      customerId: "user-2",
-      checkInDate: "2024-08-01",
-      checkOutDate: "2024-08-06",
-      price: 0, // should be ignored
-    });
+    const result = await useCase.execute(
+      {
+        listingId: "listing-xyz",
+        customerId: "user-2",
+        checkInDate: "2024-08-01",
+        checkOutDate: "2024-08-06",
+        price: 0, // should be ignored
+      } as any,
+      { customerId: "user-2" }
+    );
 
     // 5 nights × 3000 = 15000
     expect(result.price).toBe(15000);
@@ -97,12 +130,15 @@ describe("Booking creation flow (integration)", () => {
   it("1 night at ¥800/night → total ¥800", async () => {
     mocks.listingGateway.getListingPrice.mockResolvedValue(800);
 
-    const result = await useCase.execute({
-      listingId: "listing-short",
-      customerId: "user-3",
-      checkInDate: "2024-09-10",
-      checkOutDate: "2024-09-11",
-    });
+    const result = await useCase.execute(
+      {
+        listingId: "listing-short",
+        customerId: "user-3",
+        checkInDate: "2024-09-10",
+        checkOutDate: "2024-09-11",
+      } as any,
+      { customerId: "user-3" }
+    );
 
     expect(result.price).toBe(800);
   });
@@ -113,12 +149,15 @@ describe("Booking creation flow (integration)", () => {
     );
 
     await expect(
-      useCase.execute({
-        listingId: "missing-listing",
-        customerId: "user-4",
-        checkInDate: "2024-10-01",
-        checkOutDate: "2024-10-03",
-      })
+      useCase.execute(
+        {
+          listingId: "missing-listing",
+          customerId: "user-4",
+          checkInDate: "2024-10-01",
+          checkOutDate: "2024-10-03",
+        } as any,
+        { customerId: "user-4" }
+      )
     ).rejects.toThrow("Listing missing-listing not found");
 
     expect(mocks.repo.save).not.toHaveBeenCalled();
@@ -128,34 +167,57 @@ describe("Booking creation flow (integration)", () => {
     mocks.listingGateway.getListingPrice.mockResolvedValue(1000);
 
     await expect(
-      useCase.execute({
-        listingId: "listing-1",
-        customerId: "user-5",
-        checkInDate: "2024-12-05",
-        checkOutDate: "2024-12-01",
-      })
+      useCase.execute(
+        {
+          listingId: "listing-1",
+          customerId: "user-5",
+          checkInDate: "2024-12-05",
+          checkOutDate: "2024-12-01",
+        } as any,
+        { customerId: "user-5" }
+      )
     ).rejects.toThrow("checkInDate must be before checkOutDate");
   });
 
   it("rejects missing required fields", async () => {
     await expect(
-      useCase.execute({ listingId: "listing-1" })
+      useCase.execute({ listingId: "listing-1" } as any, {} as any)
     ).rejects.toThrow("Missing required booking information");
   });
 
   it("saved booking entity has correct price and date range", async () => {
     mocks.listingGateway.getListingPrice.mockResolvedValue(2000);
 
-    await useCase.execute({
-      listingId: "listing-save",
-      customerId: "user-6",
-      checkInDate: "2024-11-01",
-      checkOutDate: "2024-11-04",
-    });
+    await useCase.execute(
+      {
+        listingId: "listing-save",
+        customerId: "user-6",
+        checkInDate: "2024-11-01",
+        checkOutDate: "2024-11-04",
+      } as any,
+      { customerId: "user-6" }
+    );
 
     const saved = mocks.repo.save.mock.calls[0][0];
     expect(saved.price).toBe(6000);
     expect(saved.listingId).toBe("listing-save");
+  });
+
+  it("booking belongs to the listing's tenant (host visibility)", async () => {
+    mocks.listingGateway.getListingPrice.mockResolvedValue(2000);
+
+    const result = await useCase.execute(
+      {
+        listingId: "listing-save",
+        customerId: "user-6",
+        checkInDate: "2024-11-01",
+        checkOutDate: "2024-11-04",
+      } as any,
+      { customerId: "user-6", tenantId: "customer-session-tenant" }
+    );
+
+    // tenantId must come from the LISTING's tenant, not the customer's session
+    expect(result.tenantId).toBe("tenant-1");
   });
 
   it("BookingPricingService.calculatePrice matches manual calculation", () => {

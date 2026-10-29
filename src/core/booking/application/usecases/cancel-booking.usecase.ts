@@ -39,7 +39,17 @@ export class CancelBookingUseCase {
       throw new Error("Booking not found");
     }
 
-    booking.cancel(reason);
+    try {
+      booking.cancel(reason);
+    } catch (err: any) {
+      if (booking.status === "CANCELLED") {
+        throw new Error("Booking is already cancelled");
+      }
+      if (booking.status === "COMPLETED") {
+        throw new Error("Cannot cancel a completed booking");
+      }
+      throw new Error(`Cannot cancel a booking in ${booking.status} status`);
+    }
 
     await this.bookingRepository
       .save(booking);

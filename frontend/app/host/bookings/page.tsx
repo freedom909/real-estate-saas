@@ -4,11 +4,12 @@ import RoleGuard from "../../components/shared/RoleGuard";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { gql } from "@apollo/client/core";
 import { useAuthStore } from "@/app/store/auth.store";
+import { useTenantStore } from "../../store/tenant.store";
 import Link from "next/link";
 
 const MY_HOST_BOOKINGS = gql`
   query MyHostBookings {
-    myBookings {
+    bookingsForTenant {
       id
       status
       checkInDate
@@ -16,7 +17,7 @@ const MY_HOST_BOOKINGS = gql`
       price
       createdAt
       listing { id title }
-      user { id name email }
+      customer { id name email }
     }
   }
 `;
@@ -79,7 +80,10 @@ export default function HostBookingsPage() {
 
 function HostBookingsContent() {
   const { user } = useAuthStore();
-  const isHostOrAbove = (
+  const activeTenantId = useTenantStore((s) => s.activeTenantId);
+  const availableTenants = useTenantStore((s) => s.availableTenants);
+  const membershipRole = availableTenants.find((t) => t.id === activeTenantId)?.membershipRole;
+  const isHostOrAbove = [user?.role, membershipRole].some((r) => r === "HOST" || r === "OWNER" || r === "AGENT" || r === "ADMIN" || r === "SUPER_ADMIN") || (
     user?.role === "HOST" ||
     user?.role === "OWNER" ||
     user?.role === "AGENT" ||
@@ -92,17 +96,17 @@ const { data, loading } = useQuery<any>(MY_HOST_BOOKINGS);
       const confirmedId = result?.confirmBooking?.id;
       if (!confirmedId) return;
       cache.updateQuery({ query: MY_HOST_BOOKINGS }, (prev: any) => {
-        if (!prev?.myBookings) return prev;
+        if (!prev?.bookingsForTenant) return prev;
         return {
           ...prev,
-          myBookings: prev.myBookings.map((b: any) =>
+          bookingsForTenant: prev.bookingsForTenant.map((b: any) =>
             b.id === confirmedId ? { ...b, status: "CONFIRMED" } : b
           ),
         };
       });
     },
   });
-  const bookings = data?.myBookings ?? [];
+  const bookings = data?.bookingsForTenant ?? [];
 
   const pending = bookings.filter((b: any) => b.status === "PENDING");
   const confirmed = bookings.filter((b: any) => b.status === "CONFIRMED");
@@ -187,8 +191,8 @@ const { data, loading } = useQuery<any>(MY_HOST_BOOKINGS);
                     className={`hover:bg-gray-50 ${isConflict ? "bg-red-50" : ""}`}
                   >
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">{b.user?.name || "Guest"}</div>
-                      <div className="text-xs text-gray-500">{b.user?.email}</div>
+                      <div className="text-sm font-medium text-gray-900">{b.customer?.name || "Guest"}</div>
+                      <div className="text-xs text-gray-500">{b.customer?.email}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 font-medium">

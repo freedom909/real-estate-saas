@@ -40,7 +40,11 @@ async execute(id: string) {
     "[ConfirmBooking] before:",
     booking?.status
   );
+  try {
     booking.confirm();
+  } catch (err: any) {
+    throw new Error(`Cannot confirm a booking in ${booking.status} status`);
+  }
       console.log(
     "[ConfirmBooking] after:",
     booking.status
@@ -86,6 +90,9 @@ try {
 
   throw error;
 }
+    // (if (!existingPayment) block ends here — event + return below must run
+    //  whether or not a payment already existed)
+}
 
     await this.eventBus.publish(
       new BookingConfirmedEvent(
@@ -102,4 +109,4 @@ try {
 
     return booking;
   }
-}}
+}

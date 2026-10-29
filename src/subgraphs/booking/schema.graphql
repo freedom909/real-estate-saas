@@ -6,7 +6,7 @@ scalar JSON
 scalar DateTime 
 type Query {
   ### Bookings
-  bookingsForTenant(listingId: ID!, status: BookingStatus): [Booking!]! @shareable
+  bookingsForTenant(tenantId: ID, status: BookingStatus): [Booking!]! @shareable
   bookingsForCustomer(userId: ID!): [Booking!] @shareable
   myBookings: [Booking!]! @shareable
   currentCustomerBooking: Booking @shareable

@@ -135,9 +135,12 @@ export default class PolicyEngine implements IPolicyEngine {
 
       [`${Action.CONFIRM}_${Resource.BOOKING}`]: (ctx) => {
         if (!ctx.user) return false;
-        // ONLY HOST/OWNER of the listing, or ADMIN+/SUPER_ADMIN can confirm
+        // Admin+ can confirm anything
         if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
-        if (!hasMinRole(ctx.user.role, Role.HOST)) return false;
+        // The listing owner can confirm bookings on their listing.
+        // Do NOT gate on global role — a host's globalRole may be CUSTOMER
+        // (host identity lives in tenant memberships), and the resolveOwnerId
+        // callback already returns the LISTING OWNER's id.
         return ctx.user.id === ctx.resourceOwnerId;
       },
 

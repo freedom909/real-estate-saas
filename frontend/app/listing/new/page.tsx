@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { useRouter } from "next/navigation";
 import { CREATE_LISTING } from "@/app/graphql/listing/mutations/createListing";
+import { CREATE_LOCATION } from "@/app/graphql/location/mutations/createLocation";
 import { textToImage } from "@/app/services/imageGen";
 import Navbar from "@/app/components/navbar";
 import { useTenantStore } from "@/app/store/tenant.store";
@@ -12,20 +13,24 @@ import { useTenantStore } from "@/app/store/tenant.store";
 export default function CreateListingPage() {
   const router = useRouter();
   const [createListing] = useMutation<any>(CREATE_LISTING);
+  const [createLocation] = useMutation<any>(CREATE_LOCATION);
   const activeTenantId = useTenantStore((s) => s.activeTenantId);
 
   const [form, setForm] = useState({
     title: "",
     description: "",
-    
-  
-    
+
+    postalCode: "",
+    prefecture: "",
+    city: "",
+    town: "",
+    address: "",
+
     pricePerNight: "",
     numOfBeds: "1",
     numOfBathrooms: "1",
     numOfRooms: "1",
     numOfCustomers: "2",
-    locationId: "",
     categories: "",
     isFeatured: false,
   });
@@ -40,6 +45,28 @@ export default function CreateListingPage() {
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
+
+  // --- Postal Code Lookup (Japan / zipcloud) ---
+  const searchAddress = async (zipcode: string) => {
+    const res = await fetch(
+      `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode.replace("-", "")}`
+    );
+
+    const data = await res.json();
+    const result = data.results?.[0];
+
+    if (!result) {
+      alert("Address not found");
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      prefecture: result.address1,
+      city: result.address2,
+      town: result.address3,
     }));
   };
 
@@ -77,43 +104,66 @@ export default function CreateListingPage() {
     setError(null);
 
     try {
-      // Step 1: Generate images
+      if (!form.prefecture || !form.city || !form.town || !form.address) {
+        throw new Error("Please fill in the full address (postal code search + street address).");
+      }
+
+      // Step 1: Persist the address as a Location record (prefecture/city/town/street)
+      // and use its real id as the listing's locationId.
       setGeneratingImages(true);
+      const locationResult = await createLocation({
+        variables: {
+          input: {
+            name: form.address || form.title,
+            // zipcloud lookup is Japan-only
+            country: "Japan",
+            postalCode: form.postalCode || "000-0000",
+            prefecture: form.prefecture,
+            city: form.city,
+            town: form.town,
+            address: form.address,
+          },
+        },
+      });
+
+      const locationId = locationResult.data?.createLocation?.location?.id;
+      if (!locationId) {
+        throw new Error("Failed to create the location record");
+      }
+
+      // Step 2: Generate images
       const images = await generatePropertyImages(form);
       setGeneratedImages(images);
       setGeneratingImages(false);
 
+      // Step 3: Create listing with generated images
+      const input = {
+        tenantId: activeTenantId ?? undefined,
+        title: form.title,
+        description: form.description,
 
-      // Step 2: Create listing with generated images
-const input = {
-  tenantId: activeTenantId ?? undefined,
-  title: form.title,
-  description: form.description,
+        pricePerNight: parseFloat(form.pricePerNight) || 0,
 
+        numOfBeds: parseInt(form.numOfBeds) || 1,
+        numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
+        numOfRooms: parseInt(form.numOfRooms) || 1,
+        numOfCustomers: parseInt(form.numOfCustomers) || 2,
 
-  pricePerNight:
-    parseFloat(form.pricePerNight) ||  0,
+        locationId,
 
-  numOfBeds: parseInt(form.numOfBeds) || 1,
-  numOfBathrooms: parseInt(form.numOfBathrooms) || 1,
-  numOfRooms: parseInt(form.numOfRooms) || 1,
-  numOfCustomers: parseInt(form.numOfCustomers) || 2,
+        categories: form.categories
+          ? form.categories.split(",").map((c) => c.trim())
+          : [],
 
-  locationId: form.locationId || "default-location",
+        isFeatured: form.isFeatured,
 
-  categories: form.categories
-    ? form.categories.split(",").map((c) => c.trim())
-    : [],
+        pictures: images.map((url) => ({
+          objectKey: url,
+          mimeType: "image/png",
+          size: 0,
+        })),
+      };
 
-  isFeatured: form.isFeatured,
-
-  pictures: images.map((url) => ({
-    objectKey: url,
-    mimeType: "image/png",
-    size: 0,
-  })),
-};
-      console.log("🔥 FINAL CREATE INPUT =", JSON.stringify(input, null, 2));
       const result = await createListing({ variables: { input } });
       console.log("Listing created:", result.data?.createListing);
 
@@ -160,18 +210,73 @@ const input = {
             />
           </div>
 
-          {/* Address */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Address</label>
-            <input
-              type="text"
-              name="locationId"
-              value={form.locationId}
-              onChange={handleChange}
-              placeholder="123 Main St, Tokyo, Japan"
-              className="w-full border rounded-lg p-3"
-              required
-            />
+          {/* Property Location */}
+          <div className="space-y-3 border rounded-xl p-6 bg-white">
+            <h2 className="text-xl font-semibold">Property Location</h2>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Postal Code</label>
+              <div className="flex gap-3">
+                <input
+                  name="postalCode"
+                  value={form.postalCode}
+                  onChange={handleChange}
+                  placeholder="140-0014"
+                  className="flex-1 border rounded-lg p-3"
+                />
+                <button
+                  type="button"
+                  onClick={() => searchAddress(form.postalCode)}
+                  disabled={!form.postalCode}
+                  className="bg-blue-600 text-white px-5 rounded-lg disabled:bg-gray-300"
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Prefecture</label>
+                <input
+                  value={form.prefecture}
+                  readOnly
+                  placeholder="東京都"
+                  className="w-full border rounded-lg p-3 bg-gray-100"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">City</label>
+                <input
+                  value={form.city}
+                  readOnly
+                  placeholder="品川区"
+                  className="w-full border rounded-lg p-3 bg-gray-100"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Town</label>
+                <input
+                  value={form.town}
+                  readOnly
+                  placeholder="大井"
+                  className="w-full border rounded-lg p-3 bg-gray-100"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Address (street)</label>
+              <input
+                type="text"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                placeholder="123 main mansion"
+                className="w-full border rounded-lg p-3"
+                required
+              />
+            </div>
           </div>
 
           {/* Price */}
@@ -249,33 +354,19 @@ const input = {
             </div>
           </div>
 
-          {/* Location & Categories */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Location ID</label>
-              <input
-                type="text"
-                name="locationId"
-                value={form.locationId}
-                onChange={handleChange}
-                placeholder="location-id"
-                className="w-full border rounded-lg p-3"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Categories (comma-separated)</label>
-              <input
-                type="text"
-                name="categories"
-                value={form.categories}
-                onChange={handleChange}
-                placeholder="apartment, modern, city"
-                className="w-full border rounded-lg p-3"
-              />
-            </div>
+          {/* Categories & Featured */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Categories (comma-separated)</label>
+            <input
+              type="text"
+              name="categories"
+              value={form.categories}
+              onChange={handleChange}
+              placeholder="apartment, modern, city"
+              className="w-full border rounded-lg p-3"
+            />
           </div>
 
-          {/* Featured */}
           <div className="flex items-center gap-2">
             <input
               type="checkbox"

@@ -3,6 +3,7 @@
 
 import { useMutation, useQuery, ApolloProvider } from "@apollo/client/react";
 import { GET_LISTING } from "@/app/graphql/listing/queries/listing";
+import { GET_LOCATION_BY_ID } from "@/app/graphql/location/queries/location";
 import { CREATE_BOOKING } from "@/app/graphql/booking/mutations/createBooking";
 
 import { use } from "react";
@@ -33,6 +34,24 @@ type Listing = {
 
 type GetListingResponse = {
     listing: Listing;
+};
+
+type LocationParts = {
+    id: string;
+    name: string;
+    prefecture: string;
+    city: string;
+    town: string;
+    address: string;
+    /**
+     * Reserved for future Location fields (latitude/longitude exist in the
+     * domain model but are commented out). Kept so this type can grow without
+     * breaking the query shape.
+     */
+    geo?: {
+        latitude?: number;
+        longitude?: number;
+};
 };
 
 export default function ListingDetailPageWrapper(
@@ -77,6 +96,15 @@ function ListingDetailPage({
         },
     ] = useMutation(CREATE_BOOKING);
 
+    // Full address lives in the Location record (prefecture + city + town + street).
+    const { data: locationData } = useQuery<{ locations: LocationParts[] }>(
+        GET_LOCATION_BY_ID,
+        {
+            variables: { locationId: data?.listing?.locationId },
+            skip: !data?.listing?.locationId,
+        }
+    );
+
     if (loading) {
         return <p>Loading...</p>;
     }
@@ -98,7 +126,10 @@ function ListingDetailPage({
             </p>
         );
     }
-console.log("🔥 DETAIL LOCATION ID =", listing.locationId);
+    const location = locationData?.locations?.[0];
+    const fullAddress = location
+        ? `${location.prefecture}${location.city}${location.town} ${location.address}`
+        : listing.locationId;
     /*
      * Sort pictures by sortOrder.
      */
@@ -538,7 +569,7 @@ console.log("🔥 DETAIL LOCATION ID =", listing.locationId);
                     text-gray-500
                     mt-2
                 ">
-                    {listing.locationId}
+                    {fullAddress}
                 </p>
 
                 <p className="
