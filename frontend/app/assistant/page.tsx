@@ -6,6 +6,7 @@ import { CHAT } from "../graphql/chat/mutations/chat";
 import Navbar from "../components/navbar";
 import Link from "next/link";
 import { Mic, MicOff, Volume2, VolumeX, Loader2 } from "lucide-react";
+import LocationAddress from "@/app/components/LocationAddress";
 
 type ChatResponse = {
   chat: {
@@ -116,7 +117,7 @@ function ListingResult({ content }: { content: any }) {
               {listing.title || "Untitled"}
             </h4>
             {listing.locationId && (
-              <p className="mt-0.5 text-xs text-gray-400 line-clamp-1">{listing.locationId}</p>
+              <p className="mt-0.5 text-xs text-gray-400 line-clamp-1"><LocationAddress locationId={listing.locationId} /></p>
             )}
             <div className="mt-2 flex items-center justify-between">
               <span className="text-lg font-bold text-blue">

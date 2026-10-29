@@ -21,6 +21,8 @@ type Listing @key(fields: "id") {
   owner: User!
   ownerId: ID!
 
+  tenantId: ID
+
   locationId: ID!
 
   categories: [Category!]!

@@ -12,6 +12,7 @@ import PaymentStatusBadge from "@/app/payments/paymentStatus.badge";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useAuthStore } from "@/app/store/auth.store";
+import { useTenantStore } from "@/app/store/tenant.store";
 
 interface BookingQueryData {
   booking: {
@@ -42,16 +43,16 @@ export default function BookingDetailPage() {
   const auth = useAuthStore();
   console.log("AUTH STORE =", auth);
   console.log("FRONTEND USER =", user);
-  const isHostOrAbove = (
-    user?.role === "HOST" ||
-    user?.role === "OWNER" ||
-    user?.role === "AGENT" ||
-    user?.role === "ADMIN" ||
-    user?.role === "SUPER_ADMIN"
+  const membershipRole = useTenantStore((s) => s.availableTenants.find((t) => t.id === s.activeTenantId)?.membershipRole); const isHostOrAbove = (
+    user?.role === "HOST" || membershipRole === "HOST" ||
+    user?.role === "OWNER" || membershipRole === "OWNER" ||
+    user?.role === "AGENT" || membershipRole === "AGENT" ||
+    user?.role === "ADMIN" || membershipRole === "ADMIN" ||
+    user?.role === "SUPER_ADMIN" || membershipRole === "SUPER_ADMIN"
   );
   console.log("FRONTEND ROLE =", user?.role);
   console.log("isHostOrAbove =", isHostOrAbove);
-  const isCustomer = user?.role === "CUSTOMER";
+  const isCustomer = !isHostOrAbove && (user?.role === "CUSTOMER" || user?.role === "GUEST");
   console.log("isCustomer =", isCustomer);
   const params = useParams();
   const [cancelling, setCancelling] = useState(false);

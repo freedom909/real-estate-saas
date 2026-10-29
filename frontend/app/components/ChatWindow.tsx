@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Volume2, VolumeX, Pause, Play } from "lucide-react";
+import LocationAddress from "./LocationAddress";
 
 type Artifact = {
   type: string;
@@ -77,7 +78,7 @@ function ListingResult({ content }: { content: any }) {
               </p>
             )}
             {listing.locationId && (
-              <p className="mt-1 text-xs text-gray-400">{listing.locationId}</p>
+              <p className="mt-1 text-xs text-gray-400"><LocationAddress locationId={listing.locationId} /></p>
             )}
             <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
               {listing.numOfBeds != null && <span>{listing.numOfBeds} bed{listing.numOfBeds > 1 ? "s" : ""}</span>}

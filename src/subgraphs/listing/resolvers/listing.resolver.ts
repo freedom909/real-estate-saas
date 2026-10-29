@@ -37,6 +37,7 @@ export const resolvers = {
       return listings.map(listing => ({
         id: listing.id,
         ownerId: listing.ownerId,
+        tenantId: listing.tenantId,
         locationId: listing.locationId,
         title: listing.title,
         description: listing.description,
@@ -101,6 +102,7 @@ export const resolvers = {
       return listings.map(listing => ({
         id: listing.id,
         ownerId: listing.ownerId,
+        tenantId: listing.tenantId,
         locationId: listing.locationId,
         title: listing.title,
         description: listing.description,

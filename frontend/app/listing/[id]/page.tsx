@@ -129,7 +129,7 @@ function ListingDetailPage({
     const location = locationData?.locations?.[0];
     const fullAddress = location
         ? `${location.prefecture}${location.city}${location.town} ${location.address}`
-        : listing.locationId;
+        : "-";
     /*
      * Sort pictures by sortOrder.
      */

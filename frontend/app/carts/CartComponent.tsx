@@ -2,6 +2,7 @@
 import { useQuery, useMutation } from "@apollo/client/react";
 import { useAuthStore } from "@/app/store/auth.store";
 import { GET_CARTS_BY_CUSTOMER } from "@/app/graphql/cart/queries/cart";
+import LocationAddress from "@/app/components/LocationAddress";
 import {
   UPDATE_CART_ITEM,
   REMOVE_FROM_CART,
@@ -342,7 +343,7 @@ export default function CartComponent() {
                         </h3>
                         {listing?.locationId && (
                           <p className="text-sm text-gray-500 truncate">
-                            📍 {listing.locationId}
+                            📍 <LocationAddress locationId={listing.locationId} />
                           </p>
                         )}
                       </div>

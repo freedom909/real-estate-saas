@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@apollo/client/react";
 import { GET_LISTINGS } from "@/app/graphql/listing/queries/listings";
 import OwnerGuard from "@/app/components/owner/OwnerGuard";
+import LocationAddress from "@/app/components/LocationAddress";
 import OwnerLayout from "@/app/components/owner/OwnerLayout";
 
 export default function OwnerListingsPage() {
@@ -81,7 +82,7 @@ function OwnerListingsContent() {
               {listings.map((listing: any) => (
                 <tr key={listing.id} className="border-b hover:bg-gray-50 transition">
                   <td className="py-3 px-4 font-medium">{listing.title}</td>
-                  <td className="py-3 px-4 text-gray-500">{listing.locationId}</td>
+                  <td className="py-3 px-4 text-gray-500"><LocationAddress locationId={listing.locationId} /></td>
                   <td className="py-3 px-4 font-medium">¥{listing.pricePerNight?.toLocaleString()}</td>
                   <td className="py-3 px-4">{listing.numOfBeds}</td>
                   <td className="py-3 px-4">

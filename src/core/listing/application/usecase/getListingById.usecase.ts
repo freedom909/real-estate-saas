@@ -30,6 +30,8 @@ id: listing.id,
 
 ownerId: listing.ownerId,
 
+tenantId: listing.tenantId,
+
 title: listing.title,
 
 description: listing.description,

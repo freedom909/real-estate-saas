@@ -1,6 +1,7 @@
 // src/wisdom-web/app/components/ListingCard.tsx
 
 import Link from "next/link";
+import LocationAddress from "./LocationAddress";
 
 type ListingCardProps = {
   id: string;
@@ -42,7 +43,7 @@ export default function ListingCard({
         </h3>
 
         <p className="text-gray-500">
-          📍 {locationId}
+          📍 <LocationAddress locationId={locationId} />
         </p>
 
         <div className="flex items-center justify-between">
