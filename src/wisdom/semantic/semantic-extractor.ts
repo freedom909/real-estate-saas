@@ -81,11 +81,29 @@ export class SemanticExtractor implements ISemanticExtractor {
     );
 
     // ── 4. LLM fallback for complex/uncertain intents ───────────────────────
-    // If the rule-based intent is GENERAL with low confidence, try LLM
+
+    // ── 4. Optional LLM fallback ────────────────────────────────
     if (intent.action === AgentAction.GENERAL && intent.confidence < 0.6) {
-      return await this.llmExtractor.extract(message, request);
+      try {
+        const llmContext = await this.llmExtractor.extract(message, request);
+
+        // Only use the LLM result when it provides a meaningful intent.
+        if (
+          llmContext.action?.type && 
+          llmContext.action.type !== AgentAction.GENERAL
+        ) {
+          return llmContext;
+        }
+      } catch (error) {
+        console.warn(
+          "[SemanticExtractor] LLM fallback unavailable; using rule-based result.",
+          error instanceof Error ? error.message : "Unknown error"
+        );
+      }
     }
 
+    // Preserve the rule-based result when LLM is unavailable.
     return ctx;
+
   }
 }
