@@ -4,6 +4,7 @@ import { injectable } from "tsyringe";
 import { WisdomPipelineContext } from "../wisdomPipeline.context";
 import { IPipelineStage } from "./i-pipeline-stage";
 import { AgentAction } from "../../shared/enums/action.enum";
+import { AIDomain } from "../../shared/enums/domain.enum";
 import { SemanticContext } from "../../semantic/semantic-context";
 
 
@@ -22,7 +23,7 @@ export class NormalizeIntentStage implements IPipelineStage {
 
     // Japanese booking intent (予約 = reservation/booking)
     const hasJapaneseBookingIntent =
-      /予約|予約する|予約します|予約したい|ご予約/.test(raw) &&
+      /予約|注文|ご注文|頼ん|とりたい|取りたい/.test(raw) &&
       !/キャンセル|取消/.test(raw);
 
     const hasBookingIntent = hasEnglishBookingIntent || hasJapaneseBookingIntent;
@@ -39,7 +40,7 @@ export class NormalizeIntentStage implements IPipelineStage {
           confidence: 0.7,
         },
         semantic.confidence,
-        semantic.domain,
+        AIDomain.BOOKING,
         semantic.isRuleMatched
       );
     }

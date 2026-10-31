@@ -20,6 +20,7 @@ import {resolvers} from "./resolvers/resolvers"
 import registerAuditDependencies from "@/modules/container/audit.register"
 import { cacheContainer } from "@/modules/container/cache.register"
 import registerListingDependencies from "@/modules/container/listing.register"
+import { registerPicture } from "@/modules/container/picture.register"
 import { BookingRegister } from "@/modules/container/booking.register"
 import getUserFromToken from "@/infrastructure/auth/getUserFromToken"
 import { sequelize, connectMySQL } from "@/infrastructure/config/seq"
@@ -37,6 +38,7 @@ console.log("  ✅ Audit container loaded")
 cacheContainer()
 console.log("  ✅ Cache container loaded")
 registerListingDependencies()
+registerPicture()
 console.log("  ✅ Listing container loaded")
 BookingRegister()
 console.log("  ✅ Booking container loaded")

@@ -11,6 +11,7 @@ import { GenerateListingAIOptimizationUseCase } from "@/wisdom/agents/listing/ge
 import GetListingUseCase from "@/core/listing/application/usecase/getListings.usecase";
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
 import { AgentAction } from "@/wisdom/shared/enums/action.enum";
+import { toChatListingRows } from "./listing-row.serializer";
 
 
 // Common Japanese location names → English (matches DB address values)
@@ -108,7 +109,7 @@ export class ListingAgent implements IDomainAgent {
           summary: `物件が見つかりました: ${listing.length}`,
           artifacts: [{
             type: ArtifactType.LISTING_SELECTED,
-            content: listing as unknown as Record<string, unknown>,
+            content: { listings: await toChatListingRows(listing as unknown as any[]) },
           }],
         };
       }
@@ -159,7 +160,7 @@ checkOut: checkOut ? new Date(checkOut as string) : undefined,
       summary: `${searchResult.total}件の物件が見つかりました。`,
       artifacts: [{
         type: ArtifactType.LISTING_SEARCH_RESULT,
-        content: searchResult as unknown as Record<string, unknown>,
+        content: { ...(searchResult as any), listings: await toChatListingRows((searchResult as any).listings ?? []) },
       }],
     };
   }

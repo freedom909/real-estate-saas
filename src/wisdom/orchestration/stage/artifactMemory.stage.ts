@@ -19,13 +19,13 @@ export class ArtifactMemoryStage implements IPipelineStage {
     const artifacts = ctx.rawResult?.artifacts ?? [];
 
     for (const artifact of artifacts) {
-      this.bookingStateUpdater.apply(ctx.memoryContext, artifact);
+      try { this.bookingStateUpdater.apply(ctx.memoryContext, artifact); } catch (err) { console.error("[ArtifactMemory] bookingStateUpdater failed:", err); }
 
       // Cache search results globally so next turn can access them
       if (artifact.type === "LISTING_SEARCH_RESULT") {
         const listings = artifact.content?.listings ?? [];
         cacheSearchResults(ctx.memoryContext.sessionId, listings);
-        ctx.request.context.resources.searchResults = listings;
+        if (ctx.request.context.resources) ctx.request.context.resources.searchResults = listings;
       }
     }
 

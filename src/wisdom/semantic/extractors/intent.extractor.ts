@@ -77,7 +77,7 @@ export class IntentExtractor {
     }
 
     // CREATE BOOKING
-    if (lower.includes("book") || lower.includes("予約") || lower.includes("予約する")) {
+    if (lower.includes("book") || lower.includes("予約") || lower.includes("予約する") || lower.includes("注文") || lower.includes("ご注文") || lower.includes("頼ん") || lower.includes("とりたい") || lower.includes("取りたい")) {
       return { action: AgentAction.CREATE_BOOKING, confidence: 0.90, domain: AIDomain.BOOKING };
     }
 
