@@ -1,3 +1,5 @@
+
+//frontend/app/components/ChatWindow.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -48,6 +50,7 @@ function stopSpeaking() {
   }
 }
 
+
 function ListingResult({ content }: { content: any }) {
   const listings = Array.isArray(content)
     ? content
@@ -57,50 +60,86 @@ function ListingResult({ content }: { content: any }) {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {listings.map((listing: any, i: number) => (
-        <Link
-          key={i}
-          href={`/listing/${listing.id}`}
-          className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md block"
-        >
-          <img
-            src={listing.picture?.[0] || listing.image || listing.images?.[0] || "https://picsum.photos/400/250"}
-            alt={listing.title || "Listing"}
-            className="h-44 w-full object-cover"
-          />
-          <div className="p-4">
-            <h3 className="text-lg font-bold text-gray-800">
-              {listing.title || "Untitled Listing"}
-            </h3>
-            {listing.description && (
-              <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                {listing.description}
-              </p>
-            )}
-            {listing.locationId && (
-              <p className="mt-1 text-xs text-gray-400"><LocationAddress locationId={listing.locationId} /></p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
-              {listing.numOfBeds != null && <span>{listing.numOfBeds} bed{listing.numOfBeds > 1 ? "s" : ""}</span>}
-              {listing.numOfBathrooms != null && <span>{listing.numOfBathrooms} bath</span>}
-              {listing.numOfCustomers != null && <span>Up to {listing.numOfCustomers} guests</span>}
-            </div>
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-2xl font-bold text-blue-600">
-                ¥{listing.pricePerNight}
-              </span>
-              {listing.isFeatured && (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
-                  Featured
-                </span>
+      {listings.map((listing: any, i: number) => {
+        // Temporary image diagnostics
+        console.log("[AI Listing Image]", {
+          id: listing.id,
+          picture: listing.picture,
+          pictures: listing.pictures,
+          image: listing.image,
+          images: listing.images,
+        });
+
+        return (
+          <Link
+            key={listing.id || i}
+            href={`/listing/${listing.id}`}
+            className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md block"
+          >
+            <img
+              src={
+                listing.picture?.[0] ||
+                listing.image ||
+                listing.images?.[0] ||
+                "https://picsum.photos/400/250"
+              }
+              alt={listing.title || "Listing"}
+              className="h-44 w-full object-cover"
+            />
+
+            <div className="p-4">
+              <h3 className="text-lg font-bold text-gray-800">
+                {listing.title || "Untitled Listing"}
+              </h3>
+
+              {listing.description && (
+                <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                  {listing.description}
+                </p>
               )}
+
+              {listing.locationId && (
+                <p className="mt-1 text-xs text-gray-400">
+                  <LocationAddress locationId={listing.locationId} />
+                </p>
+              )}
+
+              <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
+                {listing.numOfBeds != null && (
+                  <span>
+                    {listing.numOfBeds} bed
+                    {listing.numOfBeds > 1 ? "s" : ""}
+                  </span>
+                )}
+
+                {listing.numOfBathrooms != null && (
+                  <span>{listing.numOfBathrooms} bath</span>
+                )}
+
+                {listing.numOfCustomers != null && (
+                  <span>Up to {listing.numOfCustomers} guests</span>
+                )}
+              </div>
+
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-2xl font-bold text-blue-600">
+                  ¥{listing.pricePerNight}
+                </span>
+
+                {listing.isFeatured && (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                    Featured
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </div>
   );
 }
+
 
 function ArtifactCard({ artifact }: { artifact: Artifact }) {
   if (artifact.type === "LISTING_SEARCH_RESULT" || artifact.type === "LISTING_SELECTED") {

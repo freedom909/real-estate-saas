@@ -408,8 +408,7 @@ async create(listing: Listing): Promise<Listing> {
   // Search
   // =========================
 
-  async search(
-    query: SearchListingsQuery,
+  async search(query: SearchListingsQuery,
   ): Promise<Listing[]> {
     const where: any = {};
 
@@ -446,19 +445,28 @@ async create(listing: Listing): Promise<Listing> {
     const limit = query.limit ?? 20;
     const offset = query.offset ?? 0;
 
-    const records =
-      await this.model.findAll({
-        where,
-        include: [
-          {
-            model: PictureModel,
-            as: "pictures",
-          },
-        ],
-        limit,
-        offset,
-        order: [["createdAt", "DESC"]],
-      });
+const records = await this.model.findAll({
+  where,
+  include: [
+    {
+      model: PictureModel,
+      as: "pictures",
+    },
+  ],
+  limit,
+  offset,
+  order: [["createdAt", "DESC"]],
+});
+
+// Diagnostic
+const target = records.find(
+  (record) => record.id === "2ebd7368-f10e-451f-a63b-c069ad38d68c"
+);
+
+console.log(
+  "[AI SEARCH RAW PICTURES]",
+  target?.toJSON()
+);
 
     const listingIds =
       records.map((record) => record.id);
@@ -471,7 +479,17 @@ async create(listing: Listing): Promise<Listing> {
             },
           })
         : [];
+    console.log(
+  "[SEARCH RAW PICTURES]",
+  records.map((record) => {
+    const json = record.toJSON();
 
+    return {
+      id: json.id,
+      pictures: json.pictures,
+    };
+  })
+);
     const categoryMap =
       new Map<string, string[]>();
 
@@ -486,7 +504,28 @@ async create(listing: Listing): Promise<Listing> {
         list,
       );
     }
+   const domainListings = records.map((record) => {
+  const json = record.toJSON();
 
+  return ListingMapper.toDomain({
+    ...json,
+    categoryIds: categoryMap.get(json.id) ?? [],
+    amenityIds: json.amenityIds ?? [],
+    pictures: (json.pictures ?? []).map(
+      (picture: any) => PictureMapper.toDomain(picture)
+    ),
+  });
+});
+
+console.log(
+  "[SEARCH DOMAIN PICTURES]",
+  domainListings.map((listing) => ({
+    id: listing.id,
+    pictures: listing.pictures,
+  }))
+);
+
+return domainListings;
     return records.map((record) => {
       const json = record.toJSON();
 

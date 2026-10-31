@@ -14,8 +14,7 @@ import { GetLocationsUseCase } from "@/core/location/application/usecases/getLoc
 import { ListingSearchResultMapper } from "./mappers/listing-search-result.mapper";
 
 @injectable()
-export class ListingReferenceResolver
-  implements IListingReferenceResolver
+export class ListingReferenceResolver  implements IListingReferenceResolver
 {
   constructor(
     @inject(delay(() => SearchListingUseCase))
