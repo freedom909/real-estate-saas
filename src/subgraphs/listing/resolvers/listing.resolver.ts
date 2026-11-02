@@ -4,6 +4,7 @@ import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import { TOKENS_CATEGORY } from "@/modules/tokens/category.tokens";
 
 import { IListingRepository } from "@/core/listing/domain/entities/IListingRepository";
+import { CategoryRepository } from "@/shared/category/infrastructure/category.repository";
 
 
 import GetListingByIdUseCase from "@/core/listing/application/usecase/getListingById.usecase";
@@ -26,6 +27,14 @@ import GetFeaturedListingsUseCase from "@/core/listing/application/usecase/getFe
 
 export const resolvers = {
   Query: {
+    categories: async () => {
+      const repo =
+        container.resolve<CategoryRepository>(
+          TOKENS_CATEGORY.categoryRepository
+        );
+
+      return repo.findAll();
+    },
     listings: async () => {
       const repo =
         container.resolve<IListingRepository>(
@@ -263,11 +272,22 @@ const useCase =
       id: parent.ownerId,
     }),
 
-    categories: (parent: any) =>
-      parent.categoryIds?.map((id: string) => ({
+    categories: async (parent: any) => {
+      const ids: string[] = parent.categoryIds ?? [];
+      if (ids.length === 0) return [];
+
+      const repo =
+        container.resolve<CategoryRepository>(
+          TOKENS_CATEGORY.categoryRepository
+        );
+      const rows = await repo.findByIds(ids);
+
+      return rows.map((row: any) => ({
         __typename: "Category",
-        id,
-      })) ?? [],
+        id: row.id,
+        name: row.name,
+      }));
+    },
   },
 
   Upload: GraphQLUpload,
