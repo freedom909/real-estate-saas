@@ -1,0 +1,66 @@
+name: DB Check → calendar_slots unique index (ECS)
+
+# Verifies (and optionally creates) the unique index `uq_calendar_listing_date`
+# on the production MySQL (RDS) `calendar_slots` table, by running
+# scripts/check-calendar-index.mjs inside the deployed backend container.
+#
+# The index is required by ReserveSlotUseCase's concurrency guard. See
+# scripts/check-calendar-index.mjs for details.
+
+on:
+  workflow_dispatch:
+    inputs:
+      fix:
+        description: "Add the index if missing (--fix)"
+        type: boolean
+        default: false
+
+env:
+  DEPLOY_DIR: /home/deploy/minshuku
+
+jobs:
+  check-index:
+    name: SSH ECS · check uq_calendar_listing_date
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check required SSH secrets
+        id: check-secrets
+        run: |
+          missing=()
+          [ -z "${{ secrets.SSH_HOST }}" ] && missing+=("SSH_HOST")
+          [ -z "${{ secrets.SSH_USER }}" ] && missing+=("SSH_USER")
+          [ -z "${{ secrets.SSH_KEY }}" ]  && missing+=("SSH_KEY")
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::error::Missing repo Actions secrets: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Configure SSH client
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' '${{ secrets.SSH_KEY }}' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "SSH_USER=${{ secrets.SSH_USER }}" >> "$GITHUB_ENV"
+          echo "SSH_HOST=${{ secrets.SSH_HOST }}" >> "$GITHUB_ENV"
+          echo "SSH_PORT=${{ secrets.SSH_PORT || 22 }}" >> "$GITHUB_ENV"
+
+      - name: Fetch latest main on ECS and run check-calendar-index.mjs
+        run: |
+          FIX_FLAG=""
+          if [ "${{ inputs.fix }}" = "true" ]; then FIX_FLAG="--fix"; fi
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "set -euo pipefail
+            cd '$DEPLOY_DIR'
+            git fetch --depth=1 origin main -q
+            git reset --hard origin/main -q
+            if docker ps --format '{{.Names}}' | grep -q '^minshuku-backend$'; then
+              docker cp scripts/check-calendar-index.mjs minshuku-backend:/app/scripts/check-calendar-index.mjs
+              docker exec minshuku-backend node scripts/check-calendar-index.mjs $FIX_FLAG
+            else
+              echo 'minshuku-backend container not running — falling back to docker compose run'
+              DOCKER_BUILDKIT=1 docker compose -f docker-compose.backend.yml run --rm --no-deps backend node scripts/check-calendar-index.mjs $FIX_FLAG
+            fi
+          "
