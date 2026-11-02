@@ -9,6 +9,7 @@ import { BlockDatesUseCase } from "@/core/calendar/application/usecases/block-da
 import { ICalendarRepository } from "@/core/calendar/domain/repositories/i-calendar.repository";
 
 export const resolvers = {
+  
   Query: {
     checkAvailability: async (_: any, { input }: any) => {
       const useCase = container.resolve<GetAvailabilityUseCase>(
@@ -36,34 +37,45 @@ export const resolvers = {
 
   Mutation: {
     reserveCalendarSlots: async (_: any, { input }: any, context: any) => {
-      if (!context.user) {
-        throw new Error("User not authenticated");
-      }
-      const useCase = container.resolve<ReserveSlotUseCase>(
-        TOKENS_CALENDAR.usecase.reserveSlotUseCase
-      );
-      return useCase.execute(input);
-    },
+  console.log("========== CALENDAR RESERVING CALENDAR ==========");
+  console.log("Input:", input);
+  console.log("User authenticated:", Boolean(context.user));
+  console.log("Internal service:", context.isInternalService);
 
-    releaseCalendarSlots: async (_: any, { input }: any, context: any) => {
-      if (!context.user) {
-        throw new Error("User not authenticated");
-      }
-      const useCase = container.resolve<ReleaseSlotUseCase>(
-        TOKENS_CALENDAR.usecase.releaseSlotUseCase
-      );
-      return useCase.execute(input);
-    },
+  if (!context.user && !context.isInternalService) {
+    throw new Error("User or internal service not authenticated");
+  }
 
-    blockCalendarDates: async (_: any, { input }: any, context: any) => {
-      if (!context.user) {
-        throw new Error("User not authenticated");
-      }
-      const useCase = container.resolve<BlockDatesUseCase>(
-        TOKENS_CALENDAR.usecase.blockDatesUseCase
-      );
-      return useCase.execute({ ...input, userId: context.user.userId });
-    },
+  const useCase = container.resolve<ReserveSlotUseCase>(
+    TOKENS_CALENDAR.usecase.reserveSlotUseCase
+  );
+
+  return useCase.execute(input);
+},
+
+releaseCalendarSlots: async (_: any, { input }: any, context: any) => {
+  if (!context.user && !context.isInternalService) {
+    throw new Error("User or internal service not authenticated");
+  }
+
+  const useCase = container.resolve<ReleaseSlotUseCase>(
+    TOKENS_CALENDAR.usecase.releaseSlotUseCase
+  );
+
+  return useCase.execute(input);
+},
+
+blockCalendarDates: async (_: any, { input }: any, context: any) => {
+  if (!context.user && !context.isInternalService) {
+    throw new Error("User or internal service not authenticated");
+  }
+
+  const useCase = container.resolve<BlockDatesUseCase>(
+    TOKENS_CALENDAR.usecase.blockDatesUseCase
+  );
+
+  return useCase.execute({ ...input, userId: context.user.userId });
+},
   },
 
   // ── Federation: Listing.calendarSlots ──────────────

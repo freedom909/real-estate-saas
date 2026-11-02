@@ -8,7 +8,15 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+const envPath = path.resolve(__dirname, "../../../.env");
+
+const envResult = dotenv.config({ path: envPath });
+
+console.log("[Calendar Env Diagnostic]", {
+  envPath,
+  envLoaded: !envResult.error,
+  tokenConfigured: Boolean(process.env.INTERNAL_SERVICE_TOKEN),
+});
 
 import { ApolloServer } from "@apollo/server";
 import { buildSubgraphSchema } from "@apollo/subgraph";
@@ -73,6 +81,7 @@ const startApolloServer = async () => {
   verifyInternalServiceRequest,
       express.json(),
       async (req, _res, next) => {
+         console.log("[Calendar] Passed internal authentication");
         (req as any).user = await getUserFromContext(req);
         next();
       },
@@ -80,6 +89,7 @@ const startApolloServer = async () => {
         context: async ({ req }) => ({
           req,
           user: (req as any).user,
+          isInternalService: (req as any).isInternalService,
         }),
       })
     );

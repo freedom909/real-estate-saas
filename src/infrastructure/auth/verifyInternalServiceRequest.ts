@@ -9,6 +9,10 @@ export function verifyInternalServiceRequest(
   res: Response,
   next: NextFunction,
 ): void {
+    console.log("========== CALENDAR INTERNAL AUTH HIT ==========");
+  console.log("Request URL:", req.originalUrl);
+  console.log("Request Method:", req.method);
+  console.log("Service Token Header Exists:", Boolean(req.get("x-service-token")));
   const expectedToken = process.env.INTERNAL_SERVICE_TOKEN;
   const providedToken = req.get("x-service-token");
 
@@ -51,6 +55,7 @@ console.log("[InternalAuth Request Diagnostic]", {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
-
+// Internal service has been authenticated
+(req as any).isInternalService = true;
   next();
 }

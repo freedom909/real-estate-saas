@@ -5,27 +5,43 @@ export class CalendarDateRange {
     public readonly checkIn: Date,
     public readonly checkOut: Date
   ) {
-    if (checkOut <= checkIn) {
-      throw new Error("checkOut must be after checkIn");
+    if (
+      isNaN(checkIn.getTime()) ||
+      isNaN(checkOut.getTime()) ||
+      checkOut <= checkIn
+    ) {
+      throw new Error("Invalid date range");
     }
   }
 
-  /** Returns every night date (checkIn inclusive, checkOut exclusive) */
   nights(): Date[] {
     const dates: Date[] = [];
+
     const current = new Date(this.checkIn);
-    while (current < this.checkOut) {
+    current.setUTCHours(0, 0, 0, 0);
+
+    const end = new Date(this.checkOut);
+    end.setUTCHours(0, 0, 0, 0);
+
+    while (current < end) {
       dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
+      current.setUTCDate(current.getUTCDate() + 1);
     }
+
     return dates;
   }
 
   overlaps(other: CalendarDateRange): boolean {
-    return this.checkIn < other.checkOut && other.checkIn < this.checkOut;
+    return (
+      this.checkIn < other.checkOut &&
+      other.checkIn < this.checkOut
+    );
   }
 
   toJSON() {
-    return { checkIn: this.checkIn, checkOut: this.checkOut };
+    return {
+      checkIn: this.checkIn,
+      checkOut: this.checkOut,
+    };
   }
 }

@@ -83,9 +83,12 @@ export class CalendarRepository implements ICalendarRepository {
   }
 
   async saveAll(slots: CalendarSlot[]): Promise<void> {
-    // Use bulkCreate with updateOnDuplicate for atomic upsert
+  const transaction = await CalendarSlotModel.sequelize!.transaction();
+
+  try {
     const data = slots.map((slot) => {
       const json = slot.toJSON();
+
       return {
         id: json.id,
         listingId: json.listingId,
@@ -98,10 +101,14 @@ export class CalendarRepository implements ICalendarRepository {
       };
     });
 
-    await CalendarSlotModel.bulkCreate(data, {
-      updateOnDuplicate: ["status", "bookingId", "blockedBy", "updatedAt"],
-    });
+    await CalendarSlotModel.bulkCreate(data, { transaction });
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
   }
+}
 
   async deleteByListing(listingId: string): Promise<void> {
     await CalendarSlotModel.destroy({

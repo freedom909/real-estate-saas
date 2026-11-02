@@ -8,6 +8,7 @@
     "seed:categories": "tsx src/seeds/seed-categories.ts",
     "db:sync": "npx prisma migrate dev",
     "db:reset": "npx prisma migrate reset",
+    "db:migrate:calendar": "tsx migrations/run-calendar-migration.ts",
     "test": "npx jest --config jest.config.cjs --testPathPatterns=\"src/__tests__/(unit|integration)\" --forceExit",
     "test:unit": "npx jest --config jest.config.cjs --testPathPatterns=\"src/__tests__/unit\" --forceExit",
     "test:integration": "npx jest --config jest.config.cjs --testPathPatterns=\"src/__tests__/integration\" --forceExit",
