@@ -32,8 +32,16 @@ export interface ICalendarRepository {
 
   /**
    * Batch save — used to atomically reserve/release multiple nights.
+   * Inserts new rows; updates rows that already exist (release/unblock paths).
    */
   saveAll(slots: CalendarSlot[]): Promise<void>;
+
+  /**
+   * Atomically claim an EXISTING AVAILABLE slot for a booking
+   * (compare-and-set: only succeeds if the row is still AVAILABLE).
+   * Returns false if the slot was taken concurrently (or is not AVAILABLE).
+   */
+  tryReserve(slotId: string, bookingId: string): Promise<boolean>;
 
   /**
    * Check if ALL dates in range are available (atomic query).

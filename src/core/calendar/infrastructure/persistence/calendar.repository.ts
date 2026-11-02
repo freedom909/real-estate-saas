@@ -101,7 +101,38 @@ export class CalendarRepository implements ICalendarRepository {
       };
     });
 
-    await CalendarSlotModel.bulkCreate(data, { transaction });
+    // Rows that already exist (release/unblock paths) must be UPDATED, not
+    // re-inserted — plain bulkCreate would hit the PK / (listingId, date)
+    // unique constraint and the release would fail. New rows are inserted in
+    // one batch; the unique index uq_calendar_listing_date still guards
+    // against concurrent double-booking at the DB level.
+    const existing = await CalendarSlotModel.findAll({
+      where: { id: data.map((d) => d.id) },
+      attributes: ["id"],
+      transaction,
+    });
+    const existingIds = new Set(existing.map((m) => m.id));
+
+    const toInsert = data.filter((d) => !existingIds.has(d.id));
+    const toUpdate = data.filter((d) => existingIds.has(d.id));
+
+    if (toInsert.length > 0) {
+      await CalendarSlotModel.bulkCreate(toInsert, { transaction });
+    }
+
+    for (const row of toUpdate) {
+      await CalendarSlotModel.update(
+        {
+          status: row.status,
+          // NOTE: Sequelize skips `undefined` fields in UPDATE — use null so a
+          // released slot actually clears its bookingId/blockedBy.
+          bookingId: row.bookingId ?? null,
+          blockedBy: row.blockedBy ?? null,
+          updatedAt: row.updatedAt,
+        },
+        { where: { id: row.id }, transaction }
+      );
+    }
 
     await transaction.commit();
   } catch (error) {
@@ -109,6 +140,23 @@ export class CalendarRepository implements ICalendarRepository {
     throw error;
   }
 }
+
+  async tryReserve(slotId: string, bookingId: string): Promise<boolean> {
+    const [affectedCount] = await CalendarSlotModel.update(
+      {
+        status: SlotStatus.RESERVED,
+        bookingId,
+        updatedAt: new Date(),
+      },
+      {
+        where: {
+          id: slotId,
+          status: SlotStatus.AVAILABLE, // compare-and-set: only claim AVAILABLE rows
+        },
+      }
+    );
+    return affectedCount > 0;
+  }
 
   async deleteByListing(listingId: string): Promise<void> {
     await CalendarSlotModel.destroy({
@@ -124,8 +172,10 @@ export class CalendarRepository implements ICalendarRepository {
       listingId: model.listingId,
       date: new Date(model.date),
       status: model.status as SlotStatus,
-      bookingId: model.bookingId,
-      blockedBy: model.blockedBy,
+      // DB columns are nullable — normalize null → undefined to match the
+      // entity's optional-field semantics (release() clears to undefined).
+      bookingId: model.bookingId ?? undefined,
+      blockedBy: model.blockedBy ?? undefined,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
     });
