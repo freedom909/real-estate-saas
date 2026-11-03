@@ -45,13 +45,15 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           SSH_HOST='${{ secrets.SSH_HOST || secrets.ECS_HOST }}'
           SSH_PORT='${{ secrets.SSH_PORT || 22 }}'
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "Target: SSH_HOST=$SSH_HOST SSH_PORT=$SSH_PORT"
+          timeout 20 ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || echo "::warning::ssh-keyscan returned no keys (host down or port $SSH_PORT filtered)"
           CANDIDATES=()
           [ -n "${{ secrets.SSH_USER }}" ] && CANDIDATES+=("${{ secrets.SSH_USER }}")
           CANDIDATES+=(deploy ubuntu)
           SSH_USER=""
           for u in "${CANDIDATES[@]}"; do
-            if ssh -i ~/.ssh/id_ed25519 -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=accept-new "$u@$SSH_HOST" "echo ok" >/dev/null 2>&1; then
+            echo "Probing SSH user: $u@$SSH_HOST ..."
+            if timeout 25 ssh -i ~/.ssh/id_ed25519 -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=accept-new "$u@$SSH_HOST" "echo ok" >/dev/null 2>&1; then
               SSH_USER="$u"
               echo "SSH user auto-detected: $u"
               break
