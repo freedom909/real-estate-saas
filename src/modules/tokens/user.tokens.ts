@@ -27,7 +27,6 @@ export const TOKENS_USER = {
 
   usecase: {
     createOAuthUserUseCase: Symbol.for("user.usecase.createOAuthUserUseCase"),
-    becomeHostUseCase: Symbol.for("user.usecase.becomeHostUseCase"),
     mergeAccountUseCase: Symbol.for("user.usecase.mergeAccountUseCase"),
     profileServiceUseCase: Symbol.for("user.usecase.profileServiceUseCase"),
   },

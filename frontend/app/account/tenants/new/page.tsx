@@ -13,6 +13,7 @@ import {
   switchTenant,
 } from "../../../services/tenant.service";
 import { useTenantStore } from "../../../store/tenant.store";
+import { createSlug } from "../../../lib/createSlug";
 import AccountLayout from "../../../components/account/AccountLayout";
 import Link from "next/link";
 
@@ -30,16 +31,6 @@ interface CreateTenantVariables {
     name: string;
     slug: string;
   };
-}
-
-function createSlug(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 }
 
 export default function NewTenantPage() {

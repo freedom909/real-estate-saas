@@ -1,14 +1,16 @@
 //frontend/app/account/page.tsx
 "use client";
 
+import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { ME } from "../graphql/auth/auth.queries";
 import { MY_BOOKINGS } from "../graphql/booking/queries/myBookings";
-import { BECOME_HOST } from "../graphql/user/mutation/becomeHost";
+import { CREATE_TENANT } from "../graphql/tenant/queries/tenant";
+import { getAvailableTenants, switchTenant } from "../services/tenant.service";
+import { useTenantStore } from "../store/tenant.store";
+import { createSlug } from "../lib/createSlug";
 import AccountLayout from "../components/account/AccountLayout";
 import Link from "next/link";
-import { useState } from "react";
-import { useAuthStore } from "../store/auth.store";
 
 const QUICK_ACTIONS = [
   { href: "/account/profile", label: "My Profile", icon: "👤", color: "bg-blue-50 text-blue-600" },
@@ -189,29 +191,66 @@ function AccountDashboardContent() {
 }
 
 function BecomeHostBanner(_props: { userId: string }) {
-  const [becomeHost, { loading, error }] = useMutation<any>(BECOME_HOST, {
-    refetchQueries: [{ query: ME }],
-  });
+  const [expanded, setExpanded] = useState(false);
+  const [tenantName, setTenantName] = useState("");
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const setUser = useAuthStore((s) => s.setUser);
-  const currentUser = useAuthStore((s) => s.user);
+  const [createdName, setCreatedName] = useState("");
 
-  const handleBecomeHost = async () => {
+  const setAvailableTenants = useTenantStore((s) => s.setAvailableTenants);
+  const setActiveTenant = useTenantStore((s) => s.setActiveTenant);
+
+  const [createTenant, { loading }] = useMutation<any>(CREATE_TENANT);
+
+  const handleCreateTenant = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setNotice("");
+
+    const name = tenantName.trim();
+    const slug = createSlug(name);
+    if (!name) {
+      setError("Please enter a tenant name.");
+      return;
+    }
+    if (!slug) {
+      setError("Please use letters or numbers in the tenant name.");
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      const { data } = await becomeHost();
-      // Update zustand auth store so navbar reflects new role immediately
-      const updatedUser = data?.becomeHost;
-      if (updatedUser && currentUser) {
-        setUser({
-          ...currentUser,
-          role: updatedUser.role,
-          name: updatedUser.name ?? currentUser.name,
-          picture: updatedUser.picture ?? currentUser.picture,
-        });
+      // Step 1: create the tenant (the creator becomes its OWNER).
+      const { data } = await createTenant({
+        variables: { input: { name, slug } },
+      });
+      const created = data?.createTenant;
+      if (!created) {
+        throw new Error("The server did not return the new tenant.");
       }
-      setSuccess(true);
-    } catch {
-      // error handled below
+      setCreatedName(created.name);
+
+      // Step 2: switch the session to the new tenant.
+      // From here the tenant exists — never retry createTenant on failure.
+      try {
+        const tenants = await getAvailableTenants();
+        setAvailableTenants(tenants);
+        const switched = await switchTenant(created.id);
+        setActiveTenant(switched.activeTenantId);
+        setSuccess(true);
+      } catch {
+        setNotice(
+          `Tenant "${created.name}" was created, but switching to it failed. Please switch manually from the tenant list — do not create it again.`
+        );
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create the tenant."
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -223,14 +262,15 @@ function BecomeHostBanner(_props: { userId: string }) {
           <div className="flex-1">
             <h3 className="text-lg font-bold">You are now a Host!</h3>
             <p className="text-sm text-green-100">
-              Welcome to the host community. You can now list your properties and manage bookings.
+              Tenant "{createdName}" is now your active workspace. You can list
+              your properties and manage bookings.
             </p>
           </div>
           <Link
-            href="/admin"
-            className="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition text-sm"
+            href="/account/listing/new"
+            className="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition text-sm whitespace-nowrap"
           >
-            Go to Host Panel →
+            Create your first listing →
           </Link>
         </div>
       </div>
@@ -244,29 +284,58 @@ function BecomeHostBanner(_props: { userId: string }) {
         <div className="flex-1">
           <h3 className="text-lg font-bold">Become a Host</h3>
           <p className="text-sm text-amber-100">
-            List your properties, manage bookings, and start earning. Join our host community today!
+            Create your own host workspace, list your properties, manage
+            bookings, and start earning.
           </p>
           {error && (
-            <p className="text-xs text-red-200 mt-1">{error.message}</p>
+            <p className="text-xs text-red-200 mt-1">{error}</p>
+          )}
+          {notice && (
+            <p className="text-xs text-amber-100 mt-1">
+              {notice}{" "}
+              <Link href="/account/tenants" className="underline font-semibold">
+                Go to tenant list →
+              </Link>
+            </p>
           )}
         </div>
-        <button
-          onClick={handleBecomeHost}
-          disabled={loading}
-          className="bg-white text-amber-700 px-5 py-2.5 rounded-lg font-semibold hover:bg-amber-50 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Processing...
-            </span>
-          ) : (
-            "Become a Host →"
-          )}
-        </button>
+        {!expanded ? (
+          <button
+            onClick={() => setExpanded(true)}
+            className="bg-white text-amber-700 px-5 py-2.5 rounded-lg font-semibold hover:bg-amber-50 transition text-sm whitespace-nowrap"
+          >
+            Become a Host →
+          </button>
+        ) : (
+          <form onSubmit={handleCreateTenant} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={tenantName}
+              onChange={(e) => setTenantName(e.target.value)}
+              placeholder="Workspace name"
+              autoFocus
+              disabled={submitting || loading}
+              className="px-3 py-2 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/60 disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={submitting || loading}
+              className="bg-white text-amber-700 px-4 py-2 rounded-lg font-semibold hover:bg-amber-50 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {submitting || loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Creating...
+                </span>
+              ) : (
+                "Create & Activate →"
+              )}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

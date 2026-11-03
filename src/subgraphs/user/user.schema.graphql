@@ -137,7 +137,6 @@ type Query {
 # ======================
 
 type Mutation {
-  becomeHost:User!
   createUser(input: CreateUserInput!): User!
 
   createOAuthUser(input: CreateOAuthUserInput!): User!

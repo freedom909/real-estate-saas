@@ -3,7 +3,6 @@
 import { container } from "tsyringe";
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import UserService from "../services/user.service";
-import { BecomeHostUseCase } from "../application/usecase/becomeHost.usecase";
 import { ProfileServiceUseCase } from "../application/usecase/profileService.usercase";
 
 interface ResolverContext {
@@ -90,15 +89,6 @@ const resolvers = {
   // ── Mutations ──────────────────────────────────────
 
   Mutation: {
-    becomeHost: async (_: unknown, __: any, context: ResolverContext) => {
-      if (!context.user) {
-        throw new Error("Unauthenticated");
-      }
-      const useCase = context.container.resolve<BecomeHostUseCase>(TOKENS_USER.usecase.becomeHostUseCase);
-      
-      return useCase.execute(context.user.userId,context.user.tenantId ?? null,);
-    },
-
     createUser: async (_: unknown, { input }: any) => {
       const userService = container.resolve<UserService>(TOKENS_USER.services.userService);
       return userService.create(input);

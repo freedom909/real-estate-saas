@@ -7,7 +7,6 @@ import { TOKENS_INFRA } from "@/modules/tokens/infra.tokens";
 import UserService from "./services/user.service";
 import userModel from "./infra/models/user.model";
 import { UserRepository } from "./infra/repos/user.repo";
-import { BecomeHostUseCase } from "./application/usecase/becomeHost.usecase";
 import CreateOAuthUserUseCase from "./application/usecase/createOAuthUserUseCase";
 
 import RedisService from "@/infrastructure/redis/redisService";
@@ -29,7 +28,6 @@ export function registerUserDependencies(container: DependencyContainer) {
   container.register(TOKENS_USER.repos.userRepository, { useClass: UserRepository });
 
   // ── Use Cases ──────────────────────────────────────
-  container.register(TOKENS_USER.usecase.becomeHostUseCase, { useClass: BecomeHostUseCase });
   container.register(TOKENS_USER.usecase.createOAuthUserUseCase, { useClass: CreateOAuthUserUseCase });
   container.register(TOKENS_USER.usecase.profileServiceUseCase, { useClass: ProfileServiceUseCase });
 

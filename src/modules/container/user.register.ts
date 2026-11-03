@@ -3,7 +3,6 @@
 import { container } from "tsyringe";
 import { TOKENS_USER } from "../tokens/user.tokens";
 import { UserRepository } from "@/subgraphs/user/infra/repos/user.repo";
-import { BecomeHostUseCase } from "@/subgraphs/user/application/usecase/becomeHost.usecase";
 import CreateOAuthUserUseCase from "@/subgraphs/user/application/usecase/createOAuthUserUseCase";
 import { ProfileRepository } from "@/subgraphs/user/infra/repos/profileRepository";
 
@@ -17,6 +16,5 @@ export default function userRegister() {
   container.register(TOKENS_USER.repos.profileRepository, { useClass: ProfileRepository });
 
   // Use Cases
-  container.register(TOKENS_USER.usecase.becomeHostUseCase, { useClass: BecomeHostUseCase });
   container.register(TOKENS_USER.usecase.createOAuthUserUseCase, { useClass: CreateOAuthUserUseCase });
 }

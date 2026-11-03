@@ -7,7 +7,6 @@ jest.mock("@/modules/tokens/user.tokens", () => ({
     services: { userService: Symbol.for("userService") },
     usecase: {
       createOAuthUserUseCase: Symbol.for("createOAuthUserUseCase"),
-      becomeHostUseCase: Symbol.for("user.usecase.becomeHostUseCase"),
     },
   },
 }));
@@ -65,7 +64,6 @@ function createMockContainer(service: MockUserService, useCases?: Record<string,
     resolve: jest.fn((token: symbol) => {
       if (token === Symbol.for("userService")) return service;
       if (token === Symbol.for("createOAuthUserUseCase")) return useCases?.createOAuthUser;
-      if (token === Symbol.for("user.usecase.becomeHostUseCase")) return useCases?.becomeHost;
       return null;
     }),
   };
@@ -84,7 +82,6 @@ describe("User Resolvers", () => {
     };
     mockUseCases = {
       createOAuthUser: { execute: jest.fn() },
-      becomeHost: { execute: jest.fn() },
     };
     (verifyInternalRequest as jest.Mock).mockImplementation(() => {});
   });
@@ -143,23 +140,6 @@ describe("User Resolvers", () => {
       );
 
       expect(result).toBeNull();
-    });
-  });
-
-  describe("Mutation.becomeHost", () => {
-    it("should call becomeHostUseCase.execute with correct args", async () => {
-      const mockResult = { id: "user-1", role: "HOST" };
-      mockUseCases.becomeHost.execute.mockResolvedValue(mockResult);
-      const ctxContainer = createMockContainer(mockUserService, mockUseCases);
-
-      const result = await (resolvers as any).Mutation.becomeHost(
-        null,
-        {},
-        { user: { userId: "user-1", tenantId: "tenant-1" },  container: ctxContainer }
-      );
-
-      expect(mockUseCases.becomeHost.execute).toHaveBeenCalledWith("user-1", "tenant-1"); 
-      expect(result).toEqual(mockResult);
     });
   });
 });
