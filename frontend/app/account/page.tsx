@@ -44,6 +44,10 @@ function AccountDashboardContent() {
 
   const me = meData?.me;
   const bookings = bookingsData?.myBookings ?? [];
+  const availableTenants = useTenantStore((s) => s.availableTenants);
+  const hasHostWorkspace = availableTenants.some((t) =>
+    ["HOST", "OWNER", "ADMIN", "SUPER_ADMIN"].includes(t.membershipRole ?? "")
+  );
 
   const activeBookings = bookings.filter((b: any) => ["PENDING", "CONFIRMED", "CHECKED_IN"].includes(b.status));
   const pastBookings = bookings.filter((b: any) => ["COMPLETED", "CANCELLED", "FAILED"].includes(b.status));
@@ -92,8 +96,8 @@ function AccountDashboardContent() {
         <StatCard title="Past Bookings" value={pastBookings.length} icon="📋" color="purple" />
       </div>
 
-      {/* Become Host Banner — only for non-host/non-admin users */}
-      {me && me.role && me.role !== "HOST" && me.role !== "ADMIN" && me.role !== "SUPER_ADMIN" && (
+      {/* Become Host Banner — only for users without a host-capable workspace */}
+      {me && me.role && me.role !== "HOST" && me.role !== "ADMIN" && me.role !== "SUPER_ADMIN" && !hasHostWorkspace && (
         <BecomeHostBanner userId={me.id} />
       )}
 
