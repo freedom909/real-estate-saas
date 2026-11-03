@@ -9,7 +9,7 @@ const mockRepo = {
   findAll: jest.fn(),
   count: jest.fn(),
   deactivate: jest.fn(),
-  setUserRole: jest.fn(),
+  setGlobalRole: jest.fn(),
   save: jest.fn(),
   activate: jest.fn(),
 };
@@ -42,7 +42,7 @@ describe("CreateOAuthUserUseCase", () => {
     expect(mockRepo.create).toHaveBeenCalledWith({
       email: "user@example.com",
       name: "Google User",
-      role: "CUSTOMER",
+      globalRole: "CUSTOMER",
       picture: "https://example.com/avatar.jpg",
     });
     expect(result).toEqual(expectedResult);
@@ -75,7 +75,7 @@ describe("CreateOAuthUserUseCase", () => {
     expect(mockRepo.create).toHaveBeenCalledWith({
       email: "user@example.com",
       name: "GitHub User",
-      role: "CUSTOMER",
+      globalRole: "CUSTOMER",
       picture: "",
     });
   });

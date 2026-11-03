@@ -50,6 +50,7 @@ const mockSettingsRepo = {
 // ── Mock use-cases ────────────────────────────────────────────────────────
 const mockUseCases = {
   getAdminUserById: { execute: jest.fn() },
+  getAllAdmins: { execute: jest.fn() },
   updateAdminUser: { execute: jest.fn() },
   deleteAdminUser: { execute: jest.fn() },
   createAdminUser: { execute: jest.fn() },
@@ -77,6 +78,7 @@ jest.mock("@/modules/tokens/admin.tokens", () => ({
     },
     usecase: {
       createAdminUserUseCase: Symbol.for("CreateAdminUserUseCase"),
+      getAllAdminsUseCase: Symbol.for("GetAllAdminsUseCase"),
       getAdminUserByIdUseCase: Symbol.for("GetAdminUserByIdUseCase"),
       updateAdminUserUseCase: Symbol.for("UpdateAdminUserUseCase"),
       deleteAdminUserUseCase: Symbol.for("DeleteAdminUserUseCase"),
@@ -101,9 +103,6 @@ jest.mock("@/core/admin/application/usecase/createAdminUser.usecase", () => ({ _
 jest.mock("@/core/admin/application/usecase/getUserById.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/updateAdminUser.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/deleteUser.usecase", () => ({ __esModule: true, default: function () {} }));
-jest.mock("@/core/admin/application/usecase/createAuditLog.usecase", () => ({ __esModule: true, default: function () {} }));
-jest.mock("@/core/admin/application/usecase/getAuditLogs.usecase", () => ({ __esModule: true, default: function () {} }));
-jest.mock("@/core/admin/application/usecase/getAuditLogCount.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/getDashboardStats.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/getSystemSettings.usecase", () => ({ __esModule: true, default: function () {} }));
 jest.mock("@/core/admin/application/usecase/updateSystemSetting.usecase", () => ({ __esModule: true, default: function () {} }));
@@ -122,6 +121,7 @@ jest.mock("tsyringe", () => {
     [Symbol.for("SystemSettingsRepository"), mockSettingsRepo],
     [Symbol.for("NotificationRepository"), mockNotificationRepo],
     [Symbol.for("GetAdminUserByIdUseCase"), mockUseCases.getAdminUserById],
+    [Symbol.for("GetAllAdminsUseCase"), mockUseCases.getAllAdmins],
     [Symbol.for("UpdateAdminUserUseCase"), mockUseCases.updateAdminUser],
     [Symbol.for("DeleteAdminUserUseCase"), mockUseCases.deleteAdminUser],
     [Symbol.for("CreateAdminUserUseCase"), mockUseCases.createAdminUser],
@@ -175,13 +175,13 @@ describe("Admin Subgraph Integration", () => {
     it("should reject unauthenticated requests (no user)", async () => {
       await expect(
         (resolvers as any).Query.adminUsers(null, {}, {})
-      ).rejects.toThrow("UNAUTHORIZED");
+      ).rejects.toThrow("Unauthenticated");
     });
 
     it("should reject requests with no userId", async () => {
       await expect(
         (resolvers as any).Query.adminUsers(null, {}, { user: {} })
-      ).rejects.toThrow("UNAUTHORIZED");
+      ).rejects.toThrow("Unauthenticated");
     });
 
     it("should reject non-admin users", async () => {
@@ -189,7 +189,7 @@ describe("Admin Subgraph Integration", () => {
 
       await expect(
         (resolvers as any).Query.adminUsers(null, {}, ctx("regular-user"))
-      ).rejects.toThrow("FORBIDDEN: Admin access required");
+      ).rejects.toThrow("Forbidden: Admin access required");
     });
 
     it("should reject inactive admin accounts", async () => {
@@ -197,7 +197,7 @@ describe("Admin Subgraph Integration", () => {
 
       await expect(
         (resolvers as any).Query.adminUsers(null, {}, ctx("a1"))
-      ).rejects.toThrow("FORBIDDEN: Admin account is inactive");
+      ).rejects.toThrow("Forbidden: Admin account is inactive");
     });
   });
 
@@ -205,7 +205,7 @@ describe("Admin Subgraph Integration", () => {
   describe("Query.adminUsers", () => {
     it("should return all admin users when authorized", async () => {
       mockAdminRepo.findById.mockResolvedValue(makeAdmin("a1", "SUPER_ADMIN"));
-      mockAdminRepo.findAll.mockResolvedValue([
+      mockUseCases.getAllAdmins.execute.mockResolvedValue([
         makeAdmin("a1", "SUPER_ADMIN"),
         makeAdmin("a2", "ADMIN"),
       ]);
@@ -292,7 +292,7 @@ describe("Admin Subgraph Integration", () => {
           { input: { email: "x@test.com", name: "X", role: "ADMIN" } },
           ctx("regular-user")
         )
-      ).rejects.toThrow("FORBIDDEN: Admin access required");
+      ).rejects.toThrow("Forbidden: Admin access required");
     });
   });
 
@@ -361,7 +361,7 @@ describe("Admin Subgraph Integration", () => {
 
       await expect(
         (resolvers as any).Mutation.deleteAdminUser(null, { id: "a2" }, ctx("a1"))
-      ).rejects.toThrow('FORBIDDEN: Missing permission "admin_users:delete"');
+      ).rejects.toThrow('Forbidden: Missing permission "admin_users:delete"');
     });
 
     it("should reject MODERATOR from viewing admin users", async () => {
@@ -369,7 +369,7 @@ describe("Admin Subgraph Integration", () => {
 
       await expect(
         (resolvers as any).Query.adminUsers(null, {}, ctx("a1"))
-      ).rejects.toThrow('FORBIDDEN: Missing permission "admin_users:view"');
+      ).rejects.toThrow('Forbidden: Missing permission "admin_users:view"');
     });
   });
 });

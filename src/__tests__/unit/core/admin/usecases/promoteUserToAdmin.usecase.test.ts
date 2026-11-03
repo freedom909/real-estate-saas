@@ -15,7 +15,7 @@ const mockAdminRepo = {
 
 const mockUserRepo = {
   findById: jest.fn(),
-  setUserRole: jest.fn(),
+  setGlobalRole: jest.fn(),
 };
 
 jest.mock("tsyringe", () => ({
@@ -55,13 +55,13 @@ describe("PromoteUserToAdminUseCase", () => {
   it("should find user, set role, and create admin", async () => {
     const mockUser = { id: "user-123", email: "user@test.com", name: "Test User" };
     mockUserRepo.findById.mockResolvedValue(mockUser);
-    mockUserRepo.setUserRole.mockResolvedValue(undefined);
+    mockUserRepo.setGlobalRole.mockResolvedValue(undefined);
     mockAdminRepo.createAdmin.mockResolvedValue(undefined);
 
     await useCase.execute("user-123");
 
     expect(mockUserRepo.findById).toHaveBeenCalledWith("user-123");
-    expect(mockUserRepo.setUserRole).toHaveBeenCalledWith("user-123", "ADMIN");
+    expect(mockUserRepo.setGlobalRole).toHaveBeenCalledWith("user-123", "ADMIN");
     expect(mockAdminRepo.createAdmin).toHaveBeenCalled();
   });
 

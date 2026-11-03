@@ -56,20 +56,20 @@ describe("Account Resolvers", () => {
       };
       mockDashboardUseCase.execute.mockResolvedValue(mockDashboard);
 
-      const context = { user: { userId: "user-1" } };
+      const context = { user: { userId: "user-1", tenantId: "tenant-1" } };
       const result = await (resolvers as any).Query.myDashboard(null, {}, context);
 
-      expect(mockDashboardUseCase.execute).toHaveBeenCalledWith("user-1");
+      expect(mockDashboardUseCase.execute).toHaveBeenCalledWith("user-1", "tenant-1");
       expect(result).toEqual(mockDashboard);
     });
 
     it("should also accept context.user.id", async () => {
       mockDashboardUseCase.execute.mockResolvedValue({});
 
-      const context = { user: { id: "user-2" } };
+      const context = { user: { id: "user-2", tenantId: "tenant-1" } };
       await (resolvers as any).Query.myDashboard(null, {}, context);
 
-      expect(mockDashboardUseCase.execute).toHaveBeenCalledWith("user-2");
+      expect(mockDashboardUseCase.execute).toHaveBeenCalledWith("user-2", "tenant-1");
     });
 
     it("should throw when unauthenticated", async () => {
@@ -88,20 +88,20 @@ describe("Account Resolvers", () => {
       ];
       mockListingACL.getListingsByOwner.mockResolvedValue(mockListings);
 
-      const context = { user: { userId: "user-1" } };
+      const context = { user: { userId: "user-1", tenantId: "tenant-1" } };
       const result = await (resolvers as any).Query.myListings(null, {}, context);
 
-      expect(mockListingACL.getListingsByOwner).toHaveBeenCalledWith("user-1");
+      expect(mockListingACL.getListingsByOwner).toHaveBeenCalledWith("user-1", "tenant-1");
       expect(result).toEqual(mockListings);
     });
 
     it("should also accept context.user.id", async () => {
       mockListingACL.getListingsByOwner.mockResolvedValue([]);
 
-      const context = { user: { id: "user-3" } };
+      const context = { user: { id: "user-3", tenantId: "tenant-1" } };
       await (resolvers as any).Query.myListings(null, {}, context);
 
-      expect(mockListingACL.getListingsByOwner).toHaveBeenCalledWith("user-3");
+      expect(mockListingACL.getListingsByOwner).toHaveBeenCalledWith("user-3", "tenant-1");
     });
 
     it("should throw when unauthenticated", async () => {
@@ -114,7 +114,7 @@ describe("Account Resolvers", () => {
     it("should return empty array when owner has no listings", async () => {
       mockListingACL.getListingsByOwner.mockResolvedValue([]);
 
-      const context = { user: { userId: "user-4" } };
+      const context = { user: { userId: "user-4", tenantId: "tenant-1" } };
       const result = await (resolvers as any).Query.myListings(null, {}, context);
 
       expect(result).toEqual([]);

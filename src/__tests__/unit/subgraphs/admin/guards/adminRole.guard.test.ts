@@ -89,16 +89,16 @@ describe("adminRole.guard", () => {
     });
 
     it("should throw FORBIDDEN when admin account is not ACTIVE", async () => {
-      mockAdminRepo.findById.mockResolvedValue({ id: "a1", role: "ADMIN", status: "SUSPENDED" });
+      mockAdminRepo.findById.mockResolvedValue({ id: "a1", role: "ADMIN", isActive: false });
       const guard = requireAdminRole("ADMIN");
 
       await expect(
         guard(null, null, { user: { userId: "a1" } }, nextFn)
-      ).rejects.toThrow("Account is SUSPENDED");
+      ).rejects.toThrow("Forbidden: Admin account is inactive");
     });
 
     it("should throw FORBIDDEN when role is too low", async () => {
-      mockAdminRepo.findById.mockResolvedValue({ id: "a1", role: "MODERATOR", status: "ACTIVE" });
+      mockAdminRepo.findById.mockResolvedValue({ id: "a1", role: "MODERATOR", status: "ACTIVE", isActive: true });
       const guard = requireAdminRole("ADMIN");
 
       await expect(
@@ -107,7 +107,7 @@ describe("adminRole.guard", () => {
     });
 
     it("should call next() and attach admin to context when authorized", async () => {
-      mockAdminRepo.findById.mockResolvedValue({ id: "a1", email: "a@test.com", role: "ADMIN", status: "ACTIVE" });
+      mockAdminRepo.findById.mockResolvedValue({ id: "a1", email: "a@test.com", role: "ADMIN", status: "ACTIVE", isActive: true });
       const context: any = { user: { userId: "a1" } };
       const guard = requireAdminRole("ADMIN");
 
@@ -120,7 +120,7 @@ describe("adminRole.guard", () => {
     });
 
     it("should allow SUPER_ADMIN when minRole is ADMIN", async () => {
-      mockAdminRepo.findById.mockResolvedValue({ id: "a1", email: "a@test.com", role: "SUPER_ADMIN", status: "ACTIVE" });
+      mockAdminRepo.findById.mockResolvedValue({ id: "a1", email: "a@test.com", role: "SUPER_ADMIN", status: "ACTIVE", isActive: true });
       const context: any = { user: { userId: "a1" } };
       const guard = requireAdminRole("ADMIN");
 
@@ -130,7 +130,7 @@ describe("adminRole.guard", () => {
     });
 
     it("should use ADMIN as default minRole", async () => {
-      mockAdminRepo.findById.mockResolvedValue({ id: "a1", email: "a@test.com", role: "ADMIN", status: "ACTIVE" });
+      mockAdminRepo.findById.mockResolvedValue({ id: "a1", email: "a@test.com", role: "ADMIN", status: "ACTIVE", isActive: true });
       const context: any = { user: { userId: "a1" } };
       const guard = requireAdminRole();
 

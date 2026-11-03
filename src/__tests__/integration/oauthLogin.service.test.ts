@@ -2,36 +2,6 @@
 
 import "reflect-metadata";
 
-jest.mock("@/subgraphs/auth/application/services/verifyGoogleIdToken", () => {
-  return {
-    __esModule: true,
-    default: jest.fn<any>().mockResolvedValue({
-      email: "integration@example.com",
-      name: "Integration User",
-      picture: "http://avatar.jpg",
-      sub: "google-123",
-      provider: "google",
-    }),
-  };
-});
-
-jest.mock("@/subgraphs/auth/infrastructure/oauth/google.provider", () => {
-  return {
-    __esModule: true,
-    GoogleProvider: class MockGoogleProvider {
-      async verify(idToken: string) {
-        return {
-          provider: "google",
-          providerId: "google-123",
-          email: "integration@example.com",
-          name: "Integration User",
-          avatar: "http://avatar.jpg",
-          sub: "google-123",
-        };
-      }
-    },
-  };
-});
 
 jest.mock("@/subgraphs/auth/infrastructure/oauth/provider.registry", () => {
   return {
@@ -116,7 +86,7 @@ import { createMock } from "../../setup/mock.factory";
 
 // tokens
 import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
-import verifyGoogleIdToken from "@/subgraphs/auth/application/services/verifyGoogleIdToken";
+// (verifyGoogleIdToken module removed — provider registry handles verification now)
 
 import Blacklist from "@/security/blacklist/blacklist";
 
@@ -169,15 +139,7 @@ it("should login a new user, create session, and issue tokens (Full Flow)", asyn
   };
 
   // ✅ mock Google verify
-  const mockVerify = jest.mocked(verifyGoogleIdToken);
 
-  mockVerify.mockResolvedValue({
-    email: googleProfile.email,
-    name: googleProfile.name,
-    picture: googleProfile.avatar,
-    sub: googleProfile.sub,
-    provider: "google",
-  });
 
   // ✅ mock user 不存在
   (mocks.userClient as any).findByEmail?.mockResolvedValue?.(null);

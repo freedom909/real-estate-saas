@@ -100,13 +100,13 @@ describe("UserRepository", () => {
     });
   });
 
-  describe("setUserRole", () => {
+  describe("setGlobalRole", () => {
     it("should update user role", async () => {
       mockModel.findByIdAndUpdate.mockResolvedValue({});
 
-      await repo.setUserRole("user-123", "ADMIN" as any);
+      await repo.setGlobalRole("user-123", "ADMIN" as any);
 
-      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith("user-123", { role: "ADMIN" });
+      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith("user-123", { globalRole: "ADMIN" });
     });
   });
 });
