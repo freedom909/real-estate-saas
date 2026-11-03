@@ -27,8 +27,7 @@ jobs:
         id: check-secrets
         run: |
           missing=()
-          [ -z "${{ secrets.SSH_HOST }}" ] && missing+=("SSH_HOST")
-          [ -z "${{ secrets.SSH_USER }}" ] && missing+=("SSH_USER")
+          [ -z "${{ secrets.SSH_HOST }}" ] && [ -z "${{ secrets.ECS_HOST }}" ] && missing+=("SSH_HOST (or ECS_HOST)")
           [ -z "${{ secrets.SSH_KEY }}" ]  && missing+=("SSH_KEY")
           if [ ${#missing[@]} -ne 0 ]; then
             echo "::notice title=Skip ECS backend deploy::Missing repo Actions secrets: ${missing[*]}. Passwords live in /home/deploy/minshuku/.env on ECS — do NOT paste them back into GitHub Secrets."
@@ -44,10 +43,27 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' '${{ secrets.SSH_KEY }}' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
-          echo "SSH_USER=${{ secrets.SSH_USER }}" >> "$GITHUB_ENV"
-          echo "SSH_HOST=${{ secrets.SSH_HOST }}" >> "$GITHUB_ENV"
-          echo "SSH_PORT=${{ secrets.SSH_PORT || 22 }}" >> "$GITHUB_ENV"
+          SSH_HOST='${{ secrets.SSH_HOST || secrets.ECS_HOST }}'
+          SSH_PORT='${{ secrets.SSH_PORT || 22 }}'
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          CANDIDATES=()
+          [ -n "${{ secrets.SSH_USER }}" ] && CANDIDATES+=("${{ secrets.SSH_USER }}")
+          CANDIDATES+=(deploy ubuntu)
+          SSH_USER=""
+          for u in "${CANDIDATES[@]}"; do
+            if ssh -i ~/.ssh/id_ed25519 -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=accept-new "$u@$SSH_HOST" "echo ok" >/dev/null 2>&1; then
+              SSH_USER="$u"
+              echo "SSH user auto-detected: $u"
+              break
+            fi
+          done
+          if [ -z "$SSH_USER" ]; then
+            echo "::error::SSH user probe failed for: ${CANDIDATES[*]}. Set the SSH_USER repo secret explicitly (and confirm the ECS security group allows SSH from GitHub Actions runners)."
+            exit 1
+          fi
+          echo "SSH_USER=$SSH_USER" >> "$GITHUB_ENV"
+          echo "SSH_HOST=$SSH_HOST" >> "$GITHUB_ENV"
+          echo "SSH_PORT=$SSH_PORT" >> "$GITHUB_ENV"
 
       - name: "Clone or pull code on ECS, then PRE-FLIGHT: validate .env exists + run check-env.sh (DO NOT overwrite passwords in .env)"
         if: steps.check-secrets.outputs.ready == 'true'
