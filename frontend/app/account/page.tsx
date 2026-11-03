@@ -265,9 +265,11 @@ function BecomeHostBanner(_props: { userId: string }) {
           <div className="text-4xl">🎉</div>
           <div className="flex-1">
             <h3 className="text-lg font-bold">You are now a Host!</h3>
-            <p className="text-sm text-green-100">
-              Tenant "{createdName}" is now your active workspace. You can list
-              your properties and manage bookings.
+            <p className="text-sm text-white/90">
+              Tenant "
+              <span className="font-semibold text-white">{createdName}</span>"
+              is now your active workspace. You can list your properties and
+              manage bookings.
             </p>
           </div>
           <Link
@@ -287,7 +289,7 @@ function BecomeHostBanner(_props: { userId: string }) {
         <div className="text-4xl">🏠</div>
         <div className="flex-1">
           <h3 className="text-lg font-bold">Become a Host</h3>
-          <p className="text-sm text-amber-100">
+          <p className="text-sm text-white/90">
             Create your own host workspace, list your properties, manage
             bookings, and start earning.
           </p>
@@ -295,7 +297,7 @@ function BecomeHostBanner(_props: { userId: string }) {
             <p className="text-xs text-red-200 mt-1">{error}</p>
           )}
           {notice && (
-            <p className="text-xs text-amber-100 mt-1">
+            <p className="text-xs text-white/90 mt-1">
               {notice}{" "}
               <Link href="/account/tenants" className="underline font-semibold">
                 Go to tenant list →
