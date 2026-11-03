@@ -49,6 +49,7 @@ jobs:
           DB_PORT=3306
           DB_USER=root
           DB_PASSWORD=root
+          DB_NAME=test_ci
           MYSQL_DB=test_ci
           JWT_SECRET=ci-jwt-secret
           JWT_EXPIRES_IN=1h
