@@ -78,11 +78,9 @@ jobs:
 
       - name: Deploy to Cloudflare Pages (production)
         if: steps.check-secrets.outputs.has_secrets == 'true'
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'minshuku-frontend' }}
-          directory: .vercel/output/static
-          wranglerVersion: "3"
           workingDirectory: frontend
+          command: pages deploy .vercel/output/static --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'minshuku-frontend' }} --branch=main
