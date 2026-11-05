@@ -8,6 +8,8 @@ import http from 'http';
 import cors from 'cors';
 import cookieParser from "cookie-parser";
 import { readFileSync } from 'fs';
+import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";
+import path from 'path';
 import { gql } from 'graphql-tag';
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@as-integrations/express4";
@@ -38,7 +40,7 @@ const startServer = async () => {
     console.info("MySQL connected.");
 
     // 3. Setup Apollo Server
-    const typeDefs = gql(readFileSync("./src/subgraphs/location/schema.graphql", "utf-8"));
+    const typeDefs = gql(readFileSync(resolveSchemaPath("src/subgraphs/location/schema.graphql", "schema.graphql"), "utf-8"));
     const app = express();
     const httpServer = http.createServer(app);
 

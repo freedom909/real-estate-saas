@@ -5,9 +5,12 @@ import express from "express"
 import http from "http"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyInternalServiceRequest"
 
 import { gql } from "graphql-tag"
 import { readFileSync } from "fs"
+import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";
+import path from "path"
 
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
@@ -61,12 +64,12 @@ console.log("✅ MySQL connected & BookingModel initialized")
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 // ⭐ Mongo
 await mongoose.connect(
-  process.env.MONGO_URI || "mongodb://localhost:27017/kawaka"
+  process.env.MONGO_URI || "mongodb://localhost:27017/nakano"
 )
 
 // ⭐ schema
 const typeDefs = gql(
-  readFileSync("./src/voice/schema.graphql", "utf-8")
+  readFileSync(resolveSchemaPath("src/voice/schema.graphql", "schema.graphql"), "utf-8")
 )
 
 const schema = buildSubgraphSchema([{
@@ -96,6 +99,7 @@ app.use(
     origin: "http://localhost:3000",
     credentials: true
   }),
+  verifyInternalServiceRequest,
   express.json(),
   cookieParser(),
  expressMiddleware(server, {

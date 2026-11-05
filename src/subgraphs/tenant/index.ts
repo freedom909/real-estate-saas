@@ -8,6 +8,8 @@ import http from "http"
 
 import { gql } from "graphql-tag"
 import { readFileSync } from "fs"
+import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";
+import path from "path"
 import dns from 'dns';
 
 import { ApolloServer } from "@apollo/server"
@@ -84,8 +86,9 @@ const httpServer = http.createServer(app);
 
 const typeDefs = gql(
   readFileSync(
-    "./src/subgraphs/tenant/tenant.schema.graphql",
+    resolveSchemaPath('src/subgraphs/tenant/tenant.schema.graphql', 'tenant.schema.graphql'),
     "utf-8"
+,
   )
 );
 

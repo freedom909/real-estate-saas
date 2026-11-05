@@ -7,6 +7,8 @@ import { ApolloServer } from "@apollo/server";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { gql } from "graphql-tag";
 import { readFileSync } from "fs";
+import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";
+import path from "path";
 import express from "express";
 import http from "http";
 import { expressMiddleware } from "@as-integrations/express4"
@@ -25,7 +27,7 @@ import { registerReviewDependencies } from "@/modules/container/review.register"
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
 
 const typeDefs = gql(
-  readFileSync("./src/subgraphs/review/schema.graphql", { encoding: "utf-8" })
+  readFileSync(resolveSchemaPath("src/subgraphs/review/schema.graphql", "schema.graphql"), { encoding: "utf-8" })
 );
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);

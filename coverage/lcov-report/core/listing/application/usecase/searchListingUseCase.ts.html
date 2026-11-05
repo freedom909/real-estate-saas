@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.55% </span>
+                <span class="strong">35.71% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/9</span>
+                <span class='fraction'>5/14</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">42.85% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/7</span>
+                <span class='fraction'>3/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -98,7 +98,31 @@
 <a name='L33'></a><a href='#L33'>33</a>
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
-<a name='L36'></a><a href='#L36'>36</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -116,6 +140,18 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -129,6 +165,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -144,28 +192,52 @@ export class SearchListingUseCase {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     @inject(TOKENS_LISTING.repos.listingRepository)
     private readonly <span class="cstat-no" title="statement not covered" >repo: IListingRepository</span>
-  ) {}
+  ) { }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>execute({location,checkIn,checkOut,customerCount,minPrice,maxPrice}: SearchListingsQuery) {
-    
-    const listings = <span class="cstat-no" title="statement not covered" >await this.repo.search({location,checkIn,checkOut,customerCount,minPrice,maxPrice});</span>
-    
-<span class="cstat-no" title="statement not covered" >    return {</span>
-      listings: listings.map(<span class="fstat-no" title="function not covered" >l </span>=&gt; (<span class="cstat-no" title="statement not covered" >{</span>
+<span class="fstat-no" title="function not covered" >  async </span>execute({ locationId, checkIn, checkOut, customerCount, minPrice, maxPrice }: SearchListingsQuery) {
+&nbsp;
+    const listings = <span class="cstat-no" title="statement not covered" >await this.repo.search({ locationId, checkIn, checkOut, customerCount, minPrice, maxPrice });</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    console.log(</span>
+      "[SEARCH USECASE INPUT]",
+      JSON.stringify(
+        listings.map(<span class="fstat-no" title="function not covered" >l </span>=&gt; (<span class="cstat-no" title="statement not covered" >{</span>
+          id: l.id,
+          pictures: l.pictures,
+        })),
+        null,
+        2
+      )
+    );
+&nbsp;
+    const result = <span class="cstat-no" title="statement not covered" >{</span>
+      listings: listings.map(<span class="fstat-no" title="function not covered" >(l</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
         id: l.id,
         title: l.title,
         description: l.description,
-        address: l.address,
-        price: l.price,
+        pricePerNight: l.pricePerNight,
         numOfBeds: l.numOfBeds,
         numOfCustomers: l.numOfCustomers,
         numOfBathrooms: l.numOfBathrooms,
         numOfRooms: l.numOfRooms,
-        picture: l.pictures,// is anything wrong here?
+        pictures: l.pictures,
         isFeatured: l.isFeatured,
       })),
       total: listings.length,
     };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    console.log(</span>
+      "[SEARCH USECASE OUTPUT]",
+      result.listings.map(<span class="fstat-no" title="function not covered" >(l</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
+        id: l.id,
+        pictureCount: l.pictures?.length,
+        pictures: l.pictures,
+      }))
+    );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    return result;</span>
+&nbsp;
+&nbsp;
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -175,7 +247,7 @@ export class SearchListingUseCase {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

@@ -25,6 +25,12 @@ export function withAuthorization<TArgs = any>(
      * If provided, the policy engine checks resource ownership.
      */
     resolveOwnerId?: (context: any, args: TArgs) => Promise<string | null>;
+    /**
+     * Optional: resolve extra resource metadata (e.g. { ownerId } for the
+     * listing owner of a booking). Passed to the policy engine as
+     * PolicyContext.resource so rules can check multiple stakeholders.
+     */
+    resolveResource?: (context: any, args: TArgs) => Promise<any | null>;
   }
 ) {
   return async (parent: any, args: TArgs, context: any, info: any) => {
@@ -39,22 +45,19 @@ export function withAuthorization<TArgs = any>(
     const resourceOwnerId = options?.resolveOwnerId
       ? await options.resolveOwnerId(context, args)
       : undefined;
-       console.log(
- "AUTH CHECK",
- {
-   user: context.user,
-   action,
-   resource
- }
-);
+    const resourceMeta = options?.resolveResource
+      ? await options.resolveResource(context, args)
+      : undefined;
+
     const allowed = engine.can(action, resource, {
       user: {
         id: user.userId,
         role: user.role ?? Role.CUSTOMER,
       },
       resourceOwnerId,
+      resource: resourceMeta,
     });
-console.log("ALLOWED =", allowed);
+
     if (!allowed) {
       throw new GraphQLError("Forbidden: insufficient permissions", {
         extensions: { code: "FORBIDDEN", action, resource },

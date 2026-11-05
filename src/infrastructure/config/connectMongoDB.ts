@@ -1,19 +1,27 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
-                 // MongoDB Atlas SRV requires working DNS resolution.
-// Force Node.js to use public DNS instead of local 127.0.0.1 resolver.
+
 import dns from 'dns';
-dns.setServers(["8.8.8.8", "1.1.1.1"]);             
- async function connectMongoDB(mongoUri?: string) {
+
+async function connectMongoDB(mongoUri?: string) {
     try {
-        if (mongoUri) {
-            console.log("MONGO_URI:", mongoUri);
+        const MONGO_URI = mongoUri || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/nakano';
+
+        // MongoDB Atlas SRV requires working DNS resolution. Force public DNS
+        // resolvers ONLY for mongodb+srv:// URIs — hardcoding 8.8.8.8 breaks
+        // name resolution inside mainland-China VPCs / private endpoints.
+        if (MONGO_URI.startsWith('mongodb+srv://')) {
+            dns.setServers(["8.8.8.8", "1.1.1.1"]);
         }
-        console.log("MONGO_URI:", mongoUri);
-        console.log("Loading MONGO_URI from env:", process.env.MONGO_URI);
-        // console.log("All env variables:", process.env);
-        const MONGO_URI =  mongoUri || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sendai';
+
+        // Log the target host/db only — NEVER the full URI (it embeds credentials)
+        try {
+            const redacted = MONGO_URI.replace(/\/\/[^@/]+@/, '//***:***@');
+            console.log("Connecting to MongoDB:", redacted);
+        } catch {
+            /* logging must never break the connection */
+        }
 
         await mongoose.connect(MONGO_URI, {
             serverSelectionTimeoutMS: 5000,

@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser"
 
 import { gql } from "graphql-tag"
 import { readFileSync } from "fs"
+import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";
+import path from "path"
 
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@as-integrations/express4"
@@ -35,7 +37,7 @@ registerAmenityDependencies()
 
 // ⭐ schema
 const typeDefs = gql(
-  readFileSync("./src/subgraphs/amenity/schema.graphql", "utf-8")
+  readFileSync(resolveSchemaPath("src/subgraphs/amenity/schema.graphql", "schema.graphql"), "utf-8")
 )
 
 const schema = buildSubgraphSchema([{

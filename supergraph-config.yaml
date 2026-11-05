@@ -1,54 +1,66 @@
-federation_version: =2.11.0
+federation_version: =2.3.2
 subgraphs:
   auth:
     routing_url: http://localhost:4010/graphql
     schema:
-      file: src/subgraphs/auth/schema.graphql
+      file: ./src/subgraphs/auth/schema.graphql
   user:
     routing_url: http://localhost:4020/graphql
     schema:
-      file: src/subgraphs/user/user.schema.graphql
+      file: ./src/subgraphs/user/user.schema.graphql
   booking:
     routing_url: http://localhost:4030/graphql
     schema:
-      file: src/subgraphs/booking/schema.graphql
+      file: ./src/subgraphs/booking/schema.graphql
   review:
     routing_url: http://localhost:4040/graphql
     schema:
-      file: src/subgraphs/review/schema.graphql
+      file: ./src/subgraphs/review/schema.graphql
   payment:
     routing_url: http://localhost:4050/graphql
     schema:
-      file: src/subgraphs/payment/schema.graphql
+      file: ./src/subgraphs/payment/schema.graphql
   tenant:
     routing_url: http://localhost:4060/graphql
     schema:
-      file: src/subgraphs/tenant/tenant.schema.graphql
+      file: ./src/subgraphs/tenant/tenant.schema.graphql
   audit:
     routing_url: http://localhost:4070/graphql
     schema:
-      file: src/subgraphs/audit/schema/schema.graphql
+      file: ./src/subgraphs/audit/schema/schema.graphql
   location:
     routing_url: http://localhost:4080/graphql
     schema:
-      file: src/subgraphs/location/schema.graphql
+      file: ./src/subgraphs/location/schema.graphql
   amenity:
     routing_url: http://localhost:4090/graphql
     schema:
-      file: src/subgraphs/amenity/schema.graphql
+      file: ./src/subgraphs/amenity/schema.graphql
+  calendar:
+    routing_url: http://localhost:4100/graphql
+    schema:
+      file: ./src/subgraphs/calendar/schema.graphql
   listing:
     routing_url: http://localhost:4101/graphql
     schema:
-      file: src/subgraphs/listing/schema.graphql
+      file: ./src/subgraphs/listing/schema.graphql
   account:
     routing_url: http://localhost:4102/graphql
     schema:
-      file: src/subgraphs/account/schema.graphql
+      file: ./src/subgraphs/account/schema.graphql
   cart:
     routing_url: http://localhost:4103/graphql
     schema:
-      file: src/subgraphs/cart/schema.graphql
+      file: ./src/subgraphs/cart/schema.graphql
+  admin:
+    routing_url: http://localhost:4104/graphql
+    schema:
+      file: ./src/subgraphs/admin/schema.graphql
   wisdom:
     routing_url: http://localhost:4200/graphql
     schema:
-      file: src/wisdom/schemas/schema.graphql
+      file: ./src/wisdom/schemas/schema.graphql
+  voice:
+    routing_url: http://localhost:4300/graphql
+    schema:
+      file: ./src/voice/schema.graphql

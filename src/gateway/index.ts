@@ -259,9 +259,38 @@ request.http.headers.set("x-service-token", serviceToken);
   // Serve uploaded files as static assets
   app.use("/uploads", express.static(path.resolve(__dirname, "../../uploads")))
 
-  // Health check endpoint
-  app.get("/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  // Lazy shared Redis client used only for readiness pings
+  let healthRedis: any = null;
+
+  // Health check endpoint — readiness of backing stores, not just liveness.
+  // Returns 200 only when Mongo + Redis are reachable so HEALTH_URL /
+  // cloudflared monitoring reflects real service health.
+  app.get("/health", async (req, res) => {
+    const checks: Record<string, string> = {};
+
+    const { default: mongoose } = await import("mongoose");
+    checks.mongo = mongoose.connection.readyState === 1 ? "ok" : "down";
+
+    try {
+      if (!healthRedis) {
+        const { createRedis } = await import("@/infrastructure/redis/redis");
+        healthRedis = createRedis();
+      }
+      const pong = await Promise.race([
+        healthRedis.ping(),
+        new Promise<string>((resolve) => setTimeout(() => resolve("timeout"), 2000)),
+      ]);
+      checks.redis = pong === "PONG" ? "ok" : "down";
+    } catch {
+      checks.redis = "down";
+    }
+
+    const ok = Object.values(checks).every((v) => v === "ok");
+    res.status(ok ? 200 : 503).json({
+      status: ok ? "ok" : "degraded",
+      checks,
+      timestamp: new Date().toISOString(),
+    });
   })
 
   // GraphQL endpoint

@@ -6,6 +6,8 @@ import cors from 'cors';
 
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { readFileSync } from 'fs';
+import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";
+import path from 'path';
 import dns from 'dns';
 
 import gql from 'graphql-tag';
@@ -38,7 +40,7 @@ async function bootstrap() {
 
 const typeDefs = gql(
   readFileSync(
-    "./src/subgraphs/audit/schema/schema.graphql",
+    resolveSchemaPath("src/subgraphs/audit/schema/schema.graphql", "schema/schema.graphql", "schema.graphql"),
     "utf-8"
   )
 );

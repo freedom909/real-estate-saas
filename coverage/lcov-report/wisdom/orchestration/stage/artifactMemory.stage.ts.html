@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">95.65% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>22/23</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>5/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">94.44% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>17/18</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -105,82 +105,82 @@
 <a name='L40'></a><a href='#L40'>40</a>
 <a name='L41'></a><a href='#L41'>41</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/wisdom/orchestration/artifactMemory.stage.ts
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import { inject, injectable } from "tsyringe";</span>
-<span class="cstat-no" title="statement not covered" >import { WISDOM_TOKENS } from "../../container/tokens/wisdom.tokens";</span>
-<span class="cstat-no" title="statement not covered" >import { BookingStateUpdater } from "../../memory/booking-state-updater";</span>
+import { inject, injectable } from "tsyringe";
+import { WISDOM_TOKENS } from "../../container/tokens/wisdom.tokens";
+import { BookingStateUpdater } from "../../memory/booking-state-updater";
 import { WisdomPipelineContext } from "../wisdomPipeline.context";
 import { IPipelineStage } from "./i-pipeline-stage";
-<span class="cstat-no" title="statement not covered" >import { cacheSearchResults } from "../../memory/search-results-cache";</span>
-<span class="cstat-no" title="statement not covered" >import { cacheBookingState } from "../../memory/booking-cache";</span>
+import { cacheSearchResults } from "../../memory/search-results-cache";
+import { cacheBookingState } from "../../memory/booking-cache";
 &nbsp;
 @injectable()
-export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >ArtifactMemoryStage </span>implements IPipelineStage {</span></span>
-<span class="fstat-no" title="function not covered" >  constructor(</span>
+export class ArtifactMemoryStage implements IPipelineStage {
+  constructor(
     @inject(WISDOM_TOKENS.memory.bookingStateUpdater)
-    private <span class="cstat-no" title="statement not covered" >bookingStateUpdater: B</span>ookingStateUpdater,
+    private bookingStateUpdater: BookingStateUpdater,
   ) {}
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>execute(ctx: WisdomPipelineContext) {
-    const artifacts = <span class="cstat-no" title="statement not covered" >ctx.rawResult?.artifacts ?? [];</span>
+  async execute(ctx: WisdomPipelineContext) {
+    const artifacts = ctx.rawResult?.artifacts ?? <span class="branch-1 cbranch-no" title="branch not covered" >[];</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    for (const artifact of artifacts) {</span>
-<span class="cstat-no" title="statement not covered" >      this.bookingStateUpdater.apply(ctx.memoryContext, artifact);</span>
+    for (const artifact of artifacts) {
+      try { this.bookingStateUpdater.apply(ctx.memoryContext, artifact); } catch (err) { console.error("[ArtifactMemory] bookingStateUpdater failed:", err); }
 &nbsp;
       // Cache search results globally so next turn can access them
-<span class="cstat-no" title="statement not covered" >      if (artifact.type === "LISTING_SEARCH_RESULT") {</span>
-        const listings = <span class="cstat-no" title="statement not covered" >artifact.content?.listings ?? [];</span>
-<span class="cstat-no" title="statement not covered" >        cacheSearchResults(ctx.memoryContext.sessionId, listings);</span>
-<span class="cstat-no" title="statement not covered" >        ctx.request.context.resources.searchResults = listings;</span>
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (artifact.type === "LISTING_SEARCH_RESULT") {
+        const listings = artifact.content?.listings ?? <span class="branch-1 cbranch-no" title="branch not covered" >[];</span>
+        cacheSearchResults(ctx.memoryContext.sessionId, listings);
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (ctx.request.context.resources) ctx.request.context.resources.searchResults = listings;
       }
     }
 &nbsp;
     // Cache booking state globally so next turn can detect AWAITING_DATES etc.
-    const session = <span class="cstat-no" title="statement not covered" >ctx.memoryContext.session;</span>
-<span class="cstat-no" title="statement not covered" >    if (session?.booking) {</span>
+    const session = ctx.memoryContext.session;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (session?.booking) {
 <span class="cstat-no" title="statement not covered" >      cacheBookingState(ctx.memoryContext.sessionId, session.booking);</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return ctx;</span>
+    return ctx;
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -190,7 +190,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

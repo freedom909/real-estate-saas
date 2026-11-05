@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/25</span>
+                <span class='fraction'>0/28</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>0/26</span>
             </div>
         
             
@@ -156,7 +156,18 @@
 <a name='L91'></a><a href='#L91'>91</a>
 <a name='L92'></a><a href='#L92'>92</a>
 <a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -180,6 +191,10 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -237,6 +252,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -272,9 +294,13 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
 <span class="fstat-no" title="function not covered" >  constructor() {</span>
 <span class="cstat-no" title="statement not covered" >    super();</span>
     const endpoint = <span class="cstat-no" title="statement not covered" >process.env.LISTING_SUBGRAPH_URL || "http://localhost:4101/graphql";</span>
+    const serviceToken = <span class="cstat-no" title="statement not covered" >process.env.INTERNAL_SERVICE_TOKEN</span>
+<span class="cstat-no" title="statement not covered" >    if (!serviceToken) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error("Internal service token not set");</span>
+    }
 <span class="cstat-no" title="statement not covered" >    this.client = new GraphQLClient(endpoint, {</span>
       headers: {
-        Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
+        Authorization: `Bearer ${serviceToken}`, "x-service-token": serviceToken,
       },
     });
   }
@@ -327,16 +353,23 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
     }
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>fetchListingsByOwner(ownerId: string, retries = <span class="branch-0 cbranch-no" title="branch not covered" >3)</span>: Promise&lt;ListingExternalDTO[]&gt; {
+<span class="fstat-no" title="function not covered" >  async </span>fetchListingsByOwner(ownerId: string, tenantId: string, retries = <span class="branch-0 cbranch-no" title="branch not covered" >3)</span>: Promise&lt;ListingExternalDTO[]&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const data = <span class="cstat-no" title="statement not covered" >await this.client.request&lt;{ listingsByOwner: ListingExternalDTO[] }&gt;(</span>
         this.GET_LISTINGS_BY_OWNER_QUERY,
-        { ownerId }
+        { ownerId },
+        {
+          "x-gateway-user": JSON.stringify({
+            userId: ownerId,
+            tenantId,
+          }),
+          "x-tenant-id": tenantId,
+        }
       );
 <span class="cstat-no" title="statement not covered" >      return data.listingsByOwner || [];</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      if (retries &gt; 0) {</span>
-<span class="cstat-no" title="statement not covered" >        return this.fetchListingsByOwner(ownerId, retries - 1);</span>
+<span class="cstat-no" title="statement not covered" >        return this.fetchListingsByOwner(ownerId, tenantId, retries - 1);</span>
       }
 <span class="cstat-no" title="statement not covered" >      throw error;</span>
     }
@@ -349,7 +382,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

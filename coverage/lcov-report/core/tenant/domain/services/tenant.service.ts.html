@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/25</span>
+                <span class='fraction'>0/18</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -110,15 +110,7 @@
 <a name='L45'></a><a href='#L45'>45</a>
 <a name='L46'></a><a href='#L46'>46</a>
 <a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -126,16 +118,18 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -145,73 +139,79 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { injectable, inject } from 'tsyringe';</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/core/tenant/domain/services/tenant.service.ts
+&nbsp;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >import { injectable, inject } from 'tsyringe';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >import { UserAdapter } from '../../adapter/user.adapter';</span>
-<span class="cstat-no" title="statement not covered" >import { TenantRepository } from '../../infrastructure/repos/tenant.repo';</span>
+import { ITenantRepository } from '../repos/i-tenant.repository';
 <span class="cstat-no" title="statement not covered" >import { TOKENS_TENANT } from '@/modules/tokens/tenant.tokens';</span>
-<span class="cstat-no" title="statement not covered" >import { MembershipRepository } from '../../infrastructure/repos/membership.repo';</span>
-&nbsp;
-import { MembershipDocument } from '../../infrastructure/models/membership.model';
-import { TenantDocument } from '../tenant.model';
+import { IMembershipRepository } from '../repos/i-membership.repository';
+import { Tenant } from '../entities/tenant.entity';
+import { Membership } from '../entities/membership';
 &nbsp;
 @injectable()
 export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >TenantService </span>{</span></span>
 <span class="fstat-no" title="function not covered" >  constructor(</span>
-    @inject(TOKENS_TENANT.repos.tenantRepo) private <span class="cstat-no" title="statement not covered" >repo: T</span>enantRepository,
-    // Using UserAdapter instead of UserRepository to follow DDD Bounded Context / ACL patterns
-    @inject(TOKENS_TENANT.adapters.userAdapter) private <span class="cstat-no" title="statement not covered" >userAdapter: U</span>serAdapter,
-    @inject(TOKENS_TENANT.repos.membershipRepo) private <span class="cstat-no" title="statement not covered" >membershipRepo: M</span>embershipRepository
+    @inject(TOKENS_TENANT.repos.tenantRepo)
+    private <span class="cstat-no" title="statement not covered" >repo: ITenantRepository,</span>
+&nbsp;
+    @inject(TOKENS_TENANT.adapters.userAdapter)
+    private <span class="cstat-no" title="statement not covered" >userAdapter: U</span>serAdapter,
+&nbsp;
+    @inject(TOKENS_TENANT.repos.membershipRepo)
+    private <span class="cstat-no" title="statement not covered" >membershipRepo: IMembershipRepository</span>
   ) {}
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>getTenant(id: string): Promise&lt;TenantDocument | null&gt; {
-<span class="cstat-no" title="statement not covered" >    return this.repo.findById(id);</span>
-  }
-&nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>getTenantBySlug(slug: string): Promise&lt;TenantDocument | null&gt; {
-<span class="cstat-no" title="statement not covered" >    return this.repo.findBySlug(slug);</span>
-  }
-&nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>createTenant(input: { name: string; slug: string }): Promise&lt;TenantDocument&gt; {
-<span class="cstat-no" title="statement not covered" >    return this.repo.create(input);</span>
-  }
-&nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>getTenantsForUser(userId: string): Promise&lt;TenantDocument[]&gt; {
+<span class="fstat-no" title="function not covered" >  async </span>getTenantsForUser(userId: string): Promise&lt;Tenant[]&gt; {
 <span class="cstat-no" title="statement not covered" >    if (!userId) {</span>
 <span class="cstat-no" title="statement not covered" >      return [];</span>
     }
+&nbsp;
     const user = <span class="cstat-no" title="statement not covered" >await this.userAdapter.getUserById(userId);</span>
-<span class="cstat-no" title="statement not covered" >    if (!user) <span class="cstat-no" title="statement not covered" >return [];</span></span>
-    const memberships = <span class="cstat-no" title="statement not covered" >await this.membershipRepo.findByUserId(user.id.toString());</span>
-    
-    const ownerIds = <span class="cstat-no" title="statement not covered" >memberships.map(<span class="fstat-no" title="function not covered" >(m</span>: MembershipDocument) =&gt; <span class="cstat-no" title="statement not covered" >m.ownerId)</span>;</span>
-<span class="cstat-no" title="statement not covered" >    return this.repo.findByIds(ownerIds.map(<span class="fstat-no" title="function not covered" >(i</span>d) =&gt; <span class="cstat-no" title="statement not covered" >id.toString())</span>);</span>
-  }
+<span class="cstat-no" title="statement not covered" >    if (!user) {</span>
+<span class="cstat-no" title="statement not covered" >      return [];</span>
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>getTenantsAll(): Promise&lt;TenantDocument[]&gt; {
-<span class="cstat-no" title="statement not covered" >    return this.repo.findAllTenants(); </span>
-  }
+    const memberships = <span class="cstat-no" title="statement not covered" >await this.membershipRepo.findByUserId(</span>
+      user.id.toString()
+    );
 &nbsp;
-}</pre></td></tr></table></pre>
+    const tenantIds = <span class="cstat-no" title="statement not covered" >memberships.map(</span>
+<span class="fstat-no" title="function not covered" >      (m</span>embership: Membership) =&gt; <span class="cstat-no" title="statement not covered" >membership.tenantId.toString()</span>
+    );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    return this.repo.findByIds(tenantIds);</span>
+  }
+}
+&nbsp;
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

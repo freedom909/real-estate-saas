@@ -27,6 +27,9 @@ services:
     # 如果 ECS 是 rootless Docker / LXC，不支持 host，请改成 ports: 127.0.0.1:4000:4000
     # ---------------------------------------------------------------
     network_mode: host
+    volumes:
+      # Persist uploaded images across container rebuilds (multer writes to /app/uploads)
+      - ./data/uploads:/app/uploads
     ulimits:
       nofile:
         soft: 65535

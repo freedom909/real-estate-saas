@@ -11,6 +11,8 @@ import { ApolloServer } from "@apollo/server";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { gql } from "graphql-tag";
 import { readFileSync } from "fs";
+import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";
+import path from "path";
 import express from "express";
 import http from "http";
 import { expressMiddleware } from "@as-integrations/express4";
@@ -37,7 +39,7 @@ registerAdminDependencies();
 registerUserDependencies(container);
 
 const typeDefs = gql(
-  readFileSync("./src/subgraphs/admin/schema.graphql", { encoding: "utf-8" })
+  readFileSync(resolveSchemaPath("src/subgraphs/admin/schema.graphql", "schema.graphql"), { encoding: "utf-8" })
 );
 
 const startApolloServer = async () => {

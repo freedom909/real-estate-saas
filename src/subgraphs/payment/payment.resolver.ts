@@ -27,9 +27,7 @@ const resolvers = {
       { id }: any
     ) => {
 
-      const repo = container.resolve<PaymentRepository>(
-          TOKENS_PAYMENT.repos.paymentRepository
-        );
+      const repo = container.resolve<PaymentRepository>(TOKENS_PAYMENT.repos.paymentRepository);
 
       return repo.findById(id);
     },
@@ -134,6 +132,18 @@ const resolvers = {
         message: "Payment confirmed",
         payment,
       };
+    }, {
+      // The payer (booking customer) must be able to confirm their own mock
+      // payment; without this the frontend /payments/pay flow dead-ends in
+      // FORBIDDEN. cancelPayment / failPayment / processRefund intentionally
+      // stay admin-only (no resolveOwnerId -> only ADMIN passes the policy).
+      resolveOwnerId: async (_ctx, { paymentId }) => {
+        const repo = container.resolve<PaymentRepository>(
+          TOKENS_PAYMENT.repos.paymentRepository
+        );
+        const payment = await repo.findById(paymentId);
+        return payment?.customerId ?? null;
+      },
     }),
 
     failPayment: withAuthorization(Action.UPDATE, Resource.PAYMENT, async (

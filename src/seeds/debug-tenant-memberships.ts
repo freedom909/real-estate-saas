@@ -1,4 +1,4 @@
-﻿import "reflect-metadata";
+import "reflect-metadata";
 import "dotenv/config";
 
 import mongoose from "mongoose";
@@ -7,7 +7,7 @@ import { TenantModel } from "@/core/tenant/infrastructure/models/tenant.model";
 import MembershipModel from "@/core/tenant/infrastructure/models/membership.model";
 import UserModel from "@/subgraphs/user/infra/models/user.model";
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/sendai";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/nakano";
 
 const TARGET_USER_ID = "6abca75a134bf08fdc5ec2f1";
 

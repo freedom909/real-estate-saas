@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
@@ -122,19 +122,12 @@
 <a name='L57'></a><a href='#L57'>57</a>
 <a name='L58'></a><a href='#L58'>58</a>
 <a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -181,28 +174,29 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// membership.model.ts
-// tenant.infrastructure.models.membership.model.ts
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//src/core/tenant/infrastructure/models/membership.model.ts
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import mongoose, { Schema, Document } from "mongoose"</span>
-import { UserRole } from "../../../user/domain/userRole"
 &nbsp;
-export type MembershipStatus =
-  | "ACTIVE"
-  | "INVITED"
-  | "SUSPENDED"
+<span class="cstat-no" title="statement not covered" >import mongoose, { Schema, Document } from "mongoose";</span>
+<span class="cstat-no" title="statement not covered" >import { MembershipRole } from "@/core/shared/domain/role";</span>
+import { MembershipStatus } from "../../domain/entities/membership";
 &nbsp;
 export interface MembershipDocument extends Document {
-&nbsp;
-  userId: mongoose.Types.ObjectId
-&nbsp;
-  ownerId: mongoose.Types.ObjectId
-&nbsp;
-  role: UserRole
-&nbsp;
-  status: MembershipStatus
-&nbsp;
-  createdAt: Date
+  userId: mongoose.Types.ObjectId;
+  tenantId: mongoose.Types.ObjectId;
+  role: MembershipRole;
+  status: MembershipStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }
 &nbsp;
 const membershipSchema = <span class="cstat-no" title="statement not covered" >new Schema&lt;MembershipDocument&gt;(</span>
@@ -210,44 +204,53 @@ const membershipSchema = <span class="cstat-no" title="statement not covered" >n
     userId: {
       type: Schema.Types.ObjectId,
       required: true,
-      index: true
+      index: true,
     },
 &nbsp;
-    ownerId: {
+    tenantId: {
       type: Schema.Types.ObjectId,
       required: true,
-      index: true
+      index: true,
     },
 &nbsp;
     role: {
       type: String,
-      enum: ["OWNER", "ADMIN", "AGENT", "CUSTOMER"],
-      required: true
+      enum: Object.values(MembershipRole),
+      required: true,
     },
 &nbsp;
     status: {
       type: String,
-      enum: ["ACTIVE", "INVITED", "SUSPENDED"],
-      default: "ACTIVE"
-    }
+      enum: ["ACTIVE", "PENDING", "SUSPENDED", "REMOVED"],
+      default: "ACTIVE",
+      required: true,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
-)
+);
+&nbsp;
+<span class="cstat-no" title="statement not covered" >membershipSchema.index(</span>
+  { userId: 1, tenantId: 1 },
+  { unique: true }
+);
 &nbsp;
 const MembershipModel =
-<span class="cstat-no" title="statement not covered" >  mongoose.models.Membership ||</span>
-  mongoose.model&lt;MembershipDocument&gt;("Membership", membershipSchema)
+  (<span class="cstat-no" title="statement not covered" >mongoose.models.Membership as mongoose.Model&lt;MembershipDocument&gt;) ||</span>
+  mongoose.model&lt;MembershipDocument&gt;(
+    "Membership",
+    membershipSchema
+  );
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export default MembershipModel</span></pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >export default MembershipModel;</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

@@ -19,13 +19,27 @@ import ListingModel from "@/core/listing/infrastructure/models/listing.model";
 
 export const resolvers = {
   Query: {
-    booking: async (_: any, { id }: any) => {
-      console.log("========== booking query ==========");
-      console.log("booking id =", id);
+    booking: withAuthorization(Action.READ, Resource.BOOKING, async (_: any, { id }: any) => {
       const booking = await container.resolve<GetBookingUseCase>(TOKENS_BOOKING.usecase.getBookingUseCase).execute(id);
-      console.log("booking =", booking);
       return booking
-    },
+    }, {
+      resolveOwnerId: async (_ctx, { id }) => {
+        const repo = container.resolve<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository);
+        const booking = await repo.findById(id);
+        return booking?.customerId ?? null;
+      },
+      resolveResource: async (_ctx, { id }) => {
+        try {
+          const repo = container.resolve<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository);
+          const booking = await repo.findById(id);
+          if (!booking) return null;
+          const listing = await ListingModel.findByPk(booking.listingId);
+          return { ownerId: (listing as any)?.ownerId ?? null };
+        } catch {
+          return null;
+        }
+      },
+    }),
     bookingsForCustomer: async (_: any, { userId }: any) => {
       const repo =
         container.resolve<IBookingRepository>(
@@ -172,8 +186,20 @@ export const resolvers = {
         const repo = container.resolve<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository);
         const booking = await repo.findById(id);
         if (!booking) return null;
-        // Return the customer (booking creator) — the RBAC policy also allows HOST role via hasMinRole check
+        // Return the customer (booking creator) — the CANCEL policy allows the
+        // customer (resourceOwnerId), the listing owner (resource.ownerId) or AGENT+
         return booking.customerId;
+      },
+      resolveResource: async (_ctx, { id }) => {
+        try {
+          const repo = container.resolve<IBookingRepository>(TOKENS_BOOKING.repository.bookingRepository);
+          const booking = await repo.findById(id);
+          if (!booking) return null;
+          const listing = await ListingModel.findByPk(booking.listingId);
+          return { ownerId: (listing as any)?.ownerId ?? null };
+        } catch {
+          return null;
+        }
       },
     }),
 

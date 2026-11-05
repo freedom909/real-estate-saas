@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>0/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>0/40</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>0/18</span>
             </div>
         
             
@@ -85,7 +85,46 @@
 <a name='L20'></a><a href='#L20'>20</a>
 <a name='L21'></a><a href='#L21'>21</a>
 <a name='L22'></a><a href='#L22'>22</a>
-<a name='L23'></a><a href='#L23'>23</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -100,35 +139,44 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { Sequelize } from "sequelize";</span>
+<span class="cstat-no" title="statement not covered" >import fs from "fs";</span>
 &nbsp;
-export const <span class="cstat-no" title="statement not covered" >sequelize = new Sequelize(</span>
+// location subgraph — reuse the same MYSQL_* / MYSQL_SSL_* env keys, keeping code style aligned with infrastructure/config/seq.ts
+const DB_NAME = <span class="cstat-no" title="statement not covered" >process.env.DB_NAME ?? process.env.DB_NAME ?? "nakano";</span>
+const DB_USER     = <span class="cstat-no" title="statement not covered" >process.env.DB_USER ?? process.env.DB_USER ?? "root";</span>
+const DB_PASSWORD = <span class="cstat-no" title="statement not covered" >process.env.DB_PASSWORD ?? process.env.DB_PASSWORD ?? "";</span>
+const DB_HOST     = <span class="cstat-no" title="statement not covered" >process.env.DB_HOST ?? process.env.DB_HOST ?? "127.0.0.1";</span>
+const DB_PORT     = <span class="cstat-no" title="statement not covered" >Number(process.env.DB_PORT ?? process.env.DB_PORT ?? 3306);</span>
+const MYSQL_SSL_MODE = <span class="cstat-no" title="statement not covered" >(process.env.MYSQL_SSL_MODE ?? "auto").toLowerCase();</span>
+const sslCaPath      = <span class="cstat-no" title="statement not covered" >process.env.MYSQL_SSL_CA;</span>
 &nbsp;
-process.env.DB_NAME || "nakano",
-&nbsp;
-process.env.DB_USER || "root",
-&nbsp;
-process.env.DB_PASSWORD || "princess",
-&nbsp;
-{
-&nbsp;
-host: process.env.DB_HOST || "localhost",
-&nbsp;
-port: Number(process.env.DB_PORT || 3306),
-&nbsp;
-dialect: "mysql",
-&nbsp;
-logging: console.log,
-&nbsp;
+let dialectOptions: Record&lt;string, unknown&gt; | undefined = <span class="cstat-no" title="statement not covered" >undefined;</span>
+<span class="cstat-no" title="statement not covered" >if (MYSQL_SSL_MODE !== "disabled") {</span>
+<span class="cstat-no" title="statement not covered" >  if (sslCaPath &amp;&amp; fs.existsSync(sslCaPath)) {</span>
+<span class="cstat-no" title="statement not covered" >    dialectOptions = { ssl: { ca: fs.readFileSync(sslCaPath, "utf8") } };</span>
+  } else <span class="cstat-no" title="statement not covered" >if (MYSQL_SSL_MODE === "required" || MYSQL_SSL_MODE === "preferred" || MYSQL_SSL_MODE === "verify-ca") {</span>
+<span class="cstat-no" title="statement not covered" >    dialectOptions = { ssl: MYSQL_SSL_MODE === "verify-ca" ? {} : { rejectUnauthorized: false } };</span>
+  }
 }
 &nbsp;
+<span class="cstat-no" title="statement not covered" >if (!DB_PASSWORD &amp;&amp; !(process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test")) {</span>
+<span class="cstat-no" title="statement not covered" >  throw new Error("❌ location/subgraph: Missing DB_PASSWORD (and not dev/test).");</span>
+}
+&nbsp;
+export const <span class="cstat-no" title="statement not covered" >sequelize = new Sequelize(</span>
+  DB_NAME,
+  DB_USER,
+  DB_PASSWORD,
+  {
+    host: DB_HOST,
+    port: DB_PORT,
+    dialect: "mysql",
+    logging: (process.env.NODE_ENV === "development") ? console.log : false,
+    pool: { max: 10, min: 1, acquire: 30000, idle: 15000 },
+    define: { timestamps: true },
+    ...(dialectOptions ? { dialectOptions } : {}),
+  }
 );</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -136,7 +184,7 @@ logging: console.log,
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

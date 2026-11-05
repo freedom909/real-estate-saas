@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
@@ -89,23 +89,12 @@
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
 <a name='L26'></a><a href='#L26'>26</a>
-<a name='L27'></a><a href='#L27'>27</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -113,13 +102,33 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import mongoose from 'mongoose';</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import mongoose from 'mongoose';</span>
 <span class="cstat-no" title="statement not covered" >import dotenv from 'dotenv';</span>
 <span class="cstat-no" title="statement not covered" >dotenv.config();</span>
-                              
-<span class="cstat-no" title="statement not covered" >export default a</span>sync function <span class="fstat-no" title="function not covered" >connectMongoDB(</span>mongoUri?: string) {
+                 // MongoDB Atlas SRV requires working DNS resolution.
+// Force Node.js to use public DNS instead of local 127.0.0.1 resolver.
+<span class="cstat-no" title="statement not covered" >import dns from 'dns';</span>
+<span class="cstat-no" title="statement not covered" >dns.setServers(["8.8.8.8", "1.1.1.1"]);             </span>
+ async function <span class="fstat-no" title="function not covered" >connectMongoDB(</span>mongoUri?: string) {
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >        if (mongoUri) {</span>
 <span class="cstat-no" title="statement not covered" >            console.log("MONGO_URI:", mongoUri);</span>
@@ -127,7 +136,7 @@
 <span class="cstat-no" title="statement not covered" >        console.log("MONGO_URI:", mongoUri);</span>
 <span class="cstat-no" title="statement not covered" >        console.log("Loading MONGO_URI from env:", process.env.MONGO_URI);</span>
         // console.log("All env variables:", process.env);
-        const MONGO_URI =  <span class="cstat-no" title="statement not covered" >mongoUri || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mie';</span>
+        const MONGO_URI =  <span class="cstat-no" title="statement not covered" >mongoUri || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sendai';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        await mongoose.connect(MONGO_URI, {</span>
             serverSelectionTimeoutMS: 5000,
@@ -141,14 +150,14 @@
 <span class="cstat-no" title="statement not covered" >        throw error;</span>
     }
 }
-&nbsp;</pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >export default connectMongoDB;</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

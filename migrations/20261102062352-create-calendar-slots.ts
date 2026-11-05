@@ -5,6 +5,8 @@
 import { QueryInterface, DataTypes } from "sequelize";
 
 export async function up(queryInterface: QueryInterface) {
+    // Idempotent: the table may already exist from an earlier sequelize.sync()
+    if (await queryInterface.tableExists("calendar_slots")) return;
     await queryInterface.createTable("calendar_slots", {
       id: {
         type: DataTypes.STRING,

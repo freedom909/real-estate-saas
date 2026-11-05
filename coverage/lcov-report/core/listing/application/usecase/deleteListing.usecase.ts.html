@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>0/4</span>
             </div>
         
             
@@ -132,10 +132,7 @@
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -144,10 +141,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -214,12 +208,9 @@
 &nbsp;
 import { IPolicyEngine } from "@/rbac/policyContext";
 <span class="cstat-no" title="statement not covered" >import { Action, Resource } from "@/rbac/types";</span>
-import { Role } from "@/core/shared/domain/role";
 import { IListingRepository } from "../../domain/entities/IListingRepository";
 import ListingActor from "./listingActor";
-<span class="cstat-no" title="statement not covered" >import { AuditLogService } from "@/core/audit/application/write/services/audit.logger";</span>
-&nbsp;
-&nbsp;
+<span class="cstat-no" title="statement not covered" >import { AuditLogger } from "@/core/audit/application/write/services/audit.logger";</span>
 &nbsp;
 @injectable()
 export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >DeleteListingUseCase </span>{</span></span>
@@ -228,57 +219,57 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
     private readonly <span class="cstat-no" title="statement not covered" >listingRepository: IListingRepository,</span>
 &nbsp;
     @inject(TOKENS_AUDIT.services.auditLogger)
-    private readonly <span class="cstat-no" title="statement not covered" >auditLogger: A</span>uditLogService,
+    private readonly <span class="cstat-no" title="statement not covered" >auditLogger: A</span>uditLogger,
 &nbsp;
     @inject(TOKENS_LISTING.policyEngine)
     private readonly <span class="cstat-no" title="statement not covered" >policyEngine: IPolicyEngine,</span>
   ) {}
- 
 &nbsp;
 <span class="fstat-no" title="function not covered" >  async </span>execute(
-  listingId: string,
-  actor: ListingActor,
-) {
-  // 1. Find listing
-  const listing = <span class="cstat-no" title="statement not covered" >await this.listingRepository.findById(listingId);</span>
+    listingId: string,
+    actor: ListingActor,
+  ) {
+    // 1. Find listing
+    const listing =
+<span class="cstat-no" title="statement not covered" >      await this.listingRepository.findById(listingId);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!listing) {</span>
-<span class="cstat-no" title="statement not covered" >    throw new Error("Listing not found");</span>
-  }
+<span class="cstat-no" title="statement not covered" >    if (!listing) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error("Listing not found");</span>
+    }
 &nbsp;
-  // 2. Authorization
-  const allowed = <span class="cstat-no" title="statement not covered" >this.policyEngine.can(</span>
-    Action.DELETE,
-    Resource.LISTING,
-    {
-      user: {
-        id: actor.userId,
-        role: actor.role,
+    // 2. Authorization
+    const allowed = <span class="cstat-no" title="statement not covered" >this.policyEngine.can(</span>
+      Action.DELETE,
+      Resource.LISTING,
+      {
+        user: {
+          id: actor.userId,
+          role: actor.role,
+        },
+        resourceOwnerId: listing.ownerId,
       },
-      resourceOwnerId: listing.ownerId,
-    },
-  );
-&nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!allowed) {</span>
-<span class="cstat-no" title="statement not covered" >    throw new Error(</span>
-      "Forbidden: user is not allowed to delete this listing"
     );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    if (!allowed) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error(</span>
+        "Forbidden: user is not allowed to delete this listing"
+      );
+    }
+&nbsp;
+    // 3. Delete
+<span class="cstat-no" title="statement not covered" >    await this.listingRepository.delete(listingId);</span>
+&nbsp;
+    // 4. Audit
+<span class="cstat-no" title="statement not covered" >    await this.auditLogger.writeAuditLog({</span>
+      action: "DELETE",
+      resource: "LISTING",
+      resourceId: listingId,
+      resourceType: "LISTING",
+      status: "SUCCESS",
+      userId: actor.userId,
+      ownerId: listing.ownerId,
+    });
   }
-&nbsp;
-  // 3. Delete
-<span class="cstat-no" title="statement not covered" >  await this.listingRepository.delete(listingId);</span>
-&nbsp;
-  // 4. Audit
-<span class="cstat-no" title="statement not covered" >  await this.auditLogger.writeAuditLog({</span>
-    action: "DELETE",
-    resource: "LISTING",
-    resourceId: listingId,
-    resourceType: "LISTING",
-    status: "SUCCESS",
-    userId: actor.userId,
-    ownerId: listing.ownerId,
-  });
-}
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -286,7 +277,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

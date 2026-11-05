@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -149,11 +149,7 @@
 <a name='L84'></a><a href='#L84'>84</a>
 <a name='L85'></a><a href='#L85'>85</a>
 <a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -162,8 +158,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -219,8 +213,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -250,89 +242,85 @@
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export class L</span>istingMapper {
 &nbsp;
-<span class="fstat-no" title="function not covered" >static </span>toDomain(raw: any): Listing {
-<span class="cstat-no" title="statement not covered" >  return new Listing({</span>
-    rawTitle: raw.title,
+<span class="fstat-no" title="function not covered" >  static </span>toDomain(raw: any): Listing {
+<span class="cstat-no" title="statement not covered" >    return new Listing({</span>
+      rawTitle: raw.title,
 &nbsp;
-    id: raw.id,
+      id: raw.id,
 &nbsp;
-    ownerId: raw.ownerId,
-    locationId: raw.locationId,
+      tenantId: raw.tenantId,
+      ownerId: raw.ownerId,
+      locationId: raw.locationId,
 &nbsp;
-    title: new Title(raw.title),
+      title: new Title(raw.title),
 &nbsp;
-    description:
-      new Description(
-        raw.description
-      ),
-    address: raw.address,
+      description:
+        new Description(
+          raw.description
+        ),
 &nbsp;
-categories:
-  raw.categories ?? [],
+      categoryIds:
+        raw.categoryIds ?? [],
 &nbsp;
-amenityIds:
-  raw.amenityIds ?? [],
+      amenityIds:
+        raw.amenityIds ?? [],
 &nbsp;
-    numOfBeds:
-      raw.numOfBeds ?? 1,
+      numOfBeds:
+        raw.numOfBeds ?? 1,
 &nbsp;
-    numOfCustomers:
-      raw.numOfCustomers ?? 1,
+      numOfCustomers:
+        raw.numOfCustomers ?? 1,
 &nbsp;
-    numOfBathrooms:
-      raw.numOfBathrooms ?? 1,
+      numOfBathrooms:
+        raw.numOfBathrooms ?? 1,
 &nbsp;
-    numOfRooms:
-      raw.numOfRooms ?? 1,
+      numOfRooms:
+        raw.numOfRooms ?? 1,
 &nbsp;
-    price:
-      Number(raw.price ?? 1),
 &nbsp;
-    pricePerNight:
-      raw.pricePerNight != null ? Number(raw.pricePerNight) : undefined,
 &nbsp;
-    pictures:raw.pictures?.map(<span class="fstat-no" title="function not covered" >(p</span>:any)=&gt; <span class="cstat-no" title="statement not covered" >PictureMapper.toDomain(p))</span> ?? [],
+      pricePerNight: Number(raw.pricePerNight),
 &nbsp;
-    isFeatured:
-      raw.isFeatured ?? false,
+      pictures: raw.pictures?.map(<span class="fstat-no" title="function not covered" >(p</span>: any) =&gt; <span class="cstat-no" title="statement not covered" >PictureMapper.toDomain(p))</span> ?? [],
 &nbsp;
-    createdAt:
-      raw.createdAt,
+      isFeatured:
+        raw.isFeatured ?? false,
 &nbsp;
-    updatedAt:
-      raw.updatedAt,   
-  });
-  
-}
+      createdAt:
+        raw.createdAt,
 &nbsp;
-  
+      updatedAt:
+        raw.updatedAt,
+    });
+&nbsp;
+  }
+&nbsp;
+&nbsp;
   // Domain → DB 
-<span class="fstat-no" title="function not covered" >static </span>toPersistence(listing: Listing) {
-<span class="cstat-no" title="statement not covered" >  return {</span>
-    id: listing.id,
+<span class="fstat-no" title="function not covered" >  static </span>toPersistence(listing: Listing) {
+<span class="cstat-no" title="statement not covered" >    return {</span>
+      
+      id: listing.id,
+      
+      title: listing.title,
+      description: listing.description,
+      tenantId: listing.tenantId,
+      ownerId: listing.ownerId,
+      locationId: listing.locationId,
 &nbsp;
-title: listing.title,
-description: listing.description,
+      numOfBeds: listing.numOfBeds,
+      numOfCustomers: listing.numOfCustomers,
+      numOfBathrooms: listing.numOfBathrooms,
+      numOfRooms: listing.numOfRooms,
 &nbsp;
-    ownerId: listing.ownerId,
-    locationId: listing.locationId,
+      pricePerNight: listing.pricePerNight,
 &nbsp;
-    address: listing.address,
+      isFeatured: listing.isFeatured,
 &nbsp;
-    numOfBeds: listing.numOfBeds,
-    numOfCustomers: listing.numOfCustomers,
-    numOfBathrooms: listing.numOfBathrooms,
-    numOfRooms: listing.numOfRooms,
-&nbsp;
-    price: listing.price,
-    pricePerNight: listing.pricePerNight,
-&nbsp;
-    isFeatured: listing.isFeatured,
-&nbsp;
-    createdAt: listing.createdAt,
-    updatedAt: listing.updatedAt,
-  };
-}
+      createdAt: listing.createdAt,
+      updatedAt: listing.updatedAt,
+    };
+  }
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -340,7 +328,7 @@ description: listing.description,
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

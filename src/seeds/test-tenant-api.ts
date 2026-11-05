@@ -16,7 +16,7 @@ import MembershipModel from "@/core/tenant/infrastructure/models/membership.mode
 import SessionModel from "@/subgraphs/auth/infrastructure/models/session.model";
 import { v4 as uuidv4 } from "uuid";
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/minwisdom";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/nakano";
 const SECRET = process.env.ACCESS_TOKEN_SECRET || "test-secret";
 
 // Test data

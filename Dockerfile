@@ -3,7 +3,7 @@ FROM node:20-bookworm-slim
 # --- System deps for bcrypt / sharp / native modules ---
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-         ca-certificates curl git python3 make g++ procps \
+         ca-certificates curl git python3 make g++ procps dumb-init \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -24,5 +24,6 @@ RUN chmod +x scripts/*.sh scripts/*.cjs 2>/dev/null || true
 
 EXPOSE 4000 4010 4020 4030 4040 4050 4060 4070 4080 4090 4100 4101 4102 4103 4104 4200 4300
 
-ENTRYPOINT ["dumb-init", "--"] 2>/dev/null || true
+# dumb-init reaps zombies from the many child processes and forwards signals
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "scripts/start-backend.cjs"]

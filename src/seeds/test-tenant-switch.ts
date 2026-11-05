@@ -1,4 +1,4 @@
-﻿// src/seeds/test-tenant-switch.ts
+// src/seeds/test-tenant-switch.ts
 
 import "reflect-metadata";
 import "dotenv/config";
@@ -34,7 +34,7 @@ import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 
 const MONGO_URI =
   process.env.MONGO_URI ||
-  "mongodb://127.0.0.1:27017/minwisdom";
+  "mongodb://127.0.0.1:27017/nakano";
 
 /*
  * ------------------------------------------------------------
@@ -74,7 +74,7 @@ async function ensureUser(
   const existing = await UserModel.findById(userId).lean();
 
   if (existing) {
-    console.log(`✓ User exists: ${email} (${userId})`);
+    console.log(`? User exists: ${email} (${userId})`);
     return;
   }
 
@@ -88,7 +88,7 @@ async function ensureUser(
     tokenVersion: 0,
   });
 
-  console.log(`✓ Created test user: ${email} (${userId})`);
+  console.log(`? Created test user: ${email} (${userId})`);
 }
 
 /**
@@ -105,7 +105,7 @@ async function ensureTenant(
   const existing = await TenantModel.findById(tenantId).lean();
 
   if (existing) {
-    console.log(`✓ Tenant exists: ${name} (${tenantId})`);
+    console.log(`? Tenant exists: ${name} (${tenantId})`);
     return;
   }
 
@@ -117,7 +117,7 @@ async function ensureTenant(
     status: TenantStatus.ACTIVE,
   });
 
-  console.log(`✓ Created test tenant: ${name} (${tenantId})`);
+  console.log(`? Created test tenant: ${name} (${tenantId})`);
 }
 
 /**
@@ -137,7 +137,7 @@ async function ensureMembership(
 
   if (existing) {
     console.log(
-      `✓ Membership exists: ${userId} → ${tenantId} (${existing.role})`
+      `? Membership exists: ${userId} ? ${tenantId} (${existing.role})`
     );
     return;
   }
@@ -150,7 +150,7 @@ async function ensureMembership(
   });
 
   console.log(
-    `✓ Created membership: ${userId} → ${tenantId} (${role})`
+    `? Created membership: ${userId} ? ${tenantId} (${role})`
   );
 }
 
@@ -167,9 +167,9 @@ async function ensureNoAliceTokyoMembership(): Promise<void> {
   });
 
   if (result.deletedCount > 0) {
-    console.log("✓ Removed unexpected Alice → Tokyo membership");
+    console.log("? Removed unexpected Alice ? Tokyo membership");
   } else {
-    console.log("✓ Alice has no Tokyo membership");
+    console.log("? Alice has no Tokyo membership");
   }
 }
 
@@ -246,7 +246,7 @@ async function ensureTestData(): Promise<void> {
 
   await ensureNoAliceTokyoMembership();
 
-  console.log("\n✓ Test data ready");
+  console.log("\n? Test data ready");
 }
 
 /*
@@ -375,7 +375,7 @@ async function main() {
       throw new Error(`Alice not found: ${ALICE_ID}`);
     }
 
-    console.log("✓ Alice exists");
+    console.log("? Alice exists");
 
     /*
      * --------------------------------------------------------
@@ -383,7 +383,7 @@ async function main() {
      * --------------------------------------------------------
      */
 
-    console.log("\nTest 2: Verify Alice membership — Kyoto Stays");
+    console.log("\nTest 2: Verify Alice membership � Kyoto Stays");
 
     const membership = await MembershipModel.findOne({
       userId: ALICE_ID,
@@ -403,7 +403,7 @@ async function main() {
     }
 
     console.log(
-      "✓ Alice has Kyoto Stays membership:",
+      "? Alice has Kyoto Stays membership:",
       membership.role
     );
 
@@ -426,15 +426,15 @@ async function main() {
       );
     }
 
-    console.log("✓ Alice has no Tokyo Stays membership");
+    console.log("? Alice has no Tokyo Stays membership");
 
     /*
      * --------------------------------------------------------
-     * Test 4: switchTenant — valid tenant
+     * Test 4: switchTenant � valid tenant
      * --------------------------------------------------------
      */
 
-    console.log("\nTest 4: switchTenant — valid tenant (Kyoto Stays)");
+    console.log("\nTest 4: switchTenant � valid tenant (Kyoto Stays)");
 
     const result = await switchUseCase.execute({
       userId: ALICE_ID,
@@ -452,7 +452,7 @@ async function main() {
       );
     }
 
-    console.log("✓ Alice switched to Kyoto Stays");
+    console.log("? Alice switched to Kyoto Stays");
 
     /*
      * --------------------------------------------------------
@@ -477,7 +477,7 @@ async function main() {
     }
 
     console.log(
-      "✓ Session.activeTenantId =",
+      "? Session.activeTenantId =",
       session.activeTenantId
     );
 
@@ -505,11 +505,11 @@ async function main() {
       );
     }
 
-    console.log("✓ Gateway can read activeTenantId");
+    console.log("? Gateway can read activeTenantId");
 
     /*
      * --------------------------------------------------------
-     * Test 7: switchTenant — unauthorized tenant
+     * Test 7: switchTenant � unauthorized tenant
      * --------------------------------------------------------
      *
      * IMPORTANT:
@@ -524,7 +524,7 @@ async function main() {
      */
 
     console.log(
-      "\nTest 7: switchTenant — unauthorized Tokyo tenant"
+      "\nTest 7: switchTenant � unauthorized Tokyo tenant"
     );
 
     let unauthorizedSwitchFailed = false;
@@ -539,7 +539,7 @@ async function main() {
       unauthorizedSwitchFailed = true;
 
       console.log(
-        "✓ Unauthorized switch rejected:",
+        "? Unauthorized switch rejected:",
         error instanceof Error ? error.message : error
       );
     }
@@ -552,11 +552,11 @@ async function main() {
 
     /*
      * --------------------------------------------------------
-     * Test 8: switchTenant — nonexistent tenant
+     * Test 8: switchTenant � nonexistent tenant
      * --------------------------------------------------------
      */
 
-    console.log("\nTest 8: switchTenant — nonexistent tenant");
+    console.log("\nTest 8: switchTenant � nonexistent tenant");
 
     let nonexistentTenantFailed = false;
 
@@ -570,7 +570,7 @@ async function main() {
       nonexistentTenantFailed = true;
 
       console.log(
-        "✓ Nonexistent tenant rejected:",
+        "? Nonexistent tenant rejected:",
         error instanceof Error ? error.message : error
       );
     }
@@ -628,7 +628,7 @@ async function main() {
       );
     }
 
-    console.log("✓ Yuki can switch to Kyoto Stays");
+    console.log("? Yuki can switch to Kyoto Stays");
 
     /*
      * --------------------------------------------------------
@@ -655,7 +655,7 @@ async function main() {
     }
 
     console.log(
-      "✓ Yuki Session.activeTenantId =",
+      "? Yuki Session.activeTenantId =",
       yukiSession.activeTenantId
     );
 
@@ -674,7 +674,7 @@ async function main() {
      * Guaranteed cleanup
      * --------------------------------------------------------
      *
-     * Even when Test 1–10 fails, test sessions are removed.
+     * Even when Test 1�10 fails, test sessions are removed.
      *
      * We intentionally DO NOT delete:
      *
@@ -694,7 +694,7 @@ async function main() {
       },
     });
 
-    console.log("✓ Test sessions deleted");
+    console.log("? Test sessions deleted");
   }
 }
 

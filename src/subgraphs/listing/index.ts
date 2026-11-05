@@ -17,6 +17,8 @@ import { ApolloServer } from '@apollo/server';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { gql } from 'graphql-tag';
 import { readFileSync } from 'fs';
+import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";
+import path from 'path';
 import express from 'express';
 import http from 'http';
 import { expressMiddleware } from "@as-integrations/express4"
@@ -55,7 +57,7 @@ initAssociations();
 
 // NOTE: schema.graphql is read via readFileSync at startup — tsx watch does NOT
 // watch it, so restart this subgraph manually after schema edits.
-const typeDefs = gql(readFileSync('./src/subgraphs/listing/schema.graphql', { encoding: 'utf-8' }));
+const typeDefs = gql(readFileSync(resolveSchemaPath('src/subgraphs/listing/schema.graphql', 'schema.graphql'), { encoding: 'utf-8' }));
 
 const startApolloServer = async () => {
   try {
@@ -65,7 +67,10 @@ const startApolloServer = async () => {
 
     console.info("MySQL authenticated");
 
-    await sequelize.sync({ alter: true });
+    // Create missing tables only. NEVER use { alter: true } here: auto-altering
+    // production schema at boot is destructive. Schema changes go through
+    // migrations (npm run db:migrate → migrations/run-migrations.ts).
+    await sequelize.sync();
 
     console.info("MySQL schema synchronized");
 

@@ -119,7 +119,10 @@ export default class PolicyEngine implements IPolicyEngine {
         if (!ctx.user) return false;
 
         if (hasMinRole(ctx.user.role, Role.ADMIN)) return true;
-        return ctx.user.id === ctx.resourceOwnerId;
+        if (ctx.user.id === ctx.resourceOwnerId) return true;
+        // the listing owner (host) can read bookings on their own listing
+        const readListingOwnerId = (ctx.resource as any)?.ownerId;
+        return Boolean(readListingOwnerId) && ctx.user.id === readListingOwnerId;
       },
 
       [`${Action.CREATE}_${Resource.BOOKING}`]: (ctx) => {
@@ -163,8 +166,11 @@ export default class PolicyEngine implements IPolicyEngine {
           return true;
         }
 
-        // listing owner/host can cancel bookings on their listings
-        if (hasMinRole(ctx.user.role, Role.HOST)) {
+        // the listing owner (host) can cancel bookings on their own listing only.
+        // Do NOT allow any global HOST — ownership must be verified via
+        // resource.ownerId (populated by resolveResource in the resolver).
+        const cancelListingOwnerId = (ctx.resource as any)?.ownerId;
+        if (cancelListingOwnerId && ctx.user.id === cancelListingOwnerId) {
           return true;
         }
 

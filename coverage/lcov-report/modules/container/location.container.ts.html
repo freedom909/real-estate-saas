@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -93,24 +93,20 @@
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -119,40 +115,65 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// location.container.ts
-&nbsp;
-<span class="cstat-no" title="statement not covered" >import { container } from "tsyringe";</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { container } from "tsyringe";</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >import { TOKENS_LOCATION } from "@/modules/tokens/location.tokens";</span>
 <span class="cstat-no" title="statement not covered" >import { LocationRepository } from "@/core/location/infrastructure/persistence/location.repository";</span>
 <span class="cstat-no" title="statement not covered" >import { GetLocationUseCase } from "@/core/location/application/usecases/getLocationUseCase";</span>
-<span class="cstat-no" title="statement not covered" >import { CreateLocationUseCase } from "@/core/location/application/usecases/createLocationUseCase";</span>
-&nbsp;
+<span class="cstat-no" title="statement not covered" >import { GetLocationsUseCase } from "@/core/location/application/usecases/getLocationsUseCase";</span>
+<span class="cstat-no" title="statement not covered" >import { CreateLocationUseCase } from "@/core/location/application/usecases/createLocation.usecase";</span>
+<span class="cstat-no" title="statement not covered" >import { EventBus } from "@/core/tenant/infrastructure/services/event-bus.service";</span>
 &nbsp;
 function <span class="fstat-no" title="function not covered" >registerLocationDependencies(</span>) {
-  // Repositories
-<span class="cstat-no" title="statement not covered" >container.register(TOKENS_LOCATION.locationRepository, {</span>
-  useClass: LocationRepository,
-});
+  // Repository
+<span class="cstat-no" title="statement not covered" >  container.register(TOKENS_LOCATION.locationRepository, {</span>
+    useClass: LocationRepository,
+  });
 &nbsp;
+  // EventBus (required by CreateLocationUseCase)
+<span class="cstat-no" title="statement not covered" >  container.register(TOKENS_LOCATION.eventBus, {</span>
+    useClass: EventBus,
+  });
 &nbsp;
+  // UseCases
+<span class="cstat-no" title="statement not covered" >  container.register(TOKENS_LOCATION.getLocationUseCase, {</span>
+    useClass: GetLocationUseCase,
+  });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >container.register(TOKENS_LOCATION.getLocationUseCase, {</span>
-  useClass: GetLocationUseCase,
-});
+<span class="cstat-no" title="statement not covered" >  container.register(TOKENS_LOCATION.getLocationsUseCase, {</span>
+    useClass: GetLocationsUseCase,
+  });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >container.register(TOKENS_LOCATION.createLocationUseCase, {</span>
-  useClass: CreateLocationUseCase,
-});
+<span class="cstat-no" title="statement not covered" >  container.register(TOKENS_LOCATION.createLocationUseCase, {</span>
+    useClass: CreateLocationUseCase,
+  });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >console.log("Location subgraph dependencies registered.");</span>
+<span class="cstat-no" title="statement not covered" >  console.log("Location subgraph dependencies registered.");</span>
 }
-<span class="cstat-no" title="statement not covered" >export default registerLocationDependencies;</span>
 &nbsp;
+<span class="cstat-no" title="statement not covered" >export default registerLocationDependencies;</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -160,7 +181,7 @@ function <span class="fstat-no" title="function not covered" >registerLocationDe
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-31T13:29:37.479Z
+                at 2026-11-03T13:58:23.373Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
