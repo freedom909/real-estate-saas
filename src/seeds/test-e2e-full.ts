@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Full E2E Integration Test for Tenant Switching
  * 
  * Tests the complete flow:
@@ -38,7 +38,7 @@ import { TenantRepository } from "@/core/tenant/infrastructure/repos/tenant.repo
 import tenantRouter from "@/gateway/routes/tenantRouter";
 
 import { v4 as uuidv4 } from "uuid";
-import sessionPort, { ISessionPort } from "@/subgraphs/auth/domain/ports/session.port";
+import  { ISessionPort } from "@/subgraphs/auth/domain/ports/session.port";
 
 // ── Config ────────────────────────────────────────────────
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/nakano";
@@ -224,13 +224,31 @@ async function testUnauthorized() {
     .set("Authorization", "Bearer invalid-token");
   assert(badToken.status === 401, "Invalid token → 401");
 }
+const sessionPort: ISessionPort = {
+  createSession: jest.fn().mockResolvedValue({
+    accessToken: "mock-access-token",
+    refreshToken: "mock-refresh-token",
+  }),
+
+  revokeSession: jest.fn().mockResolvedValue(undefined),
+
+  updateActiveTenant: jest.fn().mockResolvedValue(undefined),
+
+  findSessionById: jest.fn().mockResolvedValue({
+    activeTenantId: null,
+  }),
+  rotateRefreshTokenId: function (input: { sessionId: string; userId: string; oldRefreshTokenId: string; newRefreshTokenId: string; }): Promise<boolean> {
+    throw new Error("Function not implemented.");
+  }
+};
+
 
 async function testUseCaseDirectly() {
   console.log("\n═══ Test 10: SwitchTenantUseCase Direct ═══");
 
   const tenantRepo = new (await import("@/core/tenant/infrastructure/repos/tenant.repository")).TenantRepository(TenantModel);
   const membershipRepo = new MembershipRepository(MembershipModel);
-  const useCase = new SwitchTenantUseCase(membershipRepo, tenantRepo, sessionPort as any as ISessionPort);
+  const useCase = new SwitchTenantUseCase(membershipRepo, tenantRepo, sessionPort);
 
   // Valid switch
   const result = await useCase.execute({ userId: ALICE_ID, tenantId: KYOTO_TENANT_ID, sessionId: testSessionId });

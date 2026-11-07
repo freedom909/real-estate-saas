@@ -6,7 +6,7 @@ import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 import ChallengeRepo from "../../infrastructure/repos/challenge.repo";
 import { VerifyOtpCommand } from "../dto/verifyOtp.command";
 import { OtpVerifiedEvent } from "../../domain/events/otpVerified.event";
-import SessionPort from "../../domain/ports/session.port";
+import { ISessionPort } from "../../domain/ports/session.port";
 
 import { TrustedDevice } from "@/security/domain/entities/trustedDevice.entity";
 import { ITrustedDeviceRepo } from "@/security/domain/repos/ITrustedDeviceRepo";
@@ -21,7 +21,7 @@ export class VerifyOtpUseCase {
     private challengeRepo: ChallengeRepo,
 
     @inject(TOKENS_AUTH.ports.sessionPort)
-    private sessionPort: SessionPort,
+    private sessionPort: ISessionPort,
 
     @inject(TOKENS_SECURITY.otpService)
     private otpService: OtpService,

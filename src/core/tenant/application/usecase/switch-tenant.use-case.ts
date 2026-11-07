@@ -9,6 +9,11 @@ import { IMembershipRepository } from "../../domain/repos/i-membership.repositor
 import { ITenantRepository } from "../../domain/repos/i-tenant.repository";
 import { ISessionPort } from "@/subgraphs/auth/domain/ports/session.port";
 
+type ISwitchTenantSessionPort = Pick<
+  ISessionPort,
+  "updateActiveTenant"
+>;
+
 @injectable()
 export class SwitchTenantUseCase {
   constructor(
@@ -19,7 +24,7 @@ export class SwitchTenantUseCase {
     private tenantRepo: ITenantRepository,
 
     @inject(TOKENS_AUTH.ports.sessionPort)
-    private sessionPort: ISessionPort
+    private sessionPort: ISwitchTenantSessionPort
   ) {}
 
   async execute(input: {
@@ -54,6 +59,7 @@ export class SwitchTenantUseCase {
 
     // 4. 持久化当前 Session 的 activeTenantId
     await this.sessionPort.updateActiveTenant(
+      userId,
       sessionId,
       tenantId
     );

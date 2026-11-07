@@ -12,16 +12,9 @@ import { TOKENS_SECURITY } from "../modules/tokens/security.tokens";
 
 // services
 import registerAuthDependencies from "../subgraphs/auth/registerAuthDependencies";
-import { OAuthLoginUseCase } from "../subgraphs/auth/application/usecases/login.usecase";
 import { jest } from "@jest/globals";
 
-// domain
-import { RiskEngine } from "../security/domain/risk.engine";
-import { DecisionEngine } from "../security/domain/decision.engine";
-import { IAuditRepo } from "../security/types";
-import { ITrustedDeviceRepo } from "../security/domain/repos/ITrustedDeviceRepo";
-import { IAiRiskEngine } from "../security/domain/ai.risk.engine";
-import SessionPort from "../subgraphs/auth/domain/ports/session.port";
+
 
 // types
 type UserClient = {
@@ -70,12 +63,20 @@ export function createTestContext() {
     auditRepo: {
       log: jest.fn<any>(),
     },
-    sessionPort: {
-      createSession: jest.fn<any>().mockResolvedValue({
-        accessToken: "mock-access-token",
-        refreshToken: "mock-refresh-token",
-      }),
-    },
+sessionPort: {
+  createSession: jest.fn<any>().mockResolvedValue({
+    accessToken: "mock-access-token",
+    refreshToken: "mock-refresh-token",
+  }),
+
+  revokeSession: jest.fn<any>().mockResolvedValue(undefined),
+
+  updateActiveTenant: jest.fn<any>().mockResolvedValue(undefined),
+
+  findSessionById: jest.fn<any>().mockResolvedValue({
+    activeTenantId: null,
+  }),
+},
     providerRegistry: {
       get: jest.fn<any>().mockReturnValue({
         verify: jest.fn<any>().mockResolvedValue({
@@ -124,12 +125,14 @@ export function createTestContext() {
     useValue: mocks.auditRepo,
   });
 
+    // 3️⃣ 注册 auth 依赖
+  registerAuthDependencies(container);
+
   container.register(TOKENS_AUTH.ports.sessionPort, {
     useValue: mocks.sessionPort,
   });
 
-  // 3️⃣ 再注册 auth 依赖
-  registerAuthDependencies(container);
+
 
   // 4️⃣ 注册 mock use case (override the registered one)
   container.register(TOKENS_AUTH.usecases.oauthLoginUseCase, {

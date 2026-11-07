@@ -10,7 +10,11 @@ import { Session } from "@/subgraphs/auth/domain/valueObjects/session.vo";
 const router = express.Router();
 
 const gatewaySessionPort: ISessionPort = {
-  async updateActiveTenant(sessionId: string, tenantId: string) {
+  async updateActiveTenant(
+    userId: string,
+    sessionId: string,
+    tenantId: string
+  ): Promise<void> {
     const { default: mongoose } = await import("mongoose");
 
     const SessionModel = mongoose.models.Session;
@@ -20,31 +24,49 @@ const gatewaySessionPort: ISessionPort = {
     }
 
     const result = await SessionModel.findOneAndUpdate(
-      { id: sessionId },
       {
-        $set: {
-          activeTenantId: tenantId,
-          status: "ACTIVE",
-        },
+        id: sessionId,
+        userId,
+        revoked: false,
+        status: "ACTIVE",
+        expiresAt: { $gt: new Date() },
       },
-      { new: true }
+      {
+        $set: { activeTenantId: tenantId },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
     );
 
     if (!result) {
-      throw new Error("Session not found");
+      throw new Error("Invalid or inactive session");
     }
   },
 
-  async createSession() {
-    throw new Error("Not implemented in gateway adapter");
+  async createSession(): Promise<never> {
+    throw new Error(
+      "createSession is not supported by gatewaySessionPort"
+    );
   },
 
-  async revokeSession() {
-    throw new Error("Not implemented in gateway adapter");
+  async revokeSession(): Promise<void> {
+    throw new Error(
+      "revokeSession is not supported by gatewaySessionPort"
+    );
   },
 
-  async findSessionById() {
-    throw new Error("Not implemented in gateway adapter");
+  async findSessionById(): Promise<null> {
+    throw new Error(
+      "findSessionById is not supported by gatewaySessionPort"
+    );
+  },
+
+  async rotateRefreshTokenId(): Promise<boolean> {
+    throw new Error(
+      "rotateRefreshTokenId is not supported by gatewaySessionPort"
+    );
   },
 };
 /**
@@ -179,7 +201,7 @@ const { default: MembershipModel } = await import(
     );
 
     // Find all memberships for this user
-    const memberships = await MembershipModel.find({ userId: user.userId }).lean();
+    const memberships = await MembershipModel.find({ userId: user.userId,status: "ACTIVE" }).lean();
    
 console.log("[Tenant Available Debug]", {
   database: mongoose.connection.name,
@@ -188,22 +210,6 @@ console.log("[Tenant Available Debug]", {
   totalMemberships: await MembershipModel.countDocuments(),
   matchedMemberships: memberships.length,
   totalTenants: await TenantModel.countDocuments(),
-});
-
-const allMemberships = await MembershipModel.find({})
-  .select("userId tenantId role status")
-  .lean();
-
-console.log("[Tenant Membership ID Check]", {
-  currentUserIdSuffix: user.userId.slice(-6),
-  memberships: allMemberships.map((m: any) => ({
-    userIdSuffix: String(m.userId).slice(-6),
-    tenantIdSuffix: String(m.tenantId).slice(-6),
-    role: m.role,
-    status: m.status,
-    matchesCurrentUser:
-      String(m.userId) === user.userId,
-  })),
 });
 
     if (memberships.length === 0) {
@@ -215,7 +221,7 @@ console.log("[Tenant Membership ID Check]", {
     const tenantIds = memberships.map((m: any) => m.tenantId.toString());
 
     // Fetch tenants by their IDs
-const tenants = await TenantModel.find({ _id: { $in: tenantIds } })
+const tenants = await TenantModel.find({ _id: { $in: tenantIds },status: "ACTIVE" })
   .select("name slug status")
   .lean();
 
@@ -265,7 +271,7 @@ router.get("/active", async (req, res) => {
     const { default: SessionModel } = await import(
       "@/subgraphs/auth/infrastructure/models/session.model"
     );
- const session = await SessionModel.findOne({ id: user.sessionId }as Partial<Session>)
+ const session = await SessionModel.findOne({ id: user.sessionId } as Partial<Session>)
       .select("activeTenantId")
       .lean();
 console.log("[Tenant Active Debug]", {

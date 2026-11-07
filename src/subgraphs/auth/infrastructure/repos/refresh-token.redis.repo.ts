@@ -15,6 +15,7 @@ interface RefreshTokenMeta {
   userId: string;
   sessionId: string;
   deviceId: string;
+  issuedAt?: string;
 }
 
 const redis = createRedis();
@@ -22,6 +23,45 @@ const redis = createRedis();
 
 
 export default class RedisRefreshTokenRepo {
+  async consume(token: string): Promise<RefreshTokenMeta | null> {
+  const h = hash(token);
+
+  const luaScript = `
+    local userId = redis.call("HGET", KEYS[1], "userId")
+    local sessionId = redis.call("HGET", KEYS[1], "sessionId")
+    local deviceId = redis.call("HGET", KEYS[1], "deviceId")
+    local issuedAt = redis.call("HGET", KEYS[1], "issuedAt")
+
+    if not userId or not sessionId or not deviceId then
+      return nil
+    end
+
+    redis.call("DEL", KEYS[1])
+    redis.call("SREM", "user:" .. userId .. ":refreshTokens", ARGV[1])
+    redis.call("SREM", "user:" .. userId .. ":devices:" .. deviceId, sessionId)
+
+    return { userId, sessionId, deviceId, issuedAt or "" }
+  `;
+
+  const result = await redis.eval(
+    luaScript,
+    1,
+    `refresh:${h}`,
+    h
+  ) as string[] | null;
+
+  if (!result) {
+    return null;
+  }
+
+  return {
+    userId: result[0],
+    sessionId: result[1],
+    deviceId: result[2],
+    issuedAt: result[3] || undefined,
+  };
+}
+
   async save({ userId, token, sessionId, deviceId, ttl, issuedAt }: RefreshTokenData): Promise<void> {
     const h = hash(token);
 
@@ -30,6 +70,7 @@ export default class RedisRefreshTokenRepo {
       userId,
       sessionId,
       deviceId,
+      issuedAt: issuedAt?.toISOString(),
     });
     pipeline.expire(`refresh:${h}`, ttl);
 

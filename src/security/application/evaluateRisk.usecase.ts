@@ -11,7 +11,7 @@ import { IAiRiskEngine } from "../domain/ai.risk.engine";
 import { TOKENS_INFRA } from "@/modules/tokens/infra.tokens";
 import Redis from "ioredis";
 import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
-import SessionPort from "@/subgraphs/auth/domain/ports/session.port";
+import { ISessionPort } from "@/subgraphs/auth/domain/ports/session.port";
 
 
 @injectable()
@@ -36,7 +36,7 @@ export class EvaluateRiskUseCase {
     private audit: IAuditRepo,
 
     @inject(TOKENS_AUTH.ports.sessionPort)
-    private sessionPort: SessionPort,
+    private sessionPort: ISessionPort,
   ) {}
 
 async execute(event: SecurityEvent): Promise<RiskResult> {

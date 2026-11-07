@@ -11,7 +11,7 @@ import { IdentityRepository } from "../../infrastructure/repos/identity.repo";
 import { TOKENS_USER } from "@/modules/tokens/user.tokens";
 import { IUserGateway } from "../../domain/ports/user.gateway";
 import ChallengeRepo from "../../infrastructure/repos/challenge.repo";
-import SessionPort, { ISessionPort } from "../../domain/ports/session.port";
+import { ISessionPort } from "../../domain/ports/session.port";
 import { AuthResult } from "../../domain/entities/authResult";
 import { AuthResponseMapper } from "../dto/auth-response.mapper";
 
@@ -32,7 +32,7 @@ export class OAuthLoginUseCase {
     private challengeRepo: ChallengeRepo,
 
     @inject(TOKENS_AUTH.ports.sessionPort)
-    private sessionPort: SessionPort,
+    private sessionPort: ISessionPort,
 
     @inject(TOKENS_AUTH.repos.identityRepo)
     private identityRepo: IdentityRepository

@@ -14,6 +14,7 @@ import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
 import { ISessionPort } from "./domain/ports/session.port";
 import { IUserGateway } from "./domain/ports/user.gateway";
 import { requireGlobalRole } from "./application/requireGlobalRole";
+import { RefreshTokenUseCase } from "./application/usecases/refreshToken.usecase";
 
 type User = {
   userId: string;
@@ -229,51 +230,21 @@ console.log(
   // è¿™é‡Œæš‚æ—¶æŒ‰ç…§ä½ å½“å‰ GraphQL çš„è®¾è®¡ç»§ç»­å¤„ç†
 },
 
-    // â”€â”€ Refresh Token â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    refreshToken: async (
-      _: unknown,
-      { refreshToken }: { refreshToken: string },
-      ctx: Context
-    ) => {
-      const sessionService = ctx.container.resolve<ISessionPort>(
-        TOKENS_AUTH.ports.sessionPort
-      );
-     const userGateway = ctx.container.resolve<IUserGateway>(
-      TOKENS_AUTH.ports.userGateway
-     );
-      
-      try {
-        // 1ï¸âƒ£ Verify the refresh token
-        const decoded = jwt.verify(
-          refreshToken,
-          process.env.ACCESS_TOKEN_SECRET!
-        ) as { sub: string; sessionId: string; type: string };
+refreshToken: async (
+  _: unknown,
+  { refreshToken }: { refreshToken: string },
+  ctx: Context
+) => {
+  const useCase = ctx.container.resolve<RefreshTokenUseCase>(
+    TOKENS_AUTH.usecases.refreshTokenUseCase
+  );
 
-        if (decoded.type !== "refresh") {
-          throw new Error("Invalid token type");
-        }
+  return useCase.execute({
+    refreshToken,
+    userId: ctx.user.userId!,
+  });
+},
 
-        // 2ï¸âƒ£ Create new token pair
-        const user = await userGateway.findById(decoded.sub);
-        if (!user) throw new Error("User not found");
-        const globalRole = requireGlobalRole(user.globalRole ?? user.role);
-        const tokens = await sessionService.createSession({
-          userId: decoded.sub,
-          role: globalRole,
-          email: user.email,
-        });
-
-        return {
-          __typename: "AuthTokens",
-          accessToken: tokens.accessToken,
-          refreshToken: tokens.refreshToken,
-        };
-      } catch (err) {
-        throw new Error("Invalid or expired refresh token");
-      }
-    },
-
-    // â”€â”€ Logout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logout: async (_: unknown, __: unknown, ctx: Context) => {
       if (!ctx.user) throw new Error("Unauthorized");
 

@@ -1,4 +1,4 @@
-// Gateway
+// src/gateway/index.ts
 
 import "reflect-metadata";
 

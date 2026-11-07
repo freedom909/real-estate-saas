@@ -1,5 +1,10 @@
-// domain/ports/session.port.ts
-
+// src/subgraphs/auth/domain/ports/session.port.ts
+export interface ActiveSession {
+  sessionId: string;
+  userId: string;
+  refreshTokenId: string;
+  activeTenantId: string | null;
+}
 
 export interface ISessionPort {
   createSession(input: {
@@ -15,31 +20,22 @@ export interface ISessionPort {
   }>;
 
   revokeSession(sessionId: string): Promise<void>;
-  updateActiveTenant(sessionId: string, tenantId: string): Promise<void>;
-  findSessionById(sessionId: string): Promise<{ activeTenantId?: string | null } | null>;
-}
 
-  export default class SessionPort implements ISessionPort {
-  revokeSession(sessionId: string): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  createSession(input: {
+  updateActiveTenant(
+    userId: string,
+    sessionId: string,
+    tenantId: string
+  ): Promise<void>;
+
+  findSessionById(
+    sessionId: string,
+    userId: string
+  ): Promise<ActiveSession | null>;
+
+  rotateRefreshTokenId(input: {
+    sessionId: string;
     userId: string;
-    role?: string | null;
-    deviceId?: string | null;
-    ip?: string | null;
-    userAgent?: string | null;
-    email?: string | null;
-  }): Promise<{
-    accessToken: string;
-    refreshToken: string;
-  }> {
-    throw new Error("Method not implemented.");
-  }
-  updateActiveTenant(_sessionId: string, _tenantId: string): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  findSessionById(_sessionId: string): Promise<{ activeTenantId?: string | null } | null> {
-    throw new Error("Method not implemented.");
-  }
+    oldRefreshTokenId: string;
+    newRefreshTokenId: string;
+  }): Promise<boolean>;
 }

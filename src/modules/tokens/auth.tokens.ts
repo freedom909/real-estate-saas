@@ -58,6 +58,9 @@ export const TOKENS_AUTH = {
     verifyOtpUseCase: Symbol.for("auth.VerifyOtpUseCase"), // ✅ 放这里
     oauthLoginUseCase: Symbol.for("auth.OAuthLoginUseCase"),
     providerRegistry: Symbol.for("auth.providerRegistry"),
+    switchTenantUseCase: Symbol.for("auth.switchTenantUseCase"),
+    revokeAllUseCase: Symbol.for("auth.revokeAllUseCase"),
+    refreshTokenUseCase: Symbol.for("auth.refreshTokenUseCase"),
   },
   // providers
   providers: {
