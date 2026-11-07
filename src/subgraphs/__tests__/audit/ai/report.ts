@@ -1,7 +1,11 @@
-import { readFileSync } from "fs";
-import { parse, visit, Kind } from "graphql";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { readFileSync } from "fs";
+import { resolve } from "path";
+import { parse, Kind, type DocumentNode } from "graphql";
+
+// ============================================================
+// Types
+// ============================================================
 
 export interface AgentResult {
   agent: string;
@@ -18,7 +22,7 @@ export interface AuditReport {
   timestamp: string;
   subgraph: string;
   overallStatus: "healthy" | "degraded" | "failing";
-  healthScore: number; // 0-100
+  healthScore: number;
   agents: AgentResult[];
   summary: {
     totalChecks: number;
@@ -29,35 +33,149 @@ export interface AuditReport {
   recommendations: string[];
 }
 
-// ─── Schema Validation Agent ─────────────────────────────────────────────────
+// ============================================================
+// Source paths
+// ============================================================
+
+const PATHS = {
+  schema: "src/subgraphs/audit/schema/schema.graphql",
+  resolver: "src/subgraphs/audit/resolvers/audit.resolver.ts",
+
+  logger:
+    "src/core/audit/application/write/services/audit.logger.ts",
+
+  query:
+    "src/core/audit/application/read/queries/get-audit-logs.query.ts",
+
+  repository:
+    "src/core/audit/infrastructure/repositories/auditLog.repository.ts",
+
+  model:
+    "src/core/audit/domain/value-objects/audit-log.model.ts",
+
+  registration: "src/modules/container/audit.register.ts",
+};
+
+function readSource(path: string): string {
+  return readFileSync(resolve(process.cwd(), path), "utf-8");
+}
 
 function readSchema(): string {
-  return readFileSync("./src/subgraphs/audit/schema/schema.graphql", "utf-8");
+  return readSource(PATHS.schema);
 }
 
 function readResolver(): string {
-  return readFileSync("./src/subgraphs/audit/resolvers/audit.resolver.ts", "utf-8");
+  return readSource(PATHS.resolver);
 }
 
-function readService(): string {
-  return readFileSync("./src/subgraphs/audit/services/audit.service.ts", "utf-8");
+function readLogger(): string {
+  return readSource(PATHS.logger);
+}
+
+function readQuery(): string {
+  return readSource(PATHS.query);
 }
 
 function readRepository(): string {
-  return readFileSync("./src/subgraphs/audit/repos/audit.repository.ts", "utf-8");
+  return readSource(PATHS.repository);
 }
 
 function readModel(): string {
-  return readFileSync("./src/subgraphs/audit/models/audit.model.ts", "utf-8");
+  return readSource(PATHS.model);
 }
 
 function readRegistration(): string {
-  return readFileSync("./src/modules/container/audit.register.ts", "utf-8");
+  return readSource(PATHS.registration);
 }
+
+// ============================================================
+// Shared validation helpers
+// ============================================================
+
+interface CheckResult {
+  check: string;
+  status: "pass" | "fail" | "warn";
+  message?: string;
+}
+
+function addCheck(
+  details: CheckResult[],
+  check: string,
+  passed: boolean,
+  message?: string,
+): void {
+  details.push({
+    check,
+    status: passed ? "pass" : "fail",
+    ...(message ? { message } : {}),
+  });
+}
+
+function addWarning(
+  details: CheckResult[],
+  check: string,
+  message: string,
+): void {
+  details.push({
+    check,
+    status: "warn",
+    message,
+  });
+}
+
+function buildAgentResult(
+  agent: string,
+  details: CheckResult[],
+  start: number,
+): AgentResult {
+  const passed = details.filter((d) => d.status === "pass").length;
+  const failed = details.filter((d) => d.status === "fail").length;
+  const warnings = details.filter((d) => d.status === "warn").length;
+
+  return {
+    agent,
+    status: failed > 0 ? "fail" : warnings > 0 ? "warn" : "pass",
+    total: details.length,
+    passed,
+    failed,
+    warnings,
+    duration: Date.now() - start,
+    details,
+  };
+}
+
+function failedAgent(
+  agent: string,
+  start: number,
+  error: unknown,
+): AgentResult {
+  const message =
+    error instanceof Error ? error.message : String(error);
+
+  return buildAgentResult(
+    agent,
+    [
+      {
+        check: `${agent} analysis`,
+        status: "fail",
+        message,
+      },
+    ],
+    start,
+  );
+}
+
+// ============================================================
+// GraphQL schema helpers
+// ============================================================
 
 interface SchemaField {
   name: string;
-  args: { name: string; type: string; required: boolean }[];
+  args: {
+    name: string;
+    type: string;
+    required: boolean;
+  }[];
   returnType: string;
   isList: boolean;
   isNullable: boolean;
@@ -68,56 +186,18 @@ interface SchemaType {
   fields: SchemaField[];
 }
 
-function parseSchema(sdl: string): {
-  queries: SchemaField[];
-  mutations: SchemaField[];
-  types: SchemaType[];
-} {
-  const doc = parse(sdl);
-  const queries: SchemaField[] = [];
-  const mutations: SchemaField[] = [];
-  const types: SchemaType[] = [];
-
-  visit(doc, {
-    ObjectTypeDefinition(node) {
-      const typeName = node.name.value;
-      const fields: SchemaField[] = [];
-
-      node.fields?.forEach((f) => {
-        const args =
-          f.arguments?.map((a) => ({
-            name: a.name.value,
-            type: extractTypeName(a.type),
-            required: a.type.kind === Kind.NON_NULL_TYPE,
-          })) ?? [];
-
-        const { typeName: returnTypeName, isList, isNullable } =
-          extractReturnType(f.type);
-
-        fields.push({
-          name: f.name.value,
-          args,
-          returnType: returnTypeName,
-          isList,
-          isNullable,
-        });
-      });
-
-      if (typeName === "Query") queries.push(...fields);
-      else if (typeName === "Mutation") mutations.push(...fields);
-      else types.push({ name: typeName, fields });
-    },
-  });
-
-  return { queries, mutations, types };
-}
-
 function extractTypeName(typeNode: any): string {
-  if (typeNode.kind === Kind.NON_NULL_TYPE) {
-    return typeNode.type.name?.value ?? "unknown";
+  switch (typeNode.kind) {
+    case Kind.NON_NULL_TYPE:
+    case Kind.LIST_TYPE:
+      return extractTypeName(typeNode.type);
+
+    case Kind.NAMED_TYPE:
+      return typeNode.name.value;
+
+    default:
+      return "unknown";
   }
-  if (typeNode.kind === Kind.NAMED_TYPE) return typeNode.name.value;
-  return "unknown";
 }
 
 function extractReturnType(typeNode: any): {
@@ -125,9 +205,9 @@ function extractReturnType(typeNode: any): {
   isList: boolean;
   isNullable: boolean;
 } {
+  let current = typeNode;
   let isList = false;
   let isNullable = true;
-  let current = typeNode;
 
   if (current.kind === Kind.NON_NULL_TYPE) {
     isNullable = false;
@@ -137,363 +217,432 @@ function extractReturnType(typeNode: any): {
   if (current.kind === Kind.LIST_TYPE) {
     isList = true;
     current = current.type;
-    if (current.kind === Kind.NON_NULL_TYPE) {
-      isNullable = false;
-      current = current.type;
+  }
+
+  if (current.kind === Kind.NON_NULL_TYPE) {
+    current = current.type;
+  }
+
+  return {
+    typeName: extractTypeName(current),
+    isList,
+    isNullable,
+  };
+}
+
+function parseSchema(sdl: string): {
+  queries: SchemaField[];
+  mutations: SchemaField[];
+  types: SchemaType[];
+} {
+  const document: DocumentNode = parse(sdl);
+
+  const queries: SchemaField[] = [];
+  const mutations: SchemaField[] = [];
+  const types: SchemaType[] = [];
+
+  for (const definition of document.definitions) {
+    if (definition.kind !== Kind.OBJECT_TYPE_DEFINITION) {
+      continue;
+    }
+
+    const typeName = definition.name.value;
+
+    const fields: SchemaField[] = (definition.fields ?? []).map(
+      (field) => {
+        const args = (field.arguments ?? []).map((argument) => ({
+          name: argument.name.value,
+          type: extractTypeName(argument.type),
+          required: argument.type.kind === Kind.NON_NULL_TYPE,
+        }));
+
+        const returnInfo = extractReturnType(field.type);
+
+        return {
+          name: field.name.value,
+          args,
+          returnType: returnInfo.typeName,
+          isList: returnInfo.isList,
+          isNullable: returnInfo.isNullable,
+        };
+      },
+    );
+
+    if (typeName === "Query") {
+      queries.push(...fields);
+    } else if (typeName === "Mutation") {
+      mutations.push(...fields);
+    } else {
+      types.push({
+        name: typeName,
+        fields,
+      });
     }
   }
 
-  if (current.kind === Kind.NAMED_TYPE) {
-    return { typeName: current.name.value, isList, isNullable };
-  }
-
-  return { typeName: "unknown", isList, isNullable };
+  return {
+    queries,
+    mutations,
+    types,
+  };
 }
+
+// ============================================================
+// Schema Validator
+// ============================================================
 
 export function runSchemaValidator(): AgentResult {
   const start = Date.now();
-  const details: any[] = [];
+  const details: CheckResult[] = [];
 
   try {
-    const schemaSdl = readSchema();
+    const schema = parseSchema(readSchema());
     const resolverCode = readResolver();
-    const serviceCode = readService();
-    const repoCode = readRepository();
+    const loggerCode = readLogger();
+    const queryCode = readQuery();
+    const repositoryCode = readRepository();
     const modelCode = readModel();
     const registrationCode = readRegistration();
-    const parsedSchema = parseSchema(schemaSdl);
 
-    let passed = 0;
-    let failed = 0;
-    let warnings = 0;
+    // 1. Query resolver alignment
+    for (const query of schema.queries) {
+      const exists = new RegExp(
+        `\\b${query.name}\\s*:`,
+      ).test(resolverCode);
 
-    // Check queries have resolvers
-    for (const q of parsedSchema.queries) {
-      const hasResolver =
-        resolverCode.includes(`${q.name}:`) ||
-        resolverCode.includes(`"${q.name}"`);
-      if (hasResolver) {
-        passed++;
-        details.push({ check: `Query.${q.name} resolver exists`, status: "pass" });
-      } else {
-        failed++;
-        details.push({
-          check: `Query.${q.name} resolver exists`,
-          status: "fail",
-          message: "No resolver found",
-        });
-      }
+      addCheck(
+        details,
+        `Query.${query.name} resolver exists`,
+        exists,
+        exists ? undefined : "Query resolver not found",
+      );
     }
 
-    // Check mutations have resolvers
-    for (const m of parsedSchema.mutations) {
-      const hasResolver =
-        resolverCode.includes(`${m.name}:`) ||
-        resolverCode.includes(`"${m.name}"`);
-      if (hasResolver) {
-        passed++;
-        details.push({ check: `Mutation.${m.name} resolver exists`, status: "pass" });
-      } else {
-        failed++;
-        details.push({
-          check: `Mutation.${m.name} resolver exists`,
-          status: "fail",
-          message: "No resolver found",
-        });
-      }
+    // 2. Mutation resolver alignment
+    for (const mutation of schema.mutations) {
+      const exists = new RegExp(
+        `\\b${mutation.name}\\s*:`,
+      ).test(resolverCode);
+
+      addCheck(
+        details,
+        `Mutation.${mutation.name} resolver exists`,
+        exists,
+        exists ? undefined : "Mutation resolver not found",
+      );
     }
 
-    // Check resolver calls service
-    const serviceCalls = resolverCode.match(/service\.(\w+)\(/g) ?? [];
-    for (const call of serviceCalls) {
-      const method = call.replace("service.", "").replace("(", "");
-      const hasMethod = serviceCode.includes(`${method}(`);
-      if (hasMethod) {
-        passed++;
-        details.push({ check: `Service.${method} exists`, status: "pass" });
-      } else {
-        failed++;
-        details.push({
-          check: `Service.${method} exists`,
-          status: "fail",
-          message: "Method not found in service",
-        });
-      }
-    }
+    // 3. Resolver -> Application Service alignment
+    const loggerMethodExists =
+      /writeAuditLog\s*\(/.test(loggerCode);
 
-    // Check service calls repository
-    const repoCalls = serviceCode.match(/this\.repo\.(\w+)\(/g) ?? [];
-    for (const call of repoCalls) {
-      const method = call.replace("this.repo.", "").replace("(", "");
-      const hasMethod = repoCode.includes(`${method}(`);
-      if (hasMethod) {
-        passed++;
-        details.push({ check: `Repository.${method} exists`, status: "pass" });
-      } else {
-        failed++;
-        details.push({
-          check: `Repository.${method} exists`,
-          status: "fail",
-          message: "Method not found in repository",
-        });
-      }
-    }
+    const queryMethodExists =
+      /execute\s*\(/.test(queryCode);
 
-    // Check DI registration
-    if (registrationCode.includes("AuditService")) {
-      passed++;
-      details.push({ check: "AuditService registered", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "AuditService registered", status: "fail" });
-    }
+    addCheck(
+      details,
+      "Service.writeAuditLog exists",
+      loggerMethodExists,
+    );
 
-    if (registrationCode.includes("AuditRepository")) {
-      passed++;
-      details.push({ check: "AuditRepository registered", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "AuditRepository registered", status: "fail" });
-    }
+    addCheck(
+      details,
+      "Service.execute exists",
+      queryMethodExists,
+    );
 
-    // Check model has schema fields
-    const auditLogType = parsedSchema.types.find((t) => t.name === "AuditLog");
+    // 4. Application Service -> Repository alignment
+    const loggerCallsCreate =
+      /this\.repository\.create\s*\(/s.test(loggerCode);
+
+    const queryCallsFindFiltered =
+      /this\.repository\.findFiltered\s*\(/s.test(queryCode);
+
+    addCheck(
+      details,
+      "Repository.create exists",
+      loggerCallsCreate &&
+        /create\s*\(/.test(repositoryCode),
+    );
+
+    addCheck(
+      details,
+      "Repository.findFiltered exists",
+      queryCallsFindFiltered &&
+        /findFiltered\s*\(/.test(repositoryCode),
+    );
+
+    // 5. Model fields
+    const auditLogType = schema.types.find(
+      (type) => type.name === "AuditLog",
+    );
+
+    addCheck(
+      details,
+      "AuditLog type exists",
+      Boolean(auditLogType),
+    );
+
     if (auditLogType) {
       for (const field of auditLogType.fields) {
-        // Skip __typename, federation fields, and 'id' (auto-generated by Mongoose as _id)
-        if (field.name.startsWith("__") || field.name === "id") continue;
-        const hasField =
-          modelCode.includes(`${field.name}:`) ||
-          modelCode.includes(`${field.name} {`);
-        if (hasField) {
-          passed++;
-          details.push({
-            check: `Model has field '${field.name}'`,
-            status: "pass",
-          });
+        if (
+          field.name === "id" ||
+          field.name.startsWith("__")
+        ) {
+          continue;
+        }
+
+        const exists = new RegExp(
+          `\\b${field.name}\\s*:`,
+        ).test(modelCode);
+
+        if (exists) {
+          addCheck(
+            details,
+            `Model has field '${field.name}'`,
+            true,
+          );
         } else {
-          warnings++;
-          details.push({
-            check: `Model has field '${field.name}'`,
-            status: "warn",
-            message: "Field not found in Mongoose model",
-          });
+          addWarning(
+            details,
+            `Model has field '${field.name}'`,
+            "Field was not found by the source-code inspection",
+          );
         }
       }
     }
 
-    return {
-      agent: "Schema Validator",
-      status: failed > 0 ? "fail" : warnings > 0 ? "warn" : "pass",
-      total: passed + failed + warnings,
-      passed,
-      failed,
-      warnings,
-      duration: Date.now() - start,
+    // 6. Dependency injection registration
+    addCheck(
       details,
-    };
-  } catch (err: any) {
-    return {
-      agent: "Schema Validator",
-      status: "fail",
-      total: 0,
-      passed: 0,
-      failed: 1,
-      warnings: 0,
-      duration: Date.now() - start,
-      details: [{ check: "Schema parsing", status: "fail", message: err.message }],
-    };
+      "AuditLogger registered in DI",
+      registrationCode.includes(
+        "TOKENS_AUDIT.services.auditLogger",
+      ) && registrationCode.includes("AuditLogger"),
+    );
+
+    addCheck(
+      details,
+      "GetAuditLogsQuery registered in DI",
+      registrationCode.includes(
+        "TOKENS_AUDIT.services.getAuditLogsQuery",
+      ) && registrationCode.includes("GetAuditLogsQuery"),
+    );
+
+    addCheck(
+      details,
+      "AuditLogRepository registered in DI",
+      registrationCode.includes(
+        "TOKENS_AUDIT.repos.auditLogRepository",
+      ) && registrationCode.includes("AuditLogRepository"),
+    );
+
+    addCheck(
+      details,
+      "AuditLogModel registered in DI",
+      registrationCode.includes(
+        "TOKENS_AUDIT.models.auditLogModel",
+      ),
+    );
+
+    return buildAgentResult(
+      "Schema Validator",
+      details,
+      start,
+    );
+  } catch (error) {
+    return failedAgent("Schema Validator", start, error);
   }
 }
 
-// ─── Resolver Agent ──────────────────────────────────────────────────────────
+// ============================================================
+// Resolver Validator
+// ============================================================
 
 export function runResolverValidator(): AgentResult {
   const start = Date.now();
-  const details: any[] = [];
-  let passed = 0;
-  let failed = 0;
+  const details: CheckResult[] = [];
 
   try {
     const resolverCode = readResolver();
 
-    // Check Query resolvers exist
-    const queryMethods = ["getAuditLog", "getAuditLogsByResource"];
-    for (const method of queryMethods) {
-      if (resolverCode.includes(`${method}:`)) {
-        passed++;
-        details.push({
-          check: `Query.${method} defined`,
-          status: "pass",
-        });
-      } else {
-        failed++;
-        details.push({
-          check: `Query.${method} defined`,
-          status: "fail",
-        });
-      }
-    }
-
-    // Check Mutation resolvers
-    if (resolverCode.includes("recordAuditLog:")) {
-      passed++;
-      details.push({ check: "Mutation.recordAuditLog defined", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "Mutation.recordAuditLog defined", status: "fail" });
-    }
-
-    // Check DI usage
-    if (resolverCode.includes("container.resolve(AuditService)")) {
-      passed++;
-      details.push({ check: "Uses container.resolve for DI", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "Uses container.resolve for DI", status: "fail" });
-    }
-
-    // Check no direct model access
-    const hasDirectModelAccess = resolverCode
-      .split("\n")
-      .some(
-        (line) =>
-          line.includes("AuditModel.") &&
-          !line.includes("//") &&
-          !line.includes("import")
-      );
-    if (!hasDirectModelAccess) {
-      passed++;
-      details.push({
-        check: "No direct model access in resolver",
-        status: "pass",
-      });
-    } else {
-      failed++;
-      details.push({
-        check: "No direct model access in resolver",
-        status: "fail",
-        message: "Resolver accesses model directly",
-      });
-    }
-
-    // Check input validation
-    if (resolverCode.includes("UserInputError")) {
-      passed++;
-      details.push({ check: "Input validation with UserInputError", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "Input validation with UserInputError", status: "fail" });
-    }
-
-    // Check AuditLog field resolver
-    if (resolverCode.includes("AuditLog:") && resolverCode.includes("user:")) {
-      passed++;
-      details.push({ check: "AuditLog.user field resolver exists", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "AuditLog.user field resolver exists", status: "fail" });
-    }
-
-    return {
-      agent: "Resolver Validator",
-      status: failed > 0 ? "fail" : "pass",
-      total: passed + failed,
-      passed,
-      failed,
-      warnings: 0,
-      duration: Date.now() - start,
+    // 1. Query resolver
+    addCheck(
       details,
-    };
-  } catch (err: any) {
-    return {
-      agent: "Resolver Validator",
-      status: "fail",
-      total: 0,
-      passed: 0,
-      failed: 1,
-      warnings: 0,
-      duration: Date.now() - start,
-      details: [{ check: "Resolver analysis", status: "fail", message: err.message }],
-    };
+      "Query.getAuditLogs defined",
+      /Query\s*:\s*\{[\s\S]*?getAuditLogs\s*:/.test(
+        resolverCode,
+      ),
+    );
+
+    // 2. Mutation resolver
+    addCheck(
+      details,
+      "Mutation.recordAuditLog defined",
+      /Mutation\s*:\s*\{[\s\S]*?recordAuditLog\s*:/.test(
+        resolverCode,
+      ),
+    );
+
+    // 3. Dependency injection
+    const usesContainerResolve =
+      resolverCode.includes("container.resolve");
+
+    const usesLoggerToken =
+      resolverCode.includes(
+        "TOKENS_AUDIT.services.auditLogger",
+      );
+
+    const usesQueryToken =
+      resolverCode.includes(
+        "TOKENS_AUDIT.services.getAuditLogsQuery",
+      );
+
+    addCheck(
+      details,
+      "Uses container.resolve for DI",
+      usesContainerResolve && usesLoggerToken && usesQueryToken,
+    );
+
+    // 4. No direct database model access
+    const hasDirectModelAccess =
+      /\b(?:AuditModel|AuditLogModel)\s*\./.test(
+        resolverCode,
+      );
+
+    addCheck(
+      details,
+      "No direct model access in resolver",
+      !hasDirectModelAccess,
+      hasDirectModelAccess
+        ? "Resolver accesses a database model directly"
+        : undefined,
+    );
+
+    // 5. Service delegation
+    addCheck(
+      details,
+      "Resolver delegates writes to AuditLogger",
+      /service\.writeAuditLog\s*\(\s*input\s*\)/s.test(
+        resolverCode,
+      ),
+    );
+
+    addCheck(
+      details,
+      "Resolver delegates reads to GetAuditLogsQuery",
+      /service\.execute\s*\(\s*filter\s*\?\?\s*\{\}\s*\)/s.test(
+        resolverCode,
+      ),
+    );
+
+    return buildAgentResult(
+      "Resolver Validator",
+      details,
+      start,
+    );
+  } catch (error) {
+    return failedAgent("Resolver Validator", start, error);
   }
 }
 
-// ─── Service Agent ───────────────────────────────────────────────────────────
+// ============================================================
+// Service Validator
+// ============================================================
 
 export function runServiceValidator(): AgentResult {
   const start = Date.now();
-  const details: any[] = [];
-  let passed = 0;
-  let failed = 0;
+  const details: CheckResult[] = [];
 
   try {
-    const serviceCode = readService();
+    const loggerCode = readLogger();
+    const queryCode = readQuery();
+    const repositoryCode = readRepository();
 
-    // Check @injectable
-    if (serviceCode.includes("@injectable()")) {
-      passed++;
-      details.push({ check: "Service is @injectable", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "Service is @injectable", status: "fail" });
-    }
+    // 1. Injectable decorators
+    const loggerInjectable =
+      loggerCode.includes("@injectable()");
 
-    // Check repository injection
-    if (serviceCode.includes("@inject(AuditRepository)")) {
-      passed++;
-      details.push({ check: "Repository injected via @inject", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "Repository injected via @inject", status: "fail" });
-    }
+    const queryInjectable =
+      queryCode.includes("@injectable()");
 
-    // Check methods exist
-    const methods = ["getAuditLog", "getLogsByResource", "createLog"];
-    for (const method of methods) {
-      if (serviceCode.includes(`${method}(`)) {
-        passed++;
-        details.push({ check: `Service.${method} exists`, status: "pass" });
-      } else {
-        failed++;
-        details.push({ check: `Service.${method} exists`, status: "fail" });
-      }
-    }
-
-    // Check return types
-    if (serviceCode.includes("Promise<")) {
-      passed++;
-      details.push({ check: "Methods return Promises", status: "pass" });
-    } else {
-      failed++;
-      details.push({ check: "Methods return Promises", status: "fail" });
-    }
-
-    return {
-      agent: "Service Validator",
-      status: failed > 0 ? "fail" : "pass",
-      total: passed + failed,
-      passed,
-      failed,
-      warnings: 0,
-      duration: Date.now() - start,
+    addCheck(
       details,
-    };
-  } catch (err: any) {
-    return {
-      agent: "Service Validator",
-      status: "fail",
-      total: 0,
-      passed: 0,
-      failed: 1,
-      warnings: 0,
-      duration: Date.now() - start,
-      details: [{ check: "Service analysis", status: "fail", message: err.message }],
-    };
+      "Service uses @injectable()",
+      loggerInjectable && queryInjectable,
+    );
+
+    // 2. Repository injection
+    const loggerInjectsRepository =
+      loggerCode.includes(
+        "TOKENS_AUDIT.repos.auditLogRepository",
+      );
+
+    const queryInjectsRepository =
+      queryCode.includes(
+        "TOKENS_AUDIT.repos.auditLogRepository",
+      );
+
+    addCheck(
+      details,
+      "Service injects IAuditLogRepository",
+      loggerInjectsRepository && queryInjectsRepository,
+    );
+
+    // 3. Application service methods
+    addCheck(
+      details,
+      "Service.AuditLogger.writeAuditLog exists",
+      /writeAuditLog\s*\(/.test(loggerCode),
+    );
+
+    addCheck(
+      details,
+      "Service.GetAuditLogsQuery.execute exists",
+      /execute\s*\(/.test(queryCode),
+    );
+
+    // 4. Repository methods used by services
+    addCheck(
+      details,
+      "Service.Repository.create exists",
+      /this\.repository\.create\s*\(/s.test(loggerCode) &&
+        /create\s*\(/.test(repositoryCode),
+    );
+
+    addCheck(
+      details,
+      "Service.Repository.findFiltered exists",
+      /this\.repository\.findFiltered\s*\(/s.test(queryCode) &&
+        /findFiltered\s*\(/.test(repositoryCode),
+    );
+
+    // 5. Promise return types
+    addCheck(
+      details,
+      "AuditLogger returns Promise",
+      /Promise\s*<\s*AuditLog\s*>/.test(loggerCode),
+    );
+
+    addCheck(
+      details,
+      "GetAuditLogsQuery returns Promise",
+      /Promise\s*<\s*AuditLog\s*\[\s*\]\s*>/.test(queryCode),
+    );
+
+    return buildAgentResult(
+      "Service Validator",
+      details,
+      start,
+    );
+  } catch (error) {
+    return failedAgent("Service Validator", start, error);
   }
 }
 
-// ─── Report Generator ────────────────────────────────────────────────────────
+// ============================================================
+// Report Generator
+// ============================================================
 
 export function generateReport(): AuditReport {
   const agents: AgentResult[] = [
@@ -503,15 +652,29 @@ export function generateReport(): AuditReport {
   ];
 
   const summary = {
-    totalChecks: agents.reduce((sum, a) => sum + a.total, 0),
-    totalPassed: agents.reduce((sum, a) => sum + a.passed, 0),
-    totalFailed: agents.reduce((sum, a) => sum + a.failed, 0),
-    totalWarnings: agents.reduce((sum, a) => sum + a.warnings, 0),
+    totalChecks: agents.reduce(
+      (sum, agent) => sum + agent.total,
+      0,
+    ),
+    totalPassed: agents.reduce(
+      (sum, agent) => sum + agent.passed,
+      0,
+    ),
+    totalFailed: agents.reduce(
+      (sum, agent) => sum + agent.failed,
+      0,
+    ),
+    totalWarnings: agents.reduce(
+      (sum, agent) => sum + agent.warnings,
+      0,
+    ),
   };
 
   const healthScore =
     summary.totalChecks > 0
-      ? Math.round((summary.totalPassed / summary.totalChecks) * 100)
+      ? Math.round(
+          (summary.totalPassed / summary.totalChecks) * 100,
+        )
       : 0;
 
   const overallStatus =
@@ -522,17 +685,29 @@ export function generateReport(): AuditReport {
         : "healthy";
 
   const recommendations: string[] = [];
+
   if (summary.totalFailed > 0) {
-    recommendations.push("Fix failing checks before deploying");
+    recommendations.push(
+      "Fix failing checks before deploying",
+    );
   }
+
   if (summary.totalWarnings > 0) {
-    recommendations.push("Review warnings for potential issues");
+    recommendations.push(
+      "Review warnings for potential issues",
+    );
   }
+
   if (healthScore < 80) {
-    recommendations.push("Health score is below 80% — prioritize fixes");
+    recommendations.push(
+      "Health score is below 80% - prioritize fixes",
+    );
   }
+
   if (recommendations.length === 0) {
-    recommendations.push("All checks passing — system is healthy");
+    recommendations.push(
+      "All checks passing - system is healthy",
+    );
   }
 
   return {
@@ -546,41 +721,66 @@ export function generateReport(): AuditReport {
   };
 }
 
-export function formatReportMarkdown(report: AuditReport): string {
+// ============================================================
+// Markdown Formatter
+// ============================================================
+
+export function formatReportMarkdown(
+  report: AuditReport,
+): string {
   const lines: string[] = [];
 
   lines.push("# Audit Subgraph Report");
   lines.push("");
+
   lines.push(`**Generated:** ${report.timestamp}`);
   lines.push(`**Subgraph:** ${report.subgraph}`);
-  lines.push(
-    `**Status:** ${report.overallStatus === "healthy" ? "✅ Healthy" : report.overallStatus === "degraded" ? "⚠️ Degraded" : "❌ Failing"}`
-  );
+
+  const statusLabel =
+    report.overallStatus === "healthy"
+      ? "Healthy"
+      : report.overallStatus === "degraded"
+        ? "Degraded"
+        : "Failing";
+
+  lines.push(`**Status:** ${statusLabel}`);
   lines.push(`**Health Score:** ${report.healthScore}/100`);
   lines.push("");
 
   lines.push("## Summary");
   lines.push("");
-  lines.push(`| Metric | Count |`);
-  lines.push(`|--------|-------|`);
-  lines.push(`| Total Checks | ${report.summary.totalChecks} |`);
-  lines.push(`| Passed | ${report.summary.totalPassed} |`);
-  lines.push(`| Failed | ${report.summary.totalFailed} |`);
-  lines.push(`| Warnings | ${report.summary.totalWarnings} |`);
+
+  lines.push("| Metric | Count |");
+  lines.push("|--------|-------|");
+  lines.push(
+    `| Total Checks | ${report.summary.totalChecks} |`,
+  );
+  lines.push(
+    `| Passed | ${report.summary.totalPassed} |`,
+  );
+  lines.push(
+    `| Failed | ${report.summary.totalFailed} |`,
+  );
+  lines.push(
+    `| Warnings | ${report.summary.totalWarnings} |`,
+  );
   lines.push("");
 
   lines.push("## Agent Results");
   lines.push("");
 
   for (const agent of report.agents) {
-    const icon =
-      agent.status === "pass" ? "✅" : agent.status === "warn" ? "⚠️" : "❌";
-    lines.push(`### ${icon} ${agent.agent}`);
+    lines.push(`### ${agent.agent}`);
     lines.push("");
+
     lines.push(
-      `- **Status:** ${agent.status} | **Passed:** ${agent.passed} | **Failed:** ${agent.failed} | **Warnings:** ${agent.warnings}`
+      `- **Status:** ${agent.status} | ` +
+        `**Passed:** ${agent.passed} | ` +
+        `**Failed:** ${agent.failed} | ` +
+        `**Warnings:** ${agent.warnings}`,
     );
-    if (agent.duration) {
+
+    if (agent.duration !== undefined) {
       lines.push(`- **Duration:** ${agent.duration}ms`);
     }
 
@@ -588,25 +788,35 @@ export function formatReportMarkdown(report: AuditReport): string {
       lines.push("");
       lines.push("| Check | Status |");
       lines.push("|-------|--------|");
-      for (const d of agent.details) {
-        const dIcon =
-          d.status === "pass" ? "✅" : d.status === "warn" ? "⚠️" : "❌";
-        lines.push(`| ${d.check} | ${dIcon} |`);
+
+      for (const detail of agent.details) {
+        lines.push(
+          `| ${detail.check} | ${detail.status} |`,
+        );
       }
     }
+
     lines.push("");
   }
 
   lines.push("## Recommendations");
   lines.push("");
-  for (const rec of report.recommendations) {
-    lines.push(`- ${rec}`);
+
+  for (const recommendation of report.recommendations) {
+    lines.push(`- ${recommendation}`);
   }
+
   lines.push("");
 
   return lines.join("\n");
 }
 
-export function formatReportJSON(report: AuditReport): string {
+// ============================================================
+// JSON Formatter
+// ============================================================
+
+export function formatReportJSON(
+  report: AuditReport,
+): string {
   return JSON.stringify(report, null, 2);
 }

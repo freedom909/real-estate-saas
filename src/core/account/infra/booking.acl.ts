@@ -28,26 +28,6 @@ export class BookingACL {
     private gateway: BookingGateway
   ) {}
 
-  /**
-   * Fetch all bookings for a user and normalize them for Account domain use.
-   */
-  async getContexts(userId: string): Promise<BookingContextDTO[]> {
-    const rawBookings: BookingExternalDTO[] = await this.gateway.fetchBookingData(userId);
-    return rawBookings.map((booking) => ({
-      bookingId: booking.id,
-      userId: booking.customerId,
-      amount: booking.price,
-      status: booking.status,
-      ipAddress: booking.metadata?.ipAddress ?? "",
-      userAgent: booking.metadata?.userAgent ?? "",
-      history: {
-        previousCancellations: booking.customerStats?.cancellationCount ?? 0,
-        totalBookings: booking.customerStats?.totalBookingsCount ?? 0,
-      },
-      metadata: (booking.metadata as Record<string, unknown>) ?? {},
-      riskScore: 0,
-    }));
-  }
 
   /**
    * Fetch raw bookings (for dashboard queries that need the full objects).

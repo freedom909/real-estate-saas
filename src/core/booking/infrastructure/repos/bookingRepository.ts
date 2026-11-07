@@ -1,4 +1,4 @@
-// FILE: src/subgraphs/booking/infrastructure/repositories/sequelize-booking.repository.ts
+// FILE: src/core/booking/infrastructure/repos/bookingRepository.ts
 
 import { injectable } from "tsyringe";
 
@@ -10,12 +10,29 @@ import { BookingStatus } from "../../domain/value-objects/booking-status";
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 import { BookingMapper } from "../mappers/booking.mapper";
 import { WhereOptions } from "sequelize/types/model";
+import { Op } from "sequelize";
 
 
 const whereClause: WhereOptions<BookingAttributes> = {};
 
 @injectable()
 export class BookingRepository implements IBookingRepository {
+  async findByListingIdsAndTenantId(listingIds: string[], tenantId: string): Promise<Booking[]> {
+    if (!listingIds || listingIds.length === 0 || !tenantId) {
+      return [];
+    }
+    const models = await BookingModel.findAll({
+      where: {
+        listingId: {
+          [Op.in]: listingIds,
+        },
+        tenantId,
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    return models.map((m) => this.toDomain(m));
+  }
+  
   findByTenantId(tenantId: string): Promise<Booking[]> {
     throw new Error("Method not implemented.");
   }
@@ -59,7 +76,9 @@ export class BookingRepository implements IBookingRepository {
   async findByListingIds(listingIds: string[]): Promise<Booking[]> {
     if (!listingIds || listingIds.length === 0) return [];
     const models = await BookingModel.findAll({
-      where: { listingId: listingIds } as any,
+      where: { listingId: {
+    [Op.in]: listingIds,
+  } },
       order: [["createdAt", "DESC"]],
     });
     return models.map((m) => this.toDomain(m));

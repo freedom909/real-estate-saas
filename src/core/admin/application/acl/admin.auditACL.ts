@@ -52,6 +52,11 @@ export interface AdminAuditLogView {
   createdAt: Date | string;
 }
 
+export interface GetAuditLogsFilter extends AuditLogFilter {
+  page?: number;
+  limit?: number;
+}
+
 const ADMIN_RESOURCE_TYPE: ResourceType = "ADMIN";
 const DEFAULT_STATUS: AuditStatus = "SUCCESS";
 

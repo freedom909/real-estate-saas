@@ -1,6 +1,6 @@
 export const TOKENS_ACCOUNT = {
     // --- ACL Clients (HTTP to other subgraphs) ---
-    BookingClient: Symbol.for("Account.BookingClient"),
+    
     ListingClient: Symbol.for("Account.ListingClient"),
     ReviewClient: Symbol.for("Account.ReviewClient"),
     TenantClient: Symbol.for("Account.TenantClient"),

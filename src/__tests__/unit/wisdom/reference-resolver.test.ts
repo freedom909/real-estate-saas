@@ -17,10 +17,19 @@ const mockSearchListingUseCase = {
 describe("ListingReferenceResolver", () => {
   let resolver: ListingReferenceResolver;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    resolver = new ListingReferenceResolver(mockSearchListingUseCase as any);
-  });
+beforeEach(() => {
+  jest.clearAllMocks();
+
+  const mockGetLocationsUseCase = {
+    execute: jest.fn<() => Promise<any[]>>()
+      .mockResolvedValue([]),
+  };
+
+  resolver = new ListingReferenceResolver(
+    mockSearchListingUseCase as any,
+    mockGetLocationsUseCase as any,
+  );
+});
 
   function makeSearchResults() {
     return [

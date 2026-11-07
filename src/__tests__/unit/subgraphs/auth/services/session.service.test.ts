@@ -23,7 +23,13 @@ describe("SessionService", () => {
     jest.setSystemTime(FIXED_DATE);
     process.env.ACCESS_TOKEN_SECRET = "test-secret";
 
-    service = new SessionService({ create: jest.fn().mockResolvedValue(undefined), revokeById: jest.fn().mockResolvedValue(undefined) } as any);
+    service = new SessionService({
+  create: jest.fn<(...args: any[]) => Promise<any>>()
+    .mockResolvedValue(undefined),
+
+  revokeById: jest.fn<(...args: any[]) => Promise<any>>()
+    .mockResolvedValue(undefined),
+} as any);
   });
 
   afterEach(() => {

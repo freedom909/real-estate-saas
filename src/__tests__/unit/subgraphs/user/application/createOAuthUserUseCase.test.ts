@@ -3,15 +3,15 @@ import CreateOAuthUserUseCase from "../../../../../subgraphs/user/application/us
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 const mockRepo = {
-  findByEmail: jest.fn(),
-  create: jest.fn(),
-  findById: jest.fn(),
-  findAll: jest.fn(),
-  count: jest.fn(),
-  deactivate: jest.fn(),
-  setGlobalRole: jest.fn(),
-  save: jest.fn(),
-  activate: jest.fn(),
+  findByEmail: jest.fn<(email: string) => Promise<any>>(),
+  create: jest.fn<(input: any) => Promise<any>>(),
+  findById: jest.fn<(id: string) => Promise<any>>(),
+  findAll: jest.fn<(...args: any[]) => Promise<any>>(),
+  count: jest.fn<(...args: any[]) => Promise<number>>(),
+  deactivate: jest.fn<(id: string) => Promise<boolean>>(),
+  setGlobalRole: jest.fn<(...args: any[]) => Promise<any>>(),
+  save: jest.fn<(...args: any[]) => Promise<any>>(),
+  activate: jest.fn<(...args: any[]) => Promise<any>>(),
 };
 
 describe("CreateOAuthUserUseCase", () => {

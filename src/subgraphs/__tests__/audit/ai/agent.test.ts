@@ -1,3 +1,4 @@
+// ─── Shared infrastructure ──────────────────────────────────────
 import "reflect-metadata";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -7,6 +8,13 @@ import { runTests } from "./runner";
 
 let mongoServer: MongoMemoryServer;
 let harness: AuditHarness;
+
+function getAllErrors(result: any): any[] {
+  return [
+    ...(result.errors ?? []),
+    ...(result.graphQLErrors ?? []),
+  ];
+}
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
@@ -40,61 +48,46 @@ describe("Audit Subgraph — Integration Tests", () => {
       async (_name, t) => {
         const results = await runTests([t as any], harness);
 
-        if (t.expected?.hasErrors) {
-          expect(
-            results[0].graphQLErrors.length + results[0].errors.length
-          ).toBeGreaterThan(0);
-        } else {
-          expect(results[0].errors.length).toBe(0);
-          expect(results[0].data).not.toBeNull();
-        }
+const result = results[0];
+const allErrors = getAllErrors(result);
+
+if (t.expected?.hasErrors) {
+  expect(allErrors.length).toBeGreaterThan(0);
+
+  if (t.expected.errorSubstring) {
+    expect(
+      allErrors.some((error: any) =>
+        error.message.includes(t.expected!.errorSubstring!)
+      )
+    ).toBe(true);
+  }
+} else {
+  expect(allErrors).toHaveLength(0);
+  expect(result.data).not.toBeNull();
+}
       },
       10_000
     );
   });
 
-  describe("Query: getAuditLog", () => {
-    it("returns null for non-existent id", async () => {
+  describe("Query: getAuditLogs", () => {
+    it("returns an empty array for a non-existent resource", async () => {
       const validId = new mongoose.Types.ObjectId().toHexString();
+
       const results = await runTests(
         [
           {
-            name: "getAuditLog",
+            name: "getAuditLogs",
             query: `
-              query GetAuditLog($id: ID!) {
-                getAuditLog(userId: $id) {
+              query GetAuditLogs($resourceId: ID!) {
+                getAuditLogs(filter: { resourceId: $resourceId }) {
                   id
                   action
                   userId
                   resourceId
-                }
-              }
-            `,
-            variables: { id: validId },
-          },
-        ],
-        harness
-      );
-
-      expect(results[0].errors.length).toBe(0);
-      expect(results[0].data).not.toBeNull();
-    }, 10_000);
-  });
-
-  describe("Query: getAuditLogsByResource", () => {
-    it("returns array for resource", async () => {
-      const validId = new mongoose.Types.ObjectId().toHexString();
-      const results = await runTests(
-        [
-          {
-            name: "getAuditLogsByResource",
-            query: `
-              query GetLogsByResource($resourceId: ID!) {
-                getAuditLogsByResource(resourceId: $resourceId) {
-                  id
-                  action
-                  userId
-                  resourceId
+                  resourceType
+                  status
+                  createdAt
                 }
               }
             `,
@@ -104,8 +97,10 @@ describe("Audit Subgraph — Integration Tests", () => {
         harness
       );
 
-      expect(results[0].errors.length).toBe(0);
+      expect(results[0].graphQLErrors).toHaveLength(0);
+      expect(results[0].errors).toHaveLength(0);
       expect(results[0].data).not.toBeNull();
+      expect(results[0].data.getAuditLogs).toEqual([]);
     }, 10_000);
   });
 
@@ -122,15 +117,21 @@ describe("Audit Subgraph — Integration Tests", () => {
             query: `
               mutation {
                 recordAuditLog(
-                  action: "LOGIN",
-                  userId: "${userId}",
-                  resourceId: "${resourceId}"
+                  input: {
+                    action: "LOGIN"
+                    userId: "${userId}"
+                    resourceId: "${resourceId}"
+                    resourceType: LISTING
+                    status: SUCCESS
+                  }
                 ) {
                   id
                   action
                   userId
                   resourceId
-                  timestamp
+                  resourceType
+                  status
+                  createdAt
                 }
               }
             `,
@@ -139,7 +140,10 @@ describe("Audit Subgraph — Integration Tests", () => {
         harness
       );
 
-      expect(recordResults[0].errors.length).toBe(0);
+      expect(recordResults[0].graphQLErrors).toHaveLength(0);
+      expect(recordResults[0].errors).toHaveLength(0);
+      expect(recordResults[0].data).not.toBeNull();
+
       const loggedId = recordResults[0].data?.recordAuditLog?.id;
       expect(loggedId).toBeDefined();
 
@@ -150,11 +154,18 @@ describe("Audit Subgraph — Integration Tests", () => {
             name: "query",
             query: `
               query {
-                getAuditLogsByResource(resourceId: "${resourceId}") {
+                getAuditLogs(
+                  filter: {
+                    resourceId: "${resourceId}"
+                  }
+                ) {
                   id
                   action
                   userId
                   resourceId
+                  resourceType
+                  status
+                  createdAt
                 }
               }
             `,
@@ -163,8 +174,11 @@ describe("Audit Subgraph — Integration Tests", () => {
         harness
       );
 
-      expect(queryResults[0].errors.length).toBe(0);
-      const logs = queryResults[0].data?.getAuditLogsByResource;
+      expect(queryResults[0].graphQLErrors).toHaveLength(0);
+      expect(queryResults[0].errors).toHaveLength(0);
+
+      const logs = queryResults[0].data?.getAuditLogs;
+
       expect(Array.isArray(logs)).toBe(true);
       expect(logs.length).toBeGreaterThanOrEqual(1);
       expect(logs.some((l: any) => l.id === loggedId)).toBe(true);

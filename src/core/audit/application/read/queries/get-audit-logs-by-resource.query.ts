@@ -6,7 +6,7 @@ import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
 
 import {
   IAuditLogRepository,
-} from "@/core/audit/domain/entities/IAuditLogRepository";
+} from "@/core/audit/domain/interface/audit-log.repository.interface";
 
 import { AuditLog } from "@/core/audit/domain/entities/auditLog";
 

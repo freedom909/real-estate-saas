@@ -42,16 +42,14 @@ jest.mock("@/infrastructure/auth/require.auth", () => ({
 
 // Mock withAuthorization to pass through directly to resolver
 // This lets us test the resolver logic without the RBAC layer
-jest.mock("@/infrastructure/auth/withAuthorization", () => ({
-  withAuthorization: jest.fn(
-    (_action: any, _resource: any, resolverFn: any, _options?: any) =>
-      resolverFn
-  ),
+jest.mock("@/infrastructure/auth/require.auth", () => ({
+  requireAuth: jest.fn<(...args: any[]) => Promise<any>>(),
 }));
 
 const mockListingModel = {
-  findAll: jest.fn(),
+  findAll: jest.fn<(...args: any[]) => Promise<any[]>>(),
 };
+
 jest.mock("@/core/listing/infrastructure/models/listing.model", () => {
   return {
     __esModule: true,
@@ -63,6 +61,10 @@ import { resolvers } from "@/subgraphs/booking/resolvers";
 import { container } from "tsyringe";
 import { requireAuth } from "@/infrastructure/auth/require.auth";
 
+const mockedRequireAuth =
+  requireAuth as unknown as jest.MockedFunction<
+    (...args: any[]) => Promise<any>
+  >;
 describe("Booking Resolvers", () => {
   let mockBookingRepo: any;
   let mockGetBookingUseCase: any;
@@ -142,7 +144,7 @@ describe("Booking Resolvers", () => {
         { id: "booking-1", customerId: "customer-1" },
         { id: "booking-2", customerId: "customer-1" },
       ];
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "customer-1",
         role: "CUSTOMER",
       });
@@ -165,7 +167,7 @@ describe("Booking Resolvers", () => {
       // Regression: host with globalRole CUSTOMER must still see bookings
       // on their listings (JWT role never reflects tenant membership role).
       const ownerBookings = [{ id: "booking-1", customerId: "guest-1" }];
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "gifu-1",
         role: "CUSTOMER",
       });
@@ -185,7 +187,7 @@ describe("Booking Resolvers", () => {
     it("should return host's listings bookings + own bookings", async () => {
       const ownerBookings = [{ id: "booking-1", customerId: "guest-1" }];
       const customerBookings = [{ id: "booking-2", customerId: "host-1" }];
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "host-1",
         role: "HOST",
       });
@@ -215,7 +217,7 @@ describe("Booking Resolvers", () => {
         { id: "booking-2" },
         { id: "booking-3" },
       ];
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "admin-1",
         role: "ADMIN",
       });
@@ -235,7 +237,7 @@ describe("Booking Resolvers", () => {
       const sharedBooking = { id: "booking-1", customerId: "host-1" };
       const ownerBookings = [sharedBooking];
       const customerBookings = [sharedBooking, { id: "booking-2", customerId: "host-1" }];
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "host-1",
         role: "HOST",
       });
@@ -262,7 +264,7 @@ describe("Booking Resolvers", () => {
         { id: "booking-1", status: "PENDING", tenantId: "tenant-1" },
         { id: "booking-2", status: "CONFIRMED", tenantId: "tenant-1" },
       ];
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "gifu-1",
         role: "CUSTOMER",
       });
@@ -282,7 +284,7 @@ describe("Booking Resolvers", () => {
     });
 
     it("should filter by status when provided", async () => {
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "gifu-1",
         role: "CUSTOMER",
       });
@@ -305,7 +307,7 @@ describe("Booking Resolvers", () => {
     });
 
     it("should throw when a non-admin queries a foreign tenant", async () => {
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "gifu-1",
         role: "CUSTOMER",
       });
@@ -324,7 +326,7 @@ describe("Booking Resolvers", () => {
     });
 
     it("should allow admin to query any tenant", async () => {
-      (requireAuth as jest.Mock).mockResolvedValue({
+      mockedRequireAuth.mockResolvedValue({
         userId: "admin-1",
         role: "ADMIN",
       });

@@ -1,3 +1,4 @@
+
 import { readFileSync } from "fs";
 import { parse, visit } from "graphql";
 
@@ -26,103 +27,152 @@ export function generateTests(): AuditTestCase[] {
   visit(schema, {
     ObjectTypeDefinition(node) {
       if (node.name.value === "Mutation") {
-        node.fields?.forEach((f) => mutations.push(f.name.value));
+        node.fields?.forEach((field) => mutations.push(field.name.value));
       }
+
       if (node.name.value === "Query") {
-        node.fields?.forEach((f) => queries.push(f.name.value));
+        node.fields?.forEach((field) => queries.push(field.name.value));
       }
     },
   });
 
   const tests: AuditTestCase[] = [];
 
-  // ── Mutation: recordAuditLog ──────────────────────────────────
+  // Mutation: recordAuditLog
   if (mutations.includes("recordAuditLog")) {
     tests.push({
       name: "recordAuditLog — valid input",
       query: `
-        mutation RecordAuditLog($action: String!, $userId: ID!, $resourceId: ID) {
-          recordAuditLog(action: $action, userId: $userId, resourceId: $resourceId) {
+        mutation RecordAuditLog($input: RecordAuditLogInput!) {
+          recordAuditLog(input: $input) {
             id
             action
             userId
             resourceId
-            timestamp
+            resourceType
+            status
+            createdAt
           }
         }
       `,
       variables: {
-        action: "LOGIN",
-        userId: VALID_OBJECT_ID,
-        resourceId: VALID_OBJECT_ID,
+        input: {
+          action: "LOGIN",
+          userId: VALID_OBJECT_ID,
+          resourceId: VALID_OBJECT_ID,
+          resourceType: "AUTH",
+          status: "SUCCESS",
+        },
       },
       expected: { hasData: true },
     });
 
     tests.push({
-      name: "recordAuditLog — missing userId",
+      name: "recordAuditLog — missing optional userId",
       query: `
-        mutation RecordAuditLog($action: String!, $resourceId: ID) {
-          recordAuditLog(action: $action, resourceId: $resourceId) {
+        mutation RecordAuditLog($input: RecordAuditLogInput!) {
+          recordAuditLog(input: $input) {
             id
+            action
+            resourceId
+            resourceType
+            status
           }
         }
       `,
       variables: {
-        action: "LOGIN",
-        resourceId: VALID_OBJECT_ID,
+        input: {
+          action: "LOGIN",
+          resourceId: VALID_OBJECT_ID,
+          resourceType: "AUTH",
+          status: "SUCCESS",
+        },
       },
-      expected: { hasErrors: true, errorSubstring: "userId" },
+      expected: { hasData: true },
     });
 
     tests.push({
-      name: "recordAuditLog — invalid userId format",
+      name: "recordAuditLog — missing required action",
       query: `
-        mutation RecordAuditLog($action: String!, $userId: ID!, $resourceId: ID) {
-          recordAuditLog(action: $action, userId: $userId, resourceId: $resourceId) {
+        mutation {
+          recordAuditLog(
+            input: {
+              resourceId: "${VALID_OBJECT_ID}"
+              resourceType: AUTH
+              status: SUCCESS
+            }
+          ) {
             id
           }
         }
       `,
-      variables: {
-        action: "LOGIN",
-        userId: "not-a-valid-objectid",
-        resourceId: VALID_OBJECT_ID,
+      expected: {
+        hasErrors: true,
+        errorSubstring: "action",
       },
-      expected: { hasErrors: true, errorSubstring: "userId" },
     });
 
     tests.push({
-      name: "recordAuditLog — missing resourceId",
+      name: "recordAuditLog — missing required resourceId",
       query: `
-        mutation RecordAuditLog($action: String!, $userId: ID!) {
-          recordAuditLog(action: $action, userId: $userId) {
+        mutation {
+          recordAuditLog(
+            input: {
+              action: "LOGIN"
+              resourceType: AUTH
+              status: SUCCESS
+            }
+          ) {
             id
           }
         }
       `,
-      variables: {
-        action: "LOGIN",
-        userId: VALID_OBJECT_ID,
+      expected: {
+        hasErrors: true,
+        errorSubstring: "resourceId",
       },
-      expected: { hasErrors: true, errorSubstring: "resourceId" },
     });
 
     tests.push({
-      name: "recordAuditLog — invalid resourceId format",
+      name: "recordAuditLog — missing required resourceType",
       query: `
-        mutation RecordAuditLog($action: String!, $userId: ID!, $resourceId: ID) {
-          recordAuditLog(action: $action, userId: $userId, resourceId: $resourceId) {
+        mutation {
+          recordAuditLog(
+            input: {
+              action: "LOGIN"
+              resourceId: "${VALID_OBJECT_ID}"
+              status: SUCCESS
+            }
+          ) {
             id
           }
         }
       `,
-      variables: {
-        action: "LOGIN",
-        userId: VALID_OBJECT_ID,
-        resourceId: "bad-id",
+      expected: {
+        hasErrors: true,
+        errorSubstring: "resourceType",
       },
-      expected: { hasErrors: true, errorSubstring: "resourceId" },
+    });
+
+    tests.push({
+      name: "recordAuditLog — missing required status",
+      query: `
+        mutation {
+          recordAuditLog(
+            input: {
+              action: "LOGIN"
+              resourceId: "${VALID_OBJECT_ID}"
+              resourceType: AUTH
+            }
+          ) {
+            id
+          }
+        }
+      `,
+      expected: {
+        hasErrors: true,
+        errorSubstring: "status",
+      },
     });
 
     tests.push({
@@ -130,13 +180,26 @@ export function generateTests(): AuditTestCase[] {
       query: `
         mutation {
           recordAuditLog(
-            action: "UPDATE_PROFILE",
-            userId: "${VALID_OBJECT_ID}",
-            resourceId: "${VALID_OBJECT_ID}",
-            metadata: "field=email,old=a@b.com"
+            input: {
+              action: "UPDATE_PROFILE"
+              userId: "${VALID_OBJECT_ID}"
+              resourceId: "${VALID_OBJECT_ID}"
+              resourceType: USER
+              status: SUCCESS
+              meta: {
+                provider: "Google"
+                reason: "Profile updated"
+                deviceId: "test-device"
+              }
+            }
           ) {
             id
             action
+            meta {
+              provider
+              reason
+              deviceId
+            }
           }
         }
       `,
@@ -144,40 +207,45 @@ export function generateTests(): AuditTestCase[] {
     });
   }
 
-  // ── Query: getAuditLog ────────────────────────────────────────
-  if (queries.includes("getAuditLog")) {
+  // Query: getAuditLogs
+  if (queries.includes("getAuditLogs")) {
     tests.push({
-      name: "getAuditLog — non-existent id returns null",
+      name: "getAuditLogs — returns empty array for unknown resource",
       query: `
-        query GetAuditLog($id: ID!) {
-          getAuditLog(userId: $id) {
+        query GetAuditLogs($resourceId: ID!) {
+          getAuditLogs(filter: { resourceId: $resourceId }) {
             id
             action
             userId
             resourceId
+            resourceType
+            status
+            createdAt
           }
         }
       `,
-      variables: { id: VALID_OBJECT_ID },
+      variables: {
+        resourceId: VALID_OBJECT_ID,
+      },
       expected: { hasData: true },
     });
-  }
 
-  // ── Query: getAuditLogsByResource ─────────────────────────────
-  if (queries.includes("getAuditLogsByResource")) {
     tests.push({
-      name: "getAuditLogsByResource — returns array",
+      name: "getAuditLogs — filter by userId",
       query: `
-        query GetLogsByResource($resourceId: ID!) {
-          getAuditLogsByResource(resourceId: $resourceId) {
+        query GetAuditLogs($userId: ID!) {
+          getAuditLogs(filter: { userId: $userId }) {
             id
             action
             userId
             resourceId
+            createdAt
           }
         }
       `,
-      variables: { resourceId: VALID_OBJECT_ID },
+      variables: {
+        userId: VALID_OBJECT_ID,
+      },
       expected: { hasData: true },
     });
   }

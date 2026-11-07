@@ -14,7 +14,7 @@ describe("SystemLogRepository", () => {
 
   const RAW_DOC = {
     _id: "907f1f77bcf86cd7994390cd",
-    level: "ERROR",
+    level: "error",
     type: "EXCEPTION",
     service: "auth-subgraph",
     module: "auth/login",
@@ -28,9 +28,14 @@ describe("SystemLogRepository", () => {
     createdAt: new Date("2024-02-01T00:00:00Z"),
   };
 
-  function createExecMock<T>(result: T): { exec: jest.Mock<Promise<T>> } {
-    return { exec: jest.fn<Promise<T>>().mockResolvedValue(result) };
-  }
+function createExecMock<T>(result: T): {
+  exec: jest.Mock<(...args: any[]) => Promise<T>>;
+} {
+  return {
+    exec: jest.fn<(...args: any[]) => Promise<T>>()
+      .mockResolvedValue(result),
+  };
+}
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -48,17 +53,17 @@ describe("SystemLogRepository", () => {
       mockModel.create.mockResolvedValue(RAW_DOC);
 
       const result = await repo.create({
-        level: "ERROR",
+        level: "error",
         message: "Token expired",
       });
 
       expect(mockModel.create).toHaveBeenCalledWith({
-        level: "ERROR",
+        level: "error",
         message: "Token expired",
       });
       expect(result).toStrictEqual({
         id: RAW_DOC._id.toString(),
-        level: "ERROR",
+        level: "error",
         type: "EXCEPTION",
         service: "auth-subgraph",
         module: "auth/login",
@@ -103,7 +108,7 @@ describe("SystemLogRepository", () => {
       const limit = jest.fn().mockReturnValue(createExecMock([RAW_DOC, RAW_DOC]));
       mockModel.find = jest.fn().mockReturnValue({ sort, skip, limit });
 
-      const result = await repo.find({ level: "ERROR" });
+      const result = await repo.find({ level: "error" });
 
       expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
       expect(skip).toHaveBeenCalledWith(0);

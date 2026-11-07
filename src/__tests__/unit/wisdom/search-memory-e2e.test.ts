@@ -8,7 +8,7 @@ import { SemanticContext } from "@/wisdom/semantic/semantic-context";
 import { EntityType } from "@/wisdom/shared/enums/entity-type.enum";
 import { AIDomain } from "@/wisdom/shared/enums/domain.enum";
 import { AgentAction } from "@/wisdom/shared/enums/action.enum";
-import { AIContext } from "@/wisdom/contracts/ai-context";
+import { AIContext, SearchListingResult } from "@/wisdom/contracts/ai-context";
 import { MemoryContext } from "@/wisdom/memory/type/memory-context";
 
 /**
@@ -26,30 +26,45 @@ import { MemoryContext } from "@/wisdom/memory/type/memory-context";
  */
 
 // ─── Simulated DB listings ──────────────────────────────────────
-const DB_LISTINGS = [
+const DB_LISTINGS: SearchListingResult[] = [
   {
     id: "listing-tokyo-001",
     title: "Beautiful Flower Room",
-    address: "Tokyo Shibuya 2-3-1",
+    address: "Shibuya, Tokyo",
     price: 12000,
     numOfCustomers: 2,
-    description: "A beautiful room decorated with fresh flowers in Shibuya",
+    description: "A beautiful room decorated with flowers",
+    numOfBeds: 1,
+    numOfBathrooms: 1,
+    numOfRooms: 1,
+    picture: [],
+    isFeatured: true,
   },
   {
     id: "listing-tokyo-002",
     title: "Garden View Room",
-    address: "Tokyo Shibuya 4-5-6",
+    address: "Shibuya, Tokyo",
     price: 15000,
-    numOfCustomers: 3,
-    description: "Peaceful garden view from the window",
+    numOfCustomers: 2,
+    description: "A comfortable room with a garden view",
+    numOfBeds: 2,
+    numOfBathrooms: 1,
+    numOfRooms: 2,
+    picture: [],
+    isFeatured: true,
   },
   {
     id: "listing-tokyo-003",
-    title: "Ocean Breeze Suite",
-    address: "Okinawa Naha 1-2-3",
-    price: 20000,
-    numOfCustomers: 4,
-    description: "Sea view with fresh ocean breeze",
+    title: "Traditional Japanese Room",
+    address: "Shibuya, Tokyo",
+    price: 10000,
+    numOfCustomers: 3,
+    description: "A traditional Japanese-style room",
+    numOfBeds: 2,
+    numOfBathrooms: 1,
+    numOfRooms: 2,
+    picture: [],
+    isFeatured: false,
   },
 ];
 
@@ -62,12 +77,20 @@ beforeEach(() => {
   jest.clearAllMocks();
   sessionStore = new MemorySessionStore();
   updater = new BookingStateUpdater(sessionStore as any);
-  resolver = new ListingReferenceResolver({
+resolver = new ListingReferenceResolver(
+  {
     execute: jest.fn<(q: any) => Promise<{ listings: any[]; total: number }>>()
-      .mockResolvedValue({ listings: DB_LISTINGS, total: DB_LISTINGS.length }),
-  } as any);
+      .mockResolvedValue({
+        listings: DB_LISTINGS,
+        total: DB_LISTINGS.length,
+      }),
+  } as any,
+  {
+    execute: jest.fn<() => Promise<any[]>>()
+      .mockResolvedValue([]),
+  } as any,
+);
 });
-
 function makeMemoryContext(sessionId: string): MemoryContext {
   return { userId: "user-e2e", sessionId, session: {} as any };
 }
@@ -80,6 +103,7 @@ function makeAIContext(sessionId: string, searchResults: any[] = []): AIContext 
     trace: { correlationId: "e2e-test" },
   } as any;
 }
+
 
 function makeBookingSemantic(message: string, entities: any[] = []): SemanticContext {
   return new SemanticContext(

@@ -4,6 +4,9 @@ import { injectable, inject } from "tsyringe";
 
 import {
   IAuditLogRepository,
+} from "../../domain/interface/audit-log.repository.interface";
+
+import {
   AuditLogFilter,
   AuditLogQueryOptions,
 } from "../../domain/entities/IAuditLogRepository";

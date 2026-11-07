@@ -1,603 +1,397 @@
+// src/subgraphs/__tests__/audit/ai/schema-validator.test.ts
+
+
 import "reflect-metadata";
 import { readFileSync } from "fs";
-import { parse, visit, Kind } from "graphql";
+import { resolve } from "path";
+import {
+  parse,
+  Kind,
+  type DocumentNode,
+  type ObjectTypeDefinitionNode,
+  type InputObjectTypeDefinitionNode,
+} from "graphql";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+const read = (path: string): string =>
+  readFileSync(resolve(process.cwd(), path), "utf-8");
 
-function readSchema(): string {
-  return readFileSync("./src/subgraphs/audit/schema/schema.graphql", "utf-8");
+const schemaCode = read("src/subgraphs/audit/schema/schema.graphql");
+const resolverCode = read("src/subgraphs/audit/resolvers/audit.resolver.ts");
+
+const loggerCode = read(
+  "src/core/audit/application/write/services/audit.logger.ts",
+);
+
+const queryCode = read(
+  "src/core/audit/application/read/queries/get-audit-logs.query.ts",
+);
+
+const repositoryCode = read(
+  "src/core/audit/infrastructure/repositories/auditLog.repository.ts",
+);
+
+const modelCode = read(
+  "src/core/audit/domain/value-objects/audit-log.model.ts",
+);
+
+const registrationCode = read("src/modules/container/audit.register.ts");
+
+const document: DocumentNode = parse(schemaCode);
+
+function getObjectType(
+  name: string,
+): ObjectTypeDefinitionNode | undefined {
+  return document.definitions.find(
+    (definition): definition is ObjectTypeDefinitionNode =>
+      definition.kind === Kind.OBJECT_TYPE_DEFINITION &&
+      definition.name.value === name,
+  );
 }
 
-function readResolver(): string {
-  return readFileSync("./src/subgraphs/audit/resolvers/audit.resolver.ts", "utf-8");
+function getInputType(
+  name: string,
+): InputObjectTypeDefinitionNode | undefined {
+  return document.definitions.find(
+    (definition): definition is InputObjectTypeDefinitionNode =>
+      definition.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION &&
+      definition.name.value === name,
+  );
 }
 
-function readService(): string {
-  return readFileSync("./src/subgraphs/audit/services/audit.service.ts", "utf-8");
+
+
+function getFields(typeName: string): string[] {
+  const type = getObjectType(typeName);
+  return type?.fields?.map((field) => field.name.value) ?? [];
 }
 
-function readRepository(): string {
-  return readFileSync("./src/subgraphs/audit/repos/audit.repository.ts", "utf-8");
+function getInputFields(typeName: string): string[] {
+  const type = getInputType(typeName);
+  return type?.fields?.map((field) => field.name.value) ?? [];
 }
 
-function readModel(): string {
-  return readFileSync("./src/subgraphs/audit/models/audit.model.ts", "utf-8");
+function getOperation(typeName: "Query" | "Mutation", name: string) {
+  return getObjectType(typeName)?.fields?.find(
+    (field) => field.name.value === name,
+  );
 }
 
-function readRegistration(): string {
-  return readFileSync("./src/modules/container/audit.register.ts", "utf-8");
+function isNonNullList(type: any): boolean {
+  return (
+    type.kind === Kind.NON_NULL_TYPE &&
+    type.type.kind === Kind.LIST_TYPE
+  );
 }
 
-interface SchemaField {
-  name: string;
-  args: { name: string; type: string; required: boolean }[];
-  returnType: string;
-  isList: boolean;
-  isNullable: boolean;
-}
+function getNamedType(type: any): string {
+  switch (type.kind) {
+    case Kind.NON_NULL_TYPE:
+    case Kind.LIST_TYPE:
+      return getNamedType(type.type);
 
-interface SchemaType {
-  name: string;
-  fields: SchemaField[];
-}
+    case Kind.NAMED_TYPE:
+      return type.name.value;
 
-function parseSchema(sdl: string): { queries: SchemaField[]; mutations: SchemaField[]; types: SchemaType[] } {
-  const doc = parse(sdl);
-  const queries: SchemaField[] = [];
-  const mutations: SchemaField[] = [];
-  const types: SchemaType[] = [];
-
-  visit(doc, {
-    ObjectTypeDefinition(node) {
-      const typeName = node.name.value;
-      const fields: SchemaField[] = [];
-
-      node.fields?.forEach((f) => {
-        const args = f.arguments?.map((a) => ({
-          name: a.name.value,
-          type: extractTypeName(a.type),
-          required: a.type.kind === Kind.NON_NULL_TYPE,
-        })) ?? [];
-
-        const { typeName: returnTypeName, isList, isNullable } = extractReturnType(f.type);
-
-        fields.push({
-          name: f.name.value,
-          args,
-          returnType: returnTypeName,
-          isList,
-          isNullable,
-        });
-      });
-
-      if (typeName === "Query") queries.push(...fields);
-      else if (typeName === "Mutation") mutations.push(...fields);
-      else types.push({ name: typeName, fields });
-    },
-  });
-
-  return { queries, mutations, types };
-}
-
-function extractTypeName(typeNode: any): string {
-  // Handle NonNull wrapping
-  if (typeNode.kind === Kind.NON_NULL_TYPE) {
-    return typeNode.type.name?.value ?? "unknown";
+    default:
+      throw new Error(`Unsupported GraphQL type: ${type.kind}`);
   }
-  if (typeNode.kind === Kind.NAMED_TYPE) return typeNode.name.value;
-  return "unknown";
 }
 
-function extractReturnType(typeNode: any): { typeName: string; isList: boolean; isNullable: boolean } {
-  let isList = false;
-  let isNullable = true;
-  let current = typeNode;
-
-  // Unwrap NON_NULL
-  if (current.kind === Kind.NON_NULL_TYPE) {
-    isNullable = false;
-    current = current.type;
-  }
-
-  // Unwrap LIST
-  if (current.kind === Kind.LIST_TYPE) {
-    isList = true;
-    current = current.type;
-    // Unwrap inner NON_NULL if present
-    if (current.kind === Kind.NON_NULL_TYPE) {
-      isNullable = false;
-      current = current.type;
-    }
-  }
-
-  // NAMED_TYPE
-  if (current.kind === Kind.NAMED_TYPE) {
-    return { typeName: current.name.value, isList, isNullable };
-  }
-
-  return { typeName: "unknown", isList, isNullable };
+function isNonNull(type: any): boolean {
+  return type.kind === Kind.NON_NULL_TYPE;
 }
 
-// ─── Validation Checks ───────────────────────────────────────────────────────
-
-interface ValidationResult {
-  check: string;
-  passed: boolean;
-  message: string;
-  severity: "error" | "warning";
-}
-
-function validateSchemaResolverAlignment(
-  schema: { queries: SchemaField[]; mutations: SchemaField[] },
-  resolverCode: string
-): ValidationResult[] {
-  const results: ValidationResult[] = [];
-
-  // Check queries
-  for (const q of schema.queries) {
-    const hasResolver = resolverCode.includes(`${q.name}:`) || resolverCode.includes(`"${q.name}"`);
-    results.push({
-      check: `Query.${q.name} resolver exists`,
-      passed: hasResolver,
-      message: hasResolver
-        ? `Query.${q.name} has a resolver`
-        : `Query.${q.name} is defined in schema but has no resolver`,
-      severity: "error",
+describe("Audit Schema Validation", () => {
+  describe("Schema structure", () => {
+    it("should define getAuditLogs", () => {
+      expect(getFields("Query")).toContain("getAuditLogs");
     });
 
-    // Check parameter names
-    for (const arg of q.args) {
-      const hasParam = resolverCode.includes(`${arg.name}`) || resolverCode.includes(`args.${arg.name}`);
-      if (!hasParam) {
-        results.push({
-          check: `Query.${q.name} uses param '${arg.name}'`,
-          passed: false,
-          message: `Schema defines arg '${arg.name}' but resolver doesn't reference it`,
-          severity: "warning",
-        });
-      }
-    }
-  }
-
-  // Check mutations
-  for (const m of schema.mutations) {
-    const hasResolver = resolverCode.includes(`${m.name}:`) || resolverCode.includes(`"${m.name}"`);
-    results.push({
-      check: `Mutation.${m.name} resolver exists`,
-      passed: hasResolver,
-      message: hasResolver
-        ? `Mutation.${m.name} has a resolver`
-        : `Mutation.${m.name} is defined in schema but has no resolver`,
-      severity: "error",
+    it("should define recordAuditLog", () => {
+      expect(getFields("Mutation")).toContain("recordAuditLog");
     });
 
-    // Check parameter names
-    for (const arg of m.args) {
-      const hasParam = resolverCode.includes(`${arg.name}`) || resolverCode.includes(`args.${arg.name}`);
-      if (!hasParam) {
-        results.push({
-          check: `Mutation.${m.name} uses param '${arg.name}'`,
-          passed: false,
-          message: `Schema defines arg '${arg.name}' but resolver doesn't reference it`,
-          severity: "warning",
-        });
-      }
-    }
-  }
+    it("should define AuditLog", () => {
+      const fields = getFields("AuditLog");
 
-  return results;
-}
-
-function validateResolverServiceAlignment(
-  resolverCode: string,
-  serviceCode: string
-): ValidationResult[] {
-  const results: ValidationResult[] = [];
-
-  // Extract service method calls from resolver
-  const serviceCalls = resolverCode.match(/service\.(\w+)\(/g) ?? [];
-  const serviceMethods = serviceCalls.map((c) => c.replace("service.", "").replace("(", ""));
-
-  for (const method of serviceMethods) {
-    const hasMethod = serviceCode.includes(`${method}(`);
-    results.push({
-      check: `Service.${method} exists`,
-      passed: hasMethod,
-      message: hasMethod
-        ? `Resolver calls service.${method} and it exists`
-        : `Resolver calls service.${method} but it's not defined in the service`,
-      severity: "error",
-    });
-  }
-
-  return results;
-}
-
-function validateServiceRepositoryAlignment(
-  serviceCode: string,
-  repoCode: string
-): ValidationResult[] {
-  const results: ValidationResult[] = [];
-
-  // Extract repo method calls from service
-  const repoCalls = serviceCode.match(/this\.repo\.(\w+)\(/g) ?? [];
-  const repoMethods = repoCalls.map((c) => c.replace("this.repo.", "").replace("(", ""));
-
-  for (const method of repoMethods) {
-    const hasMethod = repoCode.includes(`${method}(`);
-    results.push({
-      check: `Repository.${method} exists`,
-      passed: hasMethod,
-      message: hasMethod
-        ? `Service calls repo.${method} and it exists`
-        : `Service calls repo.${method} but it's not defined in the repository`,
-      severity: "error",
-    });
-  }
-
-  return results;
-}
-
-function validateModelSchemaAlignment(
-  schema: SchemaType[],
-  modelCode: string
-): ValidationResult[] {
-  const results: ValidationResult[] = [];
-
-  // Find the AuditLog type in schema
-  const auditLogType = schema.find((t) => t.name === "AuditLog");
-  if (!auditLogType) {
-    results.push({
-      check: "AuditLog type exists in schema",
-      passed: false,
-      message: "AuditLog type not found in schema",
-      severity: "error",
-    });
-    return results;
-  }
-
-  results.push({
-    check: "AuditLog type exists in schema",
-    passed: true,
-    message: "AuditLog type found in schema",
-    severity: "error",
-  });
-
-  // Check each schema field exists in model
-  for (const field of auditLogType.fields) {
-    // Skip __typename, federation fields, and 'id' (auto-generated by Mongoose as _id)
-    if (field.name.startsWith("__") || field.name === "id") continue;
-
-    const hasField = modelCode.includes(`${field.name}:`) || modelCode.includes(`${field.name} {`);
-    results.push({
-      check: `Model has field '${field.name}'`,
-      passed: hasField,
-      message: hasField
-        ? `Schema field '${field.name}' exists in Mongoose model`
-        : `Schema field '${field.name}' is not in the Mongoose model`,
-      severity: "warning",
-    });
-  }
-
-  return results;
-}
-
-function validateDIRegistration(
-  serviceCode: string,
-  registrationCode: string
-): ValidationResult[] {
-  const results: ValidationResult[] = [];
-
-  // Check if AuditService is registered
-  const hasServiceRegistration = registrationCode.includes("AuditService");
-  results.push({
-    check: "AuditService registered in DI",
-    passed: hasServiceRegistration,
-    message: hasServiceRegistration
-      ? "AuditService is registered in the DI container"
-      : "AuditService is NOT registered in the DI container",
-    severity: "error",
-  });
-
-  // Check if AuditRepository is registered
-  const hasRepoRegistration = registrationCode.includes("AuditRepository");
-  results.push({
-    check: "AuditRepository registered in DI",
-    passed: hasRepoRegistration,
-    message: hasRepoRegistration
-      ? "AuditRepository is registered in the DI container"
-      : "AuditRepository is NOT registered in the DI container",
-    severity: "error",
-  });
-
-  // Check if the model token is registered
-  const hasModelRegistration = registrationCode.includes("TOKENS_AUDIT.models.audit");
-  results.push({
-    check: "AuditModel registered in DI",
-    passed: hasModelRegistration,
-    message: hasModelRegistration
-      ? "AuditModel token is registered in the DI container"
-      : "AuditModel token is NOT registered in the DI container",
-    severity: "error",
-  });
-
-  return results;
-}
-
-// ─── Tests ───────────────────────────────────────────────────────────────────
-
-describe("Audit Schema Validation Agent", () => {
-  let schemaSdl: string;
-  let resolverCode: string;
-  let serviceCode: string;
-  let repoCode: string;
-  let modelCode: string;
-  let registrationCode: string;
-  let parsedSchema: ReturnType<typeof parseSchema>;
-
-  beforeAll(() => {
-    schemaSdl = readSchema();
-    resolverCode = readResolver();
-    serviceCode = readService();
-    repoCode = readRepository();
-    modelCode = readModel();
-    registrationCode = readRegistration();
-    parsedSchema = parseSchema(schemaSdl);
-  });
-
-  describe("Schema parsing", () => {
-    it("should parse queries from schema", () => {
-      expect(parsedSchema.queries.length).toBeGreaterThan(0);
-      expect(parsedSchema.queries.map((q) => q.name)).toContain("getAuditLog");
-      expect(parsedSchema.queries.map((q) => q.name)).toContain("getAuditLogsByResource");
+      expect(fields).toContain("id");
+      expect(fields).toContain("action");
+      expect(fields).toContain("userId");
+      expect(fields).toContain("tenantId");
+      expect(fields).toContain("resourceId");
+      expect(fields).toContain("resourceType");
+      expect(fields).toContain("status");
+      expect(fields).toContain("meta");
+      expect(fields).toContain("createdAt");
     });
 
-    it("should parse mutations from schema", () => {
-      expect(parsedSchema.mutations.length).toBeGreaterThan(0);
-      expect(parsedSchema.mutations.map((m) => m.name)).toContain("recordAuditLog");
-    });
-
-    it("should parse AuditLog type from schema", () => {
-      const auditLogType = parsedSchema.types.find((t) => t.name === "AuditLog");
-      expect(auditLogType).toBeDefined();
-      expect(auditLogType!.fields.map((f) => f.name)).toContain("id");
-      expect(auditLogType!.fields.map((f) => f.name)).toContain("action");
-      expect(auditLogType!.fields.map((f) => f.name)).toContain("userId");
-      expect(auditLogType!.fields.map((f) => f.name)).toContain("resourceId");
-      expect(auditLogType!.fields.map((f) => f.name)).toContain("metadata");
-      expect(auditLogType!.fields.map((f) => f.name)).toContain("timestamp");
+    it("should not require obsolete query names", () => {
+      expect(getFields("Query")).not.toContain("getAuditLog");
+      expect(getFields("Query")).not.toContain("getAuditLogsByResource");
     });
   });
 
-  describe("Schema-Resolver alignment", () => {
-    it("should have resolvers for all schema operations", () => {
-      const results = validateSchemaResolverAlignment(parsedSchema, resolverCode);
-      const errors = results.filter((r) => !r.passed && r.severity === "error");
-      const warnings = results.filter((r) => !r.passed && r.severity === "warning");
+  describe("GraphQL operation arguments", () => {
+    it("getAuditLogs should accept AuditLogFilterInput", () => {
+      const operation = getOperation("Query", "getAuditLogs");
 
-      warnings.forEach((w) => console.warn(`⚠️ ${w.message}`));
+      expect(operation).toBeDefined();
+      expect(operation?.arguments).toHaveLength(1);
 
-      expect(errors.length).toBe(0);
-    });
-  });
+      const filter = operation?.arguments?.[0];
 
-  describe("Resolver-Service alignment", () => {
-    it("should call existing service methods", () => {
-      const results = validateResolverServiceAlignment(resolverCode, serviceCode);
-      const errors = results.filter((r) => !r.passed);
-
-      expect(errors.length).toBe(0);
-    });
-  });
-
-  describe("Service-Repository alignment", () => {
-    it("should call existing repository methods", () => {
-      const results = validateServiceRepositoryAlignment(serviceCode, repoCode);
-      const errors = results.filter((r) => !r.passed);
-
-      expect(errors.length).toBe(0);
-    });
-  });
-
-  describe("Model-Schema alignment", () => {
-    it("should have model fields for all schema fields", () => {
-      const results = validateModelSchemaAlignment(parsedSchema.types, modelCode);
-      const errors = results.filter((r) => !r.passed && r.severity === "error");
-      const warnings = results.filter((r) => !r.passed && r.severity === "warning");
-
-      warnings.forEach((w) => console.warn(`⚠️ ${w.message}`));
-
-      expect(errors.length).toBe(0);
-    });
-  });
-
-  describe("DI Registration completeness", () => {
-    it("should have all dependencies registered", () => {
-      const results = validateDIRegistration(serviceCode, registrationCode);
-      const errors = results.filter((r) => !r.passed);
-
-      expect(errors.length).toBe(0);
-    });
-  });
-
-  describe("Schema field requirements", () => {
-    it("should have required fields as non-nullable", () => {
-      const auditLogType = parsedSchema.types.find((t) => t.name === "AuditLog");
-      expect(auditLogType).toBeDefined();
-
-      const idField = auditLogType!.fields.find((f) => f.name === "id");
-      expect(idField?.isNullable).toBe(false);
-
-      const actionField = auditLogType!.fields.find((f) => f.name === "action");
-      expect(actionField?.isNullable).toBe(false);
-
-      const userIdField = auditLogType!.fields.find((f) => f.name === "userId");
-      expect(userIdField?.isNullable).toBe(false);
-
-      const resourceIdField = auditLogType!.fields.find((f) => f.name === "resourceId");
-      expect(resourceIdField?.isNullable).toBe(false);
-
-      const timestampField = auditLogType!.fields.find((f) => f.name === "timestamp");
-      expect(timestampField?.isNullable).toBe(false);
+      expect(filter?.name.value).toBe("filter");
+      expect(getNamedType(filter!.type)).toBe("AuditLogFilterInput");
     });
 
-    it("should have metadata as nullable", () => {
-      const auditLogType = parsedSchema.types.find((t) => t.name === "AuditLog");
-      const metadataField = auditLogType!.fields.find((f) => f.name === "metadata");
-      expect(metadataField?.isNullable).toBe(true);
+    it("recordAuditLog should accept required RecordAuditLogInput", () => {
+      const operation = getOperation("Mutation", "recordAuditLog");
+
+      expect(operation).toBeDefined();
+      expect(operation?.arguments).toHaveLength(1);
+
+      const input = operation?.arguments?.[0];
+
+      expect(input?.name.value).toBe("input");
+      expect(isNonNull(input!.type)).toBe(true);
+      expect(getNamedType(input!.type)).toBe("RecordAuditLogInput");
     });
 
-    it("should have recordAuditLog return non-nullable AuditLog", () => {
-      const recordMutation = parsedSchema.mutations.find((m) => m.name === "recordAuditLog");
-      expect(recordMutation?.returnType).toBe("AuditLog");
-      expect(recordMutation?.isNullable).toBe(false);
+    it("RecordAuditLogInput should define required audit fields", () => {
+      const fields = getInputFields("RecordAuditLogInput");
+
+      expect(fields).toContain("action");
+      expect(fields).toContain("resourceId");
+      expect(fields).toContain("resourceType");
+      expect(fields).toContain("status");
     });
 
-    it("should have getAuditLog return nullable AuditLog", () => {
-      const getQuery = parsedSchema.queries.find((q) => q.name === "getAuditLog");
-      expect(getQuery?.returnType).toBe("AuditLog");
-      expect(getQuery?.isNullable).toBe(true);
-    });
+    it("RecordAuditLogInput should allow optional user and tenant information", () => {
+      const input = getInputType("RecordAuditLogInput");
 
-    it("should have getAuditLogsByResource return non-nullable list", () => {
-      const getQuery = parsedSchema.queries.find((q) => q.name === "getAuditLogsByResource");
-      expect(getQuery?.returnType).toBe("AuditLog");
-      expect(getQuery?.isList).toBe(true);
-      expect(getQuery?.isNullable).toBe(false);
-    });
-  });
+      expect(input).toBeDefined();
 
-  describe("Mutation argument requirements", () => {
-    it("recordAuditLog should have required action and userId", () => {
-      const recordMutation = parsedSchema.mutations.find((m) => m.name === "recordAuditLog");
-      expect(recordMutation).toBeDefined();
-
-      const actionArg = recordMutation!.args.find((a) => a.name === "action");
-      expect(actionArg?.required).toBe(true);
-      expect(actionArg?.type).toBe("String");
-
-      const userIdArg = recordMutation!.args.find((a) => a.name === "userId");
-      expect(userIdArg?.required).toBe(true);
-      expect(userIdArg?.type).toBe("ID");
-    });
-
-    it("recordAuditLog should have optional resourceId and metadata", () => {
-      const recordMutation = parsedSchema.mutations.find((m) => m.name === "recordAuditLog");
-
-      const resourceIdArg = recordMutation!.args.find((a) => a.name === "resourceId");
-      expect(resourceIdArg?.required).toBe(false);
-
-      const metadataArg = recordMutation!.args.find((a) => a.name === "metadata");
-      expect(metadataArg?.required).toBe(false);
-    });
-  });
-
-  describe("Query argument requirements", () => {
-    it("getAuditLog should have required userId", () => {
-      const getQuery = parsedSchema.queries.find((q) => q.name === "getAuditLog");
-      expect(getQuery).toBeDefined();
-
-      const userIdArg = getQuery!.args.find((a) => a.name === "userId");
-      expect(userIdArg?.required).toBe(true);
-      expect(userIdArg?.type).toBe("ID");
-    });
-
-    it("getAuditLogsByResource should have required resourceId", () => {
-      const getQuery = parsedSchema.queries.find((q) => q.name === "getAuditLogsByResource");
-      expect(getQuery).toBeDefined();
-
-      const resourceIdArg = getQuery!.args.find((a) => a.name === "resourceId");
-      expect(resourceIdArg?.required).toBe(true);
-      expect(resourceIdArg?.type).toBe("ID");
-    });
-  });
-
-  describe("Resolver implementation patterns", () => {
-    it("resolvers should use container.resolve for dependency injection", () => {
-      expect(resolverCode).toContain("container.resolve(AuditService)");
-    });
-
-    it("resolvers should not access models directly (except through service)", () => {
-      // The resolver should NOT import or use AuditModel directly
-      // It should only use the service layer
-      const lines = resolverCode.split("\n");
-      const hasDirectModelAccess = lines.some(
-        (line) =>
-          line.includes("AuditModel.") &&
-          !line.includes("//") &&
-          !line.includes("import")
+      const userId = input?.fields?.find(
+        (field) => field.name.value === "userId",
       );
-      expect(hasDirectModelAccess).toBe(false);
-    });
 
-    it("resolvers should validate input before calling service", () => {
-      expect(resolverCode).toContain("UserInputError");
-      expect(resolverCode).toContain("mongoose.Types.ObjectId.isValid");
-    });
-  });
+      const tenantId = input?.fields?.find(
+        (field) => field.name.value === "tenantId",
+      );
 
-  describe("Service implementation patterns", () => {
-    it("service should be injectable", () => {
-      expect(serviceCode).toContain("@injectable()");
-    });
-
-    it("service should inject repository", () => {
-      expect(serviceCode).toContain("@inject(AuditRepository)");
-    });
-
-    it("service methods should return promises", () => {
-      expect(serviceCode).toContain("Promise<AuditLogDocument>");
+      expect(userId).toBeDefined();
+      expect(tenantId).toBeDefined();
+      expect(isNonNull(userId!.type)).toBe(false);
+      expect(isNonNull(tenantId!.type)).toBe(false);
     });
   });
 
-  describe("Repository implementation patterns", () => {
-    it("repository should be injectable", () => {
-      expect(repoCode).toContain("@injectable()");
-    });
+  describe("Schema nullability", () => {
+    it("AuditLog should have required core fields", () => {
+      const type = getObjectType("AuditLog");
+      expect(type).toBeDefined();
 
-    it("repository should inject model via token", () => {
-      expect(repoCode).toContain("@inject(TOKENS_AUDIT.models.audit)");
-    });
-
-    it("repository should use exec() for queries", () => {
-      expect(repoCode).toContain(".exec()");
-    });
-  });
-
-  describe("Summary report", () => {
-    it("should generate validation summary", () => {
-      const allResults = [
-        ...validateSchemaResolverAlignment(parsedSchema, resolverCode),
-        ...validateResolverServiceAlignment(resolverCode, serviceCode),
-        ...validateServiceRepositoryAlignment(serviceCode, repoCode),
-        ...validateModelSchemaAlignment(parsedSchema.types, modelCode),
-        ...validateDIRegistration(serviceCode, registrationCode),
+      const requiredFields = [
+        "id",
+        "action",
+        "resourceId",
+        "resourceType",
+        "status",
+        "createdAt",
       ];
 
-      const errors = allResults.filter((r) => !r.passed && r.severity === "error");
-      const warnings = allResults.filter((r) => !r.passed && r.severity === "warning");
+      for (const name of requiredFields) {
+        const field = type?.fields?.find(
+          (item) => item.name.value === name,
+        );
 
-      console.log("\n📊 Audit Schema Validation Report");
-      console.log("─".repeat(50));
-      console.log(`✅ Passed: ${allResults.filter((r) => r.passed).length}`);
-      console.log(`❌ Errors: ${errors.length}`);
-      console.log(`⚠️  Warnings: ${warnings.length}`);
-      console.log("─".repeat(50));
-
-      if (errors.length > 0) {
-        console.log("\nErrors:");
-        errors.forEach((e) => console.log(`  ❌ ${e.message}`));
+        expect(field).toBeDefined();
+        expect(isNonNull(field!.type)).toBe(true);
       }
+    });
 
-      if (warnings.length > 0) {
-        console.log("\nWarnings:");
-        warnings.forEach((w) => console.log(`  ⚠️  ${w.message}`));
+    it("AuditLog userId and meta should be nullable", () => {
+      const type = getObjectType("AuditLog");
+
+      for (const name of ["userId", "meta"]) {
+        const field = type?.fields?.find(
+          (item) => item.name.value === name,
+        );
+
+        expect(field).toBeDefined();
+        expect(isNonNull(field!.type)).toBe(false);
       }
+    });
 
-      console.log("─".repeat(50));
+    it("recordAuditLog should return non-null AuditLog", () => {
+      const operation = getOperation("Mutation", "recordAuditLog");
 
-      // The test passes if there are no errors
-      expect(errors.length).toBe(0);
+      expect(operation).toBeDefined();
+      expect(isNonNull(operation!.type)).toBe(true);
+      expect(getNamedType(operation!.type)).toBe("AuditLog");
+    });
+
+it("getAuditLogs should return a non-null list of AuditLog", () => {
+  const operation = getOperation("Query", "getAuditLogs");
+
+  expect(operation).toBeDefined();
+  expect(isNonNull(operation!.type)).toBe(true);
+  expect(isNonNullList(operation!.type)).toBe(true);
+  expect(getNamedType(operation!.type)).toBe("AuditLog");
+});
+  });
+
+  describe("Schema and resolver alignment", () => {
+    it("should implement getAuditLogs", () => {
+      expect(resolverCode).toMatch(/Query\s*:/);
+      expect(resolverCode).toMatch(/getAuditLogs\s*:/);
+    });
+
+    it("should implement recordAuditLog", () => {
+      expect(resolverCode).toMatch(/Mutation\s*:/);
+      expect(resolverCode).toMatch(/recordAuditLog\s*:/);
+    });
+
+    it("should use container.resolve for dependency injection", () => {
+      expect(resolverCode).toContain("container.resolve");
+      expect(resolverCode).toContain(
+        "TOKENS_AUDIT.services.getAuditLogsQuery",
+      );
+      expect(resolverCode).toContain(
+        "TOKENS_AUDIT.services.auditLogger",
+      );
+    });
+
+    it("should not access database models directly", () => {
+      expect(resolverCode).not.toMatch(/\bAuditModel\s*\./);
+      expect(resolverCode).not.toMatch(/\bAuditLogModel\s*\./);
+    });
+
+    it("should pass input to AuditLogger", () => {
+      expect(resolverCode).toContain("service.writeAuditLog(input)");
+    });
+
+    it("should pass filter to GetAuditLogsQuery", () => {
+      expect(resolverCode).toContain("service.execute(filter ?? {})");
+    });
+  });
+
+  describe("Application service implementation", () => {
+    it("AuditLogger should be injectable", () => {
+      expect(loggerCode).toContain("@injectable()");
+    });
+
+    it("AuditLogger should inject the repository interface token", () => {
+      expect(loggerCode).toContain(
+        "TOKENS_AUDIT.repos.auditLogRepository",
+      );
+    });
+
+it("AuditLogger should call repository.create", () => {
+  expect(loggerCode).toMatch(
+    /this\.repository\.create\s*\(\s*dto\s*\)/s
+  );
+});
+
+    it("GetAuditLogsQuery should be injectable", () => {
+      expect(queryCode).toContain("@injectable()");
+    });
+
+    it("GetAuditLogsQuery should inject the repository interface token", () => {
+      expect(queryCode).toContain(
+        "TOKENS_AUDIT.repos.auditLogRepository",
+      );
+    });
+
+    it("GetAuditLogsQuery should call repository.findFiltered", () => {
+      expect(queryCode).toContain("this.repository.findFiltered");
+    });
+
+    it("GetAuditLogsQuery should calculate pagination offset", () => {
+      expect(queryCode).toContain("(page - 1) * limit");
+    });
+  });
+
+  describe("Repository implementation", () => {
+    it("should be injectable", () => {
+      expect(repositoryCode).toContain("@injectable()");
+    });
+
+    it("should inject the audit log model token", () => {
+      expect(repositoryCode).toContain(
+        "TOKENS_AUDIT.models.auditLogModel",
+      );
+    });
+
+    it("should use Mongoose exec for database queries", () => {
+      expect(repositoryCode).toContain(".exec()");
+    });
+
+    it("should implement the expected repository methods", () => {
+      const methods = [
+        "create",
+        "findAll",
+        "findFiltered",
+        "countFiltered",
+        "findByUserId",
+        "findByResource",
+      ];
+
+      for (const method of methods) {
+        expect(repositoryCode).toMatch(
+          new RegExp(`\\b${method}\\s*\\(`),
+        );
+      }
+    });
+  });
+
+  describe("Model and schema alignment", () => {
+    it("should define the core audit fields in the Mongoose model", () => {
+      const fields = [
+        "userId",
+        "tenantId",
+        "ownerId",
+        "action",
+        "resourceId",
+        "resourceType",
+        "status",
+        "requestId",
+        "correlationId",
+        "meta",
+      ];
+
+      for (const field of fields) {
+        expect(modelCode).toContain(field);
+      }
+    });
+  });
+
+  describe("Dependency injection registration", () => {
+    it("should register the audit log model", () => {
+      expect(registrationCode).toContain(
+        "TOKENS_AUDIT.models.auditLogModel",
+      );
+    });
+
+    it("should register the audit log repository", () => {
+      expect(registrationCode).toContain(
+        "TOKENS_AUDIT.repos.auditLogRepository",
+      );
+      expect(registrationCode).toContain("AuditLogRepository");
+    });
+
+    it("should register AuditLogger", () => {
+      expect(registrationCode).toContain(
+        "TOKENS_AUDIT.services.auditLogger",
+      );
+      expect(registrationCode).toContain("AuditLogger");
+    });
+
+    it("should register GetAuditLogsQuery", () => {
+      expect(registrationCode).toContain(
+        "TOKENS_AUDIT.services.getAuditLogsQuery",
+      );
+      expect(registrationCode).toContain("GetAuditLogsQuery");
     });
   });
 });

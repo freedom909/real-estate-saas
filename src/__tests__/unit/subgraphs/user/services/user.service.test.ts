@@ -19,15 +19,15 @@ function createMockUser(overrides: any = {}) {
 }
 
 const mockUserRepo = {
-  findById: jest.fn(),
-  findByEmail: jest.fn(),
-  findAll: jest.fn(),
-  count: jest.fn(),
-  create: jest.fn(),
-  deactivate: jest.fn(),
-  setUserRole: jest.fn(),
-  save: jest.fn(),
-  activate: jest.fn(),
+  findById: jest.fn<(id: string) => Promise<any>>(),
+  findByEmail: jest.fn<(email: string) => Promise<any>>(),
+  findAll: jest.fn<(...args: any[]) => Promise<any>>(),
+  count: jest.fn<(...args: any[]) => Promise<number>>(),
+  create: jest.fn<(input: any) => Promise<any>>(),
+  deactivate: jest.fn<(id: string) => Promise<boolean>>(),
+  setUserRole: jest.fn<(...args: any[]) => Promise<any>>(),
+  save: jest.fn<(...args: any[]) => Promise<any>>(),
+  activate: jest.fn<(...args: any[]) => Promise<any>>(),
 };
 
 describe("UserService", () => {

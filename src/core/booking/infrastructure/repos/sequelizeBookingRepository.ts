@@ -1,4 +1,4 @@
-// FILE: src/subgraphs/booking/infrastructure/repositories/sequelize-booking.repository.ts
+// FILE: src/core/booking/infrastructure/repos/sequelizeBookingRepository.ts
 
 import { injectable } from "tsyringe";
 import { IBookingRepository, BookingPaginatedResult, BookingQuery } from "../../domain/repositories/i-booking.repository";
@@ -11,6 +11,28 @@ import { Op } from "sequelize";
 
 @injectable()
 export class SequelizeBookingRepository implements IBookingRepository {
+
+  async findByListingIdsAndTenantId(
+  listingIds: string[],
+  tenantId: string
+): Promise<Booking[]> {
+  if (!listingIds || listingIds.length === 0 || !tenantId) {
+    return [];
+  }
+
+  const models = await BookingModel.findAll({
+    where: {
+      listingId: {
+        [Op.in]: listingIds,
+      },
+      tenantId,
+    },
+    order: [["createdAt", "DESC"]],
+  });
+
+  return models.map((m) => this.toDomain(m));
+}
+
 async findLatestBookingByCustomerId(
   customerId: string
 ): Promise<Booking | null> {

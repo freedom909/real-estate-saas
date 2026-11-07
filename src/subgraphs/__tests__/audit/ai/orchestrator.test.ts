@@ -1,3 +1,4 @@
+
 import "reflect-metadata";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -30,13 +31,85 @@ function unwrap(body: any) {
   throw new Error(`Unknown response kind: ${body.kind}`);
 }
 
-async function execute(query: string, variables = {}, context = {}) {
+async function execute(
+  query: string,
+  variables: Record<string, any> = {},
+  context: Record<string, any> = {},
+) {
   const res = await harness.execute(query, variables, context);
   return unwrap(res.body);
 }
 
 function oid(): string {
   return new mongoose.Types.ObjectId().toHexString();
+}
+
+const RECORD_AUDIT_LOG = `
+  mutation RecordAuditLog($input: RecordAuditLogInput!) {
+    recordAuditLog(input: $input) {
+      id
+      action
+      userId
+      tenantId
+      ownerId
+      resourceId
+      resourceType
+      status
+      requestId
+      correlationId
+      createdAt
+      meta {
+        deviceId
+        ip
+        userAgent
+        provider
+        reason
+      }
+    }
+  }
+`;
+
+const GET_AUDIT_LOGS = `
+  query GetAuditLogs($filter: AuditLogFilterInput) {
+    getAuditLogs(filter: $filter) {
+      id
+      action
+      userId
+      tenantId
+      ownerId
+      resourceId
+      resourceType
+      status
+      requestId
+      correlationId
+      createdAt
+      meta {
+        deviceId
+        ip
+        userAgent
+        provider
+        reason
+      }
+    }
+  }
+`;
+
+async function recordAuditLog(input: Record<string, any>) {
+  return execute(RECORD_AUDIT_LOG, { input });
+}
+
+async function getAuditLogs(filter: Record<string, any>) {
+  return execute(GET_AUDIT_LOGS, { filter });
+}
+
+function validAuditInput(overrides: Record<string, any> = {}) {
+  return {
+    action: "TEST_ACTION",
+    resourceId: oid(),
+    resourceType: "AUTH",
+    status: "SUCCESS",
+    ...overrides,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -51,62 +124,46 @@ describe("Audit Orchestrator Agent", () => {
     const resourceId = oid();
 
     it("should record LOGIN event", async () => {
-      const result = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "LOGIN"
-            userId: "${userId}"
-            resourceId: "${resourceId}"
-          ) {
-            id
-            action
-            userId
-            resourceId
-            timestamp
-          }
-        }
-      `);
+      const result = await recordAuditLog(
+        validAuditInput({
+          action: "LOGIN",
+          userId,
+          resourceId,
+          resourceType: "AUTH",
+        }),
+      );
 
       expect(result.errors).toBeUndefined();
       expect(result.data.recordAuditLog).toMatchObject({
         action: "LOGIN",
         userId,
         resourceId,
+        resourceType: "AUTH",
+        status: "SUCCESS",
       });
+
       expect(result.data.recordAuditLog.id).toBeDefined();
-      expect(result.data.recordAuditLog.timestamp).toBeDefined();
+      expect(result.data.recordAuditLog.createdAt).toBeDefined();
     });
 
     it("should query back the LOGIN event by resource", async () => {
-      const result = await execute(`
-        query {
-          getAuditLogsByResource(resourceId: "${resourceId}") {
-            id
-            action
-            userId
-            resourceId
-          }
-        }
-      `);
+      const result = await getAuditLogs({ resourceId });
 
       expect(result.errors).toBeUndefined();
-      expect(result.data.getAuditLogsByResource).toHaveLength(1);
-      expect(result.data.getAuditLogsByResource[0].action).toBe("LOGIN");
+      expect(result.data.getAuditLogs).toHaveLength(1);
+      expect(result.data.getAuditLogs[0]).toMatchObject({
+        action: "LOGIN",
+        userId,
+        resourceId,
+      });
     });
 
     it("should query by userId", async () => {
-      const result = await execute(`
-        query {
-          getAuditLog(userId: "${userId}") {
-            id
-            action
-            userId
-          }
-        }
-      `);
+      const result = await getAuditLogs({ userId });
 
       expect(result.errors).toBeUndefined();
-      expect(result.data.getAuditLog).toBeDefined();
+      expect(result.data.getAuditLogs).toHaveLength(1);
+      expect(result.data.getAuditLogs[0].userId).toBe(userId);
     });
   });
 
@@ -117,21 +174,21 @@ describe("Audit Orchestrator Agent", () => {
     const resourceId = oid();
 
     it("should record CREATE, UPDATE, DELETE on same resource", async () => {
-      const actions = ["LISTING_CREATED", "LISTING_UPDATED", "LISTING_DELETED"];
+      const actions = [
+        "LISTING_CREATED",
+        "LISTING_UPDATED",
+        "LISTING_DELETED",
+      ];
 
       for (const action of actions) {
-        const result = await execute(`
-          mutation {
-            recordAuditLog(
-              action: "${action}"
-              userId: "${userId}"
-              resourceId: "${resourceId}"
-            ) {
-              id
-              action
-            }
-          }
-        `);
+        const result = await recordAuditLog(
+          validAuditInput({
+            action,
+            userId,
+            resourceId,
+            resourceType: "LISTING",
+          }),
+        );
 
         expect(result.errors).toBeUndefined();
         expect(result.data.recordAuditLog.action).toBe(action);
@@ -139,22 +196,15 @@ describe("Audit Orchestrator Agent", () => {
     });
 
     it("should return all 3 logs for the resource", async () => {
-      const result = await execute(`
-        query {
-          getAuditLogsByResource(resourceId: "${resourceId}") {
-            id
-            action
-            userId
-            resourceId
-          }
-        }
-      `);
+      const result = await getAuditLogs({ resourceId });
 
       expect(result.errors).toBeUndefined();
-      const logs = result.data.getAuditLogsByResource;
+
+      const logs = result.data.getAuditLogs;
       expect(logs).toHaveLength(3);
 
-      const actions = logs.map((l: any) => l.action).sort();
+      const actions = logs.map((log: any) => log.action).sort();
+
       expect(actions).toEqual([
         "LISTING_CREATED",
         "LISTING_DELETED",
@@ -171,43 +221,41 @@ describe("Audit Orchestrator Agent", () => {
     const user2 = oid();
 
     it("should record actions from different users", async () => {
-      await execute(`
-        mutation {
-          recordAuditLog(
-            action: "REVIEW_SUBMITTED"
-            userId: "${user1}"
-            resourceId: "${resourceId}"
-          ) { id }
-        }
-      `);
+      const first = await recordAuditLog(
+        validAuditInput({
+          action: "REVIEW_SUBMITTED",
+          userId: user1,
+          resourceId,
+          resourceType: "REVIEW",
+        }),
+      );
 
-      await execute(`
-        mutation {
-          recordAuditLog(
-            action: "REVIEW_REPLIED"
-            userId: "${user2}"
-            resourceId: "${resourceId}"
-          ) { id }
-        }
-      `);
+      const second = await recordAuditLog(
+        validAuditInput({
+          action: "REVIEW_REPLIED",
+          userId: user2,
+          resourceId,
+          resourceType: "REVIEW",
+        }),
+      );
+
+      expect(first.errors).toBeUndefined();
+      expect(second.errors).toBeUndefined();
+
+      expect(first.data.recordAuditLog.userId).toBe(user1);
+      expect(second.data.recordAuditLog.userId).toBe(user2);
     });
 
     it("should return logs from both users", async () => {
-      const result = await execute(`
-        query {
-          getAuditLogsByResource(resourceId: "${resourceId}") {
-            id
-            action
-            userId
-          }
-        }
-      `);
+      const result = await getAuditLogs({ resourceId });
 
-      expect(result.data.getAuditLogsByResource).toHaveLength(2);
+      expect(result.errors).toBeUndefined();
+      expect(result.data.getAuditLogs).toHaveLength(2);
 
-      const userIds = result.data.getAuditLogsByResource.map(
-        (l: any) => l.userId
+      const userIds = result.data.getAuditLogs.map(
+        (log: any) => log.userId,
       );
+
       expect(userIds).toContain(user1);
       expect(userIds).toContain(user2);
     });
@@ -220,148 +268,130 @@ describe("Audit Orchestrator Agent", () => {
       const userId = oid();
       const resourceId = oid();
 
-      const result = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "PAYMENT_PROCESSED"
-            userId: "${userId}"
-            resourceId: "${resourceId}"
-            metadata: "amount=15000,currency=JPY"
-          ) {
-            id
-            action
-          }
-        }
-      `);
+      const result = await recordAuditLog(
+        validAuditInput({
+          action: "PAYMENT_PROCESSED",
+          userId,
+          resourceId,
+          resourceType: "PAYMENT",
+          meta: {
+            provider: "MOCK_PAYMENT",
+            reason: "Payment processed successfully",
+            ip: "127.0.0.1",
+          },
+        }),
+      );
 
       expect(result.errors).toBeUndefined();
-      expect(result.data.recordAuditLog).toBeDefined();
+
+      expect(result.data.recordAuditLog).toMatchObject({
+        action: "PAYMENT_PROCESSED",
+        userId,
+        resourceId,
+        meta: {
+          provider: "MOCK_PAYMENT",
+          reason: "Payment processed successfully",
+          ip: "127.0.0.1",
+        },
+      });
     });
   });
 
   // ── Scenario 5: Error Recovery ────────────────────────────────────────────
 
   describe("Scenario: Error Recovery", () => {
-    it("should reject invalid userId and continue accepting valid ones", async () => {
-      const validUser = oid();
-
-      // First: invalid userId should fail
-      const invalidResult = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "LOGIN"
-            userId: "not-a-valid-id"
-            resourceId: "${oid()}"
-          ) { id }
-        }
-      `);
+    it("should reject missing required fields and continue accepting valid input", async () => {
+      // Missing resourceId: GraphQL input validation should reject this.
+      const invalidResult = await recordAuditLog({
+        action: "LOGIN",
+        userId: oid(),
+        resourceType: "AUTH",
+        status: "SUCCESS",
+      });
 
       expect(invalidResult.errors).toBeDefined();
-      expect(invalidResult.errors[0].message).toContain("userId");
+      expect(
+        invalidResult.errors.some((error: any) =>
+          error.message.includes("resourceId"),
+        ),
+      ).toBe(true);
 
-      // Second: valid userId should succeed
-      const validResult = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "LOGIN"
-            userId: "${validUser}"
-            resourceId: "${oid()}"
-          ) {
-            id
-            action
-          }
-        }
-      `);
+      // A subsequent valid request should still succeed.
+      const validResult = await recordAuditLog(
+        validAuditInput({
+          action: "LOGIN",
+          userId: oid(),
+          resourceType: "AUTH",
+        }),
+      );
 
       expect(validResult.errors).toBeUndefined();
       expect(validResult.data.recordAuditLog).toBeDefined();
     });
 
-    it("should reject invalid resourceId", async () => {
-      const userId = oid();
-
-      const result = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "LOGIN"
-            userId: "${userId}"
-            resourceId: "bad-id"
-          ) { id }
-        }
-      `);
+    it("should reject null resourceId at GraphQL validation", async () => {
+      const result = await recordAuditLog({
+        action: "LOGIN",
+        userId: oid(),
+        resourceId: null,
+        resourceType: "AUTH",
+        status: "SUCCESS",
+      });
 
       expect(result.errors).toBeDefined();
-      expect(result.errors[0].message).toContain("resourceId");
-    });
-
-    it("should reject null resourceId (required by Mongoose schema)", async () => {
-      const userId = oid();
-
-      const result = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "LOGIN"
-            userId: "${userId}"
-          ) { id }
-        }
-      `);
-
-      expect(result.errors).toBeDefined();
+      expect(
+        result.errors.some((error: any) =>
+          error.message.includes("resourceId"),
+        ),
+      ).toBe(true);
     });
   });
 
-  // ── Scenario 6: Federation Reference Resolution ───────────────────────────
+  // ── Scenario 6: User Reference Data ───────────────────────────────────────
 
-  describe("Scenario: Federation Reference Resolution", () => {
-    it("should resolve AuditLog.user as User federation reference", async () => {
+  describe("Scenario: User Reference Data", () => {
+    it("should preserve userId on AuditLog", async () => {
       const userId = oid();
       const resourceId = oid();
 
-      const result = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "PROFILE_UPDATED"
-            userId: "${userId}"
-            resourceId: "${resourceId}"
-          ) {
-            id
-            action
-          }
-        }
-      `);
+      const result = await recordAuditLog(
+        validAuditInput({
+          action: "PROFILE_UPDATED",
+          userId,
+          resourceId,
+          resourceType: "USER",
+        }),
+      );
 
       expect(result.errors).toBeUndefined();
-      expect(result.data.recordAuditLog).toBeDefined();
+
+      expect(result.data.recordAuditLog).toMatchObject({
+        action: "PROFILE_UPDATED",
+        userId,
+        resourceId,
+        resourceType: "USER",
+      });
+
+      // The current AuditLog schema exposes userId, not a User object field.
+      // A User federation reference requires an explicit schema design.
     });
   });
 
   // ── Scenario 7: Empty State Queries ───────────────────────────────────────
 
   describe("Scenario: Empty State Queries", () => {
-    it("getAuditLog should return null for non-existent user", async () => {
-      const result = await execute(`
-        query {
-          getAuditLog(userId: "${oid()}") {
-            id
-          }
-        }
-      `);
+    it("getAuditLogs should return empty array for non-existent user", async () => {
+      const result = await getAuditLogs({ userId: oid() });
 
       expect(result.errors).toBeUndefined();
-      expect(result.data.getAuditLog).toBeNull();
+      expect(result.data.getAuditLogs).toEqual([]);
     });
 
-    it("getAuditLogsByResource should return empty array for unknown resource", async () => {
-      const result = await execute(`
-        query {
-          getAuditLogsByResource(resourceId: "${oid()}") {
-            id
-          }
-        }
-      `);
+    it("getAuditLogs should return empty array for unknown resource", async () => {
+      const result = await getAuditLogs({ resourceId: oid() });
 
       expect(result.errors).toBeUndefined();
-      expect(result.data.getAuditLogsByResource).toEqual([]);
+      expect(result.data.getAuditLogs).toEqual([]);
     });
   });
 
@@ -373,67 +403,54 @@ describe("Audit Orchestrator Agent", () => {
       const userId = oid();
 
       const mutations = Array.from({ length: 5 }, (_, i) =>
-        execute(`
-          mutation {
-            recordAuditLog(
-              action: "CONCURRENT_ACTION_${i}"
-              userId: "${userId}"
-              resourceId: "${resourceId}"
-            ) {
-              id
-              action
-            }
-          }
-        `)
+        recordAuditLog(
+          validAuditInput({
+            action: `CONCURRENT_ACTION_${i}`,
+            userId,
+            resourceId,
+            resourceType: "LISTING",
+          }),
+        ),
       );
 
       const results = await Promise.all(mutations);
 
-      for (const r of results) {
-        expect(r.errors).toBeUndefined();
-        expect(r.data.recordAuditLog).toBeDefined();
+      for (const result of results) {
+        expect(result.errors).toBeUndefined();
+        expect(result.data.recordAuditLog).toBeDefined();
       }
 
-      // Verify all 5 were persisted
-      const queryResult = await execute(`
-        query {
-          getAuditLogsByResource(resourceId: "${resourceId}") {
-            id
-            action
-          }
-        }
-      `);
+      // Verify all 5 logs were persisted.
+      const queryResult = await getAuditLogs({ resourceId });
 
-      expect(queryResult.data.getAuditLogsByResource).toHaveLength(5);
+      expect(queryResult.errors).toBeUndefined();
+      expect(queryResult.data.getAuditLogs).toHaveLength(5);
     });
   });
 
-  // ── Scenario 9: Timestamp Consistency ──────────────────────────────────────
+  // ── Scenario 9: Timestamp Consistency ─────────────────────────────────────
 
   describe("Scenario: Timestamp Consistency", () => {
-    it("should return timestamp as non-empty string", async () => {
-      const result = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "TIMESTAMP_TEST"
-            userId: "${oid()}"
-            resourceId: "${oid()}"
-          ) {
-            id
-            timestamp
-          }
-        }
-      `);
+    it("should return createdAt as non-empty string", async () => {
+      const result = await recordAuditLog(
+        validAuditInput({
+          action: "TIMESTAMP_TEST",
+          userId: oid(),
+          resourceType: "LISTING",
+        }),
+      );
 
       expect(result.errors).toBeUndefined();
-      const ts = result.data.recordAuditLog.timestamp;
-      expect(ts).toBeDefined();
-      expect(typeof ts).toBe("string");
-      expect(ts.length).toBeGreaterThan(0);
+
+      const createdAt = result.data.recordAuditLog.createdAt;
+
+      expect(createdAt).toBeDefined();
+      expect(typeof createdAt).toBe("string");
+      expect(createdAt.length).toBeGreaterThan(0);
     });
   });
 
-  // ── Scenario 10: Action Variants ───────────────────────────────────────────
+  // ── Scenario 10: Action Variants ──────────────────────────────────────────
 
   describe("Scenario: Action Variants", () => {
     const testActions = [
@@ -450,18 +467,13 @@ describe("Audit Orchestrator Agent", () => {
     ];
 
     it.each(testActions)("should record action: %s", async (action) => {
-      const result = await execute(`
-        mutation {
-          recordAuditLog(
-            action: "${action}"
-            userId: "${oid()}"
-            resourceId: "${oid()}"
-          ) {
-            id
-            action
-          }
-        }
-      `);
+      const result = await recordAuditLog(
+        validAuditInput({
+          action,
+          userId: oid(),
+          resourceType: "LISTING",
+        }),
+      );
 
       expect(result.errors).toBeUndefined();
       expect(result.data.recordAuditLog.action).toBe(action);

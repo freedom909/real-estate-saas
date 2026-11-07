@@ -1,5 +1,7 @@
+//src/core/audit/domain/entities/IAuditLogRepository.ts
+
 import { ResourceType } from "../value-objects/audit.types";
-import { AuditLog, AuditStatus } from "../entities/auditLog";
+import { AuditStatus } from "./auditLog";
 
 export interface AuditLogFilter {
   userId?: string;
@@ -23,32 +25,4 @@ export interface AuditLogFilter {
 export interface AuditLogQueryOptions {
   limit?: number;
   skip?: number;
-}
-
-export interface IAuditLogRepository {
-  create(log: AuditLog): Promise<AuditLog>;
-
-  findAll(
-    options?: AuditLogQueryOptions
-  ): Promise<AuditLog[]>;
-
-  findFiltered(
-    filter: AuditLogFilter,
-    options?: AuditLogQueryOptions
-  ): Promise<AuditLog[]>;
-
-  countFiltered(
-    filter: AuditLogFilter
-  ): Promise<number>;
-
-  findByUserId(
-    userId: string,
-    options?: AuditLogQueryOptions
-  ): Promise<AuditLog[]>;
-
-  findByResource(
-    resourceType: ResourceType,
-    resourceId: string,
-    options?: AuditLogQueryOptions
-  ): Promise<AuditLog[]>;
 }

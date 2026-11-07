@@ -60,7 +60,7 @@ export class ListingAgent implements IDomainAgent {
 
     @inject(delay(() => SearchListingUseCase))
     private readonly searchListingUseCase: SearchListingUseCase,
-  ) {}
+  ) { }
 
   async execute(semantic: SemanticContext, context: AIContext): Promise<WisdomResponse> {
     const action = semantic.action?.type;
@@ -147,12 +147,61 @@ export class ListingAgent implements IDomainAgent {
 
     const searchResult = await this.searchListingUseCase.execute({
       locationId: translatedLocation,
-checkIn: checkIn ? new Date(checkIn as string) : undefined,
-checkOut: checkOut ? new Date(checkOut as string) : undefined,
+      checkIn: checkIn ? new Date(checkIn as string) : undefined,
+      checkOut: checkOut ? new Date(checkOut as string) : undefined,
       customerCount: customerCount ? parseInt(customerCount as string) : undefined,
       minPrice,
       maxPrice,
     });
+    console.log(
+      "[AI SEARCH RESULT BEFORE SERIALIZER]",
+      (searchResult as any).listings?.map((listing: any) => ({
+        id: listing.id,
+        pictures: listing.pictures?.map((picture: any) => ({
+          objectKey: picture.objectKey,
+          url: picture.url,
+        })),
+      }))
+    );
+
+    const chatListings = await toChatListingRows(
+      (searchResult as any).listings ?? []
+    );
+  console.log(
+  "\n========== LISTING ARTIFACT IMAGE DIAGNOSTIC =========="
+);
+
+console.dir(
+  {
+    total: searchResult.total,
+
+    listings: chatListings.map((listing: any) => ({
+      id: listing.id,
+      title: listing.title,
+
+      pictureCount: listing.picture?.length ?? 0,
+      firstPicture: listing.picture?.[0],
+
+      picturesCount: listing.pictures?.length ?? 0,
+      firstPicturesUrl: listing.pictures?.[0]?.url,
+
+      image: listing.image,
+      images: listing.images,
+    })),
+  },
+  {
+    depth: null,
+    colors: true,
+  }
+);
+    console.log(
+      "[AI SEARCH RESULT AFTER SERIALIZER]",
+      chatListings.map((listing: any) => ({
+        id: listing.id,
+        picture: listing.picture,
+        pictures: listing.pictures,
+      }))
+    );
     return {
       success: true,
       domain: semantic.domain as any,
@@ -160,7 +209,7 @@ checkOut: checkOut ? new Date(checkOut as string) : undefined,
       summary: `${searchResult.total}件の物件が見つかりました。`,
       artifacts: [{
         type: ArtifactType.LISTING_SEARCH_RESULT,
-        content: { ...(searchResult as any), listings: await toChatListingRows((searchResult as any).listings ?? []) },
+        content: { ...(searchResult as any), listings: chatListings, },
       }],
     };
   }

@@ -3,6 +3,7 @@
 import crypto from "node:crypto";
 import { timingSafeEqual } from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
+import { GraphQLError } from "graphql";
 
 export function verifyInternalServiceRequest(
   req: Request,
@@ -58,4 +59,14 @@ console.log("[InternalAuth Request Diagnostic]", {
 // Internal service has been authenticated
 (req as any).isInternalService = true;
   next();
+}
+
+export function requireInternalService(context: any) {
+  if (context.req?.isInternalService !== true) {
+    throw new GraphQLError("Internal service authentication required", {
+      extensions: { code: "FORBIDDEN" },
+    });
+  }
+
+  return true;
 }

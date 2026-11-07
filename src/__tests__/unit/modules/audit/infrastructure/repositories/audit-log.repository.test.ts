@@ -29,9 +29,14 @@ describe("AuditLogRepository", () => {
     createdAt: new Date("2024-01-01T00:00:00Z"),
   };
 
-  function createExecMock<T>(result: T): { exec: jest.Mock<Promise<T>> } {
-    return { exec: jest.fn<Promise<T>>().mockResolvedValue(result) };
-  }
+function createExecMock<T>(result: T): {
+  exec: jest.Mock<(...args: any[]) => Promise<T>>;
+} {
+  return {
+    exec: jest.fn<(...args: any[]) => Promise<T>>()
+      .mockResolvedValue(result),
+  };
+}
 
   beforeEach(() => {
     jest.clearAllMocks();

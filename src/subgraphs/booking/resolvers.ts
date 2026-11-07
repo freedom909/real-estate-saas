@@ -40,14 +40,14 @@ export const resolvers = {
         }
       },
     }),
-    bookingsForCustomer: async (_: any, { userId }: any) => {
-      const repo =
-        container.resolve<IBookingRepository>(
-          TOKENS_BOOKING.repository.bookingRepository
-        );
+    // bookingsForCustomer: async (_: any, { userId }: any) => {
+    //   const repo =
+    //     container.resolve<IBookingRepository>(
+    //       TOKENS_BOOKING.repository.bookingRepository
+    //     );
 
-      return repo.findByCustomerId(userId);
-    },
+    //   return repo.findByCustomerId(userId);
+    // },
     bookingsForTenant: async (
       _: any,
       { tenantId, status }: { tenantId?: string; status?: string },

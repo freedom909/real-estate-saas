@@ -165,26 +165,54 @@ export default function ChatWindow({ result }: ChatWindowProps) {
   const hasSpokenRef = useRef<string>("");
 
   // Auto-speak new responses
-  useEffect(() => {
-    if (!result?.summary) return;
+useEffect(() => {
+  if (!result?.summary) return;
 
-    // Don't re-speak the same summary
-    if (hasSpokenRef.current === result.summary) return;
-    hasSpokenRef.current = result.summary;
+  console.log(
+    "========== FRONTEND AI RESPONSE =========="
+  );
 
-    // Stop any previous speech before starting new one
+  console.dir(result, {
+    depth: null,
+  });
+
+  console.log(
+    "========== FRONTEND LISTING IMAGE CHECK =========="
+  );
+
+  const listingArtifact = result.artifacts?.find(
+    (artifact: any) =>
+      artifact.type === "LISTING_SEARCH_RESULT"
+  );
+
+  const listings = listingArtifact?.content?.listings ?? [];
+
+  console.table(
+    listings.map((listing: any) => ({
+      id: listing.id,
+      title: listing.title,
+      pictureCount: listing.picture?.length ?? 0,
+      firstPicture: listing.picture?.[0],
+    }))
+  );
+
+  // Don't re-speak the same summary
+  if (hasSpokenRef.current === result.summary) return;
+  hasSpokenRef.current = result.summary;
+
+  // Stop any previous speech before starting new one
+  stopSpeaking();
+  setIsSpeaking(true);
+
+  speak(result.summary).then(() => {
+    setIsSpeaking(false);
+  });
+
+  return () => {
     stopSpeaking();
-    setIsSpeaking(true);
-
-    speak(result.summary).then(() => {
-      setIsSpeaking(false);
-    });
-
-    return () => {
-      stopSpeaking();
-      setIsSpeaking(false);
-    };
-  }, [result?.summary]);
+    setIsSpeaking(false);
+  };
+}, [result?.summary]);
 
   if (!result) return null;
 

@@ -22,8 +22,8 @@ export class GetOwnerDashboardUseCase {
 
     return {
       listings,
-      bookings: [],
-      reviews: [],
+      bookings,
+      reviews,
     };
   }
 }

@@ -13,12 +13,15 @@
     "rootDir": ".",
     "skipLibCheck": true,
     "baseUrl": ".",
-     "types": ["node"],
+     "types": ["node", "jest"],
     "paths": {
       "@/*": ["src/*"],
       "@subgraphs/*": ["src/subgraphs/*"],
       "@infrastructure/*": ["src/infrastructure/*"]
     }
   },
-  "include": ["src", "__tests__", "src/security/**/*.ts", "src/subgraphs/booking/bookingOptimizationAgent.ts", "frontend/app"]
+ "include": [
+  "src",
+  "__tests__"
+]
 }
