@@ -1,3 +1,5 @@
+//src/__tests__/unit/core/audit/infrastructure/repositories/system-log.repository.test.ts
+
 /**
  * Unit tests for SystemLogRepository.
  */
@@ -91,7 +93,7 @@ function createExecMock<T>(result: T): {
       mockModel.findById.mockReturnValue(createExecMock(RAW_DOC));
       const result = await repo.findById(RAW_DOC._id);
       expect(result?.id).toBe(RAW_DOC._id.toString());
-      expect(result?.level).toBe("ERROR");
+      expect(result?.level).toBe("error");
     });
 
     it("returns null when missing", async () => {

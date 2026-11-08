@@ -1,4 +1,4 @@
-
+//src/core/audit/domain/entities/systemLog.entity.ts
 export type SystemLogLevel =
   | "debug"
   | "info"

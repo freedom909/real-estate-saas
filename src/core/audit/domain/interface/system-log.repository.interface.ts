@@ -1,4 +1,4 @@
-//src/modules/audit/domain/repositories/interface/system-log.repository.interface.ts
+//src/core/audit/domain/repositories/interface/system-log.repository.interface.ts
 
 import { SystemLog } from "../entities/systemLog.entity";
 

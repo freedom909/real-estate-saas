@@ -1,9 +1,9 @@
-//src/modules/domain/
+//src/core/audit/infrastructure/models/system-log.model.ts
 
-import mongoose, { Schema, Document, model } from "mongoose";
-import { SYSTEM_LOG_TYPES, SystemLogLevel, SystemLogType } from "../../domain/enums/system-log.enums";
 
-export const SYSTEM_LOG_LEVELS = ["DEBUG", "INFO", "WARN", "ERROR"] as const;
+import{ Schema, Document, model } from "mongoose";
+import { SystemLogLevel, SystemLogType } from "../../domain/entities/systemLog.entity";
+import { SYSTEM_LOG_LEVELS, SYSTEM_LOG_TYPES } from "../../domain/enums/system-log.enums";
 
 export interface SystemLogDocument extends Document {
   level: SystemLogLevel;

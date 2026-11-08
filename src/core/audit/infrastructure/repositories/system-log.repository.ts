@@ -1,4 +1,5 @@
-//src/modules/audit/infrastructure/database/repositories/system-log.repository.ts
+//src/core/audit/infrastructure/repositories/system-log.repository.ts
+
 import { inject, injectable } from "tsyringe";
 
 import {

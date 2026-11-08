@@ -20,7 +20,7 @@ jest.mock("@/subgraphs/auth/infrastructure/oauth/provider.registry", () => {
   };
 });
 
-jest.mock("@/subgraphs/auth/authRegister", () => {
+jest.mock("@/modules/container/auth.register", () => {
   return {
     __esModule: true,
     default: jest.fn(),

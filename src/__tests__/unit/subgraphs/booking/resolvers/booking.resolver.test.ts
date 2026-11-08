@@ -36,14 +36,22 @@ jest.mock("tsyringe", () => ({
   },
 }));
 
-jest.mock("@/infrastructure/auth/require.auth", () => ({
-  requireAuth: jest.fn(),
-}));
+
 
 // Mock withAuthorization to pass through directly to resolver
 // This lets us test the resolver logic without the RBAC layer
+jest.mock("@/infrastructure/auth/withAuthorization", () => ({
+  withAuthorization: jest.fn(
+    (
+      _action: any,
+      _resource: any,
+      resolverFn: (...args: any[]) => any
+    ) => resolverFn
+  ),
+}));
+
 jest.mock("@/infrastructure/auth/require.auth", () => ({
-  requireAuth: jest.fn<(...args: any[]) => Promise<any>>(),
+  requireAuth: jest.fn(),
 }));
 
 const mockListingModel = {
@@ -123,7 +131,16 @@ describe("Booking Resolvers", () => {
       const mockBooking = { id: "booking-1", status: "CONFIRMED" };
       mockGetBookingUseCase.execute.mockResolvedValue(mockBooking);
 
-      const result = await (resolvers as any).Query.booking(null, { id: "booking-1" });
+      const result = await (resolvers as any).Query.booking(
+  null,
+  { id: "booking-1" },
+  {
+    user: {
+      userId: "customer-1",
+      role: "CUSTOMER",
+    },
+  }
+);
 
       expect(mockGetBookingUseCase.execute).toHaveBeenCalledWith("booking-1");
       expect(result).toEqual(mockBooking);
@@ -132,7 +149,16 @@ describe("Booking Resolvers", () => {
     it("should return null when booking not found", async () => {
       mockGetBookingUseCase.execute.mockResolvedValue(null);
 
-      const result = await (resolvers as any).Query.booking(null, { id: "missing" });
+      const result = await (resolvers as any).Query.booking(
+  null,
+  { id: "missing" },
+  {
+    user: {
+      userId: "customer-1",
+      role: "CUSTOMER",
+    },
+  }
+);
 
       expect(result).toBeNull();
     });
