@@ -1,6 +1,5 @@
 // src/subgraphs/auth/infrastructure/services/session.service.ts
 
-
 import { injectable, inject } from "tsyringe";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
@@ -13,27 +12,30 @@ import {
 
 import { TOKENS_AUTH } from "@/modules/tokens/auth.tokens";
 import SessionRepository from "../repos/session.repo";
+import RedisRefreshTokenRepo from "../repos/refresh-token.redis.repo";
+
+/** Mirrors the refresh JWT lifetime ("7d") so Redis drops the entry together with the token. */
+export const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
+
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
 
 @injectable()
 export class SessionService implements ISessionPort {
-  async refreshToken(cmd: { refreshToken: string; userId: string; }) {
-    const { refreshToken, userId } = cmd;
-    const session = await this.sessionRepo.findById(refreshToken);
-    if (!session) {
-      throw new Error("Session not found");
-    }
-    if (session.userId !== userId) {
-      throw new Error("Session does not belong to user");
-    }
-    return session;
-  }
   constructor(
     @inject(TOKENS_AUTH.repos.sessionRepo)
-    private sessionRepo: SessionRepository
+    private sessionRepo: SessionRepository,
+
+    @inject(TOKENS_AUTH.repos.refreshTokenRepo)
+    private refreshTokenRepo: RedisRefreshTokenRepo
   ) {}
 
   /**
    * Create a new session during login.
+   * Persists the session in MongoDB AND the refresh token in Redis,
+   * so the token is single-use from the very first moment.
    */
   async createSession(input: {
     userId: string;
@@ -42,44 +44,18 @@ export class SessionService implements ISessionPort {
     ip?: string | null;
     userAgent?: string | null;
     email?: string | null;
-  }): Promise<{
-    accessToken: string;
-    refreshToken: string;
-  }> {
-    const secret = process.env.ACCESS_TOKEN_SECRET;
-
-    if (!secret) {
-      throw new Error("ACCESS_TOKEN_SECRET is not configured");
-    }
-
+  }): Promise<TokenPair> {
     const sessionId = uuidv4();
     const familyId = uuidv4();
     const refreshTokenId = uuidv4();
 
-    const accessToken = jwt.sign(
-      {
-        sub: input.userId,
-        sessionId,
-        type: "access",
-        role: input.role || undefined,
-        email: input.email || undefined,
-      },
-      secret,
-      { expiresIn: "1125m" }
-    );
-
-    const refreshToken = jwt.sign(
-      {
-        sub: input.userId,
-        sessionId,
-        jti: refreshTokenId,
-        type: "refresh",
-        role: input.role || undefined,
-        email: input.email || undefined,
-      },
-      secret,
-      { expiresIn: "7d" }
-    );
+    const tokens = this.issueTokenPair({
+      userId: input.userId,
+      sessionId,
+      refreshTokenId,
+      role: input.role,
+      email: input.email,
+    });
 
     const hash = (value?: string | null) =>
       value
@@ -94,16 +70,67 @@ export class SessionService implements ISessionPort {
       refreshTokenId,
       ipHash: hash(input.ip),
       userAgentHash: hash(input.userAgent),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_SECONDS * 1000),
       activeTenantId: null,
       status: "ACTIVE",
       revoked: false,
     });
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    await this.refreshTokenRepo.save({
+      userId: input.userId,
+      token: tokens.refreshToken,
+      sessionId,
+      deviceId: input.deviceId || "unknown",
+      ttl: REFRESH_TOKEN_TTL_SECONDS,
+      issuedAt: new Date(),
+    });
+
+    return tokens;
+  }
+
+  /**
+   * Sign an access/refresh token pair for an existing session.
+   * Single signing implementation shared by login and refresh rotation.
+   */
+  issueTokenPair(input: {
+    userId: string;
+    sessionId: string;
+    refreshTokenId: string;
+    role?: string | null;
+    email?: string | null;
+  }): TokenPair {
+    const secret = process.env.ACCESS_TOKEN_SECRET;
+
+    if (!secret) {
+      throw new Error("ACCESS_TOKEN_SECRET is not configured");
+    }
+
+    const accessToken = jwt.sign(
+      {
+        sub: input.userId,
+        sessionId: input.sessionId,
+        type: "access",
+        role: input.role || undefined,
+        email: input.email || undefined,
+      },
+      secret,
+      { expiresIn: "1125m" }
+    );
+
+    const refreshToken = jwt.sign(
+      {
+        sub: input.userId,
+        sessionId: input.sessionId,
+        jti: input.refreshTokenId,
+        type: "refresh",
+        role: input.role || undefined,
+        email: input.email || undefined,
+      },
+      secret,
+      { expiresIn: "7d" }
+    );
+
+    return { accessToken, refreshToken };
   }
 
   /**
@@ -152,7 +179,9 @@ export class SessionService implements ISessionPort {
   }
 
   /**
-   * Atomically rotate the refresh token ID.
+   * Atomically rotate the refresh token ID (CAS on refreshTokenId).
+   * Returns false when the old ID no longer matches — i.e. the token was
+   * already rotated (replay) or the session is revoked/expired.
    */
   async rotateRefreshTokenId(input: {
     sessionId: string;

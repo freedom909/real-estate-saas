@@ -13,8 +13,6 @@ export class RiskEventRepo {
     private model: Model<RiskEventModel>,
     @inject("SessionRepository")
     private sessionRepo: SessionRepository,
-    // @inject("RefreshTokenRepo")
-    // private refreshTokenRepo: RefreshTokenRepository
   ) { }
   async create(data: Partial<RiskEventModel>) {
 
@@ -117,19 +115,13 @@ export class RiskEventRepo {
 
     return lastEvent?.ip ?? null;
   }
-  
+
   async handleRefreshTokenReuse(data) {
     const { familyId, reusedJti } = data;
 
-    // const family = await this.refreshTokenRepo.findFamily(familyId);
-
-    // 1️⃣ revoke 全家
-    // await this.refreshTokenRepo.revokeFamily(familyId);
-
-    // 2️⃣ revoke session
+    // Reuse detected: kill the session and record the risk event.
     await this.sessionRepo.revokeSession(data.sessionId);
 
-    // 3️⃣ 记录风险
     await this.model.create({
       eventType: "TOKEN_REUSE",
       userId: data.userId,

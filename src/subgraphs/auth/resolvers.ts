@@ -241,7 +241,7 @@ refreshToken: async (
 
   return useCase.execute({
     refreshToken,
-    userId: ctx.user.userId!,
+    // userId is derived from the verified JWT inside the use case
   });
 },
 

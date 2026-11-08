@@ -55,7 +55,7 @@ export const TOKENS_AUTH = {
 
     usecases: {
     OAuthLoginUseCase: Symbol.for("usecases.OAuthLoginUseCase"),
-    verifyOtpUseCase: Symbol.for("auth.VerifyOtpUseCase"), // ✅ 放这里
+    verifyOtpUseCase: Symbol.for("auth.VerifyOtpUseCase"), // 
     oauthLoginUseCase: Symbol.for("auth.OAuthLoginUseCase"),
     providerRegistry: Symbol.for("auth.providerRegistry"),
     switchTenantUseCase: Symbol.for("auth.switchTenantUseCase"),

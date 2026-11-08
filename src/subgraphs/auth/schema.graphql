@@ -175,6 +175,7 @@ user: AuthUser!
 # Tokens
 # =====================
 type AuthTokens {
+  refreshToken: String!
   accessToken: String!
 }
 

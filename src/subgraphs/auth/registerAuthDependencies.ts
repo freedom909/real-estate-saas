@@ -25,6 +25,8 @@ import { VerifyOtpUseCase } from "./application/usecases/verifyOtp.usecase";
 import { RiskEventRepo } from "./infrastructure/repos/risk.event.repo";
 import CredentialRepo from "../user/infra/repos/credential.repo";
 import SessionRepository from "./infrastructure/repos/session.repo";
+import RedisRefreshTokenRepo from "./infrastructure/repos/refresh-token.redis.repo";
+import { RefreshTokenUseCase } from "./application/usecases/refreshToken.usecase";
 // import TrustedDeviceRepository from "./infrastructure/repos/trusted-device.repo";
 import UserRepo from "./infrastructure/repos/user.repo";
 import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevice.repo";
@@ -110,6 +112,10 @@ container.register(TOKENS_AUTH.repos.credentialRepo, {
     useClass: SessionRepository
   });
 
+  container.register(TOKENS_AUTH.repos.refreshTokenRepo, {
+    useClass: RedisRefreshTokenRepo
+  });
+
   container.register(TOKENS_AUTH.repos.challengeRepo, {
     useClass: ChallengeRepo
   });
@@ -128,6 +134,14 @@ container.register(TOKENS_AUTH.repos.riskEventRepo, {
 
   container.register(TOKENS_AUTH.usecases.verifyOtpUseCase, {
     useClass: VerifyOtpUseCase
+  });
+
+  container.register(TOKENS_AUTH.services.sessionService, {
+    useClass: SessionService
+  });
+
+  container.register(TOKENS_AUTH.usecases.refreshTokenUseCase, {
+    useClass: RefreshTokenUseCase
   });
 
   // ================= CLIENT =================

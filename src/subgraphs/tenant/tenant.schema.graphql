@@ -1,5 +1,3 @@
-// src/subgraphs/tenant/tenant.schema.graphql
-
 
 schema
   @link(

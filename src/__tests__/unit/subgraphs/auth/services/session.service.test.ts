@@ -15,6 +15,7 @@ jest.mock("uuid", () => ({
 
 describe("SessionService", () => {
   let service: SessionService;
+  let mockRefreshTokenRepo: { save: jest.Mock<(...args: any[]) => Promise<any>> };
   const FIXED_DATE = new Date("2024-01-01T00:00:00.000Z");
 
   beforeEach(() => {
@@ -23,13 +24,17 @@ describe("SessionService", () => {
     jest.setSystemTime(FIXED_DATE);
     process.env.ACCESS_TOKEN_SECRET = "test-secret";
 
+    mockRefreshTokenRepo = {
+      save: jest.fn<(...args: any[]) => Promise<any>>().mockResolvedValue(undefined),
+    };
+
     service = new SessionService({
   create: jest.fn<(...args: any[]) => Promise<any>>()
     .mockResolvedValue(undefined),
 
   revokeById: jest.fn<(...args: any[]) => Promise<any>>()
-    .mockResolvedValue(undefined),
-} as any);
+    .mockResolvedValue({ matchedCount: 1 }),
+} as any, mockRefreshTokenRepo as any);
   });
 
   afterEach(() => {
@@ -52,6 +57,26 @@ describe("SessionService", () => {
       expect(result).toHaveProperty("refreshToken");
       expect(typeof result.accessToken).toBe("string");
       expect(typeof result.refreshToken).toBe("string");
+    });
+
+    it("should persist the refresh token in Redis together with the session", async () => {
+      const input = {
+        userId: "user-123",
+        deviceId: "device-abc",
+      };
+
+      const result = await service.createSession(input);
+
+      expect(mockRefreshTokenRepo.save).toHaveBeenCalledTimes(1);
+      expect(mockRefreshTokenRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: "user-123",
+          token: result.refreshToken,
+          sessionId: "mock-uuid-123",
+          deviceId: "device-abc",
+          ttl: 7 * 24 * 60 * 60,
+        })
+      );
     });
 
     it("should generate tokens with correct payload", async () => {

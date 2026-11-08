@@ -1,8 +1,10 @@
-import { createRedis } from "@/infrastructure/redis/redis";
+import { inject, injectable } from "tsyringe";
+import { Redis } from "ioredis";
+
+import { TOKENS_INFRA } from "@/modules/tokens/infra.tokens";
 import { hash } from "@/infrastructure/utils/hash";
 
-
-interface RefreshTokenData {
+export interface RefreshTokenData {
   userId: string;
   token: string;
   sessionId: string;
@@ -11,61 +13,68 @@ interface RefreshTokenData {
   issuedAt: Date;
 }
 
-interface RefreshTokenMeta {
+export interface RefreshTokenMeta {
   userId: string;
   sessionId: string;
   deviceId: string;
   issuedAt?: string;
 }
 
-const redis = createRedis();
-
-
-
+@injectable()
 export default class RedisRefreshTokenRepo {
+  constructor(
+    @inject(TOKENS_INFRA.infra.redis)
+    private redis: Redis
+  ) {}
+
+  /**
+   * Atomically consume a refresh token (single-use):
+   * reads its metadata and deletes it in one Lua script.
+   * Returns null when the token is unknown or already consumed (reuse).
+   */
   async consume(token: string): Promise<RefreshTokenMeta | null> {
-  const h = hash(token);
+    const h = hash(token);
 
-  const luaScript = `
-    local userId = redis.call("HGET", KEYS[1], "userId")
-    local sessionId = redis.call("HGET", KEYS[1], "sessionId")
-    local deviceId = redis.call("HGET", KEYS[1], "deviceId")
-    local issuedAt = redis.call("HGET", KEYS[1], "issuedAt")
+    const luaScript = `
+      local userId = redis.call("HGET", KEYS[1], "userId")
+      local sessionId = redis.call("HGET", KEYS[1], "sessionId")
+      local deviceId = redis.call("HGET", KEYS[1], "deviceId")
+      local issuedAt = redis.call("HGET", KEYS[1], "issuedAt")
 
-    if not userId or not sessionId or not deviceId then
-      return nil
-    end
+      if not userId or not sessionId or not deviceId then
+        return nil
+      end
 
-    redis.call("DEL", KEYS[1])
-    redis.call("SREM", "user:" .. userId .. ":refreshTokens", ARGV[1])
-    redis.call("SREM", "user:" .. userId .. ":devices:" .. deviceId, sessionId)
+      redis.call("DEL", KEYS[1])
+      redis.call("SREM", "user:" .. userId .. ":refreshTokens", ARGV[1])
+      redis.call("SREM", "user:" .. userId .. ":devices:" .. deviceId, sessionId)
 
-    return { userId, sessionId, deviceId, issuedAt or "" }
-  `;
+      return { userId, sessionId, deviceId, issuedAt or "" }
+    `;
 
-  const result = await redis.eval(
-    luaScript,
-    1,
-    `refresh:${h}`,
-    h
-  ) as string[] | null;
+    const result = await this.redis.eval(
+      luaScript,
+      1,
+      `refresh:${h}`,
+      h
+    ) as string[] | null;
 
-  if (!result) {
-    return null;
+    if (!result) {
+      return null;
+    }
+
+    return {
+      userId: result[0],
+      sessionId: result[1],
+      deviceId: result[2],
+      issuedAt: result[3] || undefined,
+    };
   }
-
-  return {
-    userId: result[0],
-    sessionId: result[1],
-    deviceId: result[2],
-    issuedAt: result[3] || undefined,
-  };
-}
 
   async save({ userId, token, sessionId, deviceId, ttl, issuedAt }: RefreshTokenData): Promise<void> {
     const h = hash(token);
 
-    const pipeline = redis.pipeline();
+    const pipeline = this.redis.pipeline();
     pipeline.hset(`refresh:${h}`, {
       userId,
       sessionId,
@@ -84,15 +93,15 @@ export default class RedisRefreshTokenRepo {
   }
 
   async get(token: string): Promise<Partial<RefreshTokenMeta>> {
-    return redis.hgetall(`refresh:${hash(token)}`);
+    return this.redis.hgetall(`refresh:${hash(token)}`);
   }
 
   async delete(token: string): Promise<void> {
     const h = hash(token);
-    const meta: Partial<RefreshTokenMeta> = await redis.hgetall(`refresh:${h}`);
+    const meta: Partial<RefreshTokenMeta> = await this.redis.hgetall(`refresh:${h}`);
     if (!meta.userId) return;
 
-    const pipeline = redis.pipeline();
+    const pipeline = this.redis.pipeline();
     pipeline.del(`refresh:${h}`);
     pipeline.srem(`user:${meta.userId}:refreshTokens`, h);
     pipeline.srem(
@@ -104,21 +113,21 @@ export default class RedisRefreshTokenRepo {
   }
 
   async revokeSession(userId: string, sessionId: string): Promise<void> {
-    const keys = await redis.keys("refresh:*");
+    const keys = await this.redis.keys("refresh:*");
 
     for (const key of keys) {
-      const meta = await redis.hgetall(key);
+      const meta = await this.redis.hgetall(key);
       if (
         meta.userId === userId &&
         meta.sessionId === sessionId
       ) {
-        await redis.del(key);
+        await this.redis.del(key);
       }
     }
   }
 
   async revokeDevice(userId: string, deviceId: string): Promise<void> {
-    const sessions = await redis.smembers(
+    const sessions = await this.redis.smembers(
       `user:${userId}:devices:${deviceId}`
     );
 
@@ -126,17 +135,17 @@ export default class RedisRefreshTokenRepo {
       await this.revokeSession(userId, sid);
     }
 
-    await redis.del(
+    await this.redis.del(
       `user:${userId}:devices:${deviceId}`
     );
   }
 
   async revokeAll(userId: string): Promise<void> {
-    const hashes = await redis.smembers(
+    const hashes = await this.redis.smembers(
       `user:${userId}:refreshTokens`
     );
 
-    const pipeline = redis.pipeline();
+    const pipeline = this.redis.pipeline();
     hashes.forEach((h) =>
       pipeline.del(`refresh:${h}`)
     );
