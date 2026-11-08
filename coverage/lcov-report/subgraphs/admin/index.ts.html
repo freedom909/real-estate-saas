@@ -356,7 +356,7 @@ import cors from "cors";
 &nbsp;
 <span class="cstat-no" title="statement not covered" >import { resolvers } from "./resolvers/admin.resolver";</span>
 <span class="cstat-no" title="statement not covered" >import { sequelize } from "@/infrastructure/config/seq";</span>
-<span class="cstat-no" title="statement not covered" >import registerAuthDependencies from "../auth/registerAuthDependencies";</span>
+<span class="cstat-no" title="statement not covered" >import authRegister from "../auth/authRegister";</span>
 <span class="cstat-no" title="statement not covered" >import { registerUserDependencies } from "../user/registerUserDependencies";</span>
 <span class="cstat-no" title="statement not covered" >import registerAdminDependencies from "@/modules/container/admin.register";</span>
 <span class="cstat-no" title="statement not covered" >import registerAuditDependencies from "@/modules/container/audit.register";</span>
@@ -367,7 +367,7 @@ import cors from "cors";
 <span class="cstat-no" title="statement not covered" >console.info("Admin subgraph configuration loaded");</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >registerAuditDependencies(container);</span>
-<span class="cstat-no" title="statement not covered" >registerAuthDependencies(container);</span>
+<span class="cstat-no" title="statement not covered" >authRegister(container);</span>
 <span class="cstat-no" title="statement not covered" >registerAdminDependencies();</span>
 <span class="cstat-no" title="statement not covered" >registerUserDependencies(container);</span>
 &nbsp;

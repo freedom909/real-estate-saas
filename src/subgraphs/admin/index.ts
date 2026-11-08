@@ -23,7 +23,7 @@ import mongoose from "mongoose";
 
 import { resolvers } from "./resolvers/admin.resolver";
 import { sequelize } from "@/infrastructure/config/seq";
-import registerAuthDependencies from "../auth/registerAuthDependencies";
+import authRegister from "../../modules/container/auth.register";
 import { registerUserDependencies } from "../user/registerUserDependencies";
 import registerAdminDependencies from "@/modules/container/admin.register";
 import registerAuditDependencies from "@/modules/container/audit.register";
@@ -34,7 +34,7 @@ import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyIntern
 console.info("Admin subgraph configuration loaded");
 
 registerAuditDependencies(container);
-registerAuthDependencies(container);
+authRegister(container);
 registerAdminDependencies();
 registerUserDependencies(container);
 

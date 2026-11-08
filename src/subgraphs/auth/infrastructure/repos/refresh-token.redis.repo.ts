@@ -71,26 +71,62 @@ export default class RedisRefreshTokenRepo {
     };
   }
 
-  async save({ userId, token, sessionId, deviceId, ttl, issuedAt }: RefreshTokenData): Promise<void> {
-    const h = hash(token);
 
-    const pipeline = this.redis.pipeline();
-    pipeline.hset(`refresh:${h}`, {
-      userId,
-      sessionId,
-      deviceId,
-      issuedAt: issuedAt?.toISOString(),
-    });
-    pipeline.expire(`refresh:${h}`, ttl);
+async save({
+  userId,
+  token,
+  sessionId,
+  deviceId,
+  ttl,
+  issuedAt,
+}: RefreshTokenData): Promise<void> {
+  const h = hash(token);
 
-    pipeline.sadd(`user:${userId}:refreshTokens`, h);
-    pipeline.sadd(
-      `user:${userId}:devices:${deviceId}`,
-      sessionId
+  const pipeline = this.redis.pipeline();
+
+  pipeline.hset(`refresh:${h}`, {
+    userId,
+    sessionId,
+    deviceId,
+    issuedAt: issuedAt?.toISOString(),
+  });
+
+  pipeline.expire(`refresh:${h}`, ttl);
+
+  pipeline.sadd(`user:${userId}:refreshTokens`, h);
+
+  pipeline.sadd(
+    `user:${userId}:devices:${deviceId}`,
+    sessionId
+  );
+
+  const results = await pipeline.exec();
+
+  // Check whether the pipeline returned any results.
+  if (!results) {
+    throw new Error("Redis refresh token save returned no results");
+  }
+
+  // Check every Redis command individually.
+  const errors = results
+    .map(([error], index) => ({
+      index,
+      error,
+    }))
+    .filter((item) => item.error !== null);
+
+  if (errors.length > 0) {
+    console.error(
+      "[RedisRefreshTokenRepo] Save pipeline errors:",
+      errors
     );
 
-    await pipeline.exec();
+    throw new Error(
+      `Failed to save refresh token in Redis: ${errors.length} command(s) failed`
+    );
   }
+}
+
 
   async get(token: string): Promise<Partial<RefreshTokenMeta>> {
     return this.redis.hgetall(`refresh:${hash(token)}`);
@@ -125,6 +161,50 @@ export default class RedisRefreshTokenRepo {
       }
     }
   }
+  
+  
+/**
+ * Cleanup a refresh token and all related Redis indexes.
+ *
+ * Designed for compensating a partially failed save operation.
+ */
+async cleanupSessionRefreshToken(input: {
+  userId: string;
+  sessionId: string;
+  deviceId: string;
+  token: string;
+}): Promise<void> {
+  const h = hash(input.token);
+
+  const pipeline = this.redis.pipeline();
+
+  pipeline.del(`refresh:${h}`);
+
+  pipeline.srem(
+    `user:${input.userId}:refreshTokens`,
+    h
+  );
+
+  pipeline.srem(
+    `user:${input.userId}:devices:${input.deviceId}`,
+    input.sessionId
+  );
+
+  const results = await pipeline.exec();
+
+  if (!results) {
+    throw new Error("Redis cleanup pipeline returned no results");
+  }
+
+  const failed = results.filter(([error]) => error !== null);
+
+  if (failed.length > 0) {
+    throw new Error(
+      `Redis cleanup failed for ${failed.length} command(s)`
+    );
+  }
+}
+
 
   async revokeDevice(userId: string, deviceId: string): Promise<void> {
     const sessions = await this.redis.smembers(

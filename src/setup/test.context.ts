@@ -11,7 +11,7 @@ import { TOKENS_INFRA } from "../modules/tokens/infra.tokens";
 import { TOKENS_SECURITY } from "../modules/tokens/security.tokens";
 
 // services
-import registerAuthDependencies from "../subgraphs/auth/registerAuthDependencies";
+import authRegister from "../modules/container/auth.register";
 import { jest } from "@jest/globals";
 
 
@@ -126,7 +126,7 @@ sessionPort: {
   });
 
     // 3️⃣ 注册 auth 依赖
-  registerAuthDependencies(container);
+  authRegister(container);
 
   container.register(TOKENS_AUTH.ports.sessionPort, {
     useValue: mocks.sessionPort,

@@ -4,10 +4,10 @@ import "reflect-metadata";
 import { DependencyContainer } from "tsyringe";
 
 // TOKENS
-import { TOKENS_AUTH } from "../../modules/tokens/auth.tokens";
+import { TOKENS_AUTH } from "../tokens/auth.tokens";
 
-import { TOKENS_INFRA } from "../../modules/tokens/infra.tokens";
-import { TOKENS_USER } from "../../modules/tokens/user.tokens";
+import { TOKENS_INFRA } from "../tokens/infra.tokens";
+import { TOKENS_USER } from "../tokens/user.tokens";
 
 // infra
 import { createRedis } from "../../infrastructure/redis/redis";
@@ -20,36 +20,36 @@ import Blacklist from "@/security/blacklist/blacklist";
 
 import AuditClient from "@/packages/audit-sdk/src/client/audit.client";
 import { TOKENS_AUDIT } from "@/modules/tokens/audit.tokens";
-import { VerifyOtpUseCase } from "./application/usecases/verifyOtp.usecase";
+import { VerifyOtpUseCase } from "../../subgraphs/auth/application/usecases/verifyOtp.usecase";
 
-import { RiskEventRepo } from "./infrastructure/repos/risk.event.repo";
-import CredentialRepo from "../user/infra/repos/credential.repo";
-import SessionRepository from "./infrastructure/repos/session.repo";
-import RedisRefreshTokenRepo from "./infrastructure/repos/refresh-token.redis.repo";
-import { RefreshTokenUseCase } from "./application/usecases/refreshToken.usecase";
+import { RiskEventRepo } from "../../subgraphs/auth/infrastructure/repos/risk.event.repo";
+import CredentialRepo from "../../subgraphs/user/infra/repos/credential.repo";
+import SessionRepository from "../../subgraphs/auth/infrastructure/repos/session.repo";
+import RedisRefreshTokenRepo from "../../subgraphs/auth/infrastructure/repos/refresh-token.redis.repo";
+import { RefreshTokenUseCase } from "../../subgraphs/auth/application/usecases/refreshToken.usecase";
 // import TrustedDeviceRepository from "./infrastructure/repos/trusted-device.repo";
-import UserRepo from "./infrastructure/repos/user.repo";
+import UserRepo from "../../subgraphs/auth/infrastructure/repos/user.repo";
 import TrustedDeviceRepository from "@/security/infrastructure/repos/trustedDevice.repo";
 import TrustedDeviceModel from "@/security/infrastructure/models/trusted.device.model";
 import { UserClient } from "@/packages/user-sdk/src/client/user.client";
-import { ProviderRegistry } from "./infrastructure/oauth/provider.registry";
-import { AuthGuard } from "./guards/auth.guard";
+import { ProviderRegistry } from "../../subgraphs/auth/infrastructure/oauth/provider.registry";
+import { AuthGuard } from "../../subgraphs/auth/guards/auth.guard";
 import EvaluateRiskUseCase from "@/security/application/evaluateRisk.usecase";
-import { ChallengeModel } from "./infrastructure/models/challenge.model";
-import ChallengeRepo from "./infrastructure/repos/challenge.repo";
-import { OAuthLoginUseCase } from "./application/usecases/login.usecase";
-import { SessionService } from "./infrastructure/services/session.service";
-import { TokenBindingService } from "./infrastructure/services/token-binding.service";
-import { IdentityRepository } from "./infrastructure/repos/identity.repo";
-import { IdentityModel } from "./infrastructure/models/identity.model";
-import { JwtService } from "./infrastructure/services/jwt.service";
-import SessionModel from "./infrastructure/models/session.model";
-import { GoogleOAuthProvider } from "./infrastructure/oauth/google.oauthProvider";
-import { GitHubOAuthProvider } from "./infrastructure/oauth/github.oauthProvider";
-import { FacebookOAuthProvider } from "./infrastructure/oauth/facebook.oauthProvider";
-import { UserGateway } from "./infrastructure/gateways/user.gateway.impl";
+import { ChallengeModel } from "../../subgraphs/auth/infrastructure/models/challenge.model";
+import ChallengeRepo from "../../subgraphs/auth/infrastructure/repos/challenge.repo";
+import { OAuthLoginUseCase } from "../../subgraphs/auth/application/usecases/login.usecase";
+import { SessionService } from "../../subgraphs/auth/infrastructure/services/session.service";
+import { TokenBindingService } from "../../subgraphs/auth/infrastructure/services/token-binding.service";
+import { IdentityRepository } from "../../subgraphs/auth/infrastructure/repos/identity.repo";
+import { IdentityModel } from "../../subgraphs/auth/infrastructure/models/identity.model";
+import { JwtService } from "../../subgraphs/auth/infrastructure/services/jwt.service";
+import SessionModel from "../../subgraphs/auth/infrastructure/models/session.model";
+import { GoogleOAuthProvider } from "../../subgraphs/auth/infrastructure/oauth/google.oauthProvider";
+import { GitHubOAuthProvider } from "../../subgraphs/auth/infrastructure/oauth/github.oauthProvider";
+import { FacebookOAuthProvider } from "../../subgraphs/auth/infrastructure/oauth/facebook.oauthProvider";
+import { UserGateway } from "../../subgraphs/auth/infrastructure/gateways/user.gateway.impl";
 
-export default function registerAuthDependencies(container: DependencyContainer) {
+export default function authRegister(container: DependencyContainer) {
 
   // ================= INFRA =================
   const redis = createRedis();

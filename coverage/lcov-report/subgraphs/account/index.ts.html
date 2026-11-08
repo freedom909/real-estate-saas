@@ -287,7 +287,7 @@ const __dirname = <span class="cstat-no" title="statement not covered" >path.dir
 &nbsp;
 <span class="cstat-no" title="statement not covered" >import { resolvers } from "./account.resolver";</span>
 <span class="cstat-no" title="statement not covered" >import { sequelize } from "@/infrastructure/config/seq";</span>
-<span class="cstat-no" title="statement not covered" >import registerAuthDependencies from "../auth/registerAuthDependencies";</span>
+<span class="cstat-no" title="statement not covered" >import authRegister from "../auth/authRegister";</span>
 <span class="cstat-no" title="statement not covered" >import { registerUserDependencies } from "../user/registerUserDependencies";</span>
 <span class="cstat-no" title="statement not covered" >import registerAccountDependencies from "@/modules/container/account.register";</span>
 <span class="cstat-no" title="statement not covered" >import getUserFromContext from "@/infrastructure/auth/getUserFromContext";</span>
@@ -296,7 +296,7 @@ const __dirname = <span class="cstat-no" title="statement not covered" >path.dir
 &nbsp;
 // Register all dependencies
 <span class="cstat-no" title="statement not covered" >registerAccountDependencies();</span>
-<span class="cstat-no" title="statement not covered" >registerAuthDependencies(container);</span>
+<span class="cstat-no" title="statement not covered" >authRegister(container);</span>
 <span class="cstat-no" title="statement not covered" >registerUserDependencies(container);</span>
 &nbsp;
 &nbsp;

@@ -9,7 +9,7 @@ import { container } from "tsyringe";
 
 import { connectMongo } from "@/shared/db/mongo";
 
-import registerAuthDependencies from "@/subgraphs/auth/registerAuthDependencies";
+import authRegister from "@/modules/container/auth.register";
 import UserModel from "@/subgraphs/user/infra/models/user.model";
 import SessionModel from "@/subgraphs/auth/infrastructure/models/session.model";
 
@@ -262,7 +262,7 @@ async function main() {
 
   await connectMongo(MONGO_URI);
 
-  registerAuthDependencies(container);
+  authRegister(container);
 
   console.log("MongoDB connected");
   console.log("MongoDB database =", mongoose.connection.name);
@@ -383,7 +383,7 @@ async function main() {
      * --------------------------------------------------------
      */
 
-    console.log("\nTest 2: Verify Alice membership — Kyoto Stays");
+    console.log("\nTest 2: Verify Alice membership ï¿½ Kyoto Stays");
 
     const membership = await MembershipModel.findOne({
       userId: ALICE_ID,
@@ -430,11 +430,11 @@ async function main() {
 
     /*
      * --------------------------------------------------------
-     * Test 4: switchTenant — valid tenant
+     * Test 4: switchTenant ï¿½ valid tenant
      * --------------------------------------------------------
      */
 
-    console.log("\nTest 4: switchTenant — valid tenant (Kyoto Stays)");
+    console.log("\nTest 4: switchTenant ï¿½ valid tenant (Kyoto Stays)");
 
     const result = await switchUseCase.execute({
       userId: ALICE_ID,
@@ -509,7 +509,7 @@ async function main() {
 
     /*
      * --------------------------------------------------------
-     * Test 7: switchTenant — unauthorized tenant
+     * Test 7: switchTenant ï¿½ unauthorized tenant
      * --------------------------------------------------------
      *
      * IMPORTANT:
@@ -524,7 +524,7 @@ async function main() {
      */
 
     console.log(
-      "\nTest 7: switchTenant — unauthorized Tokyo tenant"
+      "\nTest 7: switchTenant ï¿½ unauthorized Tokyo tenant"
     );
 
     let unauthorizedSwitchFailed = false;
@@ -552,11 +552,11 @@ async function main() {
 
     /*
      * --------------------------------------------------------
-     * Test 8: switchTenant — nonexistent tenant
+     * Test 8: switchTenant ï¿½ nonexistent tenant
      * --------------------------------------------------------
      */
 
-    console.log("\nTest 8: switchTenant — nonexistent tenant");
+    console.log("\nTest 8: switchTenant ï¿½ nonexistent tenant");
 
     let nonexistentTenantFailed = false;
 
@@ -674,7 +674,7 @@ async function main() {
      * Guaranteed cleanup
      * --------------------------------------------------------
      *
-     * Even when Test 1–10 fails, test sessions are removed.
+     * Even when Test 1ï¿½10 fails, test sessions are removed.
      *
      * We intentionally DO NOT delete:
      *

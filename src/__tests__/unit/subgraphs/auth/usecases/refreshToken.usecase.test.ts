@@ -17,8 +17,10 @@ describe("RefreshTokenUseCase", () => {
   let mockSessionService: {
     rotateRefreshTokenId: jest.Mock<(...args: any[]) => Promise<boolean>>;
     issueTokenPair: jest.Mock<(...args: any[]) => { accessToken: string; refreshToken: string }>;
+     revokeSession: jest.Mock<(...args: any[]) => Promise<void>>;
   };
   let mockRefreshTokenRepo: {
+    get: jest.Mock<(...args: any[]) => Promise<any>>;
     consume: jest.Mock<(...args: any[]) => Promise<any>>;
     save: jest.Mock<(...args: any[]) => Promise<void>>;
   };
@@ -41,14 +43,22 @@ describe("RefreshTokenUseCase", () => {
         .mockResolvedValue(true),
       issueTokenPair: jest.fn<(...args: any[]) => { accessToken: string; refreshToken: string }>()
         .mockReturnValue({ accessToken: "new-access", refreshToken: "new-refresh" }),
+      revokeSession: jest.fn<(...args: any[]) => Promise<void>>().mockResolvedValue(undefined),
     };
 
     mockRefreshTokenRepo = {
+      get: jest.fn<(...args: any[]) => Promise<any>>().mockResolvedValue({
+        userId: "user-123",
+        sessionId: "sess-abc",
+        deviceId: "device-abc",
+      }),
+
       consume: jest.fn<(...args: any[]) => Promise<any>>().mockResolvedValue({
         userId: "user-123",
         sessionId: "sess-abc",
         deviceId: "device-abc",
       }),
+
       save: jest.fn<(...args: any[]) => Promise<void>>().mockResolvedValue(undefined),
     };
 
@@ -70,12 +80,12 @@ describe("RefreshTokenUseCase", () => {
       const result = await useCase.execute({ refreshToken: "old-token" });
 
       // 1. self-verified JWT
-      expect(jwt.verify).toHaveBeenCalledWith("old-token", "test-secret");
+      expect(jwt.verify).toHaveBeenCalledWith("old-token", "test-secret", { algorithms: ["HS256"] });
 
-      // 2. Redis single-use consumption of the OLD token
-      expect(mockRefreshTokenRepo.consume).toHaveBeenCalledWith("old-token");
+      // 2. Redis pre-check: inspect the old token without consuming it
+      expect(mockRefreshTokenRepo.get).toHaveBeenCalledWith("old-token");
 
-      // 3. Mongo atomic rotation: old jti → new jti
+      // 3. Mongo atomic CAS: old jti → new jti
       expect(mockSessionService.rotateRefreshTokenId).toHaveBeenCalledWith({
         sessionId: "sess-abc",
         userId: "user-123",
@@ -83,14 +93,8 @@ describe("RefreshTokenUseCase", () => {
         newRefreshTokenId: "new-jti-456",
       });
 
-      // 4. new pair issued from the verified claims (incl. role/email passthrough)
-      expect(mockSessionService.issueTokenPair).toHaveBeenCalledWith({
-        userId: "user-123",
-        sessionId: "sess-abc",
-        refreshTokenId: "new-jti-456",
-        role: "HOST",
-        email: "host@example.com",
-      });
+      // 4. Redis single-use consumption happens after successful CAS
+      expect(mockRefreshTokenRepo.consume).toHaveBeenCalledWith("old-token");
 
       // 5. new refresh token persisted in Redis with the carried-over deviceId
       expect(mockRefreshTokenRepo.save).toHaveBeenCalledWith(
@@ -161,29 +165,41 @@ describe("RefreshTokenUseCase", () => {
     it("rejects when Redis no longer knows the token (already consumed)", async () => {
       const jwt = require("jsonwebtoken");
       jwt.verify.mockReturnValue(VALID_PAYLOAD);
-      mockRefreshTokenRepo.consume.mockResolvedValue(null);
-
+      mockRefreshTokenRepo.get.mockResolvedValue({});
       await expect(
         useCase.execute({ refreshToken: "replayed" })
       ).rejects.toThrow("Refresh token already used or revoked");
 
-      // must not rotate or issue anything
       expect(mockSessionService.rotateRefreshTokenId).not.toHaveBeenCalled();
+      expect(mockRefreshTokenRepo.consume).not.toHaveBeenCalled();
       expect(mockSessionService.issueTokenPair).not.toHaveBeenCalled();
     });
 
     it("rejects when the Redis record belongs to another user/session", async () => {
       const jwt = require("jsonwebtoken");
       jwt.verify.mockReturnValue(VALID_PAYLOAD);
-      mockRefreshTokenRepo.consume.mockResolvedValue({
+
+      // Redis returns metadata belonging to another user.
+      mockRefreshTokenRepo.get.mockResolvedValue({
         userId: "someone-else",
         sessionId: "sess-abc",
         deviceId: "device-abc",
       });
 
       await expect(
-        useCase.execute({ refreshToken: "mismatched" })
+        useCase.execute({ refreshToken: "old-token" })
       ).rejects.toThrow("Refresh token already used or revoked");
+
+      // Redis pre-check must happen.
+      expect(mockRefreshTokenRepo.get).toHaveBeenCalledWith("old-token");
+
+      // Reject before Mongo CAS.
+      expect(mockSessionService.rotateRefreshTokenId).not.toHaveBeenCalled();
+
+      // Do not consume or issue tokens.
+      expect(mockRefreshTokenRepo.consume).not.toHaveBeenCalled();
+      expect(mockSessionService.issueTokenPair).not.toHaveBeenCalled();
+      expect(mockRefreshTokenRepo.save).not.toHaveBeenCalled();
     });
 
     it("rejects when Mongo CAS rotation fails (jti already rotated)", async () => {
@@ -198,6 +214,100 @@ describe("RefreshTokenUseCase", () => {
       // no new pair may be issued on a failed rotation
       expect(mockSessionService.issueTokenPair).not.toHaveBeenCalled();
       expect(mockRefreshTokenRepo.save).not.toHaveBeenCalled();
+    });  
+  });
+
+  describe("execute — failure compensation", () => {
+
+  it("revokes the session when Redis consume fails after Mongo CAS succeeds", async () => {
+    const jwt = require("jsonwebtoken");
+    jwt.verify.mockReturnValue(VALID_PAYLOAD);
+
+    // Redis pre-check succeeds.
+    mockRefreshTokenRepo.get.mockResolvedValue({
+      userId: "user-123",
+      sessionId: "sess-abc",
+      deviceId: "device-abc",
     });
+
+    // Mongo CAS succeeds.
+    mockSessionService.rotateRefreshTokenId.mockResolvedValue(true);
+
+    // Redis consume fails.
+    mockRefreshTokenRepo.consume.mockRejectedValue(
+      new Error("Redis consume failed")
+    );
+
+    await expect(
+      useCase.execute({ refreshToken: "old-token" })
+    ).rejects.toThrow("Redis consume failed");
+
+    // Mongo CAS must have succeeded before compensation.
+    expect(mockSessionService.rotateRefreshTokenId).toHaveBeenCalled();
+
+    // Session must be revoked.
+    expect(mockSessionService.revokeSession)
+      .toHaveBeenCalledWith("sess-abc");
+
+    // No new token pair may be issued.
+    expect(mockSessionService.issueTokenPair).not.toHaveBeenCalled();
+
+    // No new refresh token may be saved.
+    expect(mockRefreshTokenRepo.save).not.toHaveBeenCalled();
+  });
+})
+
+  it("revokes the session when Redis save fails after token issuance", async () => {
+    const jwt = require("jsonwebtoken");
+    jwt.verify.mockReturnValue(VALID_PAYLOAD);
+
+    // Redis pre-check succeeds.
+    mockRefreshTokenRepo.get.mockResolvedValue({
+      userId: "user-123",
+      sessionId: "sess-abc",
+      deviceId: "device-abc",
+    });
+
+    // Mongo CAS succeeds.
+    mockSessionService.rotateRefreshTokenId.mockResolvedValue(true);
+
+    // Redis consume succeeds.
+    mockRefreshTokenRepo.consume.mockResolvedValue({
+      userId: "user-123",
+      sessionId: "sess-abc",
+      deviceId: "device-abc",
+    });
+
+    // Token issuance succeeds.
+    mockSessionService.issueTokenPair.mockReturnValue({
+      accessToken: "new-access",
+      refreshToken: "new-refresh",
+    });
+
+    // Redis save fails.
+    mockRefreshTokenRepo.save.mockRejectedValue(
+      new Error("Redis save failed")
+    );
+
+    await expect(
+      useCase.execute({ refreshToken: "old-token" })
+    ).rejects.toThrow("Redis save failed");
+
+    // Mongo CAS must have succeeded.
+    expect(mockSessionService.rotateRefreshTokenId).toHaveBeenCalled();
+
+    // Old token must have been consumed.
+    expect(mockRefreshTokenRepo.consume)
+      .toHaveBeenCalledWith("old-token");
+
+    // New tokens were issued, but could not be persisted.
+    expect(mockSessionService.issueTokenPair).toHaveBeenCalled();
+
+    // Session must be revoked.
+    expect(mockSessionService.revokeSession)
+      .toHaveBeenCalledWith("sess-abc");
+
+    // Redis save was attempted.
+    expect(mockRefreshTokenRepo.save).toHaveBeenCalled();
   });
 });

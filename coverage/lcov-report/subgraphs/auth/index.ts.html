@@ -343,7 +343,7 @@ const __dirname = <span class="cstat-no" title="statement not covered" >path.dir
 <span class="cstat-no" title="statement not covered" >import resolvers from "./resolvers"</span>
 &nbsp;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import registerAuthDependencies from "./registerAuthDependencies"</span>
+<span class="cstat-no" title="statement not covered" >import authRegister from "./authRegister"</span>
 <span class="cstat-no" title="statement not covered" >import  registerSecurityDependencies  from "../../modules/container/security.register";</span>
 <span class="cstat-no" title="statement not covered" >import registerAuditDependencies from "../../modules/container/audit.register.js"</span>
 <span class="cstat-no" title="statement not covered" >import getUserFromContext from "@/infrastructure/auth/getUserFromContext"</span>
@@ -351,11 +351,11 @@ const __dirname = <span class="cstat-no" title="statement not covered" >path.dir
 &nbsp;
 <span class="cstat-no" title="statement not covered" >dns.setServers(["8.8.8.8", "1.1.1.1"]);</span>
 // ── 1. Module-level DI registration ──────────────────
-<span class="cstat-no" title="statement not covered" >registerAuthDependencies(container);</span>
+<span class="cstat-no" title="statement not covered" >authRegister(container);</span>
 // ⭐ 注册 DI
 <span class="cstat-no" title="statement not covered" >registerAuditDependencies(container)</span>
 <span class="cstat-no" title="statement not covered" >registerSecurityDependencies();</span>
-<span class="cstat-no" title="statement not covered" >registerAuthDependencies(container)</span>
+<span class="cstat-no" title="statement not covered" >authRegister(container)</span>
 <span class="cstat-no" title="statement not covered" >console.log("OAuth container loaded")</span>
 &nbsp;
 &nbsp;

@@ -416,7 +416,7 @@ import { TOKENS_INFRA } from "../modules/tokens/infra.tokens";
 import { TOKENS_SECURITY } from "../modules/tokens/security.tokens";
 &nbsp;
 // services
-import registerAuthDependencies from "../subgraphs/auth/registerAuthDependencies";
+import authRegister from "../subgraphs/auth/authRegister";
 import { OAuthLoginUseCase } from "../subgraphs/auth/application/usecases/login.usecase";
 import { jest } from "@jest/globals";
 &nbsp;
@@ -534,7 +534,7 @@ export function createTestContext() {
   });
 &nbsp;
   // 3️⃣ 再注册 auth 依赖
-  registerAuthDependencies(container);
+  authRegister(container);
 &nbsp;
   // 4️⃣ 注册 mock use case (override the registered one)
   container.register(TOKENS_AUTH.usecases.oauthLoginUseCase, {

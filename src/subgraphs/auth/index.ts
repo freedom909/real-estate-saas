@@ -26,7 +26,7 @@ import { container } from "tsyringe"
 import resolvers from "./resolvers"
 
 
-import registerAuthDependencies from "./registerAuthDependencies"
+import authRegister from "../../modules/container/auth.register"
 import  registerSecurityDependencies  from "../../modules/container/security.register";
 import registerAuditDependencies from "../../modules/container/audit.register.js"
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext"
@@ -34,11 +34,11 @@ import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyIntern
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 // ── 1. Module-level DI registration ──────────────────
-registerAuthDependencies(container);
+authRegister(container);
 // ⭐ 注册 DI
 registerAuditDependencies(container)
 registerSecurityDependencies();
-registerAuthDependencies(container)
+authRegister(container)
 console.log("OAuth container loaded")
 
 

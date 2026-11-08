@@ -30,13 +30,14 @@ export class SessionService implements ISessionPort {
 
     @inject(TOKENS_AUTH.repos.refreshTokenRepo)
     private refreshTokenRepo: RedisRefreshTokenRepo
-  ) {}
+  ) { }
 
   /**
    * Create a new session during login.
    * Persists the session in MongoDB AND the refresh token in Redis,
    * so the token is single-use from the very first moment.
    */
+
   async createSession(input: {
     userId: string;
     role?: string | null;
@@ -48,6 +49,7 @@ export class SessionService implements ISessionPort {
     const sessionId = uuidv4();
     const familyId = uuidv4();
     const refreshTokenId = uuidv4();
+    const deviceId = input.deviceId || "unknown";
 
     const tokens = this.issueTokenPair({
       userId: input.userId,
@@ -62,31 +64,62 @@ export class SessionService implements ISessionPort {
         ? crypto.createHash("sha256").update(value).digest("hex")
         : undefined;
 
+    // Step 1: Create the MongoDB session.
     await this.sessionRepo.create({
       id: sessionId,
       userId: input.userId,
-      deviceId: input.deviceId || "unknown",
+      deviceId,
       familyId,
       refreshTokenId,
       ipHash: hash(input.ip),
       userAgentHash: hash(input.userAgent),
-      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_SECONDS * 1000),
+      expiresAt: new Date(
+        Date.now() + REFRESH_TOKEN_TTL_SECONDS * 1000
+      ),
       activeTenantId: null,
       status: "ACTIVE",
       revoked: false,
     });
 
-    await this.refreshTokenRepo.save({
-      userId: input.userId,
-      token: tokens.refreshToken,
-      sessionId,
-      deviceId: input.deviceId || "unknown",
-      ttl: REFRESH_TOKEN_TTL_SECONDS,
-      issuedAt: new Date(),
-    });
+    // Step 2: Save the refresh token in Redis.
+    try {
+      await this.refreshTokenRepo.save({
+        userId: input.userId,
+        token: tokens.refreshToken,
+        sessionId,
+        deviceId,
+        ttl: REFRESH_TOKEN_TTL_SECONDS,
+        issuedAt: new Date(),
+      });
 
-    return tokens;
+      return tokens;
+    } catch (originalError) {
+      const cleanupResults = await Promise.allSettled([
+        this.sessionRepo.revokeById(sessionId),
+
+        this.refreshTokenRepo.cleanupSessionRefreshToken({
+          userId: input.userId,
+          sessionId,
+          deviceId,
+          token: tokens.refreshToken,
+        }),
+      ]);
+
+      cleanupResults.forEach((result, index) => {
+        if (result.status === "rejected") {
+          console.error(
+            `[SessionService] Login compensation failed (${index === 0 ? "MongoDB" : "Redis"
+            }):`,
+            result.reason
+          );
+        }
+      });
+
+      throw originalError;
+
+    }
   }
+
 
   /**
    * Sign an access/refresh token pair for an existing session.

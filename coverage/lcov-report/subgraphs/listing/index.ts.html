@@ -370,7 +370,7 @@ const token = <span class="cstat-no" title="statement not covered" >process.env.
 <span class="cstat-no" title="statement not covered" >import { sequelize } from "@/infrastructure/config/seq";</span>
 <span class="cstat-no" title="statement not covered" >import { initAssociations } from "@/core/listing/infrastructure/models/associations";</span>
 <span class="cstat-no" title="statement not covered" >import { resolvers } from './resolvers/listing.resolver';</span>
-<span class="cstat-no" title="statement not covered" >import registerAuthDependencies from "../auth/registerAuthDependencies";</span>
+<span class="cstat-no" title="statement not covered" >import authRegister from "../auth/authRegister";</span>
 <span class="cstat-no" title="statement not covered" >import { registerUserDependencies } from "../user/registerUserDependencies";</span>
 <span class="cstat-no" title="statement not covered" >import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";</span>
 <span class="cstat-no" title="statement not covered" >import registerListingDependencies from "@/modules/container/listing.register";</span>
@@ -387,7 +387,7 @@ const token = <span class="cstat-no" title="statement not covered" >process.env.
 <span class="cstat-no" title="statement not covered" >console.info("Listing subgraph configuration loaded");</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >registerAIContainer()</span>
-<span class="cstat-no" title="statement not covered" >registerAuthDependencies(container);</span>
+<span class="cstat-no" title="statement not covered" >authRegister(container);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >registerListingDependencies();</span>
 <span class="cstat-no" title="statement not covered" >registerPicture();</span>

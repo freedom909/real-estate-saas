@@ -29,7 +29,7 @@ import { container } from "tsyringe";
 import { sequelize } from "@/infrastructure/config/seq";
 import { initAssociations } from "@/core/listing/infrastructure/models/associations";
 import { resolvers } from './resolvers/listing.resolver';
-import registerAuthDependencies from "../auth/registerAuthDependencies";
+import authRegister from "../../modules/container/auth.register";
 import { registerUserDependencies } from "../user/registerUserDependencies";
 import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";
 import registerListingDependencies from "@/modules/container/listing.register";
@@ -46,7 +46,7 @@ console.log(TOKENS_LISTING.adapters.amenityAdapter);
 console.info("Listing subgraph configuration loaded");
 
 registerAIContainer()
-registerAuthDependencies(container);
+authRegister(container);
 
 registerListingDependencies();
 registerPicture();

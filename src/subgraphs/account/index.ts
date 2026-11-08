@@ -22,7 +22,7 @@ import { container } from "tsyringe";
 
 import { resolvers } from "./account.resolver";
 import { sequelize } from "@/infrastructure/config/seq";
-import registerAuthDependencies from "../auth/registerAuthDependencies";
+import authRegister from "../../modules/container/auth.register";
 import { registerUserDependencies } from "../user/registerUserDependencies";
 import registerAccountDependencies from "@/modules/container/account.register";
 import getUserFromContext from "@/infrastructure/auth/getUserFromContext";
@@ -31,7 +31,7 @@ import { verifyInternalServiceRequest } from "@/infrastructure/auth/verifyIntern
 
 // Register all dependencies
 registerAccountDependencies();
-registerAuthDependencies(container);
+authRegister(container);
 registerUserDependencies(container);
 
 
