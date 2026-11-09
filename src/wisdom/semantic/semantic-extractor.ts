@@ -21,6 +21,7 @@ import { LLMExtractor } from "./extractors/llm.extractor";
 import { WisdomRequest } from "../contracts/request";
 import { WISDOM_TOKENS } from "../container/tokens/wisdom.tokens";
 import { CustomerExtractor } from "./extractors/customer.extractor";
+import { MessageRuleExtractor } from "./extractors/message-rule.extractor";
 
 @injectable()
 export class SemanticExtractor implements ISemanticExtractor {
@@ -45,6 +46,9 @@ export class SemanticExtractor implements ISemanticExtractor {
 
     @inject(WISDOM_TOKENS.extractors.llmExtractor)
     private llmExtractor: LLMExtractor,
+
+    @inject(WISDOM_TOKENS.extractors.messageRuleExtractor)
+    private messageRuleExtractor: MessageRuleExtractor,
   ) {}
 
   async extract(request: WisdomRequest): Promise<SemanticContext> {
@@ -68,6 +72,7 @@ export class SemanticExtractor implements ISemanticExtractor {
       ...this.bookingIdExtractor.extract(message),
       ...this.listingExtractor.extract(message),
       ...this.customerExtractor.extract(message),
+      ...this.messageRuleExtractor.extractEntities(message),
     ];
 
     // ── 3. Assemble SemanticContext ──────────────────────────────────────────

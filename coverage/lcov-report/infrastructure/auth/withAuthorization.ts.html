@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.5% </span>
+                <span class="strong">86.66% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/16</span>
+                <span class='fraction'>13/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">70% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/8</span>
+                <span class='fraction'>7/10</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.5% </span>
+                <span class="strong">86.66% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/16</span>
+                <span class='fraction'>13/15</span>
             </div>
         
             
@@ -129,7 +129,10 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -147,6 +150,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -174,10 +183,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -185,7 +190,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -222,6 +228,12 @@ export function withAuthorization&lt;TArgs = any&gt;(
      * If provided, the policy engine checks resource ownership.
      */
     resolveOwnerId?: (context: any, args: TArgs) =&gt; Promise&lt;string | null&gt;;
+    /**
+     * Optional: resolve extra resource metadata (e.g. { ownerId } for the
+     * listing owner of a booking). Passed to the policy engine as
+     * PolicyContext.resource so rules can check multiple stakeholders.
+     */
+    resolveResource?: (context: any, args: TArgs) =&gt; Promise&lt;any | null&gt;;
   }
 ) {
   return async (parent: any, args: TArgs, context: any, info: any) =&gt; {
@@ -236,22 +248,19 @@ export function withAuthorization&lt;TArgs = any&gt;(
     const resourceOwnerId = options?.resolveOwnerId
       ? await options.resolveOwnerId(context, args)
       : undefined;
-       console.log(
- "AUTH CHECK",
- {
-   user: context.user,
-   action,
-   resource
- }
-);
+    const resourceMeta = options?.resolveResource
+      ? <span class="branch-0 cbranch-no" title="branch not covered" >await options.resolveResource(context, args)</span>
+      : undefined;
+&nbsp;
     const allowed = engine.can(action, resource, {
       user: {
         id: user.userId,
         role: user.role ?? Role.CUSTOMER,
       },
       resourceOwnerId,
+      resource: resourceMeta,
     });
-console.log("ALLOWED =", allowed);
+&nbsp;
     <span class="missing-if-branch" title="if path not taken" >I</span>if (!allowed) {
 <span class="cstat-no" title="statement not covered" >      throw new GraphQLError("Forbidden: insufficient permissions", {</span>
         extensions: { code: "FORBIDDEN", action, resource },
@@ -268,7 +277,7 @@ console.log("ALLOWED =", allowed);
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-03T13:58:23.373Z
+                at 2026-11-09T15:00:31.079Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

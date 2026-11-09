@@ -92,9 +92,43 @@
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
-<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -102,41 +136,33 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import mongoose from 'mongoose';</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import mongoose from 'mongoose';</span>
 <span class="cstat-no" title="statement not covered" >import dotenv from 'dotenv';</span>
 <span class="cstat-no" title="statement not covered" >dotenv.config();</span>
-                 // MongoDB Atlas SRV requires working DNS resolution.
-// Force Node.js to use public DNS instead of local 127.0.0.1 resolver.
+&nbsp;
 <span class="cstat-no" title="statement not covered" >import dns from 'dns';</span>
-<span class="cstat-no" title="statement not covered" >dns.setServers(["8.8.8.8", "1.1.1.1"]);             </span>
- async function <span class="fstat-no" title="function not covered" >connectMongoDB(</span>mongoUri?: string) {
+&nbsp;
+async function <span class="fstat-no" title="function not covered" >connectMongoDB(</span>mongoUri?: string) {
 <span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >        if (mongoUri) {</span>
-<span class="cstat-no" title="statement not covered" >            console.log("MONGO_URI:", mongoUri);</span>
+        const MONGO_URI = <span class="cstat-no" title="statement not covered" >mongoUri || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/nakano';</span>
+&nbsp;
+        // MongoDB Atlas SRV requires working DNS resolution. Force public DNS
+        // resolvers ONLY for mongodb+srv:// URIs — hardcoding 8.8.8.8 breaks
+        // name resolution inside mainland-China VPCs / private endpoints.
+<span class="cstat-no" title="statement not covered" >        if (MONGO_URI.startsWith('mongodb+srv://')) {</span>
+<span class="cstat-no" title="statement not covered" >            dns.setServers(["8.8.8.8", "1.1.1.1"]);</span>
         }
-<span class="cstat-no" title="statement not covered" >        console.log("MONGO_URI:", mongoUri);</span>
-<span class="cstat-no" title="statement not covered" >        console.log("Loading MONGO_URI from env:", process.env.MONGO_URI);</span>
-        // console.log("All env variables:", process.env);
-        const MONGO_URI =  <span class="cstat-no" title="statement not covered" >mongoUri || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sendai';</span>
+&nbsp;
+        // Log the target host/db only — NEVER the full URI (it embeds credentials)
+<span class="cstat-no" title="statement not covered" >        try {</span>
+            const redacted = <span class="cstat-no" title="statement not covered" >MONGO_URI.replace(/\/\/[^@/]+@/, '//***:***@');</span>
+<span class="cstat-no" title="statement not covered" >            console.log("Connecting to MongoDB:", redacted);</span>
+        } catch {
+            /* logging must never break the connection */
+        }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        await mongoose.connect(MONGO_URI, {</span>
             serverSelectionTimeoutMS: 5000,
@@ -150,14 +176,15 @@
 <span class="cstat-no" title="statement not covered" >        throw error;</span>
     }
 }
-<span class="cstat-no" title="statement not covered" >export default connectMongoDB;</span></pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >export default connectMongoDB;</span>
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-03T13:58:23.373Z
+                at 2026-11-09T15:00:31.079Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

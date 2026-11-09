@@ -111,11 +111,6 @@ const ordinal = this.extractEntity(
   ["ORDINAL"]
 );
 
-const selectionCriteria = this.extractEntity(
-  semantic,
-  ["SELECTION_CRITERIA"]
-);
-
 if (!searchResults?.length) {
   const sessionId = context.runtime?.sessionId ?? "default";
   searchResults = getCachedSearchResults(sessionId);
@@ -125,14 +120,17 @@ let resolvedListingId: string | undefined;
 
 // 1. 当前消息明确要求选择最便宜或最贵的酒店
 if (criteria && searchResults?.length) {
+  const priceOf = (item: any): number =>
+    Number(item?.price ?? item?.pricePerNight);
+
   const pricedResults = searchResults.filter((item) =>
-    Number.isFinite(Number(item.price))
+    Number.isFinite(priceOf(item))
   );
 
   if (criteria === "CHEAPEST" && pricedResults.length > 0) {
     const cheapest = [...pricedResults].sort(
       (a, b) =>
-        Number(a.price) - Number(b.price)
+        priceOf(a) - priceOf(b)
     )[0];
 
     resolvedListingId = cheapest.id;
@@ -141,7 +139,7 @@ if (criteria && searchResults?.length) {
   if (criteria === "MOST_EXPENSIVE" && pricedResults.length > 0) {
     const mostExpensive = [...pricedResults].sort(
       (a, b) =>
-        Number(b.price) - Number(a.price)
+        priceOf(b) - priceOf(a)
     )[0];
 
     resolvedListingId = mostExpensive.id;
@@ -161,7 +159,7 @@ if (!resolvedListingId && ordinal && searchResults?.length) {
 }
 
 // 3. 没有新的明确选择条件，才使用已有 listingId
-if (!resolvedListingId) {
+if (!resolvedListingId && !criteria) {
   resolvedListingId = listingId;
 }
 
@@ -181,11 +179,22 @@ if (!resolvedListingId && searchResults?.length) {
 // provide a new selection in this message.
 if (
   !resolvedListingId &&
-  !selectionCriteria &&
+  !criteria &&
   !ordinal
 ) {
   resolvedListingId =
     listingId ?? (context.resources?.listingId as string | undefined);
+}
+
+// 5. Last resort: no explicit selection at all and the cache has
+// results → default to the first cached listing (ordinal "first").
+if (
+  !resolvedListingId &&
+  !criteria &&
+  !ordinal &&
+  searchResults?.length
+) {
+  resolvedListingId = searchResults[0].id;
 }
 
     if (!resolvedListingId) {
@@ -557,15 +566,16 @@ const result = await this.createBookingUseCase.execute(
   criteria: string,
   searchResults: any[],
 ): any | undefined {
+  const priceOf = (listing: any): number =>
+    Number(listing?.price ?? listing?.pricePerNight);
+
   const listings = searchResults.filter(
-    (listing) =>
-      typeof listing.pricePerNight === "number" &&
-      Number.isFinite(listing.pricePerNight),
+    (listing) => Number.isFinite(priceOf(listing)),
   );
 
   if (listings.length === 0) {
     console.warn(
-      "[BookingAgent] No valid pricePerNight in search results.",
+      "[BookingAgent] No valid price in search results.",
     );
     return undefined;
   }
@@ -574,13 +584,13 @@ const result = await this.createBookingUseCase.execute(
     case "CHEAPEST":
     case "PRICE_ASC":
       return [...listings].sort(
-        (a, b) => a.pricePerNight - b.pricePerNight,
+        (a, b) => priceOf(a) - priceOf(b),
       )[0];
 
     case "MOST_EXPENSIVE":
     case "PRICE_DESC":
       return [...listings].sort(
-        (a, b) => b.pricePerNight - a.pricePerNight,
+        (a, b) => priceOf(b) - priceOf(a),
       )[0];
 
     default:
@@ -662,7 +672,15 @@ const result = await this.createBookingUseCase.execute(
 
   private parseOrdinal(ordinal: string | undefined): number  | undefined {
     
-    const map: Record<string, number> = { first: 0, second: 1, third: 2, latest: -1 };
+    const map: Record<string, number> = {
+      first: 0,
+      second: 1,
+      third: 2,
+      fourth: 3,
+      fifth: 4,
+      latest: -1,
+      last: -1,
+    };
     return map[ordinal ?? ""] ?? 0;
   }
 

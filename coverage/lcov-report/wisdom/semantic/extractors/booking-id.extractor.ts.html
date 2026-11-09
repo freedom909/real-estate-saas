@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">84.61% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>11/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">81.81% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>9/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -117,36 +117,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -154,7 +145,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/wisdom/semantic/extractors/booking-id.extractor.ts
@@ -164,27 +164,27 @@
 //   UUIDs: "booking abc12345-..."
 //   Context: falls back to request.context.resources?.bookingId
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import { injectable } from "tsyringe";</span>
+import { injectable } from "tsyringe";
 import { SemanticEntity } from "../semantic.entity";
-<span class="cstat-no" title="statement not covered" >import { EntityType } from "../../shared/enums/entity-type.enum";</span>
+import { EntityType } from "../../shared/enums/entity-type.enum";
 import { ISemanticEntityExtractor } from "./entity-extractor.interface";
 &nbsp;
 const UUID_REGEX =
-<span class="cstat-no" title="statement not covered" >  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;</span>
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 &nbsp;
 @injectable()
-export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >BookingIdExtractor </span>implements ISemanticEntityExtractor {</span></span>
+export class BookingIdExtractor implements ISemanticEntityExtractor {
   private contextBookingId?: string;
 &nbsp;
   /** Set context bookingId from outside (e.g. from WisdomRequest.context.resources) */
-<span class="fstat-no" title="function not covered" >  setContextBookingId(</span>id: string | undefined): void {
-<span class="cstat-no" title="statement not covered" >    this.contextBookingId = id;</span>
+  setContextBookingId(id: string | undefined): void {
+    this.contextBookingId = id;
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  extract(</span>message: string): SemanticEntity[] {
+  extract(message: string): SemanticEntity[] {
     // Pattern 1: UUID in message
-    const uuidMatch = <span class="cstat-no" title="statement not covered" >message.match(UUID_REGEX);</span>
-<span class="cstat-no" title="statement not covered" >    if (uuidMatch) {</span>
+    const uuidMatch = message.match(UUID_REGEX);
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (uuidMatch) {
 <span class="cstat-no" title="statement not covered" >      return [{</span>
         type: EntityType.BOOKING_ID,
         value: uuidMatch[0],
@@ -193,7 +193,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
     }
 &nbsp;
     // Pattern 2: Context fallback
-<span class="cstat-no" title="statement not covered" >    if (this.contextBookingId) {</span>
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.contextBookingId) {
 <span class="cstat-no" title="statement not covered" >      return [{</span>
         type: EntityType.BOOKING_ID,
         value: this.contextBookingId,
@@ -201,7 +201,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
       }];
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return [];</span>
+    return [];
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -211,7 +211,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-03T13:58:23.373Z
+                at 2026-11-09T15:00:31.079Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

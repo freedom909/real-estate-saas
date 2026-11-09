@@ -9,7 +9,7 @@ export class ListingSearchResultMapper {
       title: raw.title,
       description: raw.description,
       address: raw.address,
-      price: raw.price,
+      price: raw.price ?? raw.pricePerNight,
       numOfBeds: raw.numOfBeds,
       numOfCustomers: raw.numOfCustomers,
       numOfBathrooms: raw.numOfBathrooms,

@@ -304,12 +304,12 @@ export class ListingReferenceResolver  implements IListingReferenceResolver
     const lower = message.toLowerCase();
 
     const wantsCheapest =
-      /\b(cheapest|lowest\s*price|least\s*expensive|most\s*affordable|安い|最安)\b/i.test(
+      /(cheapest|lowest\s*price|least\s*expensive|most\s*affordable|一番安|いちばん安|最も安|最安|できるだけ安|なるべく安|安い順|安い方|安い|格安|リーズナブル|お手頃)/i.test(
         lower,
       );
 
     const wantsMostExpensive =
-      /\b(most\s*expensive|highest\s*price|priciest|premium|高い|最高)\b/i.test(
+      /(most\s*expensive|highest\s*price|priciest|premium|一番高|いちばん高|最も高|最高値|最高|高い順|高い方|高級|プレミアム)/i.test(
         lower,
       );
 
@@ -323,13 +323,13 @@ export class ListingReferenceResolver  implements IListingReferenceResolver
     const sorted = [...listings].sort(
       (a, b) => {
         const priceA =
-          typeof a.price === "number"
-            ? a.price
+          typeof ((a as any).price ?? (a as any).pricePerNight) === "number"
+            ? ((a as any).price ?? (a as any).pricePerNight)
             : 0;
 
         const priceB =
-          typeof b.price === "number"
-            ? b.price
+          typeof ((b as any).price ?? (b as any).pricePerNight) === "number"
+            ? ((b as any).price ?? (b as any).pricePerNight)
             : 0;
 
         return wantsCheapest
@@ -490,6 +490,10 @@ export class ListingReferenceResolver  implements IListingReferenceResolver
       first: 0,
       second: 1,
       third: 2,
+      fourth: 3,
+      fifth: 4,
+      last: -1,
+      latest: -1,
     };
 
     const index =
@@ -499,7 +503,10 @@ export class ListingReferenceResolver  implements IListingReferenceResolver
       return;
     }
 
-    const target = listings[index];
+    const target =
+      index === -1
+        ? listings[listings.length - 1]
+        : listings[index];
 
     if (!target) {
       return;

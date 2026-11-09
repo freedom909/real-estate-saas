@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>12/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>10/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -127,40 +127,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -168,7 +158,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/wisdom/semantic/extractors/listing.extractor.ts
@@ -181,30 +181,30 @@
 // NOTE: "listing &lt;word&gt;" pattern intentionally excluded — too greedy.
 // "I want the cheapest listing in Tokyo" would wrongly capture "in" as listing ID.
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import { injectable } from "tsyringe";</span>
+import { injectable } from "tsyringe";
 import { SemanticEntity } from "../semantic.entity";
-<span class="cstat-no" title="statement not covered" >import { EntityType } from "../../shared/enums/entity-type.enum";</span>
+import { EntityType } from "../../shared/enums/entity-type.enum";
 import { ISemanticEntityExtractor } from "./entity-extractor.interface";
 &nbsp;
 @injectable()
-export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >ListingExtractor </span>implements ISemanticEntityExtractor {</span></span>
+export class ListingExtractor implements ISemanticEntityExtractor {
   private contextListingId?: string;
 &nbsp;
   /** Set context listingId from outside (e.g. from WisdomRequest.context.resources) */
-<span class="fstat-no" title="function not covered" >  setContextListingId(</span>id: string | undefined): void {
-<span class="cstat-no" title="statement not covered" >    this.contextListingId = id;</span>
+  setContextListingId(id: string | undefined): void {
+    this.contextListingId = id;
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  extract(</span>message: string): SemanticEntity[] {
+  extract(message: string): SemanticEntity[] {
     // Pattern 1: explicit listing ID references only
-    const patterns = <span class="cstat-no" title="statement not covered" >[</span>
+    const patterns = [
       /listingid\s*=\s*([a-zA-Z0-9-]+)/i,
       /listing\s*:\s*([a-zA-Z0-9-]+)/i,
     ];
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    for (const pattern of patterns) {</span>
-      const match = <span class="cstat-no" title="statement not covered" >message.match(pattern);</span>
-<span class="cstat-no" title="statement not covered" >      if (match) {</span>
+    for (const pattern of patterns) {
+      const match = message.match(pattern);
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (match) {
 <span class="cstat-no" title="statement not covered" >        return [{</span>
           type: EntityType.LISTING_ID,
           value: match[1],
@@ -214,7 +214,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
     }
 &nbsp;
     // Pattern 2: Context fallback
-<span class="cstat-no" title="statement not covered" >    if (this.contextListingId) {</span>
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.contextListingId) {
 <span class="cstat-no" title="statement not covered" >      return [{</span>
         type: EntityType.LISTING_ID,
         value: this.contextListingId,
@@ -222,7 +222,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
       }];
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return [];</span>
+    return [];
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -232,7 +232,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-03T13:58:23.373Z
+                at 2026-11-09T15:00:31.079Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

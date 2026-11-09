@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>10/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>8/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -108,27 +108,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,7 +126,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/wisdom/semantic/extractors/customer.extractor.ts
@@ -146,17 +146,17 @@
 //   "2 customers", "3 people", "1 person"
 //   "2人" (Japanese)
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import { injectable } from "tsyringe";</span>
+import { injectable } from "tsyringe";
 import { SemanticEntity } from "../semantic.entity";
-<span class="cstat-no" title="statement not covered" >import { EntityType } from "../../shared/enums/entity-type.enum";</span>
+import { EntityType } from "../../shared/enums/entity-type.enum";
 import { ISemanticEntityExtractor } from "./entity-extractor.interface";
 &nbsp;
 @injectable()
-export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >CustomerExtractor </span>implements ISemanticEntityExtractor {</span></span>
-<span class="fstat-no" title="function not covered" >  extract(</span>message: string): SemanticEntity[] {
+export class CustomerExtractor implements ISemanticEntityExtractor {
+  extract(message: string): SemanticEntity[] {
     // Pattern 1: "N customers/people/person"
-    const match = <span class="cstat-no" title="statement not covered" >message.match(/(\d+)\s*(customers?|people|person)/i);</span>
-<span class="cstat-no" title="statement not covered" >    if (match) {</span>
+    const match = message.match(/(\d+)\s*(customers?|people|person)/i);
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (match) {
 <span class="cstat-no" title="statement not covered" >      return [{</span>
         type: EntityType.CUSTOMER_COUNT,
         value: parseInt(match[1], 10),
@@ -165,8 +165,8 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
     }
 &nbsp;
     // Pattern 2: "N人" (Japanese)
-    const japaneseMatch = <span class="cstat-no" title="statement not covered" >message.match(/(\d+)人/);</span>
-<span class="cstat-no" title="statement not covered" >    if (japaneseMatch) {</span>
+    const japaneseMatch = message.match(/(\d+)人/);
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (japaneseMatch) {
 <span class="cstat-no" title="statement not covered" >      return [{</span>
         type: EntityType.CUSTOMER_COUNT,
         value: parseInt(japaneseMatch[1], 10),
@@ -174,7 +174,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
       }];
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return [];</span>
+    return [];
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -184,7 +184,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-03T13:58:23.373Z
+                at 2026-11-09T15:00:31.079Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/69</span>
+                <span class='fraction'>0/70</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/69</span>
+                <span class='fraction'>0/70</span>
             </div>
         
             
@@ -202,7 +202,12 @@
 <a name='L137'></a><a href='#L137'>137</a>
 <a name='L138'></a><a href='#L138'>138</a>
 <a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -222,6 +227,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -268,6 +275,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -360,6 +370,8 @@ const token = <span class="cstat-no" title="statement not covered" >process.env.
 <span class="cstat-no" title="statement not covered" >import { buildSubgraphSchema } from '@apollo/subgraph';</span>
 <span class="cstat-no" title="statement not covered" >import { gql } from 'graphql-tag';</span>
 <span class="cstat-no" title="statement not covered" >import { readFileSync } from 'fs';</span>
+<span class="cstat-no" title="statement not covered" >import { resolveSchemaPath } from "@/infrastructure/config/resolveSchemaPath";</span>
+import path from 'path';
 <span class="cstat-no" title="statement not covered" >import express from 'express';</span>
 <span class="cstat-no" title="statement not covered" >import http from 'http';</span>
 <span class="cstat-no" title="statement not covered" >import { expressMiddleware } from "@as-integrations/express4"</span>
@@ -370,7 +382,7 @@ const token = <span class="cstat-no" title="statement not covered" >process.env.
 <span class="cstat-no" title="statement not covered" >import { sequelize } from "@/infrastructure/config/seq";</span>
 <span class="cstat-no" title="statement not covered" >import { initAssociations } from "@/core/listing/infrastructure/models/associations";</span>
 <span class="cstat-no" title="statement not covered" >import { resolvers } from './resolvers/listing.resolver';</span>
-<span class="cstat-no" title="statement not covered" >import authRegister from "../auth/authRegister";</span>
+<span class="cstat-no" title="statement not covered" >import authRegister from "../../modules/container/auth.register";</span>
 <span class="cstat-no" title="statement not covered" >import { registerUserDependencies } from "../user/registerUserDependencies";</span>
 <span class="cstat-no" title="statement not covered" >import { TOKENS_LISTING } from "@/modules/tokens/listing.tokens";</span>
 <span class="cstat-no" title="statement not covered" >import registerListingDependencies from "@/modules/container/listing.register";</span>
@@ -398,7 +410,7 @@ const token = <span class="cstat-no" title="statement not covered" >process.env.
 &nbsp;
 // NOTE: schema.graphql is read via readFileSync at startup — tsx watch does NOT
 // watch it, so restart this subgraph manually after schema edits.
-const typeDefs = <span class="cstat-no" title="statement not covered" >gql(readFileSync('./src/subgraphs/listing/schema.graphql', { encoding: 'utf-8' }));</span>
+const typeDefs = <span class="cstat-no" title="statement not covered" >gql(readFileSync(resolveSchemaPath('src/subgraphs/listing/schema.graphql', 'schema.graphql'), { encoding: 'utf-8' }));</span>
 &nbsp;
 const startApolloServer = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  try {</span>
@@ -408,7 +420,10 @@ const startApolloServer = <span class="cstat-no" title="statement not covered" >
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    console.info("MySQL authenticated");</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    await sequelize.sync({ alter: true });</span>
+    // Create missing tables only. NEVER use { alter: true } here: auto-altering
+    // production schema at boot is destructive. Schema changes go through
+    // migrations (npm run db:migrate → migrations/run-migrations.ts).
+<span class="cstat-no" title="statement not covered" >    await sequelize.sync();</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    console.info("MySQL schema synchronized");</span>
 &nbsp;
@@ -487,7 +502,7 @@ const startApolloServer = <span class="cstat-no" title="statement not covered" >
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-03T13:58:23.373Z
+                at 2026-11-09T15:00:31.079Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
