@@ -1,6 +1,5 @@
 // src/wisdom/orchestration/wisdom-pipeline.context.ts
 
-// src/wisdom/orchestration/wisdom-pipeline.context.ts
 
 import { WisdomRequest } from "../contracts/request";
 import { WisdomResponse } from "../contracts/response";

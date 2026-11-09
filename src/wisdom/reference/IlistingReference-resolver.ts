@@ -87,7 +87,7 @@ export class ListingReferenceResolver  implements IListingReferenceResolver
               customerCount:
                 context.resources.customerCount,
             });
-
+          
           context.resources.searchResults =
             ListingSearchResultMapper.toWisdomList(
               result.listings,

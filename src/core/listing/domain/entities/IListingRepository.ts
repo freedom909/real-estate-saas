@@ -2,7 +2,7 @@ import { Listing } from "./listing";
 
 export interface SearchListingsQuery {
   locationId?: string;
-
+  locationIds?: string[];
   checkIn?: Date;
   checkOut?: Date;
 
@@ -31,4 +31,6 @@ export interface IListingRepository {
   update(id: string, listing: Listing): Promise<boolean>;
 
   delete(id: string): Promise<boolean>;
+
+  
 }

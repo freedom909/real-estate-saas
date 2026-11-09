@@ -12,42 +12,31 @@ import GetListingUseCase from "@/core/listing/application/usecase/getListings.us
 import { SearchListingUseCase } from "@/core/listing/application/usecase/searchListingUseCase";
 import { AgentAction } from "@/wisdom/shared/enums/action.enum";
 import { toChatListingRows } from "./listing-row.serializer";
+import { TOKENS_LOCATION } from "@/modules/tokens/location.tokens";
+import { ILocationRepository } from "@/core/location/domain/repos/ILocationRepository";
 
 
-// Common Japanese location names → English (matches DB address values)
-const JP_LOCATION_MAP: Record<string, string> = {
-  "東京": "Tokyo",
-  "京都": "Kyoto",
-  "大阪": "Osaka",
-  "名古屋": "Nagoya",
-  "札幌": "Sapporo",
-  "福岡": "Fukuoka",
-  "横浜": "Yokohama",
-  "神戸": "Kobe",
-  "奈良": "Nara",
-  "沖縄": "Okinawa",
-  "鎌倉": "Kamakura",
-  "箱根": "Hakone",
-  "輕井澤": "Karuizawa",
-  "軽井沢": "Karuizawa",
-  "北海道": "Hokkaido",
-  "仙台": "Sendai",
-  "広島": "Hiroshima",
-  "金沢": "Kanazawa",
-  "長崎": "Nagasaki",
-  "熊本": "Kumamoto",
-  "那覇": "Naha",
+const JP_PREFECTURE_MAP: Record<string, string> = {
+  "東京": "東京都",
+  "東京都": "東京都",
+  "大阪": "大阪府",
+  "大阪府": "大阪府",
+  "京都": "京都府",
+  "京都府": "京都府",
+  "北海道": "北海道",
+  "神奈川": "神奈川県",
+  "横浜": "神奈川県",
+  "愛知": "愛知県",
+  "名古屋": "愛知県",
+  "福岡": "福岡県",
+  "札幌": "北海道",
 };
 
-function translateLocation(location: string): string {
-  // Try exact match first
-  if (JP_LOCATION_MAP[location]) return JP_LOCATION_MAP[location];
-  // Try partial match (e.g. "東京渋谷" → "Tokyo")
-  for (const [jp, en] of Object.entries(JP_LOCATION_MAP)) {
-    if (location.includes(jp)) return en;
-  }
-  return location;
+function resolvePrefecture(location: string): string | undefined {
+  return JP_PREFECTURE_MAP[location];
 }
+
+
 
 @injectable()
 export class ListingAgent implements IDomainAgent {
@@ -60,9 +49,20 @@ export class ListingAgent implements IDomainAgent {
 
     @inject(delay(() => SearchListingUseCase))
     private readonly searchListingUseCase: SearchListingUseCase,
+
+    @inject(TOKENS_LOCATION.locationRepository)
+    private readonly locationRepository: ILocationRepository,
   ) { }
 
   async execute(semantic: SemanticContext, context: AIContext): Promise<WisdomResponse> {
+    console.dir(
+  {
+    rawInput: semantic.rawInput,
+    entities: semantic.entities,
+    action: semantic.action,
+  },
+  { depth: null }
+);
     const action = semantic.action?.type;
 
     if (action === AgentAction.SEARCH_LISTING || action === AgentAction.CHECK_AVAILABILITY) {
@@ -129,8 +129,52 @@ export class ListingAgent implements IDomainAgent {
     semantic: SemanticContext,
     action: AgentAction,
   ): Promise<WisdomResponse> {
-    const location = semantic.entities.find((e) => e.type === EntityType.LOCATION)?.value;
-    const translatedLocation = location ? translateLocation(location as string) : undefined;
+const location = semantic.entities.find(
+  (e) => e.type === EntityType.LOCATION
+)?.value as string | undefined;
+console.log("[LOCATION DEBUG] location:", location);
+
+let locationIds: string[] | undefined;
+if (location) {
+  const prefecture = resolvePrefecture(location);
+ if (!prefecture) {
+    return {
+      success: false,
+      domain: semantic.domain as any,
+      primaryAction: {
+        name: action,
+        confidence: semantic.confidence ?? 0,
+      },
+      summary: `「${location}」に対応する地域を特定できませんでした。都道府県名を指定してください。`,
+      artifacts: [],
+    };
+  }
+
+ const locations =
+  await this.locationRepository.findByPrefecture(prefecture);
+
+if (locations.length === 0) {
+  return {
+    success: false,
+    domain: semantic.domain as any,
+    primaryAction: {
+      name: action,
+      confidence: semantic.confidence ?? 0,
+    },
+    summary: `${prefecture}の登録地点が見つかりませんでした。`,
+    artifacts: [],
+  };
+}
+
+locationIds = locations.map((item) => item.id);
+
+console.log("[LOCATION DEBUG] prefecture:", prefecture);
+console.log("[LOCATION DEBUG] locations:", locations);
+console.log("[LOCATION DEBUG] locationIds:", locationIds);
+
+ 
+
+}
     const checkIn = semantic.entities.find((e) => e.type === EntityType.CHECK_IN_DATE)?.value;
     const checkOut = semantic.entities.find((e) => e.type === EntityType.CHECK_OUT_DATE)?.value;
     const dateRange = checkIn && checkOut ? `${checkIn} to ${checkOut}` : undefined;
@@ -146,7 +190,7 @@ export class ListingAgent implements IDomainAgent {
     }
 
     const searchResult = await this.searchListingUseCase.execute({
-      locationId: translatedLocation,
+      locationIds,
       checkIn: checkIn ? new Date(checkIn as string) : undefined,
       checkOut: checkOut ? new Date(checkOut as string) : undefined,
       customerCount: customerCount ? parseInt(customerCount as string) : undefined,

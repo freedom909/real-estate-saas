@@ -1,4 +1,4 @@
-// Associations between models
+//src/core/listing/infrastructure/models/associations.ts
 import { sequelize } from "@/infrastructure/config/seq";
 import ListingModel from "./listing.model";
 import { PictureModel, initPictureModel } from "./picture.model";
@@ -13,11 +13,14 @@ export function initAssociations() {
         foreignKey: "listingId",
         as: "pictures",
     });
-    ListingModel.hasOne(LocationModel, {
+    ListingModel.belongsTo(LocationModel, {
         foreignKey: "locationId",
         as: "location",
     });
-    
+    LocationModel.hasMany(ListingModel, {
+    foreignKey: "locationId",
+    as: "listings",
+});
     ListingModel.hasMany(CategoryModel, {
         foreignKey: "listingId",
         as: "categories",

@@ -8,4 +8,5 @@ export interface ILocationRepository {
   findAll(): Promise<Location[]>;
     update(location: Location): Promise<Location | null>;
   delete(id: string): Promise<boolean>;
+  findByPrefecture(prefecture: string): Promise<Location[]>;
 }

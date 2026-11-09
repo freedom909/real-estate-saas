@@ -8,6 +8,26 @@ import LocationModel from "./location.model";
 
 @injectable()
 export class LocationRepository implements ILocationRepository {
+async findByPrefecture(prefecture: string): Promise<Location[]> {
+  const models = await LocationModel.findAll({
+    where: { prefecture },
+    logging: console.log
+  });
+
+  return models.map(
+    (model) =>
+      new Location({
+        id: model.get("id") as string,
+        name: model.get("name") as string,
+        country: model.get("country") as string,
+        address: model.get("address") as string,
+        city: model.get("city") as string,
+        town: model.get("town") as string,
+        prefecture: model.get("prefecture") as string,
+        postalCode: model.get("postalCode") as string,
+      })
+  );
+}
   update(location: Location): Promise<Location | null> {
     throw new Error("Method not implemented.");
   }

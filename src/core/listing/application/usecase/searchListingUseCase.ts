@@ -5,22 +5,41 @@ import { IListingRepository, SearchListingsQuery } from "../../domain/entities/I
 
 @injectable()
 export class SearchListingUseCase {
-
   constructor(
     @inject(TOKENS_LISTING.repos.listingRepository)
     private readonly repo: IListingRepository
-  ) { }
+  ) {}
 
-  async execute({ locationId, checkIn, checkOut, customerCount, minPrice, maxPrice }: SearchListingsQuery) {
-
-    const listings = await this.repo.search({ locationId, checkIn, checkOut, customerCount, minPrice, maxPrice });
+  async execute({
+    locationId,
+    locationIds,
+    checkIn,
+    checkOut,
+    customerCount,
+    minPrice,
+    maxPrice,
+    limit,
+    offset,
+  }: SearchListingsQuery) {
+    // Search listings through repository
+    const listings = await this.repo.search({
+      locationId,
+      locationIds,
+      checkIn,
+      checkOut,
+      customerCount,
+      minPrice,
+      maxPrice,
+      limit,
+      offset,
+    });
 
     console.log(
       "[SEARCH USECASE INPUT]",
       JSON.stringify(
-        listings.map(l => ({
-          id: l.id,
-          pictures: l.pictures,
+        listings.map((listing) => ({
+          id: listing.id,
+          pictures: listing.pictures,
         })),
         null,
         2
@@ -28,32 +47,39 @@ export class SearchListingUseCase {
     );
 
     const result = {
-      listings: listings.map((l) => ({
-        id: l.id,
-        title: l.title,
-        description: l.description,
-        pricePerNight: l.pricePerNight,
-        numOfBeds: l.numOfBeds,
-        numOfCustomers: l.numOfCustomers,
-        numOfBathrooms: l.numOfBathrooms,
-        numOfRooms: l.numOfRooms,
-        pictures: l.pictures,
-        isFeatured: l.isFeatured,
+      listings: listings.map((listing) => ({
+        id: listing.id,
+        title: listing.title,
+        description: listing.description,
+        pricePerNight: listing.pricePerNight,
+        numOfBeds: listing.numOfBeds,
+        numOfCustomers: listing.numOfCustomers,
+        numOfBathrooms: listing.numOfBathrooms,
+        numOfRooms: listing.numOfRooms,
+        pictures: listing.pictures,
+        isFeatured: listing.isFeatured,
       })),
       total: listings.length,
     };
 
     console.log(
       "[SEARCH USECASE OUTPUT]",
-      result.listings.map((l) => ({
-        id: l.id,
-        pictureCount: l.pictures?.length,
-        pictures: l.pictures,
+      result.listings.map((listing) => ({
+        id: listing.id,
+        pictureCount: listing.pictures?.length ?? 0,
+        pictures: listing.pictures,
       }))
     );
-
+   console.log(
+  "[LISTING PRICE DEBUG]",
+  listings.map((listing) => ({
+    id: listing.id,
+    title: listing.title,
+    price: listing.pricePerNight,
+    pricePerNight: listing.pricePerNight,
+    // nightlyRate: listing.nightlyRate,
+  }))
+);
     return result;
-
-
   }
 }

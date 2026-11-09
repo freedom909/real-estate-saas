@@ -33,6 +33,7 @@ import { initAssociations } from "@/core/listing/infrastructure/models/associati
 import { registerWisdom } from "./container/registrations/wisdom.register"
 import dns from 'dns';
 import { registerEventBus } from "@/modules/container/event.bus.register"
+import registerLocationDependencies from "@/modules/container/location.container"
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 // ⭐ 注册 DI
@@ -40,6 +41,10 @@ registerAuditDependencies(container)
 console.log("  ✅ Audit container loaded")
 cacheContainer()
 console.log("  ✅ Cache container loaded")
+// Location must be registered in the Wisdom process,
+// because ListingAgent depends on ILocationRepository.
+registerLocationDependencies()
+console.log("  ✅ Location container loaded")
 registerListingDependencies()
 registerPicture()
 console.log("  ✅ Listing container loaded")

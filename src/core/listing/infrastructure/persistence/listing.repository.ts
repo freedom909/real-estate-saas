@@ -412,10 +412,20 @@ async create(listing: Listing): Promise<Listing> {
   ): Promise<Listing[]> {
     const where: any = {};
 
-    // Location
-    if (query.locationId) {
-      where.locationId = query.locationId;
-    }
+    console.log(
+  "[LOCATION DEBUG] Listing search where:",
+  JSON.stringify(where, null, 2)
+);
+// Location filter
+if (query.locationIds?.length) {
+  // Match any of the supplied location IDs
+  where.locationId = {
+    [Op.in]: query.locationIds,
+  };
+} else if (query.locationId) {
+  // Backward compatibility: support a single location ID
+  where.locationId = query.locationId;
+}
 
     // Customer count
     if (query.customerCount) {
@@ -444,7 +454,45 @@ async create(listing: Listing): Promise<Listing> {
 
     const limit = query.limit ?? 20;
     const offset = query.offset ?? 0;
+// ========================================
+// LOCATION FILTER DEBUG
+// ========================================
 
+console.log("\n========== LOCATION FILTER DEBUG ==========");
+
+// 1. 查看完整 where 对象
+console.log("[DEBUG] where object:");
+console.dir(where, {
+  depth: null,
+  colors: true,
+});
+
+// 2. 查看 where 的所有 key（包括 Symbol）
+console.log("[DEBUG] where keys:");
+console.log(Reflect.ownKeys(where));
+
+// 3. 查看 locationId 条件
+console.log("[DEBUG] locationId condition:");
+console.dir(where.locationId, {
+  depth: null,
+  colors: true,
+});
+
+// 4. 查看 locationId 条件中的所有 key（包括 Symbol）
+console.log("[DEBUG] locationId symbol keys:");
+console.log(
+  where.locationId
+    ? Reflect.ownKeys(where.locationId)
+    : []
+);
+
+// 5. 直接读取 Op.in 对应的 UUID 数组
+console.log("[DEBUG] Op.in values:");
+console.log(
+  where.locationId?.[Op.in]
+);
+
+console.log("========== END LOCATION FILTER DEBUG ==========\n");
 const records = await this.model.findAll({
   where,
   include: [
@@ -526,25 +574,7 @@ console.log(
 );
 
 return domainListings;
-    return records.map((record) => {
-      const json = record.toJSON();
-
-      return ListingMapper.toDomain({
-        ...json,
-
-        categoryIds:
-          categoryMap.get(json.id) ?? [],
-
-        amenityIds:
-          json.amenityIds ?? [],
-
-        pictures:
-          (json.pictures ?? []).map(
-            (picture: any) =>
-              PictureMapper.toDomain(picture),
-          ),
-      });
-    });
+  
   }
 
   // =========================

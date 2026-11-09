@@ -18,4 +18,7 @@ export enum EntityType {
   CHECK_IN_DATE = "CHECK_IN_DATE",
   CHECK_OUT_DATE = "CHECK_OUT_DATE",
   REFERENCE = "REFERENCE",
+   // New: listing selection criteria
+  SELECTION_CRITERIA = "SELECTION_CRITERIA",
 }
+

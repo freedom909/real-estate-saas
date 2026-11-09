@@ -87,34 +87,106 @@ export class BookingAgent implements IDomainAgent {
     listingId: string | undefined,
   ): Promise<WisdomResponse> {
     // Resolve listingId from searchResults if ordinal was used
-    let resolvedListingId = listingId;
+   
 
     // If no listing ID, try to reload search results from cache
-    if (!resolvedListingId) {
-      let searchResults = context.resources?.searchResults;
-      if (!searchResults || searchResults.length === 0) {
-        const sessionId = context.runtime?.sessionId ?? "default";
-        searchResults = getCachedSearchResults(sessionId);
-        console.log("[BookingAgent] Reloaded searchResults from cache:", searchResults.length);
-      }
-      if (searchResults?.length) {
-        // Try ordinal first
-        const ordinal = this.extractEntity(semantic, ["ORDINAL"]);
-        const index = this.parseOrdinal(ordinal);
-        const match = searchResults[index];
-        if (match) {
-          resolvedListingId = match.id;
-        }
+  let searchResults = context.resources?.searchResults;
 
-        // Try title-based matching if still no match
-        if (!resolvedListingId) {
-          const titleMatch = this.matchByTitle(semantic.rawInput, searchResults);
-          if (titleMatch) {
-            resolvedListingId = titleMatch.id;
-          }
-        }
-      }
-    }
+if (!searchResults || searchResults.length === 0) {
+  const sessionId = context.runtime?.sessionId ?? "default";
+  searchResults = getCachedSearchResults(sessionId);
+
+  console.log(
+    "[BookingAgent] Reloaded searchResults from cache:",
+    searchResults.length,
+  );
+}
+const criteria = this.extractEntity(
+  semantic,
+  ["SELECTION_CRITERIA"]
+);
+
+const ordinal = this.extractEntity(
+  semantic,
+  ["ORDINAL"]
+);
+
+const selectionCriteria = this.extractEntity(
+  semantic,
+  ["SELECTION_CRITERIA"]
+);
+
+if (!searchResults?.length) {
+  const sessionId = context.runtime?.sessionId ?? "default";
+  searchResults = getCachedSearchResults(sessionId);
+}
+
+let resolvedListingId: string | undefined;
+
+// 1. 当前消息明确要求选择最便宜或最贵的酒店
+if (criteria && searchResults?.length) {
+  const pricedResults = searchResults.filter((item) =>
+    Number.isFinite(Number(item.price))
+  );
+
+  if (criteria === "CHEAPEST" && pricedResults.length > 0) {
+    const cheapest = [...pricedResults].sort(
+      (a, b) =>
+        Number(a.price) - Number(b.price)
+    )[0];
+
+    resolvedListingId = cheapest.id;
+  }
+
+  if (criteria === "MOST_EXPENSIVE" && pricedResults.length > 0) {
+    const mostExpensive = [...pricedResults].sort(
+      (a, b) =>
+        Number(b.price) - Number(a.price)
+    )[0];
+
+    resolvedListingId = mostExpensive.id;
+  }
+}
+
+// 2. 当前消息明确指定了第几家
+if (!resolvedListingId && ordinal && searchResults?.length) {
+  const index = this.parseOrdinal(ordinal);
+
+  if (index !== undefined) {
+    const actualIndex =
+      index === -1 ? searchResults.length - 1 : index;
+
+    resolvedListingId = searchResults[actualIndex]?.id;
+  }
+}
+
+// 3. 没有新的明确选择条件，才使用已有 listingId
+if (!resolvedListingId) {
+  resolvedListingId = listingId;
+}
+
+// 4. 最后才尝试根据酒店名称匹配
+if (!resolvedListingId && searchResults?.length) {
+  const titleMatch = this.matchByTitle(
+    semantic.rawInput,
+    searchResults
+  );
+
+  if (titleMatch) {
+    resolvedListingId = titleMatch.id;
+  }
+}
+
+// 4. Reuse the previous listing only if the user did not
+// provide a new selection in this message.
+if (
+  !resolvedListingId &&
+  !selectionCriteria &&
+  !ordinal
+) {
+  resolvedListingId =
+    listingId ?? (context.resources?.listingId as string | undefined);
+}
 
     if (!resolvedListingId) {
       return {
@@ -480,6 +552,41 @@ const result = await this.createBookingUseCase.execute(
 
 
   // ─── HELPERS ─────────────────────────────────────────────────
+ 
+ private selectListingByCriteria(
+  criteria: string,
+  searchResults: any[],
+): any | undefined {
+  const listings = searchResults.filter(
+    (listing) =>
+      typeof listing.pricePerNight === "number" &&
+      Number.isFinite(listing.pricePerNight),
+  );
+
+  if (listings.length === 0) {
+    console.warn(
+      "[BookingAgent] No valid pricePerNight in search results.",
+    );
+    return undefined;
+  }
+
+  switch (criteria) {
+    case "CHEAPEST":
+    case "PRICE_ASC":
+      return [...listings].sort(
+        (a, b) => a.pricePerNight - b.pricePerNight,
+      )[0];
+
+    case "MOST_EXPENSIVE":
+    case "PRICE_DESC":
+      return [...listings].sort(
+        (a, b) => b.pricePerNight - a.pricePerNight,
+      )[0];
+
+    default:
+      return undefined;
+  }
+}
 
   private matchByTitle(
     message: string,
@@ -553,7 +660,8 @@ const result = await this.createBookingUseCase.execute(
     return semantic.entities.find((e) => types.includes(e.type))?.value as string;
   }
 
-  private parseOrdinal(ordinal: string | undefined): number {
+  private parseOrdinal(ordinal: string | undefined): number  | undefined {
+    
     const map: Record<string, number> = { first: 0, second: 1, third: 2, latest: -1 };
     return map[ordinal ?? ""] ?? 0;
   }

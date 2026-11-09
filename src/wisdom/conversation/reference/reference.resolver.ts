@@ -32,6 +32,7 @@ export class ReferenceResolver {
       );
 
     if (conversationReference) {
+      console.log("[LOCATION DEBUG] Semantic entities:", semantic.entities);
       semantic.entities.push({
         // Property 'entityType' does not exist on type 'ReferenceResolver'.
         //Property 'entityId' does not exist on type 'ReferenceResolver'.

@@ -78,6 +78,47 @@ export class LocationExtractor implements ISemanticEntityExtractor {
       }
     }
 
+    // Pattern J4c: "Locationの物件"
+// Examples:
+//   東京の物件
+//   京都の物件を探して
+//   大阪の物件を紹介してください
+// Pattern J4d: "Locationのホテル"
+// Examples:
+//   東京のホテル
+//   Tokyoのホテル
+//   京都のホテルを紹介してください
+const jpNoHotelMatch = message.match(
+  /([^\s、。,]{2,20}?)のホテル/
+);
+
+if (jpNoHotelMatch) {
+  const value = jpNoHotelMatch[1].trim();
+
+  if (value.length >= 2) {
+    entities.push({
+      type: EntityType.LOCATION,
+      value,
+      confidence: 0.90,
+    });
+  }
+}
+const jpNoListingMatch = message.match(
+  /([^\s、。,]{2,10}?)の物件/
+);
+
+if (jpNoListingMatch) {
+  const value = jpNoListingMatch[1].trim();
+
+  if (value.length >= 2) {
+    entities.push({
+      type: EntityType.LOCATION,
+      value,
+      confidence: 0.90,
+    });
+  }
+}
+
     // Pattern J5: "ロケーション: Location" or "場所: Location"
     const jpColonMatch = message.match(/(?:ロケーション|場所|立地)\s*[：:]\s*([^\s,、。]+)/i);
     if (jpColonMatch) {
