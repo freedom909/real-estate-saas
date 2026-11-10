@@ -1,6 +1,6 @@
 // src/wisdom/semantic/semantic-extractor.ts
 //
-// Orchestrator: runs all extractors in parallel and assembles the final SemanticContext.
+// Orchestrator: runs all extractors  and assembles the final SemanticContext.
 //
 // Pipeline:
 //   1. IntentExtractor → determines the action (CANCEL_BOOKING, CREATE_BOOKING, etc.)

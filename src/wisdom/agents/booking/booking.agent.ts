@@ -114,6 +114,12 @@ const ordinal = this.extractEntity(
 if (!searchResults?.length) {
   const sessionId = context.runtime?.sessionId ?? "default";
   searchResults = getCachedSearchResults(sessionId);
+  console.log("[AI Listing Title DEBUG]", {
+  id: searchResults[0].id,
+  title: searchResults[0].title,
+
+  content: searchResults[0],
+});
 }
 
 let resolvedListingId: string | undefined;
@@ -134,6 +140,11 @@ if (criteria && searchResults?.length) {
     )[0];
 
     resolvedListingId = cheapest.id;
+    console.log("[AI Listing Price DEBUG]", {
+      id: cheapest.id,
+      title: cheapest.title,
+      price: priceOf(cheapest),
+    });
   }
 
   if (criteria === "MOST_EXPENSIVE" && pricedResults.length > 0) {
@@ -222,10 +233,44 @@ if (
     }
 
     if (!resolvedCheckIn || !resolvedCheckOut) {
-      const listingTitle = context.resources?.searchResults?.find(
-        (r: any) => r.id === resolvedListingId,
-      )?.title || resolvedListingId;
+     
+const selectedListing = searchResults?.find(
+  (r: any) => r.id === resolvedListingId
+);
 
+const listingTitle = selectedListing?.title || resolvedListingId;
+const pricePerNight = selectedListing?.pricePerNight ?? 0;
+
+// Keep the original picture objects, including their signed URLs.
+const pictures = Array.isArray(selectedListing?.pictures)
+  ? selectedListing.pictures
+  : [];
+
+const picture = pictures[0] ?? null;
+
+console.log("[LISTING_SELECTED DEBUG]", {
+  listingId: resolvedListingId,
+  listingTitle,
+  pricePerNight,
+  picture,
+  pictures,
+  pictureCount: pictures.length,
+});
+
+console.log(
+  "[LISTING_SELECTED DEBUG]",
+  JSON.stringify(
+    {
+      listingId: resolvedListingId,
+      listingTitle,
+      pricePerNight,
+      picture,
+      pictures,
+    },
+    null,
+    2
+  )
+);
       return {
         success: true,
         domain: semantic.domain as any,
@@ -236,7 +281,10 @@ if (
             content:{
                 listingId:resolvedListingId,
                 listingTitle,
-            }
+                pricePerNight,
+                picture,
+                pictures,
+            },
         }]
       };
     }

@@ -1,7 +1,10 @@
 // src/wisdom/shared/enums/action.enum.ts
 
+
 export enum AgentAction {
+  // ==========================================
   // Listing
+  // ==========================================
   OPTIMIZE_TITLE = "OPTIMIZE_TITLE",
   OPTIMIZE_PRICE = "OPTIMIZE_PRICE",
   OPTIMIZE_CATEGORY = "OPTIMIZE_CATEGORY",
@@ -12,7 +15,9 @@ export enum AgentAction {
   SEARCH_LISTING = "SEARCH_LISTING",
   CHECK_AVAILABILITY = "CHECK_AVAILABILITY",
 
+  // ==========================================
   // Booking
+  // ==========================================
   CREATE_BOOKING = "CREATE_BOOKING",
   CANCEL_BOOKING = "CANCEL_BOOKING",
   CONFIRM_BOOKING = "CONFIRM_BOOKING",
@@ -20,11 +25,33 @@ export enum AgentAction {
   MODIFY_BOOKING = "MODIFY_BOOKING",
   GET_BOOKING = "GET_BOOKING",
   GET_MY_BOOKINGS = "GET_MY_BOOKINGS",
+  GET_LATEST_BOOKING = "GET_LATEST_BOOKING",
+
+  // Booking information extraction
   CHECK_IN_DATE = "CHECK_IN_DATE",
   CHECK_OUT_DATE = "CHECK_OUT_DATE",
   CUSTOMER_COUNT = "CUSTOMER_COUNT",
-  
+
+  // ==========================================
+  // Payment
+  // ==========================================
+  PROCESS_PAYMENT = "PROCESS_PAYMENT",
+  REFUND_PAYMENT = "REFUND_PAYMENT",
+  GET_PAYMENT = "GET_PAYMENT",
+  GET_PAYMENT_STATUS = "GET_PAYMENT_STATUS",
+
+  // ==========================================
+  // Review
+  // ==========================================
+  SUBMIT_REVIEW = "SUBMIT_REVIEW",
+  UPDATE_REVIEW = "UPDATE_REVIEW",
+  DELETE_REVIEW = "DELETE_REVIEW",
+  GET_REVIEW = "GET_REVIEW",
+  GET_REVIEWS = "GET_REVIEWS",
+
+  // ==========================================
   // General
+  // ==========================================
   GENERAL = "GENERAL",
-  GET_LATEST_BOOKING = "GET_LATEST_BOOKING",
 }
+

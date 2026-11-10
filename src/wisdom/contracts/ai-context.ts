@@ -69,6 +69,8 @@ export interface SearchListingResult {
   picture: string[];
 
   isFeatured: boolean;
+  pricePerNight?: number;
+  pictures?: string[];
 }
 
 export interface BookingDraft {

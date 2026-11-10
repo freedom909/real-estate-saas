@@ -1,7 +1,7 @@
 // src/wisdom/semantic/extractors/rule.extractor.ts
 
 import { injectable } from "tsyringe";
-import {  SemanticContext } from "../semantic-context";
+import { SemanticContext } from "../semantic-context";
 import { EntityType } from "../../shared/enums/entity-type.enum";
 import { AIDomain } from "../../shared/enums/domain.enum";
 import { WisdomRequest } from "../../contracts/request";
@@ -33,6 +33,27 @@ export class RuleExtractor {
       );
     }
 
+    // BOOKING CREATE
+    const bookingCreatePatterns = [
+      /予約してください/i,
+      /予約をお願いします/i,
+      /予約をお願い/i,
+      /予約したい/,
+      /予約を取りたい/,
+      /注文してください/i,
+      /注文をお願いします/i,
+    ];
+
+    if (bookingCreatePatterns.some(pattern => pattern.test(message))) {
+      return new SemanticContext(
+        message,
+        [],
+        { type: AgentAction.CREATE_BOOKING, confidence: 0.95 },
+        0.95,
+        AIDomain.BOOKING,
+        true
+      );
+    }
     // LISTING RULES
     let listingIdFromMessage: string | undefined;
     const entities: { type: EntityType; value: string }[] = [];
