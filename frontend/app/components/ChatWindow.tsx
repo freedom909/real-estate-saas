@@ -50,6 +50,63 @@ function stopSpeaking() {
   }
 }
 
+function getListingImage(listing: any): string {
+  // LISTING_SEARCH_RESULT:
+  // picture: string[]
+  if (typeof listing?.picture === "string") {
+    return listing.picture;
+  }
+
+  if (Array.isArray(listing?.picture)) {
+    const first = listing.picture[0];
+
+    if (typeof first === "string") {
+      return first;
+    }
+
+    if (typeof first?.url === "string") {
+      return first.url;
+    }
+  }
+
+  // LISTING_SELECTED:
+  // picture: { url: string }
+  if (typeof listing?.picture?.url === "string") {
+    return listing.picture.url;
+  }
+
+  // pictures: [{ url: string }]
+  if (Array.isArray(listing?.pictures)) {
+    const first = listing.pictures[0];
+
+    if (typeof first === "string") {
+      return first;
+    }
+
+    if (typeof first?.url === "string") {
+      return first.url;
+    }
+  }
+
+  // Other possible legacy fields
+  if (typeof listing?.image === "string") {
+    return listing.image;
+  }
+
+  if (Array.isArray(listing?.images)) {
+    const first = listing.images[0];
+
+    if (typeof first === "string") {
+      return first;
+    }
+
+    if (typeof first?.url === "string") {
+      return first.url;
+    }
+  }
+
+  return "https://picsum.photos/400/250";
+}
 
 function ListingResult({ content }: { content: any }) {
   const listings = Array.isArray(content)
@@ -61,6 +118,20 @@ function ListingResult({ content }: { content: any }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {listings.map((listing: any, i: number) => {
+        const imageUrl = getListingImage(listing);
+
+        const listingId = listing.id || listing.listingId;
+const listingTitle =
+  listing.title || listing.listingTitle || listing.name || "Untitled Listing";
+
+
+
+console.log("[AI Listing Display DEBUG]", {
+  listingId,
+  listingTitle,
+  pricePerNight: listing.pricePerNight,
+  imageUrl,
+});
         // Temporary image diagnostics
         console.log("[AI Listing Image]", {
           id: listing.id,
@@ -71,25 +142,24 @@ function ListingResult({ content }: { content: any }) {
         });
 
         return (
-          <Link
-            key={listing.id || i}
-            href={`/listing/${listing.id}`}
-            className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md block"
-          >
-            <img
-              src={
-                listing.picture?.[0] ||
-                listing.image ||
-                listing.images?.[0] ||
-                "https://picsum.photos/400/250"
-              }
-              alt={listing.title || "Listing"}
-              className="h-44 w-full object-cover"
-            />
+<Link
+  key={listingId || i}
+  href={listingId ? `/listing/${listingId}` : "#"}
+  className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md block"
+>
+<img
+  src={imageUrl}
+  alt={listingTitle}
+  className="h-44 w-full object-cover"
+  onError={(event) => {
+    console.error("[AI Listing Image] Failed to load:", imageUrl);
+    event.currentTarget.src = "https://picsum.photos/400/250";
+  }}
+/>
 
             <div className="p-4">
               <h3 className="text-lg font-bold text-gray-800">
-                {listing.title || "Untitled Listing"}
+                {listingTitle}
               </h3>
 
               {listing.description && (
