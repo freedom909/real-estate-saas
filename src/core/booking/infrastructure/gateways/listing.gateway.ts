@@ -1,57 +1,90 @@
+// src/core/booking/infrastructure/gateways/listing.gateway.ts
+
+
 import { injectable } from "tsyringe";
 import { GraphQLClient, gql } from "graphql-request";
-import { IListingGateway } from "../../domain/gateways/i-listing.gateway";
 
-const GET_LISTING_PRICE = gql`
-  query GetListingPrice($id: ID!) {
-    listing(id: $id) {
-      id
-      pricePerNight
-    }
-  }
-`;
+import {
+  IListingGateway,
+  BookableListing,
+} from "../../domain/gateways/i-listing.gateway";
 
-const GET_LISTING_TENANT = gql`
-  query GetListingTenant($id: ID!) {
+const GET_BOOKABLE_LISTING = gql`
+  query GetBookableListing($id: ID!) {
     listing(id: $id) {
       id
       tenantId
+      pricePerNight
+      
+      isActive
     }
   }
 `;
+
+interface GetBookableListingResponse {
+  listing: {
+    id: string;
+    tenantId: string | null;
+    pricePerNight: number;
+
+    isActive: boolean;
+  } | null;
+}
 
 @injectable()
 export class ListingGateway implements IListingGateway {
   private client: GraphQLClient;
 
   constructor() {
-    const endpoint = process.env.LISTING_SUBGRAPH_URL || "http://localhost:4101/graphql";
+    const endpoint =
+      process.env.LISTING_SUBGRAPH_URL ||
+      "http://localhost:4101/graphql";
+
+    const serviceToken =
+      process.env.INTERNAL_SERVICE_TOKEN;
+
+    if (!serviceToken) {
+      throw new Error(
+        "INTERNAL_SERVICE_TOKEN is not configured"
+      );
+    }
+
     this.client = new GraphQLClient(endpoint, {
       headers: {
-           Authorization: `Bearer ${process.env.INTERNAL_SERVICE_TOKEN}`,
-    "x-service-token": process.env.INTERNAL_SERVICE_TOKEN ?? "",
+        Authorization: `Bearer ${serviceToken}`,
+        "x-service-token": serviceToken,
       },
     });
   }
 
-  async getListingPrice(listingId: string): Promise<number> {
-    const data = await this.client.request<{ listing: { pricePerNight: number } | null }>(
-      GET_LISTING_PRICE,
-      { id: listingId }
-    );
+  async getBookableListing(
+    listingId: string
+  ): Promise<BookableListing | null> {
 
-    if (!data.listing) {
-      throw new Error(`Listing ${listingId} not found`);
+    const data =
+      await this.client.request<GetBookableListingResponse>(
+        GET_BOOKABLE_LISTING,
+        { id: listingId }
+      );
+
+    const listing = data.listing;
+
+    if (!listing) {
+      return null;
     }
 
-    return data.listing.pricePerNight;
-  }
+    if (!listing.tenantId) {
+      throw new Error(
+        `Listing ${listingId} has no tenant`
+      );
+    }
 
-  async getListingTenantId(listingId: string): Promise<string | null> {
-    const data = await this.client.request<{ listing: { tenantId: string | null } | null }>(
-      GET_LISTING_TENANT,
-      { id: listingId }
-    );
-    return data.listing?.tenantId ?? null;
+    return {
+      id: listing.id,
+      tenantId: listing.tenantId,
+      nightlyPrice: listing.pricePerNight,
+     
+      isActive: listing.isActive,
+    };
   }
 }

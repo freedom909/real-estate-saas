@@ -14,7 +14,7 @@ export class PaymentACL {
       transactionId: raw.id,
       userId: raw.customerId,
       amount: raw.amount_cents / 100,
-      currency: raw.currency_code,
+
       paymentMethod: raw.method_type as PaymentProvider,
       ipAddress: raw.network_data.ip,
       userAgent: raw.network_data.ua,

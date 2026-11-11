@@ -1,3 +1,5 @@
+//src/core/booking/domain/value-objects/booking-status.ts
+
 export enum BookingStatus {
 PENDING = "PENDING",
 CONFIRMED = "CONFIRMED",

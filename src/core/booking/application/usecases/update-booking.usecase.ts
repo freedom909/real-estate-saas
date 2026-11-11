@@ -49,18 +49,25 @@ export class UpdateBookingUseCase {
         checkIn,
         checkOut
       );
+      if (dateRange.nights <= 0) {
+        throw new Error("Invalid booking duration");
+      }
+
+      if (checkIn < new Date()) {
+        throw new Error("checkIn must be after current date");
+      }
+     
 
       // 根据 Listing 的每晚价格重新计算 Booking 总价
-      const nightlyPrice =
-        await this.listingGateway.getListingPrice(
+      const listing =
+        await this.listingGateway.getBookableListing(
           booking.listingId
         );
 
       const totalPrice =
         BookingPricingService.calculatePrice(
-          nightlyPrice,
-          checkIn,
-          checkOut
+          listing.nightlyPrice,
+          dateRange
         );
 
       // 通过 Domain Method 修改 Booking

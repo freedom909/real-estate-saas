@@ -9,8 +9,6 @@ export interface BookingPaginatedResult {
  totalPages:number;
 }
 
-
-
 export interface BookingQuery {
     page: number;
     limit: number;
@@ -32,6 +30,10 @@ export interface IBookingRepository {
   findAll(query:BookingQuery):Promise<BookingPaginatedResult>
   findByListingOwnerId(ownerId: string): Promise<Booking[]>;
   findByListingIds(listingIds: string[]): Promise<Booking[]>;
+  findByCustomerIdAndReservationNumber(
+    customerId: string,
+    reservationNumber: string,
+  ): Promise<Booking | null>;
   findByListingIdsAndTenantId(
   listingIds: string[],
   tenantId: string

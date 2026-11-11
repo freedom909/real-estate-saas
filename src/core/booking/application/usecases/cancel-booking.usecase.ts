@@ -14,11 +14,8 @@ import { ReleaseSlotUseCase } from "@/core/calendar/application/usecases/release
 export class CancelBookingUseCase {
 
   constructor(
-    @inject(
-      TOKENS_BOOKING.repository.bookingRepository
-    )
-    private bookingRepository:
-      IBookingRepository,
+    @inject(TOKENS_BOOKING.repository.bookingRepository)
+    private bookingRepository:IBookingRepository,
 
     @inject(TOKENS_EVENT_BUS.eventBus)
     private eventBus: IEventBus,
@@ -32,8 +29,7 @@ export class CancelBookingUseCase {
     bookingId: string,
     reason: string
   ) {
-    const booking =
-      await this.bookingRepository.findById(bookingId);
+    const booking = await this.bookingRepository.findById(bookingId);
 
     if (!booking) {
       throw new Error("Booking not found");
@@ -51,8 +47,7 @@ export class CancelBookingUseCase {
       throw new Error(`Cannot cancel a booking in ${booking.status} status`);
     }
 
-    await this.bookingRepository
-      .save(booking);
+    await this.bookingRepository.save(booking);
 
     // ── Calendar: release all reserved slots ──
     try {

@@ -2,7 +2,7 @@ export interface PaymentAIContext {
   transactionId: string;
   userId: string;
   amount: number;
-  currency: string;
+
   paymentMethod: string;
   ipAddress?: string;
   userAgent?: string;

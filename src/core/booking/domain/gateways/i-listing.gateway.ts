@@ -1,4 +1,14 @@
+
+export interface BookableListing {
+  id: string;
+  tenantId: string;
+  nightlyPrice: number;
+ 
+  isActive: boolean;
+}
+
 export interface IListingGateway {
-  getListingPrice(listingId: string): Promise<number>;
-  getListingTenantId(listingId: string): Promise<string | null>;
+  getBookableListing(
+    listingId: string
+  ): Promise<BookableListing | null>;
 }

@@ -17,15 +17,21 @@ import { BookingPricingService } from "../../domain/service/booking-pricing.serv
 import { InMemoryEventBus } from "@/shared/eventbus/in-memory-event-bus";
 import { IListingGateway } from "../../domain/gateways/i-listing.gateway";
 
+
 import { CalendarClient } from "../adapter/calendar";
-import { CreateBookingInput } from "frontend/app/types/booking.types";
 import { generateReservationNumber } from "../reservation.number";
+import { parseDateOnly } from "@/infrastructure/utils/parseDateOnly";
 
 export interface BookingActor {
   customerId: string;
-  tenantId?: string | null;
 }
 
+export interface CreateBookingInput {
+  listingId: string;
+  checkInDate: string;
+  checkOutDate: string;
+  guests?: number;
+}
 @injectable()
 export class CreateBookingUseCase {
   constructor(
@@ -40,11 +46,10 @@ export class CreateBookingUseCase {
 
     @inject(TOKENS_BOOKING.acl.calendarClient)
     private calendarClient: CalendarClient,
-  ) {}
+  ) { }
 
   async execute(input: CreateBookingInput, actor: BookingActor) {
-
-    // 1. Validate input
+    // 1. Validate required input
     const missingInput: string[] = [];
 
     if (!input.listingId) missingInput.push("listingId");
@@ -61,30 +66,54 @@ export class CreateBookingUseCase {
       throw new Error("Missing required authentication: customerId");
     }
 
-    const checkIn = new Date(input.checkInDate);
-    const checkOut = new Date(input.checkOutDate);
+    // 2. Parse and validate dates
+    const checkIn = parseDateOnly(input.checkInDate);
+    const checkOut = parseDateOnly(input.checkOutDate);
 
-    if (isNaN(checkIn.getTime())) {
-      throw new Error("Invalid checkInDate");
+    // DateRange itself validates that checkOut is after checkIn.
+    const dateRange = new DateRange(checkIn, checkOut);
+
+    // 3. Get trusted listing information from Listing service
+    const listing = await this.listingGateway.getBookableListing(
+      input.listingId
+    );
+
+    if (!listing) {
+      throw new Error("Listing not found");
     }
 
-    if (isNaN(checkOut.getTime())) {
-      throw new Error("Invalid checkOutDate");
+    if (!listing.tenantId) {
+      throw new Error("Listing has no tenant");
     }
 
-    if (checkIn >= checkOut) {
-      throw new Error("checkInDate must be before checkOutDate");
+    if (!listing.isActive) {
+      throw new Error("Listing is not available for booking");
     }
 
-    // 2. Generate booking ID
+    if (
+      !Number.isFinite(listing.nightlyPrice) ||
+      listing.nightlyPrice < 0
+    ) {
+      throw new Error("Invalid listing price");
+    }
+
+    // Tenant ownership must come from the Listing, never from the customer.
+    const tenantId = listing.tenantId;
+
+    // 4. Calculate price on the server
+    const price = BookingPricingService.calculatePrice(
+      listing.nightlyPrice,
+      dateRange
+    );
+
+    // 5. Generate booking ID
     const bookingId = uuidv4();
 
-    // Track reservation and database save state
     let calendarReserved = false;
     let bookingSaved = false;
 
     try {
-      // 3. Reserve calendar dates
+      // 6. Reserve calendar dates
       await this.calendarClient.reserveSlot({
         listingId: input.listingId,
         bookingId,
@@ -92,23 +121,10 @@ export class CreateBookingUseCase {
         checkOut: input.checkOutDate,
       });
 
+      // Set this only AFTER reserveSlot succeeds.
       calendarReserved = true;
 
-      // 4. Get listing price
-      const nightlyPrice =
-        await this.listingGateway.getListingPrice(input.listingId);
-
-      const price = BookingPricingService.calculatePrice(
-        nightlyPrice,
-        checkIn,
-        checkOut
-      );
-
-      // 5. Get listing tenant
-      const listingTenantId =
-        await this.listingGateway.getListingTenantId(input.listingId);
-
-      // 6. Create Booking entity
+      // 7. Create Booking entity
       const reservationNumber = generateReservationNumber();
 
       const booking = Booking.create({
@@ -116,20 +132,19 @@ export class CreateBookingUseCase {
         listingId: input.listingId,
         reservationNumber,
         customerId: actor.customerId,
-        tenantId: listingTenantId || actor.tenantId || actor.customerId,
-        dateRange: new DateRange(checkIn, checkOut),
+        tenantId,
+        dateRange,
         price,
         lifecycleStatus: BookingLifecycleStatus.UPCOMING,
         cancelReason: null,
       });
 
-      // 7. Save Booking
+      // 8. Save Booking
       await this.repo.save(booking);
-
       bookingSaved = true;
 
-      // 8. Publish event
-      // Event failure must NOT release an already saved booking.
+      // 9. Publish event
+      // If publishing fails, keep the saved booking.
       try {
         await this.eventBus.publish(
           new BookingCreatedEvent(
@@ -152,13 +167,12 @@ export class CreateBookingUseCase {
       return booking.toJSON();
 
     } catch (error) {
-
-      // 9. Release calendar only if booking was not saved
+      // Release calendar only if reservation succeeded but booking was not saved.
       if (calendarReserved && !bookingSaved) {
         try {
           await this.calendarClient.releaseSlot({
-  bookingId,
-  reason: "Booking creation failed",
+            bookingId,
+            reason: "Booking creation failed",
           });
         } catch (releaseError) {
           console.error(

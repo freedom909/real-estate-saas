@@ -11,6 +11,15 @@ import { Op } from "sequelize";
 
 @injectable()
 export class SequelizeBookingRepository implements IBookingRepository {
+  async findByCustomerIdAndReservationNumber(customerId: string, reservationNumber: string): Promise<Booking | null> {
+    const model = await BookingModel.findOne({
+      where: { customerId, reservationNumber },
+    });
+
+    if (!model) return null;
+
+    return this.toDomain(model);
+  }
 
   async findByListingIdsAndTenantId(
   listingIds: string[],

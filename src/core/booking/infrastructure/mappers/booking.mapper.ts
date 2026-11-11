@@ -1,53 +1,70 @@
-// FILE: src/subgraphs/booking/infrastructure/mappers/booking.mapper.ts
+// FILE: src/core/booking/infrastructure/mappers/booking.mapper.ts
 
-import { Booking} from "../../domain/entities/booking.entity";
+import { Booking } from "../../domain/entities/booking.entity";
+import { BookingStatus } from "../../domain/value-objects/booking-status";
 import { BookingLifecycleStatus } from "../../domain/value-objects/booking-lifecycle.status";
 import { DateRange } from "../../domain/value-objects/date-range.vo";
 import { BookingModel } from "../models/booking.model";
 
 export class BookingMapper {
-
+  // Database → Domain
   static toDomain(model: BookingModel): Booking {
-    return Booking.create({
+    return Booking.rehydrate({
       id: model.id,
-      reservationNumber: model.reservationNumber,      
+      reservationNumber: model.reservationNumber,
       customerId: model.customerId,
       tenantId: model.tenantId,
       listingId: model.listingId,
 
       dateRange: new DateRange(
-        model.checkInDate,
-        model.checkOutDate
+        new Date(model.checkInDate),
+        new Date(model.checkOutDate),
       ),
 
       price: model.price,
-      lifecycleStatus: BookingLifecycleStatus.UPCOMING
-    }) 
-  };
+      status: model.status as BookingStatus,
 
+      lifecycleStatus:
+        model.bookingLifecycleStatus as BookingLifecycleStatus,
 
-  // Domain → DB 
+      createdAt: new Date(model.createdAt),
+      updatedAt: model.updatedAt
+        ? new Date(model.updatedAt)
+        : undefined,
+      confirmedAt: model.confirmedAt
+        ? new Date(model.confirmedAt)
+        : undefined,
+      completedAt: model.completedAt
+        ? new Date(model.completedAt)
+        : undefined,
+
+      cancelReason: model.cancelReason,
+    });
+  }
+
+  // Domain → Database
   static toPersistence(booking: Booking) {
+    const data = booking.toJSON();
+
     return {
-      id: booking.id,
+      id: data.id,
+      reservationNumber: data.reservationNumber,
+      customerId: data.customerId,
+      tenantId: data.tenantId,
+      listingId: data.listingId,
 
-      reservationNumber: booking.reservationNumber,
-      customerId: booking.customerId,
+      checkInDate: data.dateRange.checkInDate,
+      checkOutDate: data.dateRange.checkOutDate,
 
-      listingId: booking.listingId,
+      price: data.price,
+      status: data.status,
+      bookingLifecycleStatus: data.lifecycleStatus,
 
-      checkInDate:
-        booking.dateRange.checkInDate,
-      tenantId: booking.tenantId,
-      checkOutDate:
-        booking.dateRange.checkOutDate,
-
-      price:
-        booking.price,
-
-      status:
-        booking.status,
-
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+      confirmedAt: data.confirmedAt,
+      completedAt: data.completedAt,
+      cancelReason: data.cancelReason,
     };
   }
 }

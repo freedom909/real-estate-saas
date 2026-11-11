@@ -1,4 +1,4 @@
-//src/
+//src/core/booking/domain/service/booking-transition.service.ts
 import { BookingStatus } from "../value-objects/booking-status";
 
 const BOOKING_STATUS_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {

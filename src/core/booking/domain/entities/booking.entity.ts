@@ -1,3 +1,5 @@
+//src/core/booking/domain/entities/booking.entity.ts
+
 import { BookingStatus } from "../value-objects/booking-status";
 import { DateRange } from "../value-objects/date-range.vo";
 import { BookingLifecycleStatus } from "../value-objects/booking-lifecycle.status";

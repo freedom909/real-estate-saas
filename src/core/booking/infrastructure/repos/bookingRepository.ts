@@ -17,6 +17,15 @@ const whereClause: WhereOptions<BookingAttributes> = {};
 
 @injectable()
 export class BookingRepository implements IBookingRepository {
+  async findByCustomerIdAndReservationNumber(customerId: string, reservationNumber: string): Promise<Booking | null> {
+    const model = await BookingModel.findOne({
+      where: {
+        customerId,
+        reservationNumber,
+      },
+    });
+    return model ? BookingMapper.toDomain(model) : null;
+  }
   async findByListingIdsAndTenantId(listingIds: string[], tenantId: string): Promise<Booking[]> {
     if (!listingIds || listingIds.length === 0 || !tenantId) {
       return [];
@@ -30,7 +39,7 @@ export class BookingRepository implements IBookingRepository {
       },
       order: [["createdAt", "DESC"]],
     });
-    return models.map((m) => this.toDomain(m));
+    return models.map((m) => BookingMapper.toDomain(m));
   }
   
   findByTenantId(tenantId: string): Promise<Booking[]> {
@@ -70,7 +79,7 @@ export class BookingRepository implements IBookingRepository {
     const models = await BookingModel.findAll({
       order: [["createdAt", "DESC"]],
     });
-    return models.map((m) => this.toDomain(m));
+    return models.map((m) => BookingMapper.toDomain(m));
   }
 
   async findByListingIds(listingIds: string[]): Promise<Booking[]> {
@@ -81,7 +90,7 @@ export class BookingRepository implements IBookingRepository {
   } },
       order: [["createdAt", "DESC"]],
     });
-    return models.map((m) => this.toDomain(m));
+    return models.map((m) => BookingMapper.toDomain(m));
   }
 
   async findByLatestByCustomerId(customerId: string): Promise<Booking | null> {
@@ -97,26 +106,11 @@ export class BookingRepository implements IBookingRepository {
     return this.toDomain(model);
   }
 
-  async save(booking: Booking): Promise<void> {
-    const data = booking.toJSON();
 
-    await BookingModel.upsert({
-      id: data.id,
-      listingId: data.listingId,
-      customerId: data.customerId,
-      tenantId: data.tenantId,
-      checkInDate: data.dateRange.checkInDate,
-      checkOutDate: data.dateRange.checkOutDate,
-      price: data.price,
-      status: data.status,
-      cancelReason: data.cancelReason,
-      createdAt: data.createdAt,
-      confirmedAt: data.confirmedAt,
-      completedAt: data.completedAt,
-      bookingLifecycleStatus: data.lifecycleStatus,
-      updatedAt: new Date(),
-    });
-  }
+async save(booking: Booking): Promise<void> {
+  const data = BookingMapper.toPersistence(booking);
+  await BookingModel.upsert(data);
+}
 
   async findById(id: string): Promise<Booking | null> {
     const model = await BookingModel.findByPk(id);
@@ -131,7 +125,7 @@ export class BookingRepository implements IBookingRepository {
       order: [["createdAt", "DESC"]],
     });
 
-    return models.map((m) => this.toDomain(m));
+    return models.map((m) => BookingMapper.toDomain(m));
   }
 
   async delete(id: string): Promise<void> {
