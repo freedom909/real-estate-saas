@@ -158,7 +158,7 @@ export const resolvers = {
       )
       .execute(input, {
         customerId: user.userId,
-        tenantId: user.tenantId,     
+     
       });
 
     return {

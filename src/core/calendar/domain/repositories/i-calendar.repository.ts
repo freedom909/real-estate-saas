@@ -1,10 +1,9 @@
 // src/core/calendar/domain/repositories/i-calendar.repository.ts
 
 import { CalendarSlot } from "../entities/calendar-slot";
-import { SlotStatus } from "../value-objects/slot-status";
 
 export interface ICalendarRepository {
-  getSlotsByListing(listingId: string): Promise<CalendarSlot[]>;
+
   /**
    * Find all slots for a listing within a date range.
    * Used for availability checks and overlap detection.
@@ -57,4 +56,19 @@ export interface ICalendarRepository {
    * Delete all slots for a listing (cleanup).
    */
   deleteByListing(listingId: string): Promise<void>;
+
+  /**
+   * Reserve a range of slots for a booking.
+   * Returns the number of slots reserved.
+   */
+  reserveRange(
+    listingId: string,
+    bookingId: string,
+    checkIn: Date,
+    checkOut: Date
+  ): Promise<number>;
+    /**
+   * Release RESERVED slots belonging to this booking only.
+   */
+  releaseByBookingId(bookingId: string): Promise<void>;
 }

@@ -87,78 +87,44 @@ export class BookingAgent implements IDomainAgent {
     listingId: string | undefined,
   ): Promise<WisdomResponse> {
     // Resolve listingId from searchResults if ordinal was used
-   
-
+   let searchResults = context.resources?.searchResults ?? [];
+   const sessionId = context.runtime.sessionId;
     // If no listing ID, try to reload search results from cache
-  let searchResults = context.resources?.searchResults;
-
-if (!searchResults || searchResults.length === 0) {
-  const sessionId = context.runtime?.sessionId ?? "default";
-  searchResults = getCachedSearchResults(sessionId);
-
-  console.log(
-    "[BookingAgent] Reloaded searchResults from cache:",
-    searchResults.length,
-  );
+if (searchResults.length === 0) {
+  searchResults = getCachedSearchResults(sessionId) ?? [];
 }
 const criteria = this.extractEntity(
   semantic,
-  ["SELECTION_CRITERIA"]
+  ["SELECTION_CRITERIA"],
 );
 
 const ordinal = this.extractEntity(
   semantic,
-  ["ORDINAL"]
+  ["ORDINAL"],
 );
-
-if (!searchResults?.length) {
-  const sessionId = context.runtime?.sessionId ?? "default";
-  searchResults = getCachedSearchResults(sessionId);
-  console.log("[AI Listing Title DEBUG]", {
-  id: searchResults[0].id,
-  title: searchResults[0].title,
-
-  content: searchResults[0],
-});
-}
-
 let resolvedListingId: string | undefined;
-
-// 1. 当前消息明确要求选择最便宜或最贵的酒店
-if (criteria && searchResults?.length) {
-  const priceOf = (item: any): number =>
-    Number(item?.price ?? item?.pricePerNight);
-
-  const pricedResults = searchResults.filter((item) =>
-    Number.isFinite(priceOf(item))
+// 1. Explicit price selection
+if (criteria) {
+  const selected = this.selectListingByCriteria(
+    criteria,
+    searchResults,
   );
 
-  if (criteria === "CHEAPEST" && pricedResults.length > 0) {
-    const cheapest = [...pricedResults].sort(
-      (a, b) =>
-        priceOf(a) - priceOf(b)
-    )[0];
-
-    resolvedListingId = cheapest.id;
-    console.log("[AI Listing Price DEBUG]", {
-      id: cheapest.id,
-      title: cheapest.title,
-      price: priceOf(cheapest),
-    });
-  }
-
-  if (criteria === "MOST_EXPENSIVE" && pricedResults.length > 0) {
-    const mostExpensive = [...pricedResults].sort(
-      (a, b) =>
-        priceOf(b) - priceOf(a)
-    )[0];
-
-    resolvedListingId = mostExpensive.id;
-  }
+  resolvedListingId = selected?.id;
 }
 
-// 2. 当前消息明确指定了第几家
-if (!resolvedListingId && ordinal && searchResults?.length) {
+// 1. Explicit price selection
+if (criteria) {
+  const selected = this.selectListingByCriteria(
+    criteria,
+    searchResults,
+  );
+
+  resolvedListingId = selected?.id;
+}
+
+// 2. Explicit ordinal selection
+if (!resolvedListingId && ordinal) {
   const index = this.parseOrdinal(ordinal);
 
   if (index !== undefined) {
@@ -169,22 +135,40 @@ if (!resolvedListingId && ordinal && searchResults?.length) {
   }
 }
 
-// 3. 没有新的明确选择条件，才使用已有 listingId
-if (!resolvedListingId && !criteria) {
+// 3. Explicit listing ID from current context
+if (!resolvedListingId && !criteria && !ordinal) {
   resolvedListingId = listingId;
 }
 
-// 4. 最后才尝试根据酒店名称匹配
-if (!resolvedListingId && searchResults?.length) {
-  const titleMatch = this.matchByTitle(
+// 4. Match property name in user's message
+if (!resolvedListingId && searchResults.length > 0) {
+  const matched = this.matchByTitle(
     semantic.rawInput,
-    searchResults
+    searchResults,
   );
 
-  if (titleMatch) {
-    resolvedListingId = titleMatch.id;
-  }
+  resolvedListingId = matched?.id;
 }
+
+// If exactly one listing is available, select it automatically.
+// If multiple listings are available, require an explicit user selection.
+if (!resolvedListingId && searchResults.length === 1) {
+  resolvedListingId = searchResults[0].id;
+}
+if (!resolvedListingId) {
+  return {
+    success: true,
+    domain: semantic.domain as any,
+    primaryAction: {
+      name: AgentAction.CREATE_BOOKING,
+      confidence: semantic.confidence ?? 0,
+    },
+    summary: "どの宿泊施設を予約しますか？宿泊施設を選択してください。",
+    artifacts: [],
+  };
+}
+
+
 
 // 4. Reuse the previous listing only if the user did not
 // provide a new selection in this message.
@@ -198,14 +182,17 @@ if (
 }
 
 // 5. Last resort: no explicit selection at all and the cache has
-// results → default to the first cached listing (ordinal "first").
-if (
-  !resolvedListingId &&
-  !criteria &&
-  !ordinal &&
-  searchResults?.length
-) {
-  resolvedListingId = searchResults[0].id;
+if (!resolvedListingId) {
+  return {
+    success: true,
+    domain: semantic.domain as any,
+    primaryAction: {
+      name: AgentAction.CREATE_BOOKING,
+      confidence: semantic.confidence ?? 0,
+    },
+    summary: "どの宿泊施設を予約しますか？宿泊施設を選択してください。",
+    artifacts: [],
+  };
 }
 
     if (!resolvedListingId) {
@@ -228,8 +215,11 @@ if (
     const dateRange = this.extractEntity(semantic, ["DATE_RANGE", "date_range"]);
     if ((!resolvedCheckIn || !resolvedCheckOut) && dateRange) {
       const resolved = this.resolveDateRange(dateRange);
-      resolvedCheckIn = resolved.checkInDate.toISOString();
-      resolvedCheckOut = resolved.checkOutDate.toISOString();
+
+if (resolved) {
+  resolvedCheckIn = resolved.checkInDate.toISOString();
+  resolvedCheckOut = resolved.checkOutDate.toISOString();
+}
     }
 
     if (!resolvedCheckIn || !resolvedCheckOut) {
@@ -422,55 +412,105 @@ const result = await this.createBookingUseCase.execute(
 
   // ─── GET BOOKING ─────────────────────────────────────────────
 
-  private async handleGetBooking(
-    bookingId: string | undefined,
-    semantic: SemanticContext,
-    context: AIContext,
-  ): Promise<WisdomResponse> {
-    if (!bookingId) {
+
+private async handleGetBooking(
+  bookingId: string | undefined,
+  semantic: SemanticContext,
+  context: AIContext,
+): Promise<WisdomResponse> {
+  const customerId = context.identity.user?.id;
+
+  if (!customerId) {
+    return {
+      success: false,
+      domain: "BOOKING" as any,
+      primaryAction: {
+        name: AgentAction.GET_BOOKING,
+        confidence: 0.9,
+      },
+      summary: "予約を確認するにはログインが必要です。",
+      artifacts: [],
+    };
+  }
+
+  // Voice: do not require the customer to speak a booking ID.
+  if (!bookingId || this.isVoiceRequest(context)) {
+    const bookings =
+      await this.getBookingsForCustomerUseCase.execute(customerId);
+
+    if (bookings.length === 0) {
       return {
         success: true,
         domain: "BOOKING" as any,
-        primaryAction: { name: AgentAction.GET_BOOKING, confidence: 0.9 },
-        summary: "どの予約を確認しますか？予約番号を教えてください。",
+        primaryAction: {
+          name: AgentAction.GET_BOOKING,
+          confidence: 0.95,
+        },
+        summary: "現在、ご予約はありません。",
         artifacts: [],
       };
     }
 
-    const result = await this.getBookingUseCase.execute(bookingId);
-
-    // result is a toJSON() plain object
-    const listingName = context.resources?.searchResults?.find(
-      (r: any) => r.id === result.listingId,
-    )?.title || "ご宿泊先";
-
-    // Check if user explicitly asked for the booking ID/number
-    const askedForId = /予約番号|予約ID|番号|ID/i.test(semantic.rawInput);
-
-    const voiceInput: BookingVoiceInput = {
-      listingName,
-      price: result.price,
-      checkInDate: new Date(result.dateRange.checkInDate),
-      checkOutDate: new Date(result.dateRange.checkOutDate),
-      status: result.status,
-      // Only include reservation number when user asked for it
-      ...(askedForId ? { reservationNumber: result.reservationNumber ?? result.id } : {}),
-    };
-
-    const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
-    const sentence = BookingVoiceMapper.toSentence(voiceDto);
-
     return {
       success: true,
       domain: "BOOKING" as any,
-      primaryAction: { name: AgentAction.GET_BOOKING, confidence: 0.95 },
-      summary: sentence,
+      primaryAction: {
+        name: AgentAction.GET_BOOKING,
+        confidence: 0.9,
+      },
+      summary: "ご予約を確認します。宿泊施設名、チェックイン日、またはチェックアウト日を教えてください。",
       artifacts: [{
         type: ArtifactType.BOOKING_GET,
-        content: result as Record<string, unknown>,
+        content: {
+          bookings,
+        } as Record<string, unknown>,
       }],
     };
   }
+
+  // This is an internal database ID lookup.
+  // Do not pass a Reservation Number to findById().
+  const result = await this.getBookingUseCase.execute(bookingId);
+
+  // TODO: Verify customer ownership in the UseCase or authorization layer
+  // before returning this booking.
+
+  const listingName =
+    context.resources?.searchResults?.find(
+      (item: any) => item.id === result.listingId,
+    )?.title ?? "ご宿泊先";
+
+  const askedForNumber =
+    /予約番号|予約番号を|番号を教えて/i.test(semantic.rawInput);
+
+  const voiceInput: BookingVoiceInput = {
+    listingName,
+    price: result.price,
+    checkInDate: new Date(result.dateRange.checkInDate),
+    checkOutDate: new Date(result.dateRange.checkOutDate),
+    status: result.status,
+    ...(askedForNumber && result.reservationNumber
+      ? { reservationNumber: result.reservationNumber }
+      : {}),
+  };
+
+  const voiceDto = BookingVoiceMapper.toVoice(voiceInput);
+
+  return {
+    success: true,
+    domain: "BOOKING" as any,
+    primaryAction: {
+      name: AgentAction.GET_BOOKING,
+      confidence: 0.95,
+    },
+    summary: BookingVoiceMapper.toSentence(voiceDto),
+    artifacts: [{
+      type: ArtifactType.BOOKING_GET,
+      content: result as Record<string, unknown>,
+    }],
+  };
+}
+
 
   // ─── GET MY BOOKINGS ─────────────────────────────────────────
 
@@ -609,35 +649,110 @@ const result = await this.createBookingUseCase.execute(
 
 
   // ─── HELPERS ─────────────────────────────────────────────────
- 
- private selectListingByCriteria(
+
+
+
+private resolveDateRange(
+  dateRange: string,
+): { checkInDate: Date; checkOutDate: Date } | null {
+  const match = dateRange.match(
+    /(\d{4}-\d{2}-\d{2})\s*(?:to|～|~|から)\s*(\d{4}-\d{2}-\d{2})/i,
+  );
+
+  if (!match) return null;
+
+  const checkInDate = new Date(match[1]);
+  const checkOutDate = new Date(match[2]);
+
+  if (
+    Number.isNaN(checkInDate.getTime()) ||
+    Number.isNaN(checkOutDate.getTime()) ||
+    checkOutDate <= checkInDate
+  ) {
+    return null;
+  }
+
+  return { checkInDate, checkOutDate };
+}
+
+
+
+private isVoiceRequest(context: AIContext): boolean {
+  return context.runtime.source === "voice";
+}
+
+private matchByTitle(
+  message: string,
+  searchResults: any[],
+): { id: string } | null {
+  const normalizedMessage = message
+    .toLowerCase()
+    .replace(
+      /\b(book|reserve|booked|reserving|please|the|a|an|one|room|want|to)\b/gi,
+      "",
+    )
+    .replace(/(予約する|予約|して|ください|の|を|が|へ|に|で|は|も)/g, "")
+    .trim();
+
+  if (!normalizedMessage) return null;
+
+  const keywords = normalizedMessage
+    .split(/\s+/)
+    .filter((word) => word.length >= 2);
+
+  if (keywords.length === 0) return null;
+
+  let bestMatch: { id: string } | null = null;
+  let bestScore = 0;
+
+  for (const listing of searchResults) {
+    const searchable = [
+      listing.title,
+      listing.address,
+      listing.description,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    const matchCount = keywords.filter((keyword) =>
+      searchable.includes(keyword),
+    ).length;
+
+    const score = matchCount / keywords.length;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = { id: listing.id };
+    }
+  }
+
+  return bestMatch;
+}
+
+private selectListingByCriteria(
   criteria: string,
   searchResults: any[],
 ): any | undefined {
   const priceOf = (listing: any): number =>
     Number(listing?.price ?? listing?.pricePerNight);
 
-  const listings = searchResults.filter(
-    (listing) => Number.isFinite(priceOf(listing)),
+  const pricedListings = searchResults.filter((listing) =>
+    Number.isFinite(priceOf(listing)),
   );
 
-  if (listings.length === 0) {
-    console.warn(
-      "[BookingAgent] No valid price in search results.",
-    );
-    return undefined;
-  }
+  if (pricedListings.length === 0) return undefined;
 
   switch (criteria) {
     case "CHEAPEST":
     case "PRICE_ASC":
-      return [...listings].sort(
+      return [...pricedListings].sort(
         (a, b) => priceOf(a) - priceOf(b),
       )[0];
 
     case "MOST_EXPENSIVE":
     case "PRICE_DESC":
-      return [...listings].sort(
+      return [...pricedListings].sort(
         (a, b) => priceOf(b) - priceOf(a),
       )[0];
 
@@ -646,122 +761,70 @@ const result = await this.createBookingUseCase.execute(
   }
 }
 
-  private matchByTitle(
-    message: string,
-    searchResults: any[],
-  ): { id: string } | null {
-    const description = message
-      .toLowerCase()
-      .replace(/\b(book|reserve|booked|reserving|i(?:'d| would) like|please|the|a|an|one|room|want|to)\b/gi, "")
-      .replace(/(予約する|予約|して|ください|の|を|が|へ|に|で|は|も)/g, "")
-      .trim();
+private extractBookingId(
+  semantic: SemanticContext,
+  context: AIContext,
+): string | undefined {
+  const fromEntity = semantic.entities.find(
+    (entity) =>
+      entity.type === EntityType.BOOKING ||
+      entity.type === EntityType.BOOKING_ID,
+  )?.value;
 
-    if (!description) return null;
+  if (fromEntity) return String(fromEntity);
 
-    const keywords = description.split(/\s+/).filter((w) => w.length >= 2);
-    if (keywords.length === 0) return null;
+  const fromResources = context.resources?.bookingId;
 
-    let bestMatch: { id: string } | null = null;
-    let bestScore = 0;
+  if (fromResources) return String(fromResources);
 
-    for (const listing of searchResults) {
-      const title = (listing.title ?? "").toLowerCase();
-      const address = (listing.address ?? "").toLowerCase();
-      const description = (listing.description ?? "").toLowerCase();
-      const searchable = `${title} ${address} ${description}`;
+  // Do not automatically select session.lastBookingId.
+  // It may be ambiguous or refer to a different booking.
+  return undefined;
+}
 
-      let matchCount = 0;
-      for (const keyword of keywords) {
-        if (searchable.includes(keyword)) {
-          matchCount++;
-        }
-      }
+private extractListingId(
+  semantic: SemanticContext,
+  context: AIContext,
+): string | undefined {
+  const fromEntity = semantic.entities.find(
+    (entity) =>
+      entity.type === EntityType.LISTING ||
+      entity.type === EntityType.LISTING_ID,
+  )?.value;
 
-      if (matchCount > 0) {
-        const score = matchCount / keywords.length;
-        if (score > bestScore) {
-          bestScore = score;
-          bestMatch = { id: listing.id };
-        }
-      }
-    }
+  return (
+    (fromEntity as string | undefined) ??
+    (context.resources?.listingId as string | undefined)
+  );
+}
 
-    return bestMatch;
-  }
+private extractEntity(
+  semantic: SemanticContext,
+  types: string[],
+): string | undefined {
+  const entity = semantic.entities.find((item) =>
+    types.includes(item.type),
+  );
 
-  private extractBookingId(semantic: SemanticContext, context: AIContext): string | undefined {
-    // 1. Explicit entity from semantic extraction
-    const fromEntity = semantic.entities.find(
-      (e) => e.type === EntityType.BOOKING || e.type === EntityType.BOOKING_ID
-    )?.value as string | undefined;
-    if (fromEntity) return fromEntity;
+  return entity?.value == null ? undefined : String(entity.value);
+}
 
-    // 2. Explicit from context resources
-    if (context.resources?.bookingId) return context.resources.bookingId as string;
+private parseOrdinal(
+  ordinal: string | undefined,
+): number | undefined {
+  if (!ordinal) return undefined;
 
-    // 3. Fallback: last booking created/acted-on in this session
-    const sessionId = context.runtime?.sessionId ?? "default";
-    const session = this.sessionStore.get(sessionId);
-    if (session?.lastBookingId) return session.lastBookingId;
+  const map: Record<string, number> = {
+    first: 0,
+    second: 1,
+    third: 2,
+    fourth: 3,
+    fifth: 4,
+    latest: -1,
+    last: -1,
+  };
 
-    return undefined;
-  }
+  return map[ordinal.toLowerCase()];
+}
 
-  private extractListingId(semantic: SemanticContext, context: AIContext): string | undefined {
-    return (
-      semantic.entities.find((e) => e.type === EntityType.LISTING || e.type === EntityType.LISTING_ID)?.value as string ??
-      context.resources?.listingId as string
-    );
-  }
-
-  private extractEntity(semantic: SemanticContext, types: string[]): string | undefined {
-    return semantic.entities.find((e) => types.includes(e.type))?.value as string;
-  }
-
-  private parseOrdinal(ordinal: string | undefined): number  | undefined {
-    
-    const map: Record<string, number> = {
-      first: 0,
-      second: 1,
-      third: 2,
-      fourth: 3,
-      fifth: 4,
-      latest: -1,
-      last: -1,
-    };
-    return map[ordinal ?? ""] ?? 0;
-  }
-
-  private resolveDateRange(dateRange: string): { checkInDate: Date; checkOutDate: Date } {
-    const now = new Date();
-
-    // Try "YYYY-MM-DD to YYYY-MM-DD" or "MM-DD to MM-DD"
-    const dashMatch = dateRange.match(/(\d{1,4}[-/]\d{1,2}[-/]?\d{0,2})\s*(?:to|～|~)\s*(\d{1,4}[-/]\d{1,2}[-/]?\d{0,2})/i);
-    if (dashMatch) {
-      const checkInDate = new Date(dashMatch[1]);
-      const checkOutDate = new Date(dashMatch[2]);
-      if (!isNaN(checkInDate.getTime()) && !isNaN(checkOutDate.getTime())) {
-        return { checkInDate, checkOutDate };
-      }
-    }
-
-    // Try "Month Day" format (e.g., "July 5")
-    const monthDayMatch = dateRange.match(/([A-Za-z]+)\s+(\d{1,2})/i);
-    if (monthDayMatch) {
-      const date = new Date(`${monthDayMatch[1]} ${monthDayMatch[2]}, ${now.getFullYear()}`);
-      if (!isNaN(date.getTime())) {
-        const checkInDate = date;
-        const checkOutDate = new Date(date);
-        checkOutDate.setDate(date.getDate() + 1);
-        return { checkInDate, checkOutDate };
-      }
-    }
-
-    // Fallback: tomorrow to day after
-    const checkInDate = new Date(now);
-    checkInDate.setDate(now.getDate() + 1);
-    const checkOutDate = new Date(checkInDate);
-    checkOutDate.setDate(checkInDate.getDate() + 1);
-    return { checkInDate, checkOutDate };
-  }
 }

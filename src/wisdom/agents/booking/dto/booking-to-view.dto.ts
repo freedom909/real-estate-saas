@@ -17,7 +17,7 @@ export interface BookingView {
   checkOutDate: string;
 
   price: number;
-  currency: string;
+
 
   status: string;
 }

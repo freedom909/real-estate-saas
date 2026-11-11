@@ -50,34 +50,65 @@ describe("listing-row.serializer (chat search result photos)", () => {
     updatedAt: "2026-01-02",
   };
 
-  it("falls back to objectKey when MinIO storage is not registered", async () => {
-    // Runs before any registration below on purpose.
-    const row = await toChatListingRow(domainLikeListing);
-    expect(row.picture).toEqual([
-      "uploads/photo1.jpg",
-      "https://generated.example/img2.png",
-    ]);
-  });
-
-  it("resolves MinIO objectKeys to URLs and passes http(s) keys through", async () => {
+  // Register a fresh mock for tests that require MinIO.
+  const registerMockStorage = () => {
     const getUrl = jest
-      .fn()
-      .mockImplementation(async (key: string) => `https://minio.example/signed/${key}`);
+      .fn<(key: string) => Promise<string>>()
+      .mockImplementation(
+        async (key: string) =>
+          `https://minio.example/signed/${key}`
+      );
+
     container.register(TOKENS_PICTURE.storage.minioStorage, {
       useValue: { getUrl },
     });
 
+    return getUrl;
+  };
+
+  beforeEach(() => {
+    // Each test starts with an independent DI container.
+    container.reset();
+  });
+
+  afterEach(() => {
+    // Prevent registrations from leaking into other tests.
+    container.reset();
+    jest.restoreAllMocks();
+  });
+
+  it("falls back to objectKey when MinIO storage is not registered", async () => {
+    const warnSpy = jest
+      .spyOn(console, "warn")
+      .mockImplementation(() => {});
+
     const row = await toChatListingRow(domainLikeListing);
 
-    expect(getUrl).toHaveBeenCalledTimes(1); // only the MinIO key, not the https one
+    expect(row.picture).toEqual([
+      "uploads/photo1.jpg",
+      "https://generated.example/img2.png",
+    ]);
+
+    expect(warnSpy).toHaveBeenCalled();
+  });
+
+  it("resolves MinIO objectKeys to URLs and passes http(s) keys through", async () => {
+    const getUrl = registerMockStorage();
+
+    const row = await toChatListingRow(domainLikeListing);
+
+    expect(getUrl).toHaveBeenCalledTimes(1);
     expect(getUrl).toHaveBeenCalledWith("uploads/photo1.jpg");
+
     expect(row.picture).toEqual([
       "https://minio.example/signed/uploads/photo1.jpg",
       "https://generated.example/img2.png",
     ]);
   });
 
-  it("produces plain JSON rows (no {props:{...}} after stringify) with string title", async () => {
+  it("produces plain JSON rows with string title and resolved picture URLs", async () => {
+    registerMockStorage();
+
     const row = await toChatListingRow(domainLikeListing);
     const revived = JSON.parse(JSON.stringify(row));
 
@@ -90,7 +121,9 @@ describe("listing-row.serializer (chat search result photos)", () => {
     expect(revived.pictures[0].url).toContain("http");
   });
 
-  it("keeps the fields the booking flow matches on (id/title) and tolerates plain rows", async () => {
+  it("keeps fields used by booking flow and tolerates plain rows", async () => {
+    registerMockStorage();
+
     const plainRow = {
       id: "listing-plain",
       title: "Plain Row Listing",
@@ -98,7 +131,10 @@ describe("listing-row.serializer (chat search result photos)", () => {
       pricePerNight: 8000,
     };
 
-    const rows = await toChatListingRows([plainRow, domainLikeListing]);
+    const rows = await toChatListingRows([
+      plainRow,
+      domainLikeListing,
+    ]);
 
     expect(rows).toHaveLength(2);
     expect(rows[0].id).toBe("listing-plain");
@@ -108,3 +144,4 @@ describe("listing-row.serializer (chat search result photos)", () => {
     expect(rows[1].title).toBe("Sakura House Tokyo");
   });
 });
+

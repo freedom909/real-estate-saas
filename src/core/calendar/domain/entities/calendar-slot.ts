@@ -1,6 +1,5 @@
 // src/core/calendar/domain/entities/calendar-slot.ts
 
-import { CalendarDateRange } from "../value-objects/date-range.vo";
 import { SlotStatus } from "../value-objects/slot-status";
 
 export interface CalendarSlotProps {
@@ -69,17 +68,22 @@ export class CalendarSlot {
   // ── Business Logic ───────────────────────────────────
 
   /** Reserve this slot for a booking */
-  reserve(bookingId: string): void {
-    if (this.props.status !== SlotStatus.AVAILABLE) {
-      throw new Error(
-        `Cannot reserve slot ${this.props.date.toISOString().slice(0, 10)} ` +
-        `for listing ${this.props.listingId}: status is ${this.props.status}`
-      );
-    }
-    this.props.status = SlotStatus.RESERVED;
-    this.props.bookingId = bookingId;
-    this.touch();
+reserve(bookingId: string): void {
+  if (!bookingId?.trim()) {
+    throw new Error("bookingId is required");
   }
+
+  if (this.props.status !== SlotStatus.AVAILABLE) {
+    throw new Error(
+      `Cannot reserve slot ${this.props.date.toISOString().slice(0, 10)} ` +
+      `for listing ${this.props.listingId}: status is ${this.props.status}`
+    );
+  }
+
+  this.props.status = SlotStatus.RESERVED;
+  this.props.bookingId = bookingId;
+  this.touch();
+}
 
   /** Release a reserved slot back to available */
   release(): void {
@@ -95,13 +99,18 @@ export class CalendarSlot {
   }
 
   /** Guest checks in — slot becomes occupied */
-  checkIn(): void {
-    if (this.props.status !== SlotStatus.RESERVED) {
-      throw new Error("Only RESERVED slots can be checked in");
-    }
-    this.props.status = SlotStatus.OCCUPIED;
-    this.touch();
+checkIn(): void {
+  if (this.props.status !== SlotStatus.RESERVED) {
+    throw new Error("Only RESERVED slots can be checked in");
   }
+
+  if (!this.props.bookingId) {
+    throw new Error("Cannot check in a slot without a booking");
+  }
+
+  this.props.status = SlotStatus.OCCUPIED;
+  this.touch();
+}
 
   /** Host blocks this date */
   block(userId: string): void {

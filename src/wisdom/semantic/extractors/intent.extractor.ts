@@ -16,11 +16,58 @@ export interface IntentResult {
 }
 
 // Action rules for booking operations (keyword → action mapping)
-const BOOKING_ACTION_RULES: { keywords: string[]; action: AgentAction }[] = [
-  { keywords: ["confirm booking", "confirm reservation", "予約確認", "予約を確認"], action: AgentAction.CONFIRM_BOOKING },
-  { keywords: ["cancel booking", "cancel reservation", "予約キャンセル", "キャンセル"], action: AgentAction.CANCEL_BOOKING },
-  { keywords: ["complete booking", "complete reservation", "チェックイン"], action: AgentAction.COMPLETE_BOOKING },
-  { keywords: ["get booking", "get reservation", "show booking", "show reservation", "予約を見る", "予約情報"], action: AgentAction.GET_BOOKING },
+const BOOKING_ACTION_RULES: {
+  keywords: string[];
+  action: AgentAction;
+}[] = [
+  // 1. 确定预约：必须是明确的确认/批准意图
+  {
+    keywords: [
+      "confirm booking",
+      "confirm reservation",
+      "予約を確定",
+      "予約を承認",
+    ],
+    action: AgentAction.CONFIRM_BOOKING,
+  },
+
+  // 2. 查询预约：不是确认预约
+  {
+    keywords: [
+      "get booking",
+      "get reservation",
+      "show booking",
+      "show reservation",
+      "予約を確認",
+      "予約確認",
+      "予約情報",
+      "予約状況",
+      "予約を見る",
+    ],
+    action: AgentAction.GET_BOOKING,
+  },
+
+  // 3. 取消预约
+  {
+    keywords: [
+      "cancel booking",
+      "cancel reservation",
+      "予約をキャンセル",
+      "予約キャンセル",
+      "予約を取り消し",
+    ],
+    action: AgentAction.CANCEL_BOOKING,
+  },
+
+  // 4. 完成预约/入住相关操作
+  {
+    keywords: [
+      "complete booking",
+      "complete reservation",
+      "チェックイン",
+    ],
+    action: AgentAction.COMPLETE_BOOKING,
+  },
 ];
 
 @injectable()
@@ -72,14 +119,68 @@ export class IntentExtractor {
     }
 
     // CANCEL without "booking" keyword
-    if (lower.includes("cancel") || lower.includes("キャンセル")) {
-      return { action: AgentAction.CANCEL_BOOKING, confidence: 0.90, domain: AIDomain.BOOKING };
-    }
+const cancelPatterns = [
+  /\bcancel\s+(?:my\s+)?(?:booking|reservation)\b/i,
+  /\bplease\s+cancel\b/i,
+  /予約をキャンセル/,
+  /予約のキャンセル/,
+  /予約を取り消/,
+];
+
+if (cancelPatterns.some((pattern) => pattern.test(message))) {
+  return {
+    action: AgentAction.CANCEL_BOOKING,
+    confidence: 0.95,
+    domain: AIDomain.BOOKING,
+  };
+}
 
     // CREATE BOOKING
-    if (lower.includes("book") || lower.includes("予約") || lower.includes("予約する") || lower.includes("注文") || lower.includes("ご注文") || lower.includes("頼ん") || lower.includes("とりたい") || lower.includes("取りたい")) {
-      return { action: AgentAction.CREATE_BOOKING, confidence: 0.90, domain: AIDomain.BOOKING };
-    }
+// CREATE BOOKING
+
+// CREATE BOOKING
+const createBookingPatterns = [
+  // Explicit Japanese booking requests
+  /予約してください/,
+  /予約をお願いします/,
+  /予約をお願い/,
+  /予約したい/,
+  /予約を取りたい/,
+  /予約を入れたい/,
+  /予約を申し込みたい/,
+  /宿泊を予約/,
+
+  // Natural Japanese requests
+  /ご注文(?:を)?(?:もらえませんか|いただけませんか|お願いできますか)/,
+  /予約(?:を)?(?:して)?(?:もらえませんか|いただけませんか)/,
+  /予約をお願いできますか/,
+  /予約できますか/,
+
+  // English
+  /\bbook\s+(?:this|a|the)\s+(?:listing|property|room)\b/i,
+  /\bbook\s+(?:it|this)\b/i,
+  /\bmake\s+a\s+reservation\b/i,
+  /\bI'd like to book\b/i,
+  /\bI want to book\b/i,
+  /\bplease book\b/i,
+];
+
+if (createBookingPatterns.some((pattern) => pattern.test(message))) {
+  return {
+    action: AgentAction.CREATE_BOOKING,
+    confidence: 0.95,
+    domain: AIDomain.BOOKING,
+  };
+}
+
+
+if (createBookingPatterns.some(pattern => pattern.test(message))) {
+  return {
+    action: AgentAction.CREATE_BOOKING,
+    confidence: 0.95,
+    domain: AIDomain.BOOKING,
+  };
+}
 
     // ── LISTING SEARCH (broader, lower priority) ────────────────────────────
     if (lower.includes("search") || lower.includes("find") || lower.includes("show") ||
@@ -93,6 +194,7 @@ export class IntentExtractor {
     }
 
     // ── GENERAL (fallback) ──────────────────────────────────────────────────
+
     return { action: AgentAction.GENERAL, confidence: 0.50, domain: AIDomain.GENERAL };
   }
 }

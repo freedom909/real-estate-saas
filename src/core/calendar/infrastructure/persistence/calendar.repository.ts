@@ -6,12 +6,165 @@ import { ICalendarRepository } from "../../domain/repositories/i-calendar.reposi
 import { CalendarSlot } from "../../domain/entities/calendar-slot";
 import { CalendarSlotModel } from "../models/calendar-slot.model";
 import { SlotStatus } from "../../domain/value-objects/slot-status";
+import { v4 as uuidv4 } from "uuid";
 
 @injectable()
 export class CalendarRepository implements ICalendarRepository {
-  getSlotsByListing(listingId: string): Promise<CalendarSlot[]> {
-    throw new Error("Method not implemented.");
+  async reserveRange(listingId: string, bookingId: string, checkIn: Date, checkOut: Date): Promise<number> {
+
+  const sequelize = CalendarSlotModel.sequelize;
+
+  if (!sequelize) {
+    throw new Error("Calendar database is not configured");
   }
+
+  if (!listingId || !bookingId) {
+    throw new Error("listingId and bookingId are required");
+  }
+
+  if (
+    isNaN(checkIn.getTime()) ||
+    isNaN(checkOut.getTime()) ||
+    checkIn >= checkOut
+  ) {
+    throw new Error("Invalid reservation date range");
+  }
+
+  return sequelize.transaction(async (transaction) => {
+    // 1. Read and lock all existing rows in the requested range.
+    const existing = await CalendarSlotModel.findAll({
+      where: {
+        listingId,
+        date: {
+          [Op.gte]: checkIn,
+          [Op.lt]: checkOut,
+        },
+      },
+      order: [["date", "ASC"]],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+
+    const byDate = new Map(
+      existing.map((model) => [
+        new Date(model.date).toISOString().slice(0, 10),
+        model,
+      ])
+    );
+
+    // 2. Build every requested night.
+    const nights: Date[] = [];
+
+    const cursor = new Date(
+      Date.UTC(
+        checkIn.getUTCFullYear(),
+        checkIn.getUTCMonth(),
+        checkIn.getUTCDate()
+      )
+    );
+
+    const end = Date.UTC(
+      checkOut.getUTCFullYear(),
+      checkOut.getUTCMonth(),
+      checkOut.getUTCDate()
+    );
+
+    while (cursor.getTime() < end) {
+      nights.push(new Date(cursor));
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+
+    if (nights.length === 0) {
+      throw new Error("Reservation must contain at least one night");
+    }
+
+    // 3. Check all existing rows before changing anything.
+    const conflicts = nights.filter((night) => {
+      const key = night.toISOString().slice(0, 10);
+      const model = byDate.get(key);
+
+      return model && model.status !== SlotStatus.AVAILABLE;
+    });
+
+    if (conflicts.length > 0) {
+      throw new Error(
+        `Some dates are unavailable: ${conflicts
+          .map((date) => date.toISOString().slice(0, 10))
+          .join(", ")}`
+      );
+    }
+
+    // 4. Claim existing AVAILABLE rows.
+    for (const night of nights) {
+      const key = night.toISOString().slice(0, 10);
+      const model = byDate.get(key);
+
+      if (!model) continue;
+
+      const [affected] = await CalendarSlotModel.update(
+        {
+          status: SlotStatus.RESERVED,
+          bookingId,
+          blockedBy: null,
+          updatedAt: new Date(),
+        },
+        {
+          where: {
+            id: model.id,
+            status: SlotStatus.AVAILABLE,
+          },
+          transaction,
+        }
+      );
+
+      if (affected !== 1) {
+        throw new Error(`Reservation conflict on ${key}`);
+      }
+    }
+
+    // 5. Insert missing dates.
+    const missing = nights.filter(
+      (night) => !byDate.has(night.toISOString().slice(0, 10))
+    );
+
+    if (missing.length > 0) {
+      await CalendarSlotModel.bulkCreate(
+        missing.map((date) => ({
+          id: uuidv4(),
+          listingId,
+          date,
+          status: SlotStatus.RESERVED,
+          bookingId,
+          blockedBy: null,
+        })),
+        { transaction }
+      );
+    }
+
+    // 6. Commit happens automatically when callback succeeds.
+    return nights.length;
+  });
+}
+  
+  async releaseByBookingId(bookingId: string): Promise<void> {   
+  if (!bookingId) {
+    throw new Error("bookingId is required");
+  }
+
+  await CalendarSlotModel.update(
+    {
+      status: SlotStatus.AVAILABLE,
+      bookingId: null,
+      updatedAt: new Date(),
+    },
+    {
+      where: {
+        bookingId,
+        status: SlotStatus.RESERVED,
+      },
+    }
+  );
+}
 
   async findSlots(
     listingId: string,
@@ -57,7 +210,7 @@ export class CalendarRepository implements ICalendarRepository {
         date,
       },
     });
-    return model ? this.toDomain(model) : null;
+    return model ? this.toDomain(model) : null;     
   }
 
   async findConflicts(

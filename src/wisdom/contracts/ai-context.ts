@@ -1,13 +1,17 @@
 // src/wisdom/contracts/ai-context.ts
-// src/wisdom/contracts/ai-context.ts
+
+
+
 
 export interface AIContext {
+ 
+
   identity: IdentityContext;
 
   runtime: RuntimeContext;
 
   resources: ResourceContext;
-
+  
   trace: TraceContext;
 }
 

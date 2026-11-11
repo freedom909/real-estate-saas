@@ -29,7 +29,7 @@ export class BookingViewMapper {
       listingName,
       checkInDate: booking.dateRange.checkInDate.toISOString(),
       checkOutDate: booking.dateRange.checkOutDate.toISOString(),
-      price: booking.price, // number, not {amount, currency}
+      price: booking.price, // number, not {amount
       status: booking.status,
     };
   }

@@ -107,11 +107,31 @@ function makeBookingUseCase(opts?: { failSave?: boolean }) {
     }),
   };
   const eventBus = { publish: jest.fn(async () => undefined) };
-  const listingGateway = {
-    getListingPrice: jest.fn(async () => 5000),
-    getListingTenantId: jest.fn(async () => "tenant-1"),
-  };
+
   const calendarClient = makeCalendarClient();
+  
+  const listingGateway = {
+    getBookableListing: jest.fn<
+      (listingId: string) => Promise<{
+        id: string;
+        tenantId: string;
+        nightlyPrice: number;
+        isActive: boolean;
+      } | null>
+    >().mockImplementation(async (listingId) => {
+      if (listingId !== LISTING) {
+        return null;
+      }
+
+      return {
+        id: LISTING,
+        tenantId: "tenant-1",
+        nightlyPrice: 5000,
+        isActive: true,
+      };
+    }),
+  };
+
   const useCase = new CreateBookingUseCase(
     repoMock as any,
     eventBus as any,
@@ -139,7 +159,7 @@ describe("Scenario 1: overlapping re-booking fails", () => {
       reserveUseCase.execute({
         listingId: LISTING, bookingId: "booking-B", checkIn: "2026-07-12", checkOut: "2026-07-15",
       })
-    ).rejects.toThrow(/already occupied/);
+    ).rejects.toThrow(/Some dates are unavailable/);
 
     // Original reservation untouched, no orphan rows from the failed attempt
     const slots = await repo.findAllByListing(LISTING);
@@ -151,14 +171,14 @@ describe("Scenario 1: overlapping re-booking fails", () => {
     await reserveUseCase.execute({ listingId: LISTING, bookingId: "booking-A", checkIn: "2026-07-10", checkOut: "2026-07-13" });
     await expect(
       reserveUseCase.execute({ listingId: LISTING, bookingId: "booking-B", checkIn: "2026-07-10", checkOut: "2026-07-13" })
-    ).rejects.toThrow(/already occupied/);
+    ).rejects.toThrow(/Some dates are unavailable/);
   });
 
   it("partially overlapping range (starts inside) is rejected", async () => {
     await reserveUseCase.execute({ listingId: LISTING, bookingId: "booking-A", checkIn: "2026-07-10", checkOut: "2026-07-13" });
     await expect(
       reserveUseCase.execute({ listingId: LISTING, bookingId: "booking-B", checkIn: "2026-07-11", checkOut: "2026-07-12" })
-    ).rejects.toThrow(/already occupied/);
+    ).rejects.toThrow(/Some dates are unavailable/);
   });
 
   it("adjacent dates (new check-in on previous check-out day) are ALLOWED", async () => {
@@ -177,7 +197,7 @@ describe("Scenario 1: overlapping re-booking fails", () => {
     ]);
     await expect(
       reserveUseCase.execute({ listingId: LISTING, bookingId: "booking-A", checkIn: "2026-07-10", checkOut: "2026-07-12" })
-    ).rejects.toThrow(/already occupied/);
+    ).rejects.toThrow(/Some dates are unavailable/);
   });
 
   it("end-to-end (CreateBookingUseCase): overlapping second booking fails and saves nothing", async () => {
@@ -195,7 +215,7 @@ describe("Scenario 1: overlapping re-booking fails", () => {
         { listingId: LISTING, checkInDate: "2026-07-12", checkOutDate: "2026-07-15" } as any,
         { customerId: "guest-2" }
       )
-    ).rejects.toThrow(/already occupied/);
+    ).rejects.toThrow(/Some dates are unavailable/);
 
     // Only booking A exists; failed attempt saved nothing and left no slots
     expect(b.savedBookings).toHaveLength(0);
@@ -353,7 +373,7 @@ describe("Scenario 3: booking save failure releases the calendar", () => {
     const { useCase, calendarClient, repoMock } = makeBookingUseCase();
     await expect(
       useCase.execute({ listingId: LISTING, checkInDate: "2026-07-11", checkOutDate: "2026-07-12" } as any, { customerId: "guest-2" })
-    ).rejects.toThrow(/already occupied/);
+    ).rejects.toThrow(/Some dates are unavailable/);
 
     expect(calendarClient.releaseSlot).not.toHaveBeenCalled();
     expect(repoMock.save).not.toHaveBeenCalled();

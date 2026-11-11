@@ -123,8 +123,10 @@ describe("Search → cache → booking (ご注文) regression", () => {
     expect(getCachedSearchResults("s-resilient")).toHaveLength(2);
   });
 
+
+
   // ── 4. BookingAgent resolves listing from cache ─────────────────
-  it("booking turn resolves the first cached listing and asks for dates", async () => {
+it("asks the user to select when multiple cached listings exist", async () => {
     cacheSearchResults("s-book", LISTINGS);
 
     const createBookingUseCase = { execute: jest.fn() };
@@ -158,9 +160,17 @@ describe("Search → cache → booking (ご注文) regression", () => {
 
     // No listing picked from cache → tells user to search (cache empty)
     // With cache → selects first listing and asks for check-in/check-out dates
-    expect(res.summary).toContain("チェックイン");
-    expect(res.artifacts?.[0]?.type).toBe("LISTING_SELECTED");
-    expect((res.artifacts?.[0]?.content as any)?.listingId).toBe("listing-001");
+expect(res.summary).toContain("どの宿泊施設を予約しますか？");
+
+// 不允许自动选择任何房源
+expect(res.artifacts ?? []).not.toContainEqual(
+  expect.objectContaining({
+    type: "LISTING_SELECTED",
+  }),
+);
+
+// 不允许在用户选择前创建预约
+expect(createBookingUseCase.execute).not.toHaveBeenCalled();
     expect(createBookingUseCase.execute).not.toHaveBeenCalled();
   });
 
@@ -193,6 +203,8 @@ describe("Search → cache → booking (ご注文) regression", () => {
     } as any;
 
     const res = await agent.execute(semantic, context);
-    expect(res.summary).toContain("予約したい物件はどれですか");
+    expect(res.summary).toContain("どの宿泊施設を予約しますか");
+expect(res.artifacts ?? []).toHaveLength(0);
+expect(createBookingUseCase.execute).not.toHaveBeenCalled();
   });
 });

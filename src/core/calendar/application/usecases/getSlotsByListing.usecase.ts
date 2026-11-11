@@ -12,6 +12,6 @@ export class GetSlotsByListingUseCase {
   ) {}
   
   async execute(listingId: string) {
-    return this.calendarRepository.getSlotsByListing(listingId);
+    return this.calendarRepository.findAllByListing(listingId);
   }
 }

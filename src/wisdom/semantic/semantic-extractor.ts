@@ -9,7 +9,7 @@
 
 import { inject, injectable } from "tsyringe";
 import { ISemanticExtractor } from "../contracts/semantic-extractor";
-import { SemanticContext } from "./semantic-context";
+import { EntityType, SemanticContext } from "./semantic-context";
 import { AgentAction } from "../shared/enums/action.enum";
 import { IntentExtractor } from "./extractors/intent.extractor";
 import { DateExtractor } from "./extractors/date.extractor";
@@ -86,26 +86,35 @@ export class SemanticExtractor implements ISemanticExtractor {
     );
 
     // ── 4. LLM fallback for complex/uncertain intents ───────────────────────
-
+    const hasDateEntities = entities.some(
+  (entity) =>
+    entity.type === EntityType.CHECK_IN_DATE ||
+    entity.type === EntityType.CHECK_OUT_DATE
+);
     // ── 4. Optional LLM fallback ────────────────────────────────
-    if (intent.action === AgentAction.GENERAL && intent.confidence < 0.6) {
-      try {
-        const llmContext = await this.llmExtractor.extract(message, request);
+    const ENABLE_LLM_FALLBACK = false;
+if (
+  ENABLE_LLM_FALLBACK &&
+  intent.action === AgentAction.GENERAL &&
+  intent.confidence < 0.6 &&
+  !hasDateEntities
+) {
+  try {
+    const llmContext = await this.llmExtractor.extract(message, request);
 
-        // Only use the LLM result when it provides a meaningful intent.
-        if (
-          llmContext.action?.type && 
-          llmContext.action.type !== AgentAction.GENERAL
-        ) {
-          return llmContext;
-        }
-      } catch (error) {
-        console.warn(
-          "[SemanticExtractor] LLM fallback unavailable; using rule-based result.",
-          error instanceof Error ? error.message : "Unknown error"
-        );
-      }
+    if (
+      llmContext.action?.type &&
+      llmContext.action.type !== AgentAction.GENERAL
+    ) {
+      return llmContext;
     }
+  } catch (error) {
+    console.warn(
+      "[SemanticExtractor] LLM fallback unavailable; using rule-based result.",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+  }
+}
 
     // Preserve the rule-based result when LLM is unavailable.
     return ctx;
