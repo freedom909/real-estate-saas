@@ -83,9 +83,9 @@ const startApolloServer = async () => {
     // ✅ MQ Initialize (inside startup to catch errors)
     registerEventBus();
     console.log("✅ In-memory Event Bus initialized");
-     const bookingMQEventBus = new BookingMQEventBus();
-     // Bridge Booking domain events to RabbitMQ
-        const inMemoryEventBus = container.resolve<InMemoryEventBus>(
+    const bookingMQEventBus = new BookingMQEventBus();
+    // Bridge Booking domain events to RabbitMQ
+    const inMemoryEventBus = container.resolve<InMemoryEventBus>(
       TOKENS_EVENT_BUS.eventBus
     );
     // Connect to RabbitMQ before accepting Booking requests
@@ -95,7 +95,16 @@ const startApolloServer = async () => {
     inMemoryEventBus.subscribe("CREATED", async (event) => {
       console.log("[Booking → RabbitMQ] Forwarding event:", {
         eventName: event.eventName,
-        
+
+        bookingId: (event as any).bookingId,
+      });
+
+      await bookingMQEventBus.publish(event);
+    });
+    // Forward BookingCancelledEvent to RabbitMQ
+    inMemoryEventBus.subscribe("BOOKING_CANCELLED", async (event) => {
+      console.log("[Booking → RabbitMQ] Forwarding cancellation event:", {
+        eventName: event.eventName,
         bookingId: (event as any).bookingId,
       });
 

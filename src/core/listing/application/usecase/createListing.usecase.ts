@@ -15,6 +15,7 @@ import { IAmenityAdapter } from "../adapters/IAmenity.adapter";
 import { Picture } from "../../domain/entities/picture";
 import { TOKENS_PICTURE } from "@/modules/tokens/picture.tokens";
 import { UploadImageUseCase } from "./uploadImages.usecase";
+import { ListingStatus } from "../../domain/value-objects/listing.status";
 
 interface CreateImageInput {
   objectKey: string;
@@ -233,7 +234,8 @@ export default class CreateListingUseCase {
 
     const listing = new Listing({
       id: listingId,
-
+      status: ListingStatus.DRAFT,
+      
       title: new Title(input.title),
       description: new Description(input.description),
       tenantId: input.tenantId,

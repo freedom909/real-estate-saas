@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.25% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/16</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">57.14% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/7</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/4</span>
+                <span class='fraction'>0/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.25% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/16</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -112,12 +112,12 @@
 <a name='L47'></a><a href='#L47'>47</a>
 <a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -127,20 +127,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">75x</span>
-<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -159,12 +159,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/core/calendar/domain/value-objects/date-range.vo.ts
 &nbsp;
-export class CalendarDateRange {
-  constructor(
-    public readonly checkIn: Date,
-    public readonly checkOut: Date
+<span class="cstat-no" title="statement not covered" >export class C</span>alendarDateRange {
+<span class="fstat-no" title="function not covered" >  constructor(</span>
+    public readonly <span class="cstat-no" title="statement not covered" >checkIn: Date,</span>
+    public readonly <span class="cstat-no" title="statement not covered" >checkOut: Date</span>
   ) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (
+<span class="cstat-no" title="statement not covered" >    if (</span>
       isNaN(checkIn.getTime()) ||
       isNaN(checkOut.getTime()) ||
       checkOut &lt;= checkIn
@@ -173,21 +173,21 @@ export class CalendarDateRange {
     }
   }
 &nbsp;
-  nights(): Date[] {
-    const dates: Date[] = [];
+<span class="fstat-no" title="function not covered" >  nights(</span>): Date[] {
+    const dates: Date[] = <span class="cstat-no" title="statement not covered" >[];</span>
 &nbsp;
-    const current = new Date(this.checkIn);
-    current.setUTCHours(0, 0, 0, 0);
+    const current = <span class="cstat-no" title="statement not covered" >new Date(this.checkIn);</span>
+<span class="cstat-no" title="statement not covered" >    current.setUTCHours(0, 0, 0, 0);</span>
 &nbsp;
-    const end = new Date(this.checkOut);
-    end.setUTCHours(0, 0, 0, 0);
+    const end = <span class="cstat-no" title="statement not covered" >new Date(this.checkOut);</span>
+<span class="cstat-no" title="statement not covered" >    end.setUTCHours(0, 0, 0, 0);</span>
 &nbsp;
-    while (current &lt; end) {
-      dates.push(new Date(current));
-      current.setUTCDate(current.getUTCDate() + 1);
+<span class="cstat-no" title="statement not covered" >    while (current &lt; end) {</span>
+<span class="cstat-no" title="statement not covered" >      dates.push(new Date(current));</span>
+<span class="cstat-no" title="statement not covered" >      current.setUTCDate(current.getUTCDate() + 1);</span>
     }
 &nbsp;
-    return dates;
+<span class="cstat-no" title="statement not covered" >    return dates;</span>
   }
 &nbsp;
 <span class="fstat-no" title="function not covered" >  overlaps(</span>other: CalendarDateRange): boolean {
@@ -211,7 +211,7 @@ export class CalendarDateRange {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-09T15:00:31.079Z
+                at 2026-11-12T11:30:51.413Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

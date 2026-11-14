@@ -1,5 +1,6 @@
 import { Listing } from "../../domain/entities/listing";
 import { Description } from "../../domain/value-objects/description";
+import { ListingStatus } from "../../domain/value-objects/listing.status";
 import { Title } from "../../domain/value-objects/Title";
 import PictureMapper from "./picture.mapper";
 
@@ -8,7 +9,8 @@ export class ListingMapper {
   static toDomain(raw: any): Listing {
     return new Listing({
       rawTitle: raw.title,
-
+      status: raw.status??ListingStatus.DRAFT,
+      
       id: raw.id,
 
       tenantId: raw.tenantId,
@@ -62,7 +64,7 @@ export class ListingMapper {
   // Domain → DB 
   static toPersistence(listing: Listing) {
     return {
-      
+      status: listing.status,
       id: listing.id,
       
       title: listing.title,

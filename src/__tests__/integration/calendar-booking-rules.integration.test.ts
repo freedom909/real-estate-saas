@@ -116,7 +116,7 @@ function makeBookingUseCase(opts?: { failSave?: boolean }) {
         id: string;
         tenantId: string;
         nightlyPrice: number;
-        isActive: boolean;
+        isBookable: boolean;
       } | null>
     >().mockImplementation(async (listingId) => {
       if (listingId !== LISTING) {
@@ -127,7 +127,7 @@ function makeBookingUseCase(opts?: { failSave?: boolean }) {
         id: LISTING,
         tenantId: "tenant-1",
         nightlyPrice: 5000,
-        isActive: true,
+        isBookable: true,
       };
     }),
   };

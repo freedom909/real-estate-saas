@@ -15,8 +15,8 @@ const GET_BOOKABLE_LISTING = gql`
       id
       tenantId
       pricePerNight
+      isBookable
       
-      isActive
     }
   }
 `;
@@ -26,8 +26,7 @@ interface GetBookableListingResponse {
     id: string;
     tenantId: string | null;
     pricePerNight: number;
-
-    isActive: boolean;
+    isBookable: boolean;
   } | null;
 }
 
@@ -84,7 +83,7 @@ export class ListingGateway implements IListingGateway {
       tenantId: listing.tenantId,
       nightlyPrice: listing.pricePerNight,
      
-      isActive: listing.isActive,
+      isBookable: listing.isBookable,
     };
   }
 }

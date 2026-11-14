@@ -1,22 +1,14 @@
-// src/wisdom-web/app/graphql/listing/queries/listing.ts
 
 import { gql } from "@apollo/client";
 
 export const GET_LISTING = gql`
-
-query GetListing($id: ID!) {
-
-listing(id: $id) {
-
-id
-
-title
-
-description
-
-locationId
-
-pricePerNight
+  query GetListing($id: ID!) {
+    listing(id: $id) {
+      id
+      title
+      description
+      locationId
+      pricePerNight
       pictures {
         id
         listingId
@@ -27,12 +19,10 @@ pricePerNight
         type
         sortOrder
       }
-
-numOfBeds
-
-numOfCustomers
-
-isFeatured
-
-}
-}`
+      numOfBeds
+      numOfCustomers
+      isFeatured
+      status
+    }
+  }
+`;

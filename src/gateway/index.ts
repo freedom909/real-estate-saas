@@ -329,6 +329,21 @@ context: async ({ req }) => ({
     }))
 
   const PORT = parseInt(process.env.PORT || "4000", 10);
+  // Temporary Gateway Express Error Diagnostic
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error("[GATEWAY EXPRESS ERROR]", {
+    message: err?.message,
+    status: err?.status,
+    statusCode: err?.statusCode,
+    type: err?.type,
+    stack: err?.stack,
+    method: req.method,
+    path: req.path,
+    contentType: req.headers["content-type"],
+  });
+
+  next(err);
+});
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Gateway running at http://0.0.0.0:${PORT}/graphql`)
   })

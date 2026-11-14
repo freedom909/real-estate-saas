@@ -8,4 +8,7 @@ export enum Action {
   CHECK_IN = "CHECK_IN",
   CHECK_OUT = "CHECK_OUT",
   COMPLETE = "COMPLETE",
+  PUBLISH = "PUBLISH",
+  UNPUBLISH = "UNPUBLISH",
+  SUSPEND = "SUSPEND",
 }

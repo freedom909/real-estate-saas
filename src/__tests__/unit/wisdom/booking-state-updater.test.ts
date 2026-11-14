@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { BookingStateUpdater } from "@/wisdom/memory/booking-state-updater";
 import { MemorySessionStore } from "@/wisdom/memory/session/session-memory.store";
 import { MemoryContext } from "@/wisdom/memory/type/memory-context";
+import { BookingState } from "@/core/booking/domain/state/booking-state";
 
 describe("BookingStateUpdater", () => {
   let updater: BookingStateUpdater;
@@ -104,6 +105,28 @@ describe("BookingStateUpdater", () => {
   });
 
   describe("booking state transitions", () => {
+    it("should enter AWAITING_DATES after LISTING_SELECTED", () => {
+      const ctx = makeMemoryContext();
+
+      updater.apply(ctx, {
+        type: "LISTING_SELECTED",
+        content: {
+          listingId: "listing-1",
+          listingTitle: "Flower Room",
+        },
+      });
+
+      const session = sessionStore.get(ctx.sessionId);
+
+      expect(session).toBeDefined();
+      expect(session!.bookingDraft).toBeDefined();
+
+      expect(session!.bookingDraft!.listingId).toBe("listing-1");
+      expect(session!.bookingDraft!.listingTitle).toBe("Flower Room");
+      expect(session!.bookingDraft!.status).toBe(
+        BookingState.AWAITING_DATES
+      );
+    });
     it("should set booking draft with listingId after LISTING_SELECTED", () => {
       const ctx = makeMemoryContext();
 

@@ -14,7 +14,10 @@ scalar Upload
 # -----------------------------------
 type Listing @key(fields: "id") {
   id: ID!
+  status: ListingStatus!
 
+  isBookable: Boolean
+  
   title: String!
   description: String!
 
@@ -164,6 +167,13 @@ type ListingAISuggestion {
   createdAt: String!
 }
 
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  UNPUBLISHED
+  SUSPENDED
+}
 enum SuggestionStatus {
 PENDING
 APPLIED
@@ -184,6 +194,13 @@ type Mutation {
   createListing(input: CreateListingInput!): Listing!
 
   updateListing(input: UpdateListingInput!): Listing!
+
+  # Listing publication management
+  publishListing(id: ID!): Listing!
+
+  unpublishListing(id: ID!): Listing!
+
+  suspendListing(id: ID!): Listing!
 
   generateTitleSuggestion(
     listingId: ID!

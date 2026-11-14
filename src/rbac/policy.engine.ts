@@ -36,6 +36,8 @@ export default class PolicyEngine implements IPolicyEngine {
       // -------------------
       // LISTING 资源规则
       // -------------------
+  
+
 
       [`${Action.READ}_${Resource.LISTING}`]: () => true,
 

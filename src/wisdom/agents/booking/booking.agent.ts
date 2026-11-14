@@ -18,6 +18,7 @@ import { WISDOM_TOKENS } from "@/wisdom/container/tokens/wisdom.tokens";
 import { MemorySessionStore } from "@/wisdom/memory/session/session-memory.store";
 import { getCachedSearchResults } from "@/wisdom/memory/search-results-cache";
 import { BookingVoiceMapper, BookingVoiceInput } from "./bookingPresentation/voice.mapper";
+import { BookingState } from "@/core/booking/domain/state/booking-state";
 
 
 @injectable()
@@ -88,11 +89,25 @@ export class BookingAgent implements IDomainAgent {
   ): Promise<WisdomResponse> {
     // Resolve listingId from searchResults if ordinal was used
    let searchResults = context.resources?.searchResults ?? [];
-   const sessionId = context.runtime.sessionId;
-    // If no listing ID, try to reload search results from cache
+
+const sessionId = context.runtime?.sessionId ?? "default";
+
+// Restore the previous booking draft from the session store.
+const sessionMemory = this.sessionStore.get(sessionId);
+const previousDraft = sessionMemory?.bookingDraft;
+
+// Restore cached search results if the current request has none.
 if (searchResults.length === 0) {
   searchResults = getCachedSearchResults(sessionId) ?? [];
 }
+
+console.log("[BookingAgent] Previous booking draft:", {
+  listingId: previousDraft?.listingId,
+  listingTitle: previousDraft?.listingTitle,
+  status: previousDraft?.status,
+  checkInDate: previousDraft?.checkInDate,
+  checkOutDate: previousDraft?.checkOutDate,
+});
 const criteria = this.extractEntity(
   semantic,
   ["SELECTION_CRITERIA"],
@@ -103,15 +118,6 @@ const ordinal = this.extractEntity(
   ["ORDINAL"],
 );
 let resolvedListingId: string | undefined;
-// 1. Explicit price selection
-if (criteria) {
-  const selected = this.selectListingByCriteria(
-    criteria,
-    searchResults,
-  );
-
-  resolvedListingId = selected?.id;
-}
 
 // 1. Explicit price selection
 if (criteria) {
@@ -150,39 +156,48 @@ if (!resolvedListingId && searchResults.length > 0) {
   resolvedListingId = matched?.id;
 }
 
-// If exactly one listing is available, select it automatically.
-// If multiple listings are available, require an explicit user selection.
-if (!resolvedListingId && searchResults.length === 1) {
-  resolvedListingId = searchResults[0].id;
-}
-if (!resolvedListingId) {
-  return {
-    success: true,
-    domain: semantic.domain as any,
-    primaryAction: {
-      name: AgentAction.CREATE_BOOKING,
-      confidence: semantic.confidence ?? 0,
-    },
-    summary: "どの宿泊施設を予約しますか？宿泊施設を選択してください。",
-    artifacts: [],
-  };
-}
-
-
-
-// 4. Reuse the previous listing only if the user did not
-// provide a new selection in this message.
+// 5. Continue the previous booking if the user
+// has not selected another listing in this message.
 if (
   !resolvedListingId &&
   !criteria &&
-  !ordinal
+  !ordinal &&
+  !listingId &&
+  previousDraft?.status === BookingState.AWAITING_DATES &&
+  previousDraft.listingId
 ) {
-  resolvedListingId =
-    listingId ?? (context.resources?.listingId as string | undefined);
+  resolvedListingId = previousDraft.listingId;
+
+  console.log(
+    "[BookingAgent] Restored listing from previous booking:",
+    resolvedListingId
+  );
 }
 
-// 5. Last resort: no explicit selection at all and the cache has
+// 6. If there is no previous booking, but exactly one
+// listing is available, select it automatically.
+if (!resolvedListingId && searchResults.length === 1) {
+  resolvedListingId = searchResults[0].id;
+}
+
+
 if (!resolvedListingId) {
+  const hasMultipleListings = searchResults.length > 1;
+  const hasNoListings = searchResults.length === 0;
+
+  let summary: string;
+
+  if (hasMultipleListings) {
+    summary =
+      "どの宿泊施設を予約しますか？検索結果から予約したい宿泊施設を選択してください。";
+  } else if (hasNoListings) {
+    summary =
+      "どの宿泊施設を予約しますか？まず宿泊施設を検索してください。";
+  } else {
+    summary =
+      "予約したい宿泊施設を教えてください。";
+  }
+
   return {
     success: true,
     domain: semantic.domain as any,
@@ -190,20 +205,11 @@ if (!resolvedListingId) {
       name: AgentAction.CREATE_BOOKING,
       confidence: semantic.confidence ?? 0,
     },
-    summary: "どの宿泊施設を予約しますか？宿泊施設を選択してください。",
+    summary,
     artifacts: [],
   };
 }
 
-    if (!resolvedListingId) {
-      return {
-        success: true,
-        domain: semantic.domain as any,
-        primaryAction: { name: AgentAction.CREATE_BOOKING, confidence: semantic.confidence ?? 0 },
-        summary: "予約したい物件はどれですか？まず物件を検索するか、物件IDを教えてください。",
-        artifacts: [],
-      };
-    }
 
     const checkIn = this.extractEntity(semantic, ["check_in", "checkIn", "CHECK_IN", "check_in_date", "CHECK_IN_DATE"]);
     const checkOut = this.extractEntity(semantic, ["check_out", "checkOut", "CHECK_OUT", "check_out_date", "CHECK_OUT_DATE"]);
@@ -228,7 +234,10 @@ const selectedListing = searchResults?.find(
   (r: any) => r.id === resolvedListingId
 );
 
-const listingTitle = selectedListing?.title || resolvedListingId;
+const listingTitle =
+  selectedListing?.title ||
+  previousDraft?.listingTitle ||
+  resolvedListingId;
 const pricePerNight = selectedListing?.pricePerNight ?? 0;
 
 // Keep the original picture objects, including their signed URLs.
@@ -312,9 +321,12 @@ const result = await this.createBookingUseCase.execute(
 );
 
       // Build voice response using mapper
-      const listingName = context.resources?.searchResults?.find(
-        (r: any) => r.id === resolvedListingId,
-      )?.title || "ご宿泊先";
+const listingName =
+  searchResults.find(
+    (r: any) => r.id === resolvedListingId
+  )?.title ||
+  previousDraft?.listingTitle ||
+  "ご宿泊先";
 
       const voiceInput: BookingVoiceInput = {
         listingName,

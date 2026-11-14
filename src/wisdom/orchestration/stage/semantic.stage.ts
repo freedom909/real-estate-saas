@@ -1,3 +1,4 @@
+// src/wisdom/orchestration/stage/semantic.stage.ts
 
 import { inject, injectable } from "tsyringe";
 import { WISDOM_TOKENS } from "../../container/tokens/wisdom.tokens";

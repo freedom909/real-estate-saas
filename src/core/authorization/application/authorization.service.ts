@@ -1,4 +1,4 @@
-//src/core/authorization/application/authorization.service.ts
+// src/core/authorization/application/authorization.service.ts
 
 import {
   AuthorizationDecision,
@@ -17,12 +17,9 @@ export class AuthorizationService {
   authorize(
     request: AuthorizationRequest
   ): AuthorizationDecision {
-    const { identity, action, resource } = request;
+    const { identity, resource } = request;
 
-    // --------------------------------------------------
     // 1. Authentication
-    // --------------------------------------------------
-
     if (!identity.userId) {
       return {
         allowed: false,
@@ -31,18 +28,7 @@ export class AuthorizationService {
       };
     }
 
-    // --------------------------------------------------
-    // 2. Global Role
-    // --------------------------------------------------
-
-    if (this.isGlobalAdmin(identity.globalRole)) {
-      return this.authorizeGlobalAdmin(request);
-    }
-
-    // --------------------------------------------------
-    // 3. Resource Policy
-    // --------------------------------------------------
-
+    // 2. Resource Policy
     switch (resource) {
       case Resource.LISTING:
         return this.authorizeListing(request);
@@ -54,47 +40,6 @@ export class AuthorizationService {
           reason: `No authorization policy for resource: ${resource}`,
         };
     }
-  }
-
-  // ==================================================
-  // Global Role
-  // ==================================================
-
-  private isGlobalAdmin(
-    role: GlobalRole
-  ): boolean {
-    return (
-      role === GlobalRole.ADMIN ||
-      role === GlobalRole.SUPER_ADMIN
-    );
-  }
-
-  private authorizeGlobalAdmin(
-    request: AuthorizationRequest
-  ): AuthorizationDecision {
-    const { action, resource } = request;
-
-    if (
-      resource === Resource.LISTING &&
-      [
-        Action.READ,
-        Action.CREATE,
-        Action.UPDATE,
-        Action.DELETE,
-      ].includes(action)
-    ) {
-      return {
-        allowed: true,
-        code: AuthorizationDecisionCode.ALLOWED,
-        reason: "Global administrator access",
-      };
-    }
-
-    return {
-      allowed: false,
-      code: AuthorizationDecisionCode.RESOURCE_DENIED,
-      reason: "Action is not allowed for this resource",
-    };
   }
 
   // ==================================================
@@ -112,7 +57,7 @@ export class AuthorizationService {
     } = request;
 
     // ----------------------------------------------
-    // Public READ
+    // READ: Public access
     // ----------------------------------------------
 
     if (action === Action.READ) {
@@ -120,6 +65,29 @@ export class AuthorizationService {
         allowed: true,
         code: AuthorizationDecisionCode.ALLOWED,
         reason: "Listing is publicly readable",
+      };
+    }
+
+    // ----------------------------------------------
+    // SUSPEND: Platform ADMIN / SUPER_ADMIN
+    // ----------------------------------------------
+
+    if (action === Action.SUSPEND) {
+      if (
+        identity.globalRole === GlobalRole.ADMIN ||
+        identity.globalRole === GlobalRole.SUPER_ADMIN
+      ) {
+        return {
+          allowed: true,
+          code: AuthorizationDecisionCode.ALLOWED,
+          reason: "Platform administrator may suspend listings",
+        };
+      }
+
+      return {
+        allowed: false,
+        code: AuthorizationDecisionCode.GLOBAL_ROLE_DENIED,
+        reason: "Only platform administrators may suspend listings",
       };
     }
 
@@ -140,7 +108,7 @@ export class AuthorizationService {
     }
 
     // ----------------------------------------------
-    // CREATE
+    // CREATE: HOST / OWNER
     // ----------------------------------------------
 
     if (action === Action.CREATE) {
@@ -151,7 +119,7 @@ export class AuthorizationService {
         return {
           allowed: true,
           code: AuthorizationDecisionCode.ALLOWED,
-          reason: "Tenant member may create listings",
+          reason: "HOST or OWNER may create listings",
         };
       }
 
@@ -163,52 +131,55 @@ export class AuthorizationService {
     }
 
     // ----------------------------------------------
-    // UPDATE
+    // UPDATE: OWNER all listings / HOST own listing
     // ----------------------------------------------
 
     if (action === Action.UPDATE) {
-      if (
-        identity.membershipRole !== MembershipRole.HOST &&
-        identity.membershipRole !== MembershipRole.OWNER
-      ) {
+      if (identity.membershipRole === MembershipRole.OWNER) {
         return {
-          allowed: false,
-          code: AuthorizationDecisionCode.MEMBERSHIP_ROLE_DENIED,
-          reason: "Membership role cannot update listings",
+          allowed: true,
+          code: AuthorizationDecisionCode.ALLOWED,
+          reason: "Tenant owner may update all tenant listings",
         };
       }
 
-      if (!resourceOwnerId) {
-        return {
-          allowed: false,
-          code: AuthorizationDecisionCode.OWNERSHIP_DENIED,
-          reason: "Resource owner is required for this action",
-        };
-      }
+      if (identity.membershipRole === MembershipRole.HOST) {
+        if (!resourceOwnerId) {
+          return {
+            allowed: false,
+            code: AuthorizationDecisionCode.OWNERSHIP_DENIED,
+            reason: "Resource owner is required for this action",
+          };
+        }
 
-      if (resourceOwnerId !== identity.userId) {
+        if (resourceOwnerId !== identity.userId) {
+          return {
+            allowed: false,
+            code: AuthorizationDecisionCode.OWNERSHIP_DENIED,
+            reason: "HOST may only update their own listings",
+          };
+        }
+
         return {
-          allowed: false,
-          code: AuthorizationDecisionCode.OWNERSHIP_DENIED,
-          reason: "Listing is owned by another user",
+          allowed: true,
+          code: AuthorizationDecisionCode.ALLOWED,
+          reason: "HOST may update their own listing",
         };
       }
 
       return {
-        allowed: true,
-        code: AuthorizationDecisionCode.ALLOWED,
-        reason: "Tenant member owns the listing",
+        allowed: false,
+        code: AuthorizationDecisionCode.MEMBERSHIP_ROLE_DENIED,
+        reason: "Membership role cannot update listings",
       };
     }
 
     // ----------------------------------------------
-    // DELETE
+    // DELETE: OWNER only
     // ----------------------------------------------
 
     if (action === Action.DELETE) {
-      if (
-        identity.membershipRole !== MembershipRole.OWNER
-      ) {
+      if (identity.membershipRole !== MembershipRole.OWNER) {
         return {
           allowed: false,
           code: AuthorizationDecisionCode.MEMBERSHIP_ROLE_DENIED,
@@ -216,26 +187,50 @@ export class AuthorizationService {
         };
       }
 
-      if (!resourceOwnerId) {
-        return {
-          allowed: false,
-          code: AuthorizationDecisionCode.OWNERSHIP_DENIED,
-          reason: "Resource owner is required for this action",
-        };
-      }
+      return {
+        allowed: true,
+        code: AuthorizationDecisionCode.ALLOWED,
+        reason: "Tenant owner may delete all tenant listings",
+      };
+    }
 
-      if (resourceOwnerId !== identity.userId) {
+    // ----------------------------------------------
+    // PUBLISH: OWNER only
+    // ----------------------------------------------
+
+    if (action === Action.PUBLISH) {
+      if (identity.membershipRole !== MembershipRole.OWNER) {
         return {
           allowed: false,
-          code: AuthorizationDecisionCode.OWNERSHIP_DENIED,
-          reason: "Listing is owned by another user",
+          code: AuthorizationDecisionCode.MEMBERSHIP_ROLE_DENIED,
+          reason: "Only tenant owners may publish listings",
         };
       }
 
       return {
         allowed: true,
         code: AuthorizationDecisionCode.ALLOWED,
-        reason: "Tenant owner owns the listing",
+        reason: "Tenant owner may publish listings",
+      };
+    }
+
+    // ----------------------------------------------
+    // UNPUBLISH: OWNER only
+    // ----------------------------------------------
+
+    if (action === Action.UNPUBLISH) {
+      if (identity.membershipRole !== MembershipRole.OWNER) {
+        return {
+          allowed: false,
+          code: AuthorizationDecisionCode.MEMBERSHIP_ROLE_DENIED,
+          reason: "Only tenant owners may unpublish listings",
+        };
+      }
+
+      return {
+        allowed: true,
+        code: AuthorizationDecisionCode.ALLOWED,
+        reason: "Tenant owner may unpublish listings",
       };
     }
 

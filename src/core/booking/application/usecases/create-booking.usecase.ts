@@ -86,7 +86,7 @@ export class CreateBookingUseCase {
       throw new Error("Listing has no tenant");
     }
 
-    if (!listing.isActive) {
+    if (!listing.isBookable) {
       throw new Error("Listing is not available for booking");
     }
 
@@ -108,7 +108,7 @@ export class CreateBookingUseCase {
 
     // 5. Generate booking ID
     const bookingId = uuidv4();
-
+    
     let calendarReserved = false;
     let bookingSaved = false;
 

@@ -159,7 +159,7 @@ it("asks the user to select when multiple cached listings exist", async () => {
     const res = await agent.execute(semantic, context);
 
     // No listing picked from cache → tells user to search (cache empty)
-    // With cache → selects first listing and asks for check-in/check-out dates
+   
 expect(res.summary).toContain("どの宿泊施設を予約しますか？");
 
 // 不允许自动选择任何房源

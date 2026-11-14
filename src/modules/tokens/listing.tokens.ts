@@ -37,7 +37,10 @@ export const TOKENS_LISTING = {
     getFeaturedListingsUseCase: Symbol.for('GetFeaturedListingsUseCase'),
     searchListingUseCase: Symbol.for('SearchListingUseCase'),
     updateListingUseCase: Symbol.for('UpdateListingUseCase'),
-    deleteListingUseCase: Symbol.for('DeleteListingUseCase'),   
+    deleteListingUseCase: Symbol.for('DeleteListingUseCase'),  
+    publishListingUseCase: Symbol.for("PublishListingUseCase"),
+unpublishListingUseCase: Symbol.for("UnpublishListingUseCase"),
+suspendListingUseCase: Symbol.for("SuspendListingUseCase"), 
   },
 
   adapters: {

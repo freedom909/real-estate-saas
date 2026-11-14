@@ -1,3 +1,4 @@
+//src/wisdom/memory/search-results-cache.ts
 // Global in-memory cache for search results between turns.
 // Key: sessionId, Value: listings from last search
 

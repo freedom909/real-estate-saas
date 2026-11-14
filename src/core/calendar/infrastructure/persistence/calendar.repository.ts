@@ -11,7 +11,6 @@ import { v4 as uuidv4 } from "uuid";
 @injectable()
 export class CalendarRepository implements ICalendarRepository {
   async reserveRange(listingId: string, bookingId: string, checkIn: Date, checkOut: Date): Promise<number> {
-
   const sequelize = CalendarSlotModel.sequelize;
 
   if (!sequelize) {

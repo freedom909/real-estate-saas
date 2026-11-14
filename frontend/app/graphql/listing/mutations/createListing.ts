@@ -1,3 +1,6 @@
+// src/frontend/app/graphql/listing/mutations/createListing.ts
+
+
 import { gql } from "@apollo/client";
 
 export const CREATE_LISTING = gql`

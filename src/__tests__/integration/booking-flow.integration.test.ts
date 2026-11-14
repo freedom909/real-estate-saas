@@ -60,7 +60,7 @@ const listingGateway = {
       id: string;
       tenantId: string;
       nightlyPrice: number;
-      isActive: boolean;
+      isBookable: boolean;
     } | null>
   >(),
 };
@@ -114,7 +114,7 @@ describe("Booking creation flow (integration)", () => {
       id: "listing-abc",
       tenantId: "tenant-1",
       nightlyPrice: 5000,
-      isActive: true,
+      isBookable: true,
     });
     const result = await useCase.execute(
       {
@@ -137,7 +137,7 @@ describe("Booking creation flow (integration)", () => {
       id: "listing-abc",
       tenantId: "tenant-1",
       nightlyPrice: 5000,
-      isActive: true,
+      isBookable: true,
     });
 
     const result = await useCase.execute(
@@ -158,7 +158,7 @@ describe("Booking creation flow (integration)", () => {
       id: "listing-xyz",
       tenantId: "tenant-2",
       nightlyPrice: 3000,
-      isActive: true,
+      isBookable: true,
     });
 
     const result = await useCase.execute(
@@ -181,7 +181,7 @@ describe("Booking creation flow (integration)", () => {
       id: "listing-short",
       tenantId: "tenant-3",
       nightlyPrice: 800,
-      isActive: true,
+      isBookable: true,
     });
 
     const result = await useCase.execute(
@@ -222,7 +222,7 @@ describe("Booking creation flow (integration)", () => {
       id: "listing-1",
       tenantId: "tenant-1",
       nightlyPrice: 1000,
-      isActive: true,
+      isBookable: true,
     });
 
     await expect(
@@ -249,7 +249,7 @@ describe("Booking creation flow (integration)", () => {
       id: "listing-save",
       tenantId: "tenant-1",
       nightlyPrice: 2000,
-      isActive: true,
+      isBookable: true,
     });
 
     await useCase.execute(
@@ -272,7 +272,7 @@ describe("Booking creation flow (integration)", () => {
       id: "listing-save",
       tenantId: "tenant-1",
       nightlyPrice: 2000,
-      isActive: true,
+      isBookable: true,
     });
 
     const result = await useCase.execute(

@@ -23,6 +23,9 @@ import { ListingAISuggestionRepository } from '@/core/listing/infrastructure/per
 import GetListingByIdUseCase from '@/core/listing/application/usecase/getListingById.usecase';
 import GetFeaturedListingsUseCase from '@/core/listing/application/usecase/getFeaturedListings.usecase';
 import { TOKENS_PICTURE } from '../tokens/picture.tokens';
+import { PublishListingUseCase } from '@/core/listing/application/usecase/publishListing.usecase';
+import { UnpublishListingUseCase } from '@/core/listing/application/usecase/unpublish.usecase';
+import { SuspendListingUseCase } from '@/core/listing/application/usecase/SuspendListing.usecase';
 
 
 export default function registerListingDependencies() {
@@ -103,5 +106,15 @@ export default function registerListingDependencies() {
 
   container.register(TOKENS_LISTING.ai.listingAISuggestionModel, {
     useValue: ListingModel,
+  });
+
+  container.register(TOKENS_LISTING.usecase.publishListingUseCase, {
+    useClass: PublishListingUseCase,
+  });
+  container.register(TOKENS_LISTING.usecase.unpublishListingUseCase, {
+    useClass: UnpublishListingUseCase,
+  });
+  container.register(TOKENS_LISTING.usecase.suspendListingUseCase, {
+    useClass: SuspendListingUseCase,
   });
 }

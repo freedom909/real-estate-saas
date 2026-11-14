@@ -1,46 +1,31 @@
-// src/wisdom-web/app/graphql/queries/listings.ts
+// src/frontend/app/graphql/listing/queries/listings.ts
+
 
 import { gql } from "@apollo/client";
 
 export const GET_LISTINGS = gql`
-
-query GetListings {
-
-listings {
-
-id
-
-title
-
-description
-
-locationId
-
-
-
-pricePerNight
-numOfBeds
-numOfCustomers
-numOfBathrooms
-numOfRooms
-pictures {
+  query GetListings {
+    listings {
+      id
+      title
+      description
+      locationId
+      pricePerNight
+      numOfBeds
+      numOfCustomers
+      numOfBathrooms
+      numOfRooms
+      pictures {
         id
         listingId
         objectKey
-        
         mimeType
         size
         type
         sortOrder
       }
-numOfBeds
-
-numOfCustomers
-
-isFeatured
-
-}
-
-}
-
+      isFeatured
+      status
+    }
+  }
 `;

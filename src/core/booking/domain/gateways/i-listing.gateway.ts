@@ -1,10 +1,8 @@
-
 export interface BookableListing {
   id: string;
   tenantId: string;
   nightlyPrice: number;
- 
-  isActive: boolean;
+  isBookable: boolean;
 }
 
 export interface IListingGateway {

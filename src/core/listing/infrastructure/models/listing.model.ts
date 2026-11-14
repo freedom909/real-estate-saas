@@ -9,6 +9,7 @@ import {
 
 import { sequelize } from "@/infrastructure/config/seq";
 import { PictureModel } from "./picture.model";
+import { ListingStatus } from "../../domain/value-objects/listing.status";
 
 export class ListingModel extends Model<
   InferAttributes<ListingModel>,
@@ -17,6 +18,7 @@ export class ListingModel extends Model<
   declare id: string;
 
   declare title: string;
+  declare status: ListingStatus;
   declare description: string;
   declare tenantId: string;
   declare ownerId: string;
@@ -44,6 +46,12 @@ ListingModel.init(
       type: DataTypes.STRING(50),
       primaryKey: true,
       allowNull: false,
+    },
+
+    status: {
+      type: DataTypes.ENUM(...Object.values(ListingStatus)),
+      allowNull: false,
+      defaultValue: ListingStatus.DRAFT,
     },
 
     title: {

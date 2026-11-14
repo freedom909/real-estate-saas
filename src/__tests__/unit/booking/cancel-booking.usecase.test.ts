@@ -99,18 +99,57 @@ describe("CancelBookingUseCase", () => {
     });
   });
 
+  // it("should still cancel even if calendar release fails", async () => {
+  //   const booking = createConfirmedBooking();
+  //   mockBookingRepo.findById.mockResolvedValue(booking);
+  //   mockReleaseSlotUseCase.execute.mockRejectedValue(new Error("Calendar service down"));
+
+  //   const result = await useCase.execute("booking-1", "urgent cancel");
+
+  //   expect(result.status).toBe("CANCELLED");
+  //   expect(mockBookingRepo.save).toHaveBeenCalledTimes(1);
+  //   expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+  // });
+
   it("should still cancel even if calendar release fails", async () => {
-    const booking = createConfirmedBooking();
-    mockBookingRepo.findById.mockResolvedValue(booking);
-    mockReleaseSlotUseCase.execute.mockRejectedValue(new Error("Calendar service down"));
+  const booking = createConfirmedBooking();
+  mockBookingRepo.findById.mockResolvedValue(booking);
 
-    const result = await useCase.execute("booking-1", "urgent cancel");
+  const consoleErrorSpy = jest
+    .spyOn(console, "error")
+    .mockImplementation(() => {});
 
+  mockReleaseSlotUseCase.execute.mockRejectedValue(
+    new Error("Calendar service down")
+  );
+
+  try {
+    const result = await useCase.execute(
+      "booking-1",
+      "urgent cancel"
+    );
+
+    // Booking cancellation must succeed
     expect(result.status).toBe("CANCELLED");
-    expect(mockBookingRepo.save).toHaveBeenCalledTimes(1);
-    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
-  });
 
+    // Booking must be persisted
+    expect(mockBookingRepo.save).toHaveBeenCalledTimes(1);
+
+    // BookingCancelledEvent must be published
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+
+    // Calendar release must have been attempted
+    expect(mockReleaseSlotUseCase.execute).toHaveBeenCalledWith({
+      bookingId: "booking-1",
+      reason: "urgent cancel",
+    });
+
+    // Failure must be logged
+    expect(consoleErrorSpy).toHaveBeenCalled();
+  } finally {
+    consoleErrorSpy.mockRestore();
+  }
+});
   it("should publish BookingCancelledEvent", async () => {
     const booking = createConfirmedBooking();
     mockBookingRepo.findById.mockResolvedValue(booking);
@@ -124,7 +163,9 @@ describe("CancelBookingUseCase", () => {
 
   it("should throw if booking not found", async () => {
     mockBookingRepo.findById.mockResolvedValue(null);
-
+    expect(mockReleaseSlotUseCase.execute).not.toHaveBeenCalled();
+expect(mockBookingRepo.save).not.toHaveBeenCalled();
+expect(mockEventBus.publish).not.toHaveBeenCalled();
     await expect(useCase.execute("nonexistent", "reason")).rejects.toThrow("Booking not found");
   });
 

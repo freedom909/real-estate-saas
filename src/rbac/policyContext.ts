@@ -4,7 +4,9 @@ import { Action, Resource } from "@/rbac/types";
 
 export interface PolicyContext {
   user: PolicyUser | null;
+  tenantId?: string;
   resourceOwnerId?: string;
+  resourceTenantId?: string;
   resource?: any;
 }
 

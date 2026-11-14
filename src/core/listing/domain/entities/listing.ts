@@ -1,12 +1,14 @@
 // src/core/listing/domain/entities/listing.ts
 
 import { Description } from "../value-objects/description";
+import { ListingStatus } from "../value-objects/listing.status";
 import { Title } from "../value-objects/Title";
 import { Picture } from "./picture";
 
 export interface ListingProps {
   id: string;
-
+  status?: ListingStatus;
+  
   title: Title;
   description: Description;
 
@@ -25,7 +27,7 @@ export interface ListingProps {
   numOfRooms: number;
 
   pricePerNight: number;
-
+  
   pictures: Picture[];
 
   isFeatured: boolean;
@@ -36,15 +38,81 @@ export interface ListingProps {
 
 export class Listing {
   private props: ListingProps;
-
+  private _status: ListingStatus;
   constructor(props: ListingProps) {
     this.validate(props);
     this.props = props;
+    this._status = props.status ?? ListingStatus.DRAFT;
+  }
+
+ 
+  // OWNER publishes a listing directly
+  publish(): void {
+    if (
+      this._status !== ListingStatus.DRAFT &&
+      this._status !== ListingStatus.UNPUBLISHED
+    ) {
+      throw new Error(
+        "Only draft or unpublished listings can be published"
+      );
+    }
+
+    this._status = ListingStatus.PUBLISHED;
+    this.touch();
+  }
+
+  // OWNER temporarily removes a published listing
+  unpublish(): void {
+    if (this._status !== ListingStatus.PUBLISHED) {
+      throw new Error(
+        "Only published listings can be unpublished"
+      );
+    }
+
+    this._status = ListingStatus.UNPUBLISHED;
+    this.touch();
+  }
+
+  // Platform ADMIN / SUPER_ADMIN suspends a listing
+  suspend(): void {
+    if (
+      this._status !== ListingStatus.DRAFT &&
+      this._status !== ListingStatus.PUBLISHED &&
+      this._status !== ListingStatus.UNPUBLISHED &&
+      this._status !== ListingStatus.PENDING_REVIEW
+    ) {
+      throw new Error(
+        "Listing cannot be suspended from its current status"
+      );
+    }
+
+    this._status = ListingStatus.SUSPENDED;
+    this.touch();
+  }
+
+  // Platform ADMIN / SUPER_ADMIN restores a suspended listing
+  // This method will be used only after we define a separate
+  // authorization action and restoration workflow.
+  restore(): void {
+    if (this._status !== ListingStatus.SUSPENDED) {
+      throw new Error(
+        "Only suspended listings can be restored"
+      );
+    }
+
+    this._status = ListingStatus.UNPUBLISHED;
+    this.touch();
   }
 
   // ======================
   // Getters
   // ======================
+  get status() {
+    return this._status;
+  }
+  get isBookable() {
+    return this._status === ListingStatus.PUBLISHED;
+  }
 
   get id() {
     return this.props.id;
@@ -180,5 +248,9 @@ export class Listing {
     if (props.pricePerNight < 0) {
       throw new Error("pricePerNight cannot be negative");
     }
+
+    
   }
+
+  
 }

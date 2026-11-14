@@ -56,19 +56,17 @@ export class UpdateBookingUseCase {
       if (checkIn < new Date()) {
         throw new Error("checkIn must be after current date");
       }
-     
+     const listing =
+  await this.listingGateway.getBookableListing(
+    booking.listingId
+  );
 
-      // 根据 Listing 的每晚价格重新计算 Booking 总价
-      const listing =
-        await this.listingGateway.getBookableListing(
-          booking.listingId
-        );
+const totalPrice =
+  BookingPricingService.calculatePrice(
+    listing.nightlyPrice,
+    dateRange
+  );
 
-      const totalPrice =
-        BookingPricingService.calculatePrice(
-          listing.nightlyPrice,
-          dateRange
-        );
 
       // 通过 Domain Method 修改 Booking
       booking.updateDates(dateRange);

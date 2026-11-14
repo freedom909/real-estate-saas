@@ -27,7 +27,8 @@ if (!listing) return null;
 return {
 
 id: listing.id,
-
+status: listing.status,
+isBookable: listing.isBookable,
 ownerId: listing.ownerId,
 
 tenantId: listing.tenantId,

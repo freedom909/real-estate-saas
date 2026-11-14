@@ -20,7 +20,7 @@ const ROUTING_KEYS = [
 let connection: amqp.Connection;
 let channel: amqp.Channel;
 
-const QUEUE = "booking_notification_queue";
+const QUEUE = "booking_queue";
 
 export const initializeConsumer = async () => {
   try {

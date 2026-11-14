@@ -64,7 +64,7 @@ const mockListingGateway = {
       id: string;
       tenantId: string;
       nightlyPrice: number;
-      isActive: boolean;
+      isBookable: boolean;
     } | null>
   >(),
 };
@@ -123,7 +123,8 @@ describe("CreateBookingUseCase", () => {
     mockEventBus.publish.mockResolvedValue(undefined);
 
     mockListingGateway.getBookableListing.mockResolvedValue({
-      ...validListing
+      ...validListing,
+      isBookable: true,
     })
 
     mockCalendarClient.reserveSlot.mockResolvedValue(undefined);
@@ -156,6 +157,7 @@ describe("CreateBookingUseCase", () => {
     mockListingGateway.getBookableListing.mockResolvedValue({
       ...validListing,
       nightlyPrice: 800,
+      isBookable: true,
     });
 
     const result = await useCase.execute(
@@ -194,6 +196,7 @@ describe("CreateBookingUseCase", () => {
     mockListingGateway.getBookableListing.mockResolvedValue({
       ...validListing,
       tenantId: "",
+      isBookable: true,
     });
 
     await expect(
@@ -206,7 +209,7 @@ describe("CreateBookingUseCase", () => {
   it("should throw if listing is inactive", async () => {
     mockListingGateway.getBookableListing.mockResolvedValue({
       ...validListing,
-      isActive: false,
+      isBookable: false,
     });
 
     await expect(
@@ -220,6 +223,7 @@ describe("CreateBookingUseCase", () => {
     mockListingGateway.getBookableListing.mockResolvedValue({
       ...validListing,
       nightlyPrice: Number.NaN,
+      isBookable: true,
     });
 
     await expect(
@@ -233,6 +237,7 @@ describe("CreateBookingUseCase", () => {
     mockListingGateway.getBookableListing.mockResolvedValue({
       ...validListing,
       nightlyPrice: -100,
+      isBookable: true,
     });
 
     await expect(

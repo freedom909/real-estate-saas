@@ -1,3 +1,5 @@
+// src/wisdom/memory/booking-cache.ts
+// 
 // Global in-memory cache for booking state between turns.
 // Key: sessionId, Value: booking state (status, listingId, etc.)
 

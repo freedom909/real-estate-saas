@@ -8,6 +8,10 @@ export enum Action {
   CHECK_IN = "CHECK_IN",
   CHECK_OUT = "CHECK_OUT",
   COMPLETE = "COMPLETE",
+    // Listing management
+  PUBLISH = "PUBLISH",
+  UNPUBLISH = "UNPUBLISH",
+  SUSPEND = "SUSPEND",
 }
 
 export enum Resource {
